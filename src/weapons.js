@@ -134,8 +134,18 @@ function availableWeapons(){
   const canNew = ownedWeaponCount() < WEAPON_CAP;
   return WEAPONS.filter(w=>{ const lv=P.wlv[w.id]||0; return lv>0 ? lv<w.max : canNew; });
 }
+// levels the House can't fit into a maxed item are paid out in coins — a win must always pay
+function grantOverflow(lost){
+  if(lost<=0) return; const pay=lost*12;
+  P.coins+=pay; LT.coins+=pay; bump('runCoins',P.coins); bump('ltCoins',LT.coins);
+  setTimeout(()=>announce('◈ MAXED — THE HOUSE PAYS OVERFLOW: +'+pay+' COINS ◈', true), 320);
+  SFX.cashout(); coinRain(Math.min(20,6+lost*3));
+}
 function grantWeaponLevels(def, levels){
   const cur=P.wlv[def.id]||0; P.wlv[def.id]=Math.min(def.max, cur+levels); renderRelics();
   bump('w_'+def.id, P.wlv[def.id]); recCheck('weaponLv', P.wlv[def.id], def.n+' level'); idxSee('w',def.id);
-  return P.wlv[def.id];
+  const nl=P.wlv[def.id];
+  if(nl>cur) setTimeout(()=>announce('⚔ '+def.n.toUpperCase()+' — Lv '+cur+' → '+nl+' ⚔', true), 60);
+  grantOverflow(levels-(nl-cur));
+  return nl;
 }

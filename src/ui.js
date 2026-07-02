@@ -18,7 +18,7 @@ $('indexBtn').addEventListener('click',()=>{ openIndexPanel(); SFX.uiDing(); });
       ]},
       {ico:'🎰', name:'THE MACHINE', col:'#ffd36b', items:[
         ['THE SLOTS','Every level-up opens the reels. SPACE stops them one by one. A pair = +1 level, a triple = +2.'],
-        ['THE DICE','After the reels: TAKE the safe level, or HOLD SPACE to roll the bones. Beat the number = bigger level. Miss = a curse. Four wins in one visit = ⚜ GOD LEVEL.'],
+        ['THE DICE','After the reels: TAKE the sure thing, or HOLD SPACE to roll the bones. Every win UPGRADES your prize one rarity — common to RARE to ULTRA RARE to LEGENDARY — plus levels. If it can\'t go higher, the House pays coins instead. A win ALWAYS pays. Miss = a curse. Four wins in one visit = ⚜ GOD LEVEL.'],
         ['LAST RITES','Gambling under 40% blood: every roll drains life, every win returns it doubled.'],
         ['FEVER','Kills charge the fever meter. Full = a golden killing rush. Every 3rd minute is GOLDEN HOUR: double coins.']
       ]},

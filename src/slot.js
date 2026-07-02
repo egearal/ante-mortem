@@ -292,6 +292,16 @@ function finalizeReward(bestId, matchN){
   ceremony(matchN, def);
   openOffer();
 }
+// what a rung win would upgrade the prize into: {tier,pool} one rarity up (or higher if that tier is empty), or null
+function nextUpgrade(g){
+  if(g.def.rar==='ascend'||g.def.rar==='mythic') return null;
+  const avail=g.kind==='weapon'?availableWeapons():availableSkills();
+  for(let t=(RAR_TIER[g.def.rar]||0)+1; t<=3; t++){
+    const pool=avail.filter(d=>RAR_TIER[d.rar]===t && d.id!==g.def.id);
+    if(pool.length) return {tier:t, pool};
+  }
+  return null;
+}
 function showRewardPanel(){
   const g=gamble, def=g.def;
   $('cardName').textContent=def.n; $('cardName').className='r-'+def.rar+' bigname';
@@ -312,17 +322,34 @@ function openOffer(){
   const gain=rollGain(g.round);
   const curLv=skLevel(g.def);
   const takeLv=Math.min(g.def.max, curLv+g.reward);
-  const winLv=Math.min(g.def.max, curLv+g.reward+gain);
+  const takeOv=(curLv+g.reward)-takeLv;
   const lossTxt = deadly ? 'LOSE THE SKILL' : curseLabel(g.pendingCurse);
   $('cardDesc').innerHTML =
     (g.rites?'<div class="ofsub" style="color:#ff7b7b">☨ roll −6% blood · win +22% blood</div>':'')+
-    '<div class="ofbig">TAKE Lv '+takeLv+' — '+projFx(g.def, takeLv)+'</div>'+
-    '<div class="ofrow"><span class="ofg">✦ Roll '+g.threshold+'+ → Lv '+winLv+' — '+projFx(g.def, winLv)+'</span>'+
+    '<div class="ofbig">TAKE Lv '+curLv+' → '+takeLv+(takeOv>0?' <span style="color:#ffd36b">+'+(takeOv*12)+' ◈</span>':'')+' — '+projFx(g.def, takeLv)+'</div>'+
+    '<div class="ofrow"><span class="ofg">✦ Roll '+g.threshold+'+ → '+winLine(g,gain)+'</span>'+
     '<span class="ofl">✕ Miss → '+lossTxt+'</span></div>';
   $('gambleMsg').innerHTML='';
   SFX.casinoDing();
   updateLadderPips();
   showSlotButtons();
+}
+// the promise on the dice button — what THIS rung's win actually delivers
+const TIER_KEY=['common','rare','epic','legendary'];
+function winLine(g, gain){
+  const curLv=skLevel(g.def);
+  const takeLv=Math.min(g.def.max, curLv+g.reward);
+  if(g.def.rar==='ascend'||g.def.rar==='mythic'){
+    const wl=Math.min(g.def.max, curLv+g.reward+gain+1);
+    const ov=(curLv+g.reward+gain+1)-wl;
+    return '▲ DEEPENS — Lv '+wl+(ov>0?' +'+(ov*12)+' ◈':'')+' — '+projFx(g.def, wl);
+  }
+  const up=nextUpgrade(g);
+  if(up){ const rk=TIER_KEY[up.tier];
+    return '⬆ UPGRADE TO <b style="color:'+RARC[rk]+'">'+SLOT_RAR[rk]+'</b> + LEVELS'; }
+  const wl=Math.min(g.def.max, curLv+g.reward+gain+1);
+  if(wl<=takeLv) return '+'+((curLv+g.reward+gain+1-wl)*12)+' ◈ — THE HOUSE PAYS CASH';
+  return 'Lv '+wl+' — '+projFx(g.def, wl);
 }
 function doRisk(){
   if(slotStage!=='offer' || !gamble) return;
@@ -333,10 +360,10 @@ function doRisk(){
   slotStage='dicing'; stopLock=performance.now()+150;
   if(g.rites){ P.hp=Math.max(1, P.hp-P.maxHp*(contractDone('codicil')?0.03:0.06)); flash(0.35,'#8b1620'); SFX.thud(); shake=Math.min(14,shake+5); }
   SFX.diceRattle(); SFX.riser(); sparkBurst(12);
-  const gain=rollGain(g.round); const winLv=Math.min(g.def.max, skLevel(g.def)+g.reward+gain);
+  const gain=rollGain(g.round);
   $('cardName').textContent=g.def.n; $('cardName').className='r-'+g.def.rar+' bigname';
   $('cardDesc').innerHTML='<div class="ofbig">Need '+g.threshold+'+</div>'+
-    '<div class="ofrow"><span class="ofg">✦ Win → Lv '+winLv+' — '+projFx(g.def, winLv)+'</span><span class="ofl">✕ Miss → '+(g.round>=3?'LOSE SKILL':curseLabel(g.pendingCurse))+'</span></div>';
+    '<div class="ofrow"><span class="ofg">✦ Win → '+winLine(g,gain)+'</span><span class="ofl">✕ Miss → '+(g.round>=3?'LOSE SKILL':curseLabel(g.pendingCurse))+'</span></div>';
   $('gambleMsg').innerHTML='';
   updateLadderPips();
   showSlotButtons();
@@ -409,11 +436,25 @@ function resolveRisk(){
     if(g.round>=MAXROLL){ LT.ladders++; bump('ladders',LT.ladders); }
     let gain=rollGain(g.round); if(perfect) gain+=1;
     g.reward+=gain;
+    // THE CLIMB — an interim win raises the prize's RARITY (or deepens an ascension); a win must always pay
+    let upTxt='';
+    if(g.round<MAXROLL){
+      if(g.def.rar==='ascend'||g.def.rar==='mythic'){ g.reward+=1; upTxt='▲ THE ASCENSION DEEPENS — +1 LV'; }
+      else { const up=nextUpgrade(g);
+        if(up){ const from=g.def.rar; g.def=pick(up.pool); g._stung=false;
+          $('cardName').textContent=g.def.n; $('cardName').className='r-'+g.def.rar+' bigname';
+          upTxt='⬆ UPGRADED — '+SLOT_RAR[from]+' → <b style="color:'+RARC[g.def.rar]+'">'+SLOT_RAR[g.def.rar]+'</b>';
+          setTimeout(()=>{ announce('⬆ '+SLOT_RAR[from]+' → '+SLOT_RAR[g.def.rar]+' — '+g.def.n.toUpperCase()+' ⬆', true); SFX.rarSting(RAR_TIER[g.def.rar]||0); }, 420);
+        } else { g.reward+=1; upTxt='◈ NOTHING RARER LEFT — +1 LV INSTEAD'; }
+      }
+    }
     dice.forEach(d=>d.el.classList.add('crit'));
     const rw=g.reward; SFX.dingBells(); SFX.casinoDing(); if(rw>=4) setTimeout(()=>SFX.cashout(),120); if(rw>=5) setTimeout(()=>SFX.dingBells(),220); coinRain(16+rw*4); flash(0.42,'#8bff9a'); $('machine').classList.add('win'); shake=Math.min(22,shake+7+rw); excite=1; sparkBurst(24+rw*5);
     if(perfect) perfectFlash();
     const nowLv=Math.min(g.def.max, skLevel(g.def)+g.reward);
-    $('cardDesc').innerHTML='<div class="ofbig" style="color:'+(perfect?'#ffe066':'#b8ffbf')+'">'+(perfect?'✦ PERFECT 12! ✦ ':'')+projFx(g.def, nowLv)+'</div><div class="ofrow"><span class="ofg">✦ '+sum+' ≥ '+g.threshold+' — WIN!'+(perfect?' +1 bonus':'')+'</span></div>';
+    $('cardDesc').innerHTML='<div class="ofbig" style="color:'+(perfect?'#ffe066':'#b8ffbf')+'">'+(perfect?'✦ PERFECT 12! ✦ ':'')+projFx(g.def, nowLv)+'</div>'
+      +(upTxt?'<div class="ofsub" style="color:#ffd36b;font-weight:700">'+upTxt+'</div>':'')
+      +'<div class="ofrow"><span class="ofg">✦ '+sum+' ≥ '+g.threshold+' — WIN!'+(perfect?' +1 bonus':'')+'</span></div>';
     if(g.round>=MAXROLL){
       setTimeout(()=>{ let nl; if(g.kind==='weapon'){ nl=grantWeaponLevels(g.def,g.reward); } else { grantSkill(g.def,g.reward); nl=skillLevel(g.def.id); }
         $('machine').classList.remove('win'); dice.forEach(d=>d.el.classList.remove('crit'));
