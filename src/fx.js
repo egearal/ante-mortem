@@ -1,4 +1,16 @@
 "use strict";
+// cached radial-glow sprites — createRadialGradient per frame per entity is the
+// main canvas cost; draw these with ctx.globalAlpha for per-entity fade
+const _glowCache={};
+function glowSprite(c0,c1,r){
+  const rb=Math.max(8,Math.ceil(r/8)*8), key=c0+'|'+c1+'|'+rb;
+  let cv2=_glowCache[key];
+  if(!cv2){ cv2=document.createElement('canvas'); cv2.width=cv2.height=rb*2;
+    const g2=cv2.getContext('2d'); const gr2=g2.createRadialGradient(rb,rb,0,rb,rb,rb);
+    gr2.addColorStop(0,c0); gr2.addColorStop(1,c1); g2.fillStyle=gr2; g2.fillRect(0,0,rb*2,rb*2);
+    _glowCache[key]=cv2; }
+  return cv2;
+}
 function buildGrain(){
   grainC=document.createElement('canvas'); grainC.width=140; grainC.height=140;
   const g=grainC.getContext('2d'); const id=g.createImageData(140,140); const d=id.data;

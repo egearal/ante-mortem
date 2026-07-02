@@ -116,7 +116,8 @@ function tickCrash(dt){
   const cs9=$('crashStrobe');
   cs9.style.opacity=(Math.floor(gt*(4+crash.mult))%2)?Math.min(0.85,0.3+crash.mult*0.04):0;
   if(crash.boostT && performance.now()<crash.boostT) cs9.style.opacity=0.95;
-  cs9.style.filter='hue-rotate('+(Math.sin(gt*(1+crash.mult*0.7))*24)+'deg)';
+  { const hu='hue-rotate('+Math.round(Math.sin(gt*(1+crash.mult*0.7))*24/3)*3+'deg)';
+    if(cs9._f!==hu){ cs9._f=hu; cs9.style.filter=hu; } }
   if(crash.mult>=2 && Math.random()<dt*7) tone(2100+Math.random()*(900+crash.mult*260),0.04,'sine',0.032);
   { const on9=Math.floor(gt*(3+crash.mult*1.4));
     document.querySelectorAll('#crashBulbs .cb').forEach((b,i)=>b.classList.toggle('on',(i+on9)%4===0)); }

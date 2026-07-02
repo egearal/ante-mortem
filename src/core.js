@@ -889,8 +889,8 @@ function drawSigil(cx,cy){
 function drawPillar(px,py,r){
   // warm light pool
   ctx.save(); ctx.globalCompositeOperation='screen';
-  const gl=ctx.createRadialGradient(px,py,0,px,py,r*5); gl.addColorStop(0,'rgba(232,150,60,0.13)'); gl.addColorStop(1,'rgba(232,150,60,0)');
-  ctx.fillStyle=gl; ctx.beginPath(); ctx.arc(px,py,r*5,0,6.283); ctx.fill(); ctx.restore();
+  { const pr=r*5; ctx.globalAlpha=0.13;
+    ctx.drawImage(glowSprite('rgba(232,150,60,1)','rgba(232,150,60,0)',pr), px-pr, py-pr, pr*2, pr*2); ctx.globalAlpha=1; } ctx.restore();
   // square plinth + shadow
   ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.beginPath(); ctx.ellipse(px+6,py+11,r*1.25,r*1.15,0,0,6.283); ctx.fill();
   ctx.fillStyle='#0a0608'; ctx.fillRect(px-r*1.16,py-r*1.16,r*2.32,r*2.32);
@@ -1015,9 +1015,8 @@ function render(){
     const wx=sc.x+Math.sin(gt*sc.sp+sc.ph)*46, wy=sc.y+Math.cos(gt*sc.sp*0.8+sc.ph)*34;
     const dgn2=Math.min(0.40,((P.level||1)-1)*0.020+Math.min(0.12,gt/900));
     const br=0.30+dgn2*0.9+Math.sin(gt*5+sc.ph)*0.10;
-    const cg=ctx.createRadialGradient(wx,wy,0,wx,wy,26+dgn2*30);
-    cg.addColorStop(0,'rgba(160,220,255,'+(br*0.5)+')'); cg.addColorStop(1,'rgba(120,180,255,0)');
-    ctx.fillStyle=cg; ctx.beginPath(); ctx.arc(wx,wy,26+dgn2*30,0,6.28); ctx.fill();
+    { const rr2=26+dgn2*30; ctx.globalAlpha=Math.max(0,Math.min(1,br*0.5));
+      ctx.drawImage(glowSprite('rgba(160,220,255,1)','rgba(120,180,255,0)',rr2), wx-rr2, wy-rr2, rr2*2, rr2*2); ctx.globalAlpha=1; }
     ctx.fillStyle='rgba(220,240,255,'+br+')'; ctx.beginPath(); ctx.ellipse(wx,wy,2.2,3.6+Math.sin(gt*9+sc.ph)*0.8,0,0,6.28); ctx.fill();
   }
   ctx.restore();
@@ -1091,9 +1090,9 @@ function render(){
   ctx.restore(); ctx.globalAlpha=1;
 
   // orbs + coins (pulsing)
-  for(const o of orbs){ const pl=1+Math.sin(gt*6+o.x*0.1)*0.15; ctx.fillStyle='#ffd23f'; ctx.shadowColor='#ffe066'; ctx.shadowBlur=12; ctx.beginPath(); ctx.arc(o.x,o.y,o.r*pl,0,6.28); ctx.fill(); ctx.fillStyle='rgba(255,255,220,0.9)'; ctx.beginPath(); ctx.arc(o.x-o.r*0.3,o.y-o.r*0.3,o.r*0.35,0,6.28); ctx.fill(); }
+  for(const o of orbs){ const pl=1+Math.sin(gt*6+o.x*0.1)*0.15; ctx.fillStyle='#ffd23f'; if(!qLow){ ctx.shadowColor='#ffe066'; ctx.shadowBlur=12; } ctx.beginPath(); ctx.arc(o.x,o.y,o.r*pl,0,6.28); ctx.fill(); ctx.fillStyle='rgba(255,255,220,0.9)'; ctx.beginPath(); ctx.arc(o.x-o.r*0.3,o.y-o.r*0.3,o.r*0.35,0,6.28); ctx.fill(); }
   ctx.shadowBlur=0;
-  for(const c of coins){ const pl=1+Math.sin(gt*7+c.x*0.1)*0.12; ctx.fillStyle='#e8b64c'; ctx.shadowColor='#f8e2a0'; ctx.shadowBlur=10; ctx.beginPath(); ctx.arc(c.x,c.y,c.r*pl,0,6.28); ctx.fill(); ctx.fillStyle='#fff6d8'; ctx.beginPath(); ctx.arc(c.x-1.5,c.y-1.5,c.r*0.35,0,6.28); ctx.fill(); }
+  for(const c of coins){ const pl=1+Math.sin(gt*7+c.x*0.1)*0.12; ctx.fillStyle='#e8b64c'; if(!qLow){ ctx.shadowColor='#f8e2a0'; ctx.shadowBlur=10; } ctx.beginPath(); ctx.arc(c.x,c.y,c.r*pl,0,6.28); ctx.fill(); ctx.fillStyle='#fff6d8'; ctx.beginPath(); ctx.arc(c.x-1.5,c.y-1.5,c.r*0.35,0,6.28); ctx.fill(); }
   ctx.shadowBlur=0;
 
   // aura visual
@@ -1149,8 +1148,8 @@ function render(){
     ctx.save(); ctx.translate(b.x,b.y);
     // additive outer halo
     ctx.globalCompositeOperation='lighter';
-    const gr=ctx.createRadialGradient(0,0,0,0,0,b.r*3.2); gr.addColorStop(0,'rgba('+base+',0.45)'); gr.addColorStop(1,'rgba('+base+',0)');
-    ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(0,0,b.r*3.2,0,6.28); ctx.fill();
+    { const hr=b.r*3.2; ctx.globalAlpha=0.45;
+      ctx.drawImage(glowSprite('rgba('+base+',1)','rgba('+base+',0)',hr), -hr, -hr, hr*2, hr*2); ctx.globalAlpha=1; }
     ctx.globalCompositeOperation='source-over';
     if(b.kind==='card'){
       ctx.rotate(b.spin||0); ctx.shadowColor='#fff'; ctx.shadowBlur=10;
@@ -1229,8 +1228,8 @@ function render(){
   // drifting fog (screen space, atmospheric depth)
   ctx.save();
   for(const f of fogPuffs){ f.x+=f.vx/60; f.y+=f.vy/60; if(f.x<-f.r)f.x=VW+f.r; else if(f.x>VW+f.r)f.x=-f.r; if(f.y<-f.r)f.y=VH+f.r; else if(f.y>VH+f.r)f.y=-f.r;
-    const col=f.warm?'150,90,60':'70,80,120'; const g=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,f.r); g.addColorStop(0,'rgba('+col+','+(f.a*cf)+')'); g.addColorStop(1,'rgba('+col+',0)');
-    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,6.283); ctx.fill(); }
+    const col=f.warm?'150,90,60':'70,80,120'; ctx.globalAlpha=Math.max(0,Math.min(1,f.a*cf));
+    ctx.drawImage(glowSprite('rgba('+col+',1)','rgba('+col+',0)',f.r), f.x-f.r, f.y-f.r, f.r*2, f.r*2); ctx.globalAlpha=1; }
   ctx.restore();
 
   // drifting embers (screen space)
