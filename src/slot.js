@@ -164,7 +164,7 @@ function stopNextReel(){
   if(s){ $('cardName').textContent=s.n; $('cardName').className='r-'+s.rar; $('cardDesc').innerHTML='<div class="ofsub">'+projFx(s, skLevel(s)+1)+'</div>'; }
   if(reelsStopped===2){
     const st=slotReels.filter(x=>x.stopped).map(x=>x.landedSym); const last=slotReels.find(x=>!x.stopped);
-    if(last && st[0]===st[1]){ last.el.parentElement.classList.add('antici'); SFX.tingle(); excite=1; $('gambleMsg').innerHTML='<span style="color:#ffd36b">◈ TWO MATCH — stop for the triple! ◈</span>'; }
+    if(last && st[0]===st[1]){ last.el.parentElement.classList.add('antici'); SFX.tingle(); excite=1; $('gambleMsg').innerHTML='<span style="color:#ffd36b">◈ TWO MATCH ◈</span>'; }
   }
   if(reelsStopped>=3){ slotStage='locking'; SFX.reelLock(); shake=Math.min(15,shake+6); flash(0.35,'#e8b64c'); setTimeout(startSelector,300); }
   else showSlotButtons();
@@ -195,9 +195,9 @@ function startSelector(){
   selPos=(Math.random()*3)|0; selT=0; selHop=0.08; selStopping=false; selHopsLeft=0;
   boxOf(selPos).classList.add('pick');
   SFX.selectorGo();
-  $('cardName').textContent='SPIN THE WHEEL'; $('cardName').className='r-common';
-  $('cardDesc').innerHTML='<div class="ofsub">fate picks one — <b style="color:#ffd36b">lock it in</b></div>';
-  $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> to <b style="color:#ff6b6b">LOCK</b>';
+  $('cardName').textContent='FATE SPINS'; $('cardName').className='r-common';
+  $('cardDesc').innerHTML='';
+  $('gambleMsg').innerHTML='';
   showSlotButtons();
 }
 function boxOf(i){ return $('reelBox'+i) || (slotReels[i]&&slotReels[i].el.parentElement); }
@@ -260,7 +260,7 @@ function openOffer(){
   const winLv=Math.min(g.def.max, curLv+g.reward+gain);
   const lossTxt = deadly ? 'LOSE THE SKILL' : curseLabel(g.pendingCurse);
   $('cardDesc').innerHTML =
-    (g.rites?'<div class="ofsub" style="color:#ff7b7b">☨ roll = −6% blood · win = +22% blood · fates favor you</div>':'')+
+    (g.rites?'<div class="ofsub" style="color:#ff7b7b">☨ roll −6% blood · win +22% blood</div>':'')+
     '<div class="ofbig">TAKE Lv '+takeLv+' — '+projFx(g.def, takeLv)+'</div>'+
     '<div class="ofrow"><span class="ofg">✦ Roll '+g.threshold+'+ → Lv '+winLv+' — '+projFx(g.def, winLv)+'</span>'+
     '<span class="ofl">✕ Miss → '+lossTxt+'</span></div>';
@@ -282,7 +282,7 @@ function doRisk(){
   $('cardName').textContent=g.def.n; $('cardName').className='r-'+g.def.rar+' bigname';
   $('cardDesc').innerHTML='<div class="ofbig">Need '+g.threshold+'+</div>'+
     '<div class="ofrow"><span class="ofg">✦ Win → Lv '+winLv+' — '+projFx(g.def, winLv)+'</span><span class="ofl">✕ Miss → '+(g.round>=3?'LOSE SKILL':curseLabel(g.pendingCurse))+'</span></div>';
-  $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> stop the dice';
+  $('gambleMsg').innerHTML='';
   updateLadderPips();
   showSlotButtons();
 }
@@ -299,8 +299,8 @@ function stopDie(){
   const g=gamble;
   if(idx===0){
     if(d.val===6){ d.el.classList.add('hot'); SFX.hotSix(); flash(0.4,'#ffcc33'); sparkBurst(30); shake=Math.min(16,shake+7); excite=1;
-      $('gambleMsg').innerHTML='<span style="color:#ffd36b">⚡ SIX! could be PERFECT — </span><span class="keyhint">SPACE</span> stop right die'; }
-    else $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> stop the right die';
+      $('gambleMsg').innerHTML='<span style="color:#ffd36b">⚡ SIX — PERFECT LIVES ⚡</span>'; }
+    else $('gambleMsg').innerHTML='';
     showSlotButtons();
   } else {
     dice.forEach(x=>x.el.classList.remove('hot'));
@@ -338,6 +338,7 @@ function perfectFlash(){
 }
 function resolveRisk(){
   const g=gamble; const sum=g.dL+g.dR;
+  $('gambleMsg').innerHTML='';
   if(g.dL===1&&g.dR===1) secret('snakeeyes','SNAKE EYES');
   if(g.win){
     const perfect = sum===12;
@@ -378,7 +379,7 @@ function resolveRisk(){
       if(near2) SFX.nearMiss();
       $('machine').classList.remove('win','jackpot'); $('machine').classList.add('bust');
       $('cardName').textContent='SKILL LOST'; $('cardName').className='r-common bigname';
-      $('cardDesc').innerHTML=(near2?'<div class="ofbig" style="color:#ffb066">SO CLOSE…</div>':'')+'<div class="ofrow"><span class="ofl">✕ '+sum+' &lt; '+g.threshold+' — the House takes it.</span></div>';
+      $('cardDesc').innerHTML=(near2?'<div class="ofbig" style="color:#ffb066">SO CLOSE…</div>':'')+'<div class="ofrow"><span class="ofl">✕ '+sum+' &lt; '+g.threshold+' — BUST</span></div>';
       const l=$('jackpotLayer'), t=$('jackpotText'); t.textContent='BUST'; t.className='jackpotText'; t.style.color='#ff5560';
       l.classList.remove('hidden'); t.style.animation='none'; void t.offsetWidth; t.style.animation='';
       SFX.bust(); shake=Math.min(24,shake+12); flash(0.55,'#8b1620');
@@ -393,7 +394,7 @@ function resolveRisk(){
       dice.forEach(d=>d.el.classList.remove('crit'));
       $('machine').classList.remove('win','jackpot');
       $('cardName').textContent=g.def.n; $('cardName').className='r-'+g.def.rar+' bigname';
-      $('cardDesc').innerHTML=(near1?'<div class="ofbig" style="color:#ffb066">SO CLOSE…</div>':'')+'<div class="ofrow"><span class="ofl">✕ CURSED: '+dl+'</span><span class="ofg">skill kept</span></div>';
+      $('cardDesc').innerHTML=(near1?'<div class="ofbig" style="color:#ffb066">SO CLOSE…</div>':'')+'<div class="ofrow"><span class="ofl">✕ '+sum+' &lt; '+g.threshold+' — CURSED: '+dl+'</span></div>';
       shake=Math.min(16,shake+7);
       g.round++; g.threshold=Math.min(12, g.threshold+1); g.pendingCurse=null;
       setTimeout(()=>{ openOffer(); }, 1000);
@@ -444,7 +445,7 @@ function showSlotButtons(){
   else if(slotStage==='dicing'){ const rolling=dice.filter(x=>x.rolling).length; box.appendChild(makeBtn('🎲 STOP DIE','gold',(rolling>1?'left die':'right die')+' · SPACE',()=>slotTap())); }
   else if(slotStage==='offer'){ const g=gamble;
     box.appendChild(makeBtn('◈ TAKE +'+g.reward,'gold','SPACE',()=>takeReward()));
-    box.appendChild(makeBtn('🎲 ROLL','red','HOLD',()=>doRisk()));
+    box.appendChild(makeBtn('🎲 ROLL','red','HOLD SPACE',()=>doRisk()));
   }
   else if(slotStage==='resolved'){ box.appendChild(makeBtn('CONTINUE','gold','press SPACE',()=>slotTap())); }
 }

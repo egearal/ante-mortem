@@ -416,7 +416,7 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 .achGrid{display:flex;flex-wrap:wrap;gap:4px;}
 .achTile{font-size:10px;padding:3px 7px;border-radius:6px;background:rgba(20,10,14,.9);border:1px solid #33141c;color:#6a5c4e;}
 .achTile.on{border-color:var(--gold);color:var(--gold-bright);background:rgba(46,26,14,.9);box-shadow:0 0 8px rgba(232,182,76,.25);}
-.ofrow{display:flex;flex-direction:column;gap:5px;align-items:center;font-family:var(--disp);font-size:14px;letter-spacing:.03em;margin:3px 0;}
+.ofrow{display:flex;flex-direction:column;gap:5px;align-items:center;font-family:var(--disp);font-size:15px;letter-spacing:.03em;margin:3px 0;}
 .ofrow .ofg{color:#8bff9a;text-shadow:0 0 10px rgba(139,255,154,.45);}
 .ofrow .ofl{color:#ff7b7b;text-shadow:0 0 10px rgba(255,90,90,.45);}
 .ofsub{font-family:var(--body);font-size:13px;color:#c9b78e;letter-spacing:.02em;opacity:.9;margin:1px 0 5px;}
