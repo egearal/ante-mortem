@@ -613,12 +613,12 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
   box-shadow:0 6px 0 #0c0507,0 10px 26px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,240,192,.28),inset 0 -6px 14px rgba(0,0,0,.55),inset 0 0 22px rgba(139,22,32,.18);
   text-shadow:0 0 10px rgba(255,211,107,.45),0 1px 0 #000;
   transform:perspective(520px) rotateX(var(--tx,0deg)) rotateY(var(--ty,0deg)) translateY(var(--lift,0px)) scale(var(--sc,1));
-  transition:transform .14s cubic-bezier(.2,1.4,.4,1), filter .15s ease, box-shadow .15s, letter-spacing .18s ease;}
+  transition:transform .14s cubic-bezier(.2,1.4,.4,1), filter .15s ease, box-shadow .15s;}
 .btn::before{content:'';position:absolute;inset:2px;border-radius:6px;border:1px solid rgba(232,182,76,.22);pointer-events:none;}
 .btn::after{content:'';position:absolute;top:-60%;bottom:-60%;left:-30%;width:34%;pointer-events:none;
   background:linear-gradient(100deg,transparent,rgba(255,240,200,.28),transparent);
   transform:translateX(-160%) rotate(8deg);transition:transform .5s ease;}
-.btn:hover{--lift:-3px;--sc:1.04;filter:brightness(1.14);letter-spacing:.22em;
+.btn:hover{--lift:-3px;--sc:1.04;filter:brightness(1.14);
   box-shadow:0 9px 0 #0c0507,0 16px 34px rgba(0,0,0,.65),0 0 26px rgba(232,182,76,.35),inset 0 1px 0 rgba(255,240,192,.35),inset 0 -6px 14px rgba(0,0,0,.5);}
 .btn:hover::after{transform:translateX(420%) rotate(8deg);}
 .btn.pressing{--sc:.94;--lift:1px;}
