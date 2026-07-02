@@ -261,6 +261,7 @@ function rollAscentPrize(m){
   if(!pool.length) pool=PASSIVES.filter(p=>p.rar==='common');
   const pd=pool[(Math.random()*pool.length)|0];
   if(pd.sc) pd.sc(m); else pd.ap();
+  if(pd.u) owned.add(pd.id);
   addPassiveHUD(pd); renderRelics();
   const lbl=RAR_LABEL[tier]||tier.toUpperCase();
   setTimeout(()=>{

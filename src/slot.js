@@ -10,7 +10,7 @@ function rollMainReward(floor){
     if(cur>0){ if(cur<w.max && order[w.rar]>=min) cands.push(weaponReward(w)); }
     else if(ownedCount<WEAPON_CAP && order[w.rar]>=min) cands.push(weaponReward(w));
   });
-  PASSIVES.forEach(pd=>{ if(order[pd.rar]>=min && !(pd.u && owned.has(pd.id))) cands.push(passiveReward(pd)); });
+  PASSIVES.forEach(pd=>{ if(order[pd.rar]>=min && !(pd.u && owned.has(pd.id)) && skillLevel(pd.id)<pd.max) cands.push(passiveReward(pd)); });
   const w=Object.assign({},CFG.weights);
   if(floor){ for(const k in w){ if(order[k]<order[floor]) w[k]=0; } }
   const have={common:0,rare:0,epic:0,legendary:0};
