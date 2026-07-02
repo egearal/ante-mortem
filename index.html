@@ -47,6 +47,7 @@
       <h1>ANTE MORTEM</h1>
       <p class="flavor">You are Vesper, a soul the House has claimed. Survive the court of the damned, level up, and let the Dealer deal — then wager your blood for more. Beat the house. Win your soul back.</p>
       <button class="btn" id="startBtn">Enter the Casino</button>
+      <button class="btn" id="indexBtn" style="margin-top:8px;">📖 The Index</button>
       <button class="btn" id="achBtn" style="margin-top:8px;">🏆 Achievements</button>
       <div class="controls"><b>WASD</b> / <b>Arrows</b> to move &nbsp;·&nbsp; on phone, <b>drag</b> to move &nbsp;·&nbsp; your weapon fires itself</div>
       <div class="controls" id="bestLine"></div>
@@ -161,6 +162,17 @@
       <div style="height:10px;border-radius:5px;background:rgba(0,0,0,.6);border:1px solid rgba(232,182,76,.4);overflow:hidden;margin-bottom:12px;"><div id="achProg" style="height:100%;width:0%;background:linear-gradient(90deg,#8a5a10,#ffd36b);box-shadow:0 0 12px rgba(255,211,107,.6);transition:width .4s;"></div></div>
       <div id="achList" style="overflow-y:auto;flex:1;text-align:left;padding-right:6px;"></div>
       <button class="btn" id="achClose" style="margin-top:12px;">Back</button>
+    </div>
+  </div>
+
+  <!-- THE INDEX -->
+  <div id="indexPanel" class="layer hidden">
+    <div class="panel" style="max-width:min(860px,94vw);max-height:88vh;display:flex;flex-direction:column;">
+      <h2 style="font-family:var(--disp);color:var(--gold-bright);letter-spacing:.14em;margin:0 0 4px;">📖 THE INDEX</h2>
+      <div id="idxCount" style="color:#c9b78e;font-family:var(--disp);letter-spacing:.1em;margin-bottom:6px;"></div>
+      <div style="height:10px;border-radius:5px;background:rgba(0,0,0,.6);border:1px solid rgba(201,139,255,.4);overflow:hidden;margin-bottom:12px;"><div id="idxProg" style="height:100%;width:0%;background:linear-gradient(90deg,#4a2a7a,#c98bff);box-shadow:0 0 12px rgba(201,139,255,.6);transition:width .4s;"></div></div>
+      <div id="idxList" style="overflow-y:auto;flex:1;text-align:left;padding-right:6px;"></div>
+      <button class="btn" id="idxClose" style="margin-top:12px;">Back</button>
     </div>
   </div>
 

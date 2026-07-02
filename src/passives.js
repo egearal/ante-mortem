@@ -47,7 +47,7 @@ const PASSIVES=[
   {id:'exec',  n:'Executioner',    g:'‡',rar:'epic',max:5,d:l=>'Brutal crits: +'+(0.4*l).toFixed(1)+'× critical damage.',ap:()=>{P.critMult+=0.4;},sc:m=>{P.critMult+=0.4*m;}}
 ];
 function auraRadius(){ const l=P.wlv.aura||0; return l? 86+l*12 : 0; }
-function addPassiveHUD(def){ const e=P.passiveList.find(x=>x.id===def.id); if(e){ e.count++; } else { P.passiveList.push({id:def.id,g:def.g,n:def.n,rar:def.rar,count:1}); } }
+function addPassiveHUD(def){ idxSee('p',def.id); const e=P.passiveList.find(x=>x.id===def.id); if(e){ e.count++; } else { P.passiveList.push({id:def.id,g:def.g,n:def.n,rar:def.rar,count:1}); } }
 function passiveReward(pd){
   return { kind:'passive', id:pd.id, g:pd.g, n:pd.n, rar:pd.rar, u:pd.u,
     d:()=>pd.d(), apply:()=>{ pd.ap(); addPassiveHUD(pd); if(pd.u) owned.add(pd.id); } };

@@ -191,12 +191,21 @@ function rouletteBet(rp){
     for(let i2=0;i2<5 && enemies.length<CFG.spawn.max;i2++){ const sa2=Math.random()*6.283;
       spawnEnemy('swarm', clamp(rp.x+Math.cos(sa2)*90,20,CFG.arena-20), clamp(rp.y+Math.sin(sa2)*90,20,CFG.arena-20)); } }
 }
-const store = (typeof window!=='undefined' && window.storage) ? window.storage : null;
+// Prefer the artifact-env storage API; otherwise shim it over localStorage (same keys) so local play keeps progress
+const store = (typeof window!=='undefined' && window.storage) ? window.storage : (function(){
+  try{ localStorage.setItem('am_probe','1'); localStorage.removeItem('am_probe'); }catch(e){ return null; }
+  return {
+    get: async(k)=>{ try{ const v=localStorage.getItem(k); return v==null?null:{value:v}; }catch(e){ return null; } },
+    set: async(k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} },
+    delete: async(k)=>{ try{ localStorage.removeItem(k); }catch(e){} }
+  };
+})();
 const owned = new Set();
 
 /* ---------- entities ---------- */
 function spawnEnemy(type,x,y){
   const b=CFG.enemy[type], mins=gt/60, S=CFG.scale;
+  idxSee(BOSS_DEFS[type]?'b':'e', type);
   ring(x,y,b.r+26,'#5a1a6a'); for(let sp=0;sp<5;sp++){ const sa=Math.random()*6.283; parts.push({x:x+Math.cos(sa)*b.r,y:y+Math.sin(sa)*b.r,vx:Math.cos(sa)*-40,vy:Math.sin(sa)*-40,life:rnd(.25,.5),col:'#7a3aa8',r:rnd(1.5,3)}); }
   const hpS=1+mins*S.hp, dmgS=1+mins*S.dmg, spdS=Math.min(S.spdCap,1+mins*S.spd)*(P.enemySpeedBoost||1);
   enemies.push({type,x,y,r:b.r,hp:b.hp*hpS,maxhp:b.hp*hpS,spd:b.spd*spdS,dmg:b.dmg*dmgS,
@@ -2024,7 +2033,7 @@ let last=0;
 function loop(now){
   requestAnimationFrame(loop);
   try{
-  const dt=Math.min((now-last)/1000,0.05); last=now;
+  const dt=Math.min(Math.max((now-last)/1000,0),0.05); last=now;
   if(loopPrev){ frameAvg=frameAvg*0.93+(now-loopPrev)*0.07; } loopPrev=now; qLow = GFX.q==='low' ? true : GFX.q==='high' ? false : (qLow ? (frameAvg>18) : (frameAvg>22));
   if(qLow!==window._qPrev){ window._qPrev=qLow; resize(); }
   if(GFX.shake===0) shake=0; else if(GFX.shake<1) shake*=0.8;
@@ -2054,7 +2063,7 @@ function startGame(){
   owned.clear();
   gt=0; shake=0; hitstop=0; killStreak=0; streakT=0; excite=0; fireAcc=0; pending=[]; LT.runs++; bump('runs',LT.runs); fever=0; feverOn=false; feverT=0; tarots=[]; tarotT=14; decals=[]; wheelTok=null; wheelTokT=40; crashTok=null; crashTokT=38; bounty=null; bountyT=34; slotBank=0; vouchers=0; bountyStk=0; goldenT=0; ovBonusNext=false; slowT=0; prevHp=0; dare=null; dareT=46; ascTime=5; ascPend=0;
   if(!RANK._ld){ RANK._ld=1; loadRank(); }
-  applyRankPerks(); recToasted=new Set(); applyVault(); applyAchPerks();
+  applyRankPerks(); recToasted=new Set(); applyVault(); applyAchPerks(); idxSee('w','bolt');
   P._idle=0; P._sigT=0; P._corners=new Set(); P._chestsRun=0; P._roulRun=0; P._pauses=0; P._1313=false;
   { const now=new Date();
     if(now.getHours()===0) secret('midnight','THE WITCHING HOUR');

@@ -20,6 +20,7 @@ function applyDebuff(d){
   d = d || DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0];
   const revert=d.ap();
   { const dd=Math.max(2,Math.round(d.dur*Math.max(0.5,P.curseCut||1))); debuffs.push({label:d.label, t:dd, dur:dd, revert, dot:d.dot||0, poison:!!d.dot}); }
+  idxSee('c',d.label);
   flash(0.3,'#8b1620'); SFX.thud();
   return d.label+' · '+d.dur+'s';
 }
@@ -78,6 +79,7 @@ const TAROT_FATES=[
 ];
 const TR_ROMAN=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI','XXII','XXIII','XXIV'];
 function revealTarot(card){
+  idxSee('t',card.n);
   const r=$('tarotReveal'); if(!r) return;
   const tier=card.t>=2?'vg':card.t===1?'g':card.t===-1?'b':'vb';
   r.className=tier;

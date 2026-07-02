@@ -50,6 +50,7 @@ function secret(id,name){
   announce('🗝 SECRET — '+name+' 🗝', true);
   SFX.secretFound(); sparkBurst(26); flash(0.3,'#c98bff');
   LT.secrets=SEC.size; bump('secrets',SEC.size);
+  try{ idxBump(); }catch(e){}
 }
 let keyBuf='', konamiIdx=0;
 const KONAMI=['arrowup','arrowup','arrowdown','arrowdown','arrowleft','arrowright','arrowleft','arrowright','b','a'];
@@ -103,6 +104,11 @@ function buildAch(){
   [1,5,10,25,50,100].forEach(v=>achAdd('crash',v,'Ascendant Gambler ×'+v,'Ride the Ascent '+v+' times'));
   [1,5,10,25,50,100].forEach(v=>achAdd('bounty',v,'Headhunter ×'+v,'Claim '+v+' bounties'));
   [10,20,30,40,50,100,150,200,250,300,350,400,450,500].forEach(v=>achAdd('milestone',v,'Streak Mark '+v,'Hit a '+v+' kill streak'));
+  achAdd('index',25,'The First Folio','Catalogue 25% of the Index');
+  achAdd('index',50,'Half the Library','Catalogue 50% of the Index');
+  achAdd('index',75,'The Deep Stacks','Catalogue 75% of the Index');
+  achAdd('index',100,'Marginalia','Catalogue the entire Index');
+  STAT_LABEL.index='The Index';
   STAT_LABEL.bounty='Bounties'; STAT_LABEL.milestone='Streak Marks';
   STAT_LABEL.wheel='Wheel of Souls'; STAT_LABEL.crash='The Ascent';
   STAT_LABEL.secrets='Secrets';
@@ -114,6 +120,18 @@ function buildAch(){
   foes.forEach(f=>{ [100,500,1000,2500,5000].forEach(v=>achAdd('ek_'+f,v,f.charAt(0).toUpperCase()+f.slice(1)+' Bane ×'+v,'Slay '+v+' '+f+'s')); STAT_LABEL['ek_'+f]=f.charAt(0).toUpperCase()+f.slice(1)+'s'; });
   ['pitboss','croupier','collector','thehouse'].forEach(b=>{ [1,3,5,10,25,50].forEach(v=>achAdd('boss_'+b,v,BOSS_DEFS[b].name+' ×'+v,'Slay '+BOSS_DEFS[b].name+' '+v+' times')); STAT_LABEL['boss_'+b]=BOSS_DEFS[b].name; });
 }
+/* THE INDEX — persistent catalogue of everything ever encountered (new key, additive) */
+const IDX_KEY='am_index_v1';
+let IDX={w:[],p:[],c:[],t:[],e:[],b:[]};
+let _idxT=null;
+function idxSee(cat,id){ if(!id||typeof IDX==='undefined') return; const a=IDX[cat]; if(!a||a.indexOf(id)>=0) return; a.push(id); idxSaveSoon(); idxBump(); }
+function idxTotal(){ return WEAPONS.length + PASSIVES.length + DEBUFF_POOL.length + TAROT_FATES.length + Object.keys(CFG.enemy).length + 34; } // CFG.enemy already includes the 4 bosses
+function idxSeen(){ return IDX.w.length+IDX.p.length+IDX.c.length+IDX.t.length+IDX.e.length+IDX.b.length+SEC.size; }
+function idxPct(){ return Math.min(100,Math.floor(idxSeen()/idxTotal()*100)); }
+function idxBump(){ bump('index', idxPct()); }
+function idxSaveSoon(){ clearTimeout(_idxT); _idxT=setTimeout(idxSave, 800); }
+async function idxSave(){ try{ if(!store)return; await store.set(IDX_KEY,JSON.stringify(IDX),false); }catch(e){} }
+async function idxLoad(){ try{ if(!store)return; const r=await store.get(IDX_KEY,false); if(r&&r.value){ const o=JSON.parse(r.value); for(const k of ['w','p','c','t','e','b']) if(Array.isArray(o[k])) IDX[k]=o[k]; } }catch(e){} }
 // HOUSE FAVORS — specific feats seal small permanent bonuses, forever
 const ACH_PERKS={
  'minutes_3':   {n:'PIT LEGS',          fx:'+2 MOVE SPEED, FOREVER',  ap:()=>{P.speed+=2;}},
@@ -125,14 +143,19 @@ const ACH_PERKS={
  'diceWins_25': {n:'HOT HANDS',         fx:'+1% CRIT, FOREVER',       ap:()=>{P.crit=Math.min(0.9,(P.crit||0)+0.01);}},
  'perfects_5':  {n:"TWELVE'S BLESSING", fx:'+2% XP, FOREVER',         ap:()=>{P.xpMult=(P.xpMult||1)*1.02;}},
  'spins_100':   {n:"REGULAR'S RATE",    fx:'+2% COINS, FOREVER',      ap:()=>{P.coinMult=(P.coinMult||1)+0.02;}},
- 'bossKills_10':{n:'TROPHY WALL',       fx:'+2% COINS, FOREVER',      ap:()=>{P.coinMult=(P.coinMult||1)+0.02;}}
+ 'bossKills_10':{n:'TROPHY WALL',       fx:'+2% COINS, FOREVER',      ap:()=>{P.coinMult=(P.coinMult||1)+0.02;}},
+ // Index milestones — g pays gilt ONCE at the unlock moment; ap (if any) is forever
+ 'index_25':    {n:'THE FIRST FOLIO',   fx:'+50 GILT',                        g:50},
+ 'index_50':    {n:'HALF THE LIBRARY',  fx:'+150 GILT · +1% COINS, FOREVER',  g:150, ap:()=>{P.coinMult=(P.coinMult||1)+0.01;}},
+ 'index_75':    {n:'THE DEEP STACKS',   fx:'+300 GILT · +2% XP, FOREVER',     g:300, ap:()=>{P.xpMult=(P.xpMult||1)*1.02;}},
+ 'index_100':   {n:'MARGINALIA',        fx:'+777 GILT · +2% DAMAGE, FOREVER', g:777, ap:()=>{P.damage*=1.02;}}
 };
-function applyAchPerks(){ for(const id in ACH_PERKS){ if(unlocked.has(id)) try{ ACH_PERKS[id].ap(); }catch(e){} } }
+function applyAchPerks(){ for(const id in ACH_PERKS){ const pk=ACH_PERKS[id]; if(pk.ap && unlocked.has(id)) try{ pk.ap(); }catch(e){} } }
 function bump(stat,value){
   const arr=ACH_BY_STAT[stat]; if(!arr) return;
   for(const a of arr){ if(a.v>value) break; if(!unlocked.has(a.id)){ unlocked.add(a.id); achQ.push(a);
     const pk=ACH_PERKS[a.id];
-    if(pk){ try{ pk.ap(); }catch(e){} // this run benefits immediately; future runs via applyAchPerks
+    if(pk){ try{ if(pk.ap) pk.ap(); if(pk.g){ gilt+=pk.g; saveGilt(); } }catch(e){} // this run benefits immediately; future runs via applyAchPerks
       setTimeout(()=>{ announce('★ HOUSE FAVOR SEALED — '+pk.n+': '+pk.fx+' ★',true); SFX.seraph(); SFX.dingBells(); flash(0.4,'#fff2c0'); coinRain(16); },600); } } }
   if(achQ.length) pumpToasts();
 }
@@ -170,6 +193,27 @@ function openAchPanel(){
     html+='</div></div>';
   }
   list.innerHTML=html; p.classList.remove('hidden');
+}
+function openIndexPanel(){
+  const p=$('indexPanel'), list=$('idxList'); if(!p) return;
+  const seen=idxSeen(), tot=idxTotal();
+  $('idxCount').textContent=seen+' / '+tot+' CATALOGUED  ·  '+idxPct()+'%';
+  $('idxProg').style.width=(seen/tot*100).toFixed(1)+'%';
+  const tile=(got,g,n,c)=> got? '<div class="idxTile on" style="--ic:'+c+'"><span class="idxG">'+g+'</span>'+n+'</div>'
+                              : '<div class="idxTile"><span class="idxG">?</span>???</div>';
+  const sec=(ico,name,col,rows)=>{ const got=rows.filter(r=>r[0]).length;
+    return '<div class="idxSec" style="--sc:'+col+'"><div class="idxSecH"><b>'+ico+' '+name+'</b><span>'+got+' / '+rows.length+'</span></div><div class="idxGrid">'
+      +rows.map(r=>tile(r[0],r[1],r[2],r[3])).join('')+'</div></div>'; };
+  list.innerHTML=
+    sec('⚔','THE ARSENAL','#ff9a3c', WEAPONS.map(w=>[IDX.w.indexOf(w.id)>=0, w.g, w.n, GLYPH_COL[w.id]||'#ffd36b']))
+   +sec('✦','PASSIVES','#8bff9a', PASSIVES.filter(s=>s.rar!=='ascend'&&s.rar!=='mythic').map(s=>[IDX.p.indexOf(s.id)>=0, s.g, s.n, GLYPH_COL[s.id]||'#8bff9a']))
+   +sec('▲','ASCENSIONS','#8bffd0', PASSIVES.filter(s=>s.rar==='ascend'||s.rar==='mythic').map(s=>[IDX.p.indexOf(s.id)>=0, s.g, s.n, GLYPH_COL[s.id]||'#8bffd0']))
+   +sec('☠','CURSES ENDURED','#ff5560', DEBUFF_POOL.map(d=>[IDX.c.indexOf(d.label)>=0, '☠', d.label, '#ff5560']))
+   +sec('★','THE TAROT','#c98bff', TAROT_FATES.map(f=>[IDX.t.indexOf(f.n)>=0, f.t>0?'★':'☠', f.n, f.c||'#c98bff']))
+   +sec('♟','THE COURT','#c22ca0', Object.keys(CFG.enemy).filter(k=>!BOSS_DEFS[k]).map(k=>[IDX.e.indexOf(k)>=0, '♟', k.toUpperCase(), CFG.enemy[k].col||'#c98bff']))
+   +sec('♛','THE BOSSES','#ffd36b', Object.keys(BOSS_DEFS).map(k=>[IDX.b.indexOf(k)>=0, '♛', BOSS_DEFS[k].name, '#ffd36b']))
+   +'<div class="idxSec" style="--sc:#c98bff"><div class="idxSecH"><b>🗝 SECRETS</b><span>'+SEC.size+' / 34</span></div><div class="idxHint">The walls keep the rest. Touch things. Wait in corners. Pry.</div></div>';
+  p.classList.remove('hidden');
 }
 
 const RANK_KEY='am_rank_v1';

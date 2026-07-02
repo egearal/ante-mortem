@@ -1,6 +1,7 @@
 "use strict";
 { const rt=$('relicTip'); if(rt) document.body.appendChild(rt); } // escape #wrap stacking contexts — must beat #tabPanel (z 340)
 $('achBtn').addEventListener('click',()=>{ openAchPanel(); });
+$('indexBtn').addEventListener('click',()=>{ openIndexPanel(); SFX.uiDing(); });
 { const vb=$('achBtn'); if(vb){ const gb=document.createElement('button'); gb.className=vb.className; gb.id='gfxBtn'; gb.textContent='⚙ GRAPHICS'; vb.parentNode.insertBefore(gb,vb.nextSibling); gb.addEventListener('click',openGfx); } }
 { const pl=$('pauseLayer');
   if(pl){
@@ -64,6 +65,7 @@ function quitToMenu(){
 $('vaultClose').addEventListener('click',()=>{ $('vaultPanel').classList.add('hidden'); if(state==='vault') state='playing'; });
 document.querySelector('.pauseCard').addEventListener('click',()=>{ if(state==='paused'){ state='playing'; $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); } });
 $('achClose').addEventListener('click',()=>{ $('achPanel').classList.add('hidden'); });
+$('idxClose').addEventListener('click',()=>{ $('indexPanel').classList.add('hidden'); SFX.casinoDing(); });
 $('mute').addEventListener('click',()=>{ muted=!muted; if(master) master.gain.value=muted?0:0.8; $('mute').textContent=muted?'♩':'♪'; $('mute').style.color=muted?'#5a4a3a':''; }); let tabHold=false;
 function showTab(){
   let tp=$('tabPanel');
@@ -336,7 +338,7 @@ $('nameInput').addEventListener('change',e=>{ sessionName=e.target.value.trim().
 
 /* boot */
 (async function boot(){
-  buildAch(); await loadAch(); await loadGilt(); await loadGfx();
+  buildAch(); await loadAch(); await loadGilt(); await loadGfx(); await idxLoad();
   { const today=new Date().toDateString();
     if(LT.lastDay!==today){
       LT.dayStreak=(LT.lastDay && (Date.now()-new Date(LT.lastDay).getTime())<172800000)?(LT.dayStreak||0)+1:1;
@@ -345,6 +347,6 @@ $('nameInput').addEventListener('change',e=>{ sessionName=e.target.value.trim().
       window._daily='DAILY BLESSING +'+bonus+' ◈ · DAY '+LT.dayStreak;
     } }
   { const seals=Object.values(VAULT.lv).reduce((a,b)=>a+b,0);
-    $('bestLine').innerHTML=(best>0?`Your best: <b>${best.toLocaleString()}</b> &nbsp;·&nbsp; `:'')+`Gilt: <b>${gilt}</b> ◈ &nbsp;·&nbsp; Secrets: <b>${SEC.size}</b>/34`+(window._daily?` &nbsp;·&nbsp; <b style="color:#8bff9a">${window._daily}</b>`:''); }
+    $('bestLine').innerHTML=(best>0?`Your best: <b>${best.toLocaleString()}</b> &nbsp;·&nbsp; `:'')+`Gilt: <b>${gilt}</b> ◈ &nbsp;·&nbsp; Index: <b>${idxPct()}%</b> &nbsp;·&nbsp; Secrets: <b>${SEC.size}</b>/34`+(window._daily?` &nbsp;·&nbsp; <b style="color:#8bff9a">${window._daily}</b>`:''); }
   requestAnimationFrame(loop);
 })();

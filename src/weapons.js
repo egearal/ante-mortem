@@ -67,7 +67,7 @@ function weaponReward(w){
   const cur=P.wlv[w.id]||0;
   return { kind:'weapon', id:w.id, g:w.g, n:w.n+(cur>0?' — Lv '+(cur+1):''), rar:w.rar, cur,
     d:()=>{ const nl=Math.min(w.max,cur+1); return (cur===0?'NEW WEAPON · ':'Lv '+nl+' · ')+w.d(nl); },
-    apply:()=>{ P.wlv[w.id]=Math.min(w.max,cur+1); } };
+    apply:()=>{ P.wlv[w.id]=Math.min(w.max,cur+1); idxSee('w',w.id); } };
 }
 function fire(){
   // target nearest enemy
@@ -136,6 +136,6 @@ function availableWeapons(){
 }
 function grantWeaponLevels(def, levels){
   const cur=P.wlv[def.id]||0; P.wlv[def.id]=Math.min(def.max, cur+levels); renderRelics();
-  bump('w_'+def.id, P.wlv[def.id]); recCheck('weaponLv', P.wlv[def.id], def.n+' level');
+  bump('w_'+def.id, P.wlv[def.id]); recCheck('weaponLv', P.wlv[def.id], def.n+' level'); idxSee('w',def.id);
   return P.wlv[def.id];
 }
