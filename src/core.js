@@ -2025,7 +2025,7 @@ function loop(now){
   document.body.classList.toggle('gamble', state==='slot'||state==='wheel'||state==='crash'||state==='marker');
   if(state==='playing'){
     if(hitstop>0){ hitstop-=dt; }
-    else if(!tabHold){ update(dt*1.55*(slowT>0?0.35:1)); }
+    else if(!tabHold){ update(dt*1.63*(slowT>0?0.35:1)); }
     updateHUD();
   }
   else if(state==='wheel'){ tickWheel(dt); }
