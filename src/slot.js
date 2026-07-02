@@ -152,7 +152,7 @@ function stopNextReel(){
   const centerBias=(r.boxH/2 - r.symH/2)/r.symH;
   const target=Math.round((r.offset % r.N)+centerBias);
   const idx=((target % r.N)+r.N)%r.N;
-  r.landedSym=r.seq[idx];
+  r.landedSym=r.seq[idx]; r.landedIdx=idx;
   const tyFinal=-((target-centerBias)*r.symH);
   r.el.style.transition='transform .16s cubic-bezier(.34,1.7,.5,1)';
   r.el.style.transform='translateY('+(tyFinal-10)+'px)';
@@ -166,7 +166,22 @@ function stopNextReel(){
     const st=slotReels.filter(x=>x.stopped).map(x=>x.landedSym); const last=slotReels.find(x=>!x.stopped);
     if(last && st[0]===st[1]){ last.el.parentElement.classList.add('antici'); SFX.tingle(); excite=1; $('gambleMsg').innerHTML='<span style="color:#ffd36b">◈ TWO MATCH ◈</span>'; }
   }
-  if(reelsStopped>=3){ slotStage='locking'; SFX.reelLock(); shake=Math.min(15,shake+6); flash(0.35,'#e8b64c'); setTimeout(startSelector,300); }
+  if(reelsStopped>=3){ slotStage='locking'; SFX.reelLock(); shake=Math.min(15,shake+6); flash(0.35,'#e8b64c');
+    let selDelay=300;
+    { // near-miss: two matched, and the odd reel stopped ONE row away from completing the triple
+      const landed=slotReels.map(x=>x.landedSym);
+      const counts={}; landed.forEach(sy=>counts[sy]=(counts[sy]||0)+1);
+      let pairId=null; for(const sy in counts) if(counts[sy]===2) pairId=sy;
+      const odd=pairId?slotReels.find(x=>x.landedSym!==pairId):null;
+      if(odd && (odd.seq[((odd.landedIdx-1)+odd.N)%odd.N]===pairId || odd.seq[(odd.landedIdx+1)%odd.N]===pairId)){
+        selDelay=900; excite=1;
+        setTimeout(()=>{ if(slotStage!=='locking') return;
+          flash(0.35,'#8b1620'); SFX.nearMiss(); shake=Math.min(16,shake+7);
+          $('gambleMsg').innerHTML='<span style="color:#ff7b7b">◈ ONE ROW OFF ◈</span>';
+          const bx=odd.el.parentElement; bx.classList.add('pick'); setTimeout(()=>bx.classList.remove('pick'),640);
+        },220);
+      } }
+    setTimeout(startSelector,selDelay); }
   else showSlotButtons();
 }
 function ceremony(matchN, def){
