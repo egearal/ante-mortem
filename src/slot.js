@@ -302,7 +302,7 @@ function doRisk(){
   if(!diceShown){ dice=[ {el:$('dieL'),val:1+((Math.random()*6)|0),rolling:false,ft:0}, {el:$('dieR'),val:1+((Math.random()*6)|0),rolling:false,ft:0} ]; diceShown=true; }
   dice.forEach(d=>{ d.rolling=true; d.ft=0; d.el.classList.remove('settle','crit','hot'); d.el.classList.add('rolling'); renderDie(d.el,d.val); });
   slotStage='dicing'; stopLock=performance.now()+150;
-  if(g.rites){ P.hp=Math.max(1, P.hp-P.maxHp*0.06); flash(0.35,'#8b1620'); SFX.thud(); shake=Math.min(14,shake+5); }
+  if(g.rites){ P.hp=Math.max(1, P.hp-P.maxHp*(contractDone('codicil')?0.03:0.06)); flash(0.35,'#8b1620'); SFX.thud(); shake=Math.min(14,shake+5); }
   SFX.diceRattle(); SFX.riser(); sparkBurst(12);
   const gain=rollGain(g.round); const winLv=Math.min(g.def.max, skLevel(g.def)+g.reward+gain);
   $('cardName').textContent=g.def.n; $('cardName').className='r-'+g.def.rar+' bigname';
@@ -332,6 +332,7 @@ function stopDie(){
     dice.forEach(x=>x.el.classList.remove('hot'));
     g.dL=dice[0].val; g.dR=dice[1].val; slotStage='locking';
     g.win=(g.dL+g.dR)>=g.threshold;
+    if(!g.win && P.dmhArmed){ P.dmhArmed=false; g.win=true; g._dmh=true; }
     SFX.reelLock();
     setTimeout(resolveRisk, 280);
   }

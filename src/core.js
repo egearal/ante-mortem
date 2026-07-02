@@ -298,10 +298,10 @@ function killEnemy(e,idx){
     for(const o of enemies){ if(o!==e && Math.hypot(o.x-e.x,o.y-e.y)<74){ o.hp-=40; o.flash=0.1; } } }
   if(e.type==='gilded'){ LT.gilded++; bump('gilded',LT.gilded);
     if(feverOn) secret('goldongold','GOLD ON GOLD');
-    for(let gi=0;gi<14;gi++) coins.push({x:e.x+rnd(-12,12),y:e.y+rnd(-12,12),r:6,vx:rnd(-130,130),vy:rnd(-130,130)});
+    for(let gi=0;gi<(contractDone('dividend')?28:14);gi++) coins.push({x:e.x+rnd(-12,12),y:e.y+rnd(-12,12),r:6,vx:rnd(-130,130),vy:rnd(-130,130)});
     coinRain(18); bigWin('GOLD RUSH',2); }
   if(bounty && bounty.e===e){ bounty=null; bountyT=30+Math.random()*20;
-    bountyStk++; const brew=10+5*bountyStk;
+    bountyStk++; const brew=Math.round((10+5*bountyStk)*(1+(P.bountyPay||0)));
     P.coins+=brew; LT.coins+=brew; bump('runCoins',P.coins); bump('ltCoins',LT.coins);
     LT.bounty=(LT.bounty||0)+1; bump('bounty',LT.bounty);
     burst(e.x,e.y,14,'#ffd36b'); ring(e.x,e.y,70,'#ffd36b'); { const bx=e.x,by=e.y; setTimeout(()=>{ if(state==='playing') ring(bx,by,120,'#fff2c0'); },90); }
@@ -437,7 +437,7 @@ function update(dt){
   P.y=clamp(P.y+my*P.speed*dt,14,CFG.arena-14);
   P.moving = ml>0;
   if(P.inv>0)P.inv-=dt;
-  tickDebuffs(dt); tickSmites(dt); tickFever(dt); tickTarot(dt); tickMapProps(dt); tickWheelTok(dt); tickCrashTok(dt);
+  tickDebuffs(dt); tickSmites(dt); tickFever(dt); tickTarot(dt); tickMapProps(dt); tickWheelTok(dt); tickCrashTok(dt); tickVaultDoor();
   if(parts.length>GFX.pcap) parts.splice(0,parts.length-GFX.pcap);
   if(coins.length>240) coins.splice(0,coins.length-240);
   if(P.ovT>0){ P.ovAge+=dt;
@@ -454,7 +454,7 @@ function update(dt){
     if(ascPend<=0){ ascPend=0; spawnAscentGate(); }
   }
   if(slowT>0) slowT-=dt;
-  if(P.hp<prevHp && P.hp/P.maxHp<0.15 && prevHp/P.maxHp>=0.15){ slowT=0.5; SFX.thud(); flash(0.4,'#8b1620'); }
+  if(P.hp<prevHp && P.hp/P.maxHp<0.15 && prevHp/P.maxHp>=0.15){ slowT=0.5+(P.slowEdge||0); SFX.thud(); flash(0.4,'#8b1620'); }
   prevHp=P.hp;
   if(!dare){ dareT-=dt;
     if(dareT<=0){ dare={need:12+Math.floor(wave*0.6), got:0, t:10};
@@ -1956,7 +1956,7 @@ function spawnBoss(){
   const a=Math.random()*6.283, dd=Math.max(VW,VH)*0.55;
   const x=clamp(P.x+Math.cos(a)*dd,40,CFG.arena-40), y=clamp(P.y+Math.sin(a)*dd,40,CFG.arena-40);
   spawnEnemy(kind,x,y);
-  const b=enemies[enemies.length-1]; if(b){ b.boss=true; b.bossKind=kind; b.vt=BOSS_DEFS[kind].vt; b.bstate='stalk'; b.bt=2; b.spiralA=0; }
+  const b=enemies[enemies.length-1]; if(b){ b.boss=true; if(contractDone('pallbearer')){ b.hp*=0.9; b.maxhp=(b.maxhp||b.hp)*0.9; } b.bossKind=kind; b.vt=BOSS_DEFS[kind].vt; b.bstate='stalk'; b.bt=2; b.spiralA=0; }
   showStreak('⚜ '+BOSS_DEFS[kind].name+' APPROACHES ⚜'); SFX.bossRoar(); flash(0.5,'#c98bff'); shake=Math.min(20,shake+12); startDrone();
 }
 function bossAI(e,dt,dx,dy,d){

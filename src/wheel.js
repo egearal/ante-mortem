@@ -8,10 +8,10 @@ const WSEGS=[
  {n:'HEAL 33%', c:'#0e8a4a', tier:1, f:(m)=>{ const hl=Math.round(P.maxHp*0.33*m); P.hp=Math.min(P.maxHp,P.hp+hl); flash(0.4,'#8bff9a'); SFX.dingBells(); announce('✚ +'+hl+' BLOOD ✚',true); }},
  {n:'DOUBLE', c:'#7a3cff', tier:2, f:null},
  {n:'90 COINS', c:'#e8a112', tier:2, f:(m)=>{ const g2=90*m; P.coins+=g2; LT.coins+=g2; coinRain(24); SFX.cashout(); SFX.dingBells(); announce('◈ +'+g2+' COINS ◈',true); }},
- {n:'GILT +25', c:'#96700e', tier:2, f:(m)=>{ const g3=25*m; gilt+=g3; saveGilt(); SFX.chipStack(); SFX.casinoDing(); announce('◈ +'+g3+' GILT BANKED ◈',true); }},
+ {n:'GILT +35', c:'#96700e', tier:2, f:(m)=>{ const g3=35*m; gilt+=g3; saveGilt(); SFX.chipStack(); SFX.casinoDing(); announce('◈ +'+g3+' GILT BANKED ◈',true); }},
  {n:'⚔ ARSENAL', c:'#c22ca0', tier:3, f:()=>{ slotForceWeapon=true; pending.push({}); SFX.levelUp(); announce('⚔ THE ARSENAL WHEEL AWAITS ⚔',true); }},
  {n:'+1 LEVEL', c:'#e0203a', tier:3, f:(m)=>{ for(let i=0;i<m;i++) pending.push({}); SFX.levelUp(); announce('⚜ +'+m+' LEVEL'+(m>1?'S':'')+' ⚜',true); }},
- {n:'FEVER', c:'#f2701a', tier:2, f:()=>{ if(!feverOn){ fever=1; startFever(); } else { feverT=Math.min(12,feverT+5); announce('⚡ FEVER +5s ⚡',true); SFX.dingBells(); } }},
+ {n:'FEVER', c:'#f2701a', tier:2, f:()=>{ if(!feverOn){ fever=1; startFever(); } else { feverT=Math.min(12+(P.feverDur||0),feverT+5); announce('⚡ FEVER +5s ⚡',true); SFX.dingBells(); } }},
  {n:'DOUBLE', c:'#7a3cff', tier:2, f:null},
  {n:'✦ SKILL', c:'#3c58e8', tier:3, f:(m)=>{ rollAscentPrize(m*1.6); }},
  {n:'▲ ASCENT', c:'#0ac878', tier:3, f:()=>{ wheel.toAscent=true; announce('▲ THE WHEEL OPENS THE ASCENT ▲',true); SFX.riser(); }}
@@ -183,7 +183,7 @@ function landWheel(seg){
 }
 function tickWheelTok(dt){
   if(!wheelTok){ wheelTokT-=dt;
-    if(wheelTokT<=0){ wheelTokT=44+Math.random()*26;
+    if(wheelTokT<=0){ wheelTokT=(44+Math.random()*26)*(1-(P.wheelHaste||0));
       const a=Math.random()*6.283, d=280+Math.random()*320;
       wheelTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:20, ph:Math.random()*6.28};
       announce('☸ THE WHEEL OF SOULS MANIFESTS ☸', true); SFX.dingBells(); }

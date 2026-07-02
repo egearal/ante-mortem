@@ -19,14 +19,15 @@ const DEBUFF_POOL=[
 function applyDebuff(d){
   d = d || DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0];
   const revert=d.ap();
-  { const dd=Math.round(d.dur*(P.curseCut||1)); debuffs.push({label:d.label, t:dd, dur:dd, revert, dot:d.dot||0, poison:!!d.dot}); }
+  { const dd=Math.max(2,Math.round(d.dur*Math.max(0.5,P.curseCut||1))); debuffs.push({label:d.label, t:dd, dur:dd, revert, dot:d.dot||0, poison:!!d.dot}); }
   flash(0.3,'#8b1620'); SFX.thud();
   return d.label+' · '+d.dur+'s';
 }
 function curseLabel(d){ return d.label+' · '+d.dur+'s'; }
 function startFever(){
   if(P.hp<=Math.max(1,P.maxHp*0.02)) secret('edge','DANCING ON THE EDGE');
-  feverOn=true; feverT=8; fever=1;
+  feverOn=true; feverT=8+(P.feverDur||0); fever=1;
+  if(contractDone('cinder')){ let hitN=0; for(const e of enemies){ if(Math.hypot(e.x-P.x,e.y-P.y)<140){ e.hp-=60; e.flash=0.12; hitN++; } } if(hitN){ ring(P.x,P.y,140,'#ffd36b'); flash(0.3,'#ffd36b'); SFX.nova(); } }
   P.godT=3; P.inv=Math.max(P.inv||0,3);
   P._fvRate=P.fireRate; P.fireRate*=1.7; P._fvCoin=P.coinMult; P.coinMult+=1;
   bigWin('FEVER',2); announce('☘ UNTOUCHABLE — YOUR TOUCH IS DEATH · 3s ☘', true);
@@ -103,7 +104,8 @@ function tickTarot(dt){
     if(c.t<=0){ tarots.splice(i,1); continue; }
     if(Math.hypot(P.x-c.x,P.y-c.y)<P.radius+16){
       tarots.splice(i,1);
-      const f=TAROT_FATES[(Math.random()*TAROT_FATES.length)|0];
+      let f=TAROT_FATES[(Math.random()*TAROT_FATES.length)|0];
+      if(f.t<0 && Math.random()<(P.tarotLuck||0)){ f=TAROT_FATES[(Math.random()*TAROT_FATES.length)|0]; announce('♠ MARKED CARDS — REDRAWN ♠',true); SFX.uiDing(); }
       revealTarot(f); f.fx(); ring(P.x,P.y,95,f.c);
       announce('☨ '+f.n+' ☨', f.t>0); flash(0.4,f.c); sparkBurst(f.t>0?24:12);
       if(f.t<0){ shake=Math.min(14,shake+6); }

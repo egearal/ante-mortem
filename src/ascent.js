@@ -93,7 +93,7 @@ function openCrash(){
   prerollAsc();
   $('crashStake').innerHTML='<span class="stk on">I at 1.77×: '+przLabel(1)+'</span><span class="stk">II at 2.77×: '+przLabel(2)+'</span><span class="stk">III at 3.69×: '+przLabel(3)+'</span><span class="stk" style="color:#fff2c0;border-color:#fff2c0">7.77× JACKPOT: PICK OF 3 WEAPONS</span>';
   $('crashHist').innerHTML=crashHist.slice(-6).map(h=>'<span class="'+(h.ok?'ok':'no')+'">'+h.v.toFixed(2)+'×</span>').join('');
-  $('crashMsg').innerHTML='THE HOUSE ASKS NOTHING — ONLY NERVE · WIN: A <b style="color:#8bffd0">PASSIVE</b> (II AT 2×, III AT 3×) · CRASH: <b style="color:#ff6b6b">THE FALL — 30s CURSE</b> · <span class="keyhint">SPACE</span> PUSH';
+  $('crashMsg').innerHTML='THE HOUSE ASKS NOTHING — ONLY NERVE · WIN: A <b style="color:#8bffd0">PASSIVE</b> (II AT 2×, III AT 3×) · CRASH: <b style="color:#ff6b6b">THE FALL — A RANDOM CURSE, 5-15s</b> · <span class="keyhint">SPACE</span> PUSH';
   $('crashLayer').classList.remove('hidden'); SFX.vaultOpen(); startDrone();
 }
 // crash-point sampler pinned to the director's reach odds:
@@ -110,7 +110,7 @@ function launchCrash(){
   crash.wager=0; crash.loan=false;
   crash.cp = rollCrashPoint();
   if(crash.cp<1.01) crash.cp=1.01;
-  crash.live=true; crash.mult=1;
+  crash.live=true; crash.mult=1+0.12*(P.ascStart||0); $('crashMult').textContent=crash.mult.toFixed(2)+'\u00d7';
   noise(0.45,0.18,140); tone(70,0.5,'sawtooth',0.14,220);
   $('crashMsg').innerHTML='CLIMB FOR HIGHER TIERS · CRASH = <b style="color:#ff6b6b">THE FALL</b> · <span class="keyhint">ENTER</span> CASH';
   SFX.riser();

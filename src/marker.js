@@ -51,7 +51,7 @@ async function actuallyDie(){
   if(state==='dead') return;
   if(P.coins===0) secret('broke','BROKE AT THE END');
   state='dead'; stopDrone(); SFX.death(); shake=18; flash(0.6,'#8b1620');
-  const score=computeScore(), giltEarned=Math.floor(score/50);
+  const score=computeScore(), giltEarned=Math.floor(score/40);
   gilt+=giltEarned; saveGilt();
   LT.deaths++; bump('deaths',LT.deaths);
   LT.gilt+=giltEarned; bump('gilt',LT.gilt);

@@ -1,8 +1,7 @@
 "use strict";
 { const rt=$('relicTip'); if(rt) document.body.appendChild(rt); } // escape #wrap stacking contexts — must beat #tabPanel (z 340)
 $('achBtn').addEventListener('click',()=>{ openAchPanel(); });
-$('vaultBtn').addEventListener('click',()=>{ openVault(); });
-{ const vb=$('vaultBtn'); if(vb){ const gb=document.createElement('button'); gb.className=vb.className; gb.id='gfxBtn'; gb.textContent='⚙ GRAPHICS'; vb.parentNode.insertBefore(gb,vb.nextSibling); gb.addEventListener('click',openGfx); } }
+{ const vb=$('achBtn'); if(vb){ const gb=document.createElement('button'); gb.className=vb.className; gb.id='gfxBtn'; gb.textContent='⚙ GRAPHICS'; vb.parentNode.insertBefore(gb,vb.nextSibling); gb.addEventListener('click',openGfx); } }
 { const pl=$('pauseLayer');
   if(pl){
     const row=document.createElement('div'); row.id='howBtnRow';
@@ -248,7 +247,10 @@ window.addEventListener('keydown',e=>{
   if(state==='playing' && k===' '){
     e.preventDefault();
     if(P.ovT>0){ cashRage(); return; }
-    if(vaultProp && Math.hypot(P.x-vaultProp.x,P.y-vaultProp.y)<115){ state='vault'; openVault(); return; }
+    if(vaultProp && Math.hypot(P.x-vaultProp.x,P.y-vaultProp.y)<115){
+      if(vaultWindowOpen()){ state='vault'; openVault(); }
+      else { announce('◈ THE VAULT IS SEALED — IT RETURNS AT '+fmt(nextVaultTime())+' ◈',false); SFX.thud(); }
+      return; }
     if(killStreak>=27){ const cash=Math.floor(killStreak/3);
       P.coins+=cash; LT.coins+=cash; bump('runCoins',P.coins); bump('ltCoins',LT.coins);
       announce('◈ STREAK CASHED ×'+killStreak+' → +'+cash+' COINS ◈', true);
@@ -343,6 +345,6 @@ $('nameInput').addEventListener('change',e=>{ sessionName=e.target.value.trim().
       window._daily='DAILY BLESSING +'+bonus+' ◈ · DAY '+LT.dayStreak;
     } }
   { const seals=Object.values(VAULT.lv).reduce((a,b)=>a+b,0);
-    $('bestLine').innerHTML=(best>0?`Your best: <b>${best.toLocaleString()}</b> &nbsp;·&nbsp; `:'')+`Gilt: <b>${gilt}</b> ◈ &nbsp;·&nbsp; Secrets: <b>${SEC.size}</b>/34 &nbsp;·&nbsp; Seals: <b>${seals}</b>`+(window._daily?` &nbsp;·&nbsp; <b style="color:#8bff9a">${window._daily}</b>`:''); }
+    $('bestLine').innerHTML=(best>0?`Your best: <b>${best.toLocaleString()}</b> &nbsp;·&nbsp; `:'')+`Gilt: <b>${gilt}</b> ◈ &nbsp;·&nbsp; Secrets: <b>${SEC.size}</b>/34`+(window._daily?` &nbsp;·&nbsp; <b style="color:#8bff9a">${window._daily}</b>`:''); }
   requestAnimationFrame(loop);
 })();
