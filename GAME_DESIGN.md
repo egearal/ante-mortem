@@ -24,7 +24,7 @@ XP-full → bar 100, +50% dmg & fire rate; at ≥90% also +50% damage TAKEN. Dra
 ## ▲ THE ASCENT (crash game)
 Entry: green token (48-82s spawns) or rage-earned gate. **FREE to ride — no stake.**
 SPACE = launch, then each SPACE = one push: mult += (0.01+rnd*0.19)*(1+m*0.08). ENTER = cash.
-Crash point: 5% instant (≈1.01), else 0.99/(1−u·0.99), cap 40.
+Crash point: anchor-table inverse sampler pinned to reach odds — P(cp≥1.77)=75%, P(≥2.77)=40%, P(≥3.69)=15%, P(≥7.77)=4% (geometric interpolation between anchors, min 1.01, cap 40; no instant-bust tier). Retuned 2026-07 per director.
 **Prize tiers (cash-out): <1.77× = NOTHING · Tier I ≥1.77× · Tier II ≥2.77× · Tier III ≥3.69× · ☆ JACKPOT ≥7.77×.** (Retuned 2026-07 from 1.5/2.5/5/10 — old gates were too hard to reach.)
 - Tiers I-III grant one pre-rolled un-owned ASCENSION passive (shown in lobby chips + live line with fx labels).
 - JACKPOT: pick 1 of 3 rarity-weighted weapons (cards, click or keys 1/2/3; new or +1 level; availableWeapons()/weightedByRarity()).

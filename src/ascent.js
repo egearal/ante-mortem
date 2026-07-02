@@ -96,11 +96,19 @@ function openCrash(){
   $('crashMsg').innerHTML='THE HOUSE ASKS NOTHING — ONLY NERVE · WIN: A <b style="color:#8bffd0">PASSIVE</b> (II AT 2×, III AT 3×) · CRASH: <b style="color:#ff6b6b">THE FALL — 30s CURSE</b> · <span class="keyhint">SPACE</span> PUSH';
   $('crashLayer').classList.remove('hidden'); SFX.vaultOpen(); startDrone();
 }
+// crash-point sampler pinned to the director's reach odds:
+// P(cp≥1.77)=75% · P(cp≥2.77)=40% · P(cp≥3.69)=15% · P(cp≥7.77)=4%
+const CP_ANCH=[[1.01,1],[1.77,0.75],[2.77,0.40],[3.69,0.15],[7.77,0.04],[40,0.001]];
+function rollCrashPoint(){
+  const u=Math.random();
+  for(let i=1;i<CP_ANCH.length;i++){ const a=CP_ANCH[i-1], b=CP_ANCH[i];
+    if(u>=b[1]) return a[0]*Math.pow(b[0]/a[0],(a[1]-u)/(a[1]-b[1])); }
+  return 40;
+}
 function launchCrash(){
   if(crash.live||crash.done) return;
   crash.wager=0; crash.loan=false;
-  const r=Math.random();
-  crash.cp = r<0.05 ? 1+Math.random()*0.03 : Math.min(40, 0.99/(1-Math.random()*0.99));
+  crash.cp = rollCrashPoint();
   if(crash.cp<1.01) crash.cp=1.01;
   crash.live=true; crash.mult=1;
   noise(0.45,0.18,140); tone(70,0.5,'sawtooth',0.14,220);
