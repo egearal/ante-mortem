@@ -10,12 +10,14 @@ Top-down survivor: WASD/touch move, auto-fire at nearest, waves escalate, 4 boss
 - **GILT** — eternal. From boss bounties, wheel, daily blessing, Index milestones, score at death (score/40). Spent on VAULT seals/contracts and death-bribes. Persists via storage.
 - **MARKS** — eternal rank XP (see HOUSE RANKS).
 
-## Rarity taxonomy
-common (65%) / rare (20%) / epic = shown as "ULTRA RARE" (10%) / legendary / **mythic** (5%, wheel-only) / **ascend** (Ascent-only). Internal `rar` field. Mythic & ascend are auto-excluded from the slot pool (order-map trick) and from wheel skill rolls except as designed.
-Rarity colors: common #cfc2a6, rare #6fb7ff, epic #c98bff, legendary #ffd36b, mythic #fff2c0, ascend #8bffd0.
+## Rarity taxonomy (THE ODDS, loud since 2026-07)
+`rar` field: common / rare / epic (shown "ULTRA RARE") / legendary / **mythic** (wheel-chain only) / **ascend** (Ascent-only until owned). **Reels are weighted by CFG.weights {common:54, rare:28, epic:13, legendary:5}** via weightedByRarity (before 2026-07 the weights were decorative and reels were uniform). A #payTable strip beside the machine shows the odds live and flares the landed row; every offer card slams a #rarBanner (label + RARC color + tiered SFX.rarSting — legendary/ascend pulse and confetti). Unowned ascensions are EXCLUDED from availableSkills (they leaked before); owned ones appear to level up.
+RARC colors: common #c9c1b4, rare #6db4ff, epic #c98bff, legendary #f8e2a0, ascend #8bffd0, mythic #fff2c0.
 
 ## THE SLOT (level-up)
-Reels spin on level-up; pairs +1 / triples +2 base levels. Dice ladder: roll threshold 7 (LAST RITES −1, LOADED DICE seal −1, CROOKED DICE curse +1); up to 4 wins = GOD LEVEL; PERFECT 12 +1. BANK n/7 → HOUSE VOUCHER (+1 base next slot). LAST RITES at ≤40% HP: blood-cost gambling. Offer cards show: "TAKE Lv X — effect" vs "Roll N+ → Lv Y — effect" vs miss = curse (uses projFx, which falls back to def.d(l)).
+Reels spin on level-up; pairs stage 2 / triples 5 base levels. Dice ladder: roll threshold 7 (LAST RITES −1, LOADED DICE seal −1, CROOKED DICE curse +1); up to 4 wins = GOD LEVEL; PERFECT 12 +1. BANK n/7 → HOUSE VOUCHER (+1 base next slot). LAST RITES at ≤40% HP: blood-cost gambling.
+**THE CLIMB (2026-07 — the "dice pay nothing" fix):** every interim dice win UPGRADES the prize one rarity tier — reroll from same-kind available* pool at the next tier (`nextUpgrade`/`TIER_KEY` in slot.js), staged levels carry to the new item; ascend/mythic prizes instead gain +1 staged level ("THE ASCENSION DEEPENS"); nothing rarer available → +1 level fallback. **A win always pays.**
+**Overflow law:** levels that don't fit a maxed item convert to +12 coins each inside grantSkill/grantWeaponLevels ('MAXED — THE HOUSE PAYS OVERFLOW'), and every grant announces 'NAME Lv a → b'. Offer cards show DELTAS ('TAKE Lv 2 → 4 · +36 ◈') via winLine(), never a capped number that lies.
 Caps: WEAPON_CAP=5 owned weapons, SKILL_CAP=7 distinct passives.
 
 ## RAGE (Overcharge)
@@ -31,9 +33,10 @@ Crash point: anchor-table inverse sampler pinned to reach odds — P(cp≥1.77)=
 **Crash = THE FALL:** ONE random curse from DEBUFF_POOL, random duration 5-15s + ceremony naming the drawn curse (retuned 2026-07 from a fixed 30s composite). Rank XI / WARDING SALT seal shorten all curses. Prize wins slam center-screen IN the crash layer (#ascWin — announce() alone renders under it).
 Vibe stack: accelerating starfield, rising ember orbs, aurora ≥2.5×, altitude zone texts, band colors (cream→green 1.5→cyan 2→violet 3→whitegold 5), milestone slams (CR_MS), ghost afterimages, tier ladder (1.5/2.5/5/☆10), frenzy combo (4+ fast presses), band-change chords, twin shockwaves ≥3×, saturation ramp, harp-gliss cash, gift-card slam, tumbling rocket + screen rip on death. All entry fns wrapped in try/catch logging [ANTE ASCENT].
 
-## ☸ THE WHEEL
-Violet token. Wind-back → spin (bulb chase, pointer kicks) → spring-settle to segment center → wedge flash + confetti. 12 segs: 60 COINS / CURSE / HEAL 33% / DOUBLE / 90 COINS / GILT+35 / **⚔ ARSENAL** (free weapon slot: slotForceWeapon flag + pending level, opens after close) / +1 LEVEL / FEVER / DOUBLE / **✦ SKILL** (rarity roll ×mult·1.6 — the ONLY mythic source, needs ×4 chain) / **▲ ASCENT** (free ride after close). DOUBLE: instant +15×mult coins, ×2 all prizes, slam, auto respin; ×4 cap = MAX FORTUNE 60×mult. NOTHING was removed 2026-07 (rewards felt weak); CURSE remains the only dud.
-Design v2 (2026-07): 400px dial, saturated neon-gothic segment palette, glossy black hub with gold ♠, outer neon ring that follows the live segment's color while spinning, landed prize slams center-screen (#wheelWin) in the segment color. COURTESY SUMMONS seal hastens token spawns.
+## ☸ THE WHEEL — THE TICKER (case-opening strip, 2026-07)
+Violet token. The round dial is GONE: a horizontal strip of neon prize cards (#tickerBox/#tickerStrip, 110px cards) rolls past a center gold needle with per-card ticks rising in pitch, crawls on the last cards with a heartbeat, lands off-center by a biased jitter and settles back with a bounce (visible near-miss). Winning card pops white-hot (.hit), rest dim (.landed). Frame glows in the passing card's color. Pure translate3d — no canvas.
+14 prizes (WSEGS, weight w||5; strip = shuffled weighted bag ×~66 no-adjacent-dupes, land index 60+rand20): 60 COINS / CURSE (only dud) / HEAL 33% / DOUBLE ×2 / 90 COINS / GILT+35 / **⚔ ARSENAL** (slotForceWeapon+pending) / +1 LEVEL / FEVER / DOUBLE / **✦ SKILL** (rollAscentPrize ×mult·1.6, the ONLY mythic source) / **▲ ASCENT** (free ride after close) / **⚔ SIDE ARM** (#2a9db8, w:3 — instant NEW common weapon Lv1, else +1 level to an owned one, else +45 coins) / **↻ FREE SPIN** (#ff5fa2, w:3 — immediate respin, multiplier untouched, handled BEFORE wheel.done).
+DOUBLE: instant +15×mult coins, ×2 all prizes (cap ×4 MAX FORTUNE 60×mult), red-hot reroll flash, auto respin via respinTicker(). Golden spin 5% ×2 all. **THE FIX IS IN contract works now**: a CURSE landing slides one card past (`startRoll`). Dev hook: `wheel.rigSeg='NAME'` before launch. COURTESY SUMMONS hastens tokens; token spawn plays a 3-note beckon + rings.
 
 ## ☨ TAROT (24 cards)
 Ground cards, weighted flip, fate-arrow when idle. 2 blessed (SUN, WORLD) / 10 good / 10 cursed / 2 damned (DEATH REVERSED, TOWER REVERSED). THE DEVIL sweeps all ground coins. Reveal: top-screen faint card, roman numerals, tier SFX.
@@ -57,13 +60,20 @@ Ten specific feats seal small PERMANENT bonuses (ACH_PERKS in ranks.js, keyed by
 ## 📖 THE INDEX (lifetime collection, 2026-07)
 Menu panel. Everything ever encountered is catalogued forever under NEW key `am_index_v1` (`{w,p,c,t,e,b}` id arrays; secrets counted via SEC): weapons (incl. implicit starting bolt at startGame), passives/ascensions (addPassiveHUD), curses (applyDebuff by label), tarot (revealTarot by name), enemies & bosses (spawnEnemy — CFG.enemy includes the 4 bosses; BOSS_DEFS membership decides the section). Unmet = dark ??? tile; met = glyph in its GLYPH_COL. `idxPct()` on menu line; milestones 25/50/75/100% pay gilt + favors (MARGINALIA at 100%). Hook = `idxSee(cat,id)` — call it from any NEW acquisition path or the thing won't catalogue.
 
+## Graphics & performance (presets 2026-07)
+gfxPanel opens with a one-click preset row — **🍞 TOASTER / LOW / MEDIUM / HIGH** (GFX_PRESETS in ui.js) setting q/lite/shafts/ghosts/grade/shake/flash/pcap; any manual sub-change → CUSTOM (derived by exact table match; MEDIUM = classic defaults so legacy saves label right; fps stays personal). `GFX.lite` is the toaster master gate.
+Renderer economics (perf round 4): full-screen vignette/danger/heartbeat/grade/shafts are PREBAKED half-res canvases (`bakeVign`, rebuilt on resize/danger-bucket change) drawn with live globalAlpha; glass pools + beams cache per-pool gradients (`gp._pg/_bg`); pillars/chandeliers/braziers/sigil/gargoyles/auras/court cache theirs; coins/orbs glow via cached glowSprite (no shadowBlur); knife/seeker bullets share one gradient per size (`bulletGrad`); homing shots re-target every 0.2s (`b._tg`); damage text batches ctx.font. Measured: ~24 → ~6 gradient allocations/frame at a 124-enemy horde. At lite additionally: no grain/embers/fog/pools/beams/audience/trail, decals ≤8, texts ≤24, LOD full-art 60→24, enemy separation off. Loop dt clamped [0, 0.05].
+
+## The menu (v2, 2026-07)
+Gold-sheen gradient title (keep the h1 NODE — 'namehouse' secret binds to it), cosmic dust + occasional shooting star (menuStar), stat CHIPS row (#chipRow: BEST/GILT/INDEX%/SECRETS/RANK + daily) — RANK now loads at boot. Hero ENTER THE CASINO plaque; secondary row INDEX/FEATS/VAULT/GRAPHICS. **Menu VAULT is browse-only** (`vaultBrowse` flag → renderVault disables buys as 'AT THE DOOR — cost ◈' with the 'MANIFESTS IN THE PIT — EVERY 5:00' banner); buying stays at the in-run door. Button hover is transform-only (the old letter-spacing hover reflowed neighbors — the "menu jitter" bug).
+
 ## Persistence
 `store` (core.js) prefers the artifact-env `window.storage`; otherwise a localStorage shim with the SAME keys (added 2026-07 — before that, local play silently saved nothing). Keys — never rename: `antemortem_ach_v2` (u/LT/REC/V/S), `antemortem_gilt_v1`, `am_rank_v1`, `antemortem_board_v1`, `antemortem_gfx_v1`, `am_index_v1`.
 
 ## Content inventory
 - **19 weapons** (bolt, cards, orbit, scythe, spark, chand, knives, aura, nova, seeker + coil lash, mortar blast, lantern turret, fangs swarm, bell knockback-toll, dice ricochet, phantom pierce-wave, coffin rear-nails, moths homing-stream). New-weapon mechanics use: timer blocks in update, helper fire fns, bullet flags (seek, pierce, blast, bounce, spin).
 - **~21 slot passives** incl thorns, lifesteal, armor (flat reduction in hurtPlayer), on-kill heal, knockback mult, inv-bonus.
-- **19 ascensions** (ASC_POOLS tiers 6/7/6) with fx labels.
+- **19 ascensions** (ASC_POOLS tiers 6/7/6) with fx labels — **max 5 since 2026-07** (all ap() pure additive/multiplicative, safe to reapply; FANGS ×5 = +76% dmg).
 - **3 mythics**: PHOENIX MARKER (death-detonate save, outranks Second Chance), THE HOUSE'S CUT, ALL IN.
 - **15 curses** in DEBUFF_POOL (schema: {label,dur,dot?,ap:()=>revert}).
 - 34 secrets, ~1080 achievements, streak milestones to 500, bounty targets, House Dare, Golden Hour, fever, daily blessing.

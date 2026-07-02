@@ -58,6 +58,7 @@ function quitToMenu(){
   hideTab(); tabHold=false; keys.clear(); touch.active=false;
   try{ stopDrone(); }catch(e){} try{ stopDrumroll(); }catch(e){}
   state='menu'; SFX.casinoDing();
+  try{ renderChips(); }catch(e){}
 }
 { let lastMute=0;
   $('mute').addEventListener('click',()=>{ const n2=performance.now(); if(n2-lastMute<2000 && lastMute>0) secret('checking','JUST CHECKING'); lastMute=n2; });
@@ -368,6 +369,17 @@ window.addEventListener('error',ev=>{ if(!window._amErr){ window._amErr=1; conso
 $('againBtn').addEventListener('click',()=>{ const nm=$('nameInput').value.trim().toUpperCase(); if(nm){ sessionName=nm; if(pendingEntry)pendingEntry.n=nm.slice(0,12); } startGame(); });
 $('nameInput').addEventListener('change',e=>{ sessionName=e.target.value.trim().toUpperCase(); });
 
+function renderChips(){
+  const chips=[
+    best>0?['🏆',best.toLocaleString(),'#ffd36b']:null,
+    ['◈',gilt+' GILT','#e8b64c'],
+    ['📖',idxPct()+'%','#c98bff'],
+    ['✦',SEC.size+'/34','#8bffd0'],
+    ['⚜','RANK '+RANK.rank+' · '+RANKS[RANK.rank-1].n,'#fff2c0'],
+    window._daily?['☀',window._daily,'#8bff9a']:null
+  ].filter(Boolean);
+  const cr=$('chipRow'); if(cr) cr.innerHTML=chips.map(c=>'<span class="mChip" style="--cc:'+c[2]+'"><b>'+c[0]+'</b>'+c[1]+'</span>').join('');
+}
 /* a rare shooting star across the menu sky */
 function menuStar(){
   setTimeout(()=>{ menuStar();
@@ -388,15 +400,7 @@ function menuStar(){
       window._daily='DAILY BLESSING +'+bonus+' ◈ · DAY '+LT.dayStreak;
     } }
   if(!RANK._ld){ RANK._ld=1; await loadRank(); }
-  { const chips=[
-      best>0?['🏆',best.toLocaleString(),'#ffd36b']:null,
-      ['◈',gilt+' GILT','#e8b64c'],
-      ['📖',idxPct()+'%','#c98bff'],
-      ['✦',SEC.size+'/34','#8bffd0'],
-      ['⚜','RANK '+RANK.rank+' · '+RANKS[RANK.rank-1].n,'#fff2c0'],
-      window._daily?['☀',window._daily,'#8bff9a']:null
-    ].filter(Boolean);
-    const cr=$('chipRow'); if(cr) cr.innerHTML=chips.map(c=>'<span class="mChip" style="--cc:'+c[2]+'"><b>'+c[0]+'</b>'+c[1]+'</span>').join(''); }
+  renderChips();
   menuStar();
   requestAnimationFrame(loop);
 })();
