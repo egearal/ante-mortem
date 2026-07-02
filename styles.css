@@ -59,7 +59,7 @@ h1{font-family:var(--disp);font-weight:800;letter-spacing:.28em;margin:0 0 2px;f
 #hptext{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:.15em;color:#fff;text-shadow:0 1px 2px #000;}
 .relicRow{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:46vw;margin-bottom:4px;pointer-events:auto;}
 .relicTag{font-family:var(--disp);font-size:9px;letter-spacing:.2em;color:#9a8f7e;text-align:right;margin:3px 0 2px;}
-#relicTip{position:fixed;z-index:80;background:linear-gradient(180deg,rgba(30,15,18,.98),rgba(12,5,7,.98));border:1px solid var(--gold);border-radius:8px;padding:8px 12px;font-size:12px;color:#d8c9a8;box-shadow:0 0 18px rgba(232,182,76,.35);pointer-events:none;text-align:right;}
+#relicTip{position:fixed;z-index:360;background:linear-gradient(180deg,rgba(30,15,18,.98),rgba(12,5,7,.98));border:1px solid var(--gold);border-radius:8px;padding:8px 12px;font-size:12px;color:#d8c9a8;box-shadow:0 0 18px rgba(232,182,76,.35);pointer-events:none;text-align:right;}
 #relicTip b{color:var(--gold-bright);font-family:var(--disp);}
 #pauseLayer{position:absolute;inset:0;z-index:24;background:rgba(4,2,4,.55);display:flex;align-items:center;justify-content:center;pointer-events:none;}
 #pauseLayer .pauseCard{pointer-events:auto;cursor:pointer;text-align:center;}
@@ -94,12 +94,12 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 .rkSub{font-family:var(--disp);font-size:10px;letter-spacing:.14em;color:#bfae8c;}
 .rkNext{font-family:var(--disp);font-size:11px;letter-spacing:.2em;margin-top:5px;color:var(--gold-bright);text-shadow:0 0 12px rgba(255,211,107,.55);animation:bulbPulse 2.2s infinite;}
 .rkUn{color:#8bff9a;}
-#tabPanel{position:fixed;inset:0;z-index:340;display:none;align-items:center;justify-content:center;gap:40px;background:rgba(4,2,5,.86);pointer-events:none;padding:30px;}
+#tabPanel{position:fixed;inset:0;z-index:340;display:none;align-items:center;justify-content:center;gap:40px;background:rgba(4,2,5,.92);pointer-events:none;padding:30px;}
 .tpCol{pointer-events:auto;}
 .tpi.hov{cursor:help;border-radius:6px;padding:3px 6px;}
 .tpi.hov:hover{background:rgba(232,182,76,.12);}
 #tabPanel.show{display:flex;}
-.tpCol{min-width:280px;max-width:380px;max-height:80vh;overflow-y:auto;background:rgba(22,12,18,.9);border:1px solid rgba(232,182,76,.45);border-radius:12px;padding:16px 20px;}
+.tpCol{min-width:280px;max-width:380px;max-height:80vh;overflow-y:auto;background:rgba(22,12,18,.97);border:1px solid rgba(232,182,76,.45);border-radius:12px;padding:16px 20px;}
 .tpH{font-family:var(--disp);font-size:13px;letter-spacing:.2em;color:var(--gold-bright);margin:8px 0 6px;text-shadow:0 0 10px rgba(232,182,76,.5);}
 .tpi{font-family:var(--disp);font-size:11px;letter-spacing:.08em;color:#d6c9ab;padding:3px 0;display:flex;gap:10px;align-items:center;}
 .tpg{font-size:20px;width:26px;text-align:center;filter:drop-shadow(0 0 6px currentColor);}
