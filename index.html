@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Ante Mortem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;800&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div id="wrap">
+  <canvas id="c"></canvas>
+
+  <button id="mute" title="Toggle sound">♪</button>
+  <div id="flash"></div>
+  <div class="streak" id="streak"></div>
+
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div class="hudTop">
+      <div class="stat coins"><span class="ico">◈</span><span id="coinCount">0</span></div>
+      <div id="timer">00:00</div>
+      <div class="stat kills"><span class="ico">†</span><span id="killCount">0</span></div>
+    </div>
+    <div id="xpbar"><div id="xpfill"></div></div>
+    <div id="combo" class="hidden"></div>
+    <div class="hudBottom">
+      <div id="hpwrap">
+        <div id="hplabel">LIFEBLOOD</div>
+        <div id="hpbar"><div id="hpfill"></div><div id="hptext"></div></div>
+      </div>
+      <div style="text-align:right">
+        <div id="level">LEVEL 1</div>
+        <div class="relicTag">⚔ WEAPONS</div><div id="relicsW" class="relicRow"></div>
+        <div class="relicTag">◈ SKILLS</div><div id="relicsS" class="relicRow"></div>
+        <div id="debuffs"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MENU -->
+  <div id="menu" class="layer">
+    <div class="panel">
+      <div class="tag">The house always bleeds</div>
+      <h1>ANTE MORTEM</h1>
+      <p class="flavor">You are Vesper, a soul the House has claimed. Survive the court of the damned, level up, and let the Dealer deal — then wager your blood for more. Beat the house. Win your soul back.</p>
+      <button class="btn" id="startBtn">Enter the Casino</button>
+      <button class="btn" id="vaultBtn" style="margin-top:8px;">◈ The Vault</button>
+      <button class="btn" id="achBtn" style="margin-top:8px;">🏆 Achievements</button>
+      <div class="controls"><b>WASD</b> / <b>Arrows</b> to move &nbsp;·&nbsp; on phone, <b>drag</b> to move &nbsp;·&nbsp; your weapon fires itself</div>
+      <div class="controls" id="bestLine"></div>
+    </div>
+  </div>
+
+  <!-- SLOT MACHINE -->
+  <div id="slot" class="layer hidden">
+    <div class="machine" id="machine">
+      <svg class="holdRing" id="holdRing" viewBox="0 0 100 140" preserveAspectRatio="none"><rect class="hrRect" x="2" y="2" width="96" height="136" rx="12" pathLength="1000"/></svg>
+      <div class="ritesLabel">◈ LAST RITES ◈</div>
+      <div class="marquee" id="slotTag">THE DEALER DEALS</div>
+      <div class="cabinet" id="cabinet">
+        <div class="reelsRow" id="reelsRow">
+          <span class="payArrow l">▶</span><span class="payArrow r">◀</span>
+          <div class="reelbox" id="reelBox0"><div class="reelStrip" id="strip0"></div></div>
+          <div class="reelbox" id="reelBox1"><div class="reelStrip" id="strip1"></div></div>
+          <div class="reelbox" id="reelBox2"><div class="reelStrip" id="strip2"></div></div>
+          <div class="payline"></div>
+        </div>
+        <div class="diceRow" id="diceRow" style="display:none">
+          <div id="ladderPips"><span class="lpip"></span><span class="lpip"></span><span class="lpip"></span><span class="lpip"></span></div>
+          <div class="die" id="dieL"></div>
+          <div class="die" id="dieR"></div>
+        </div>
+        <div class="riskWrap" id="riskWrap" style="display:none">
+          <div class="riskBar" id="riskBar">
+            <div class="riskWin" id="riskWin"></div>
+            <div class="riskMarker" id="riskMarker"></div>
+          </div>
+          <div class="riskScale"><span>LOSE</span><span style="color:#8bff9a">WIN</span><span>LOSE</span></div>
+        </div>
+        <div class="lever" id="lever"><div class="leverArm"></div><div class="leverBall"></div></div>
+      </div>
+      <div class="readout">
+        <div class="prizeTag" id="prizeTag">YOUR FATE</div>
+        <div id="cardName" class="r-common">—</div>
+        <div id="cardDesc">stop the reels…</div>
+      </div>
+      <div class="gambleMsg" id="gambleMsg"></div>
+      <div id="slotBtns"></div>
+    </div>
+  </div>
+  <div id="coinRain"></div>
+  <div id="jackpotLayer" class="hidden"><div class="jackpotText" id="jackpotText">JACKPOT</div><div id="jackpotSub" class="hidden"></div></div>
+  <div id="crashLayer" class="layer hidden">
+    <div id="crashStrobe"></div>
+    <div class="wheelShell">
+      <div class="wheelTitle" style="color:#8bff9a;text-shadow:0 0 26px rgba(139,255,154,.7);">▲ THE ASCENT ▲</div>
+      <div id="crashSky"><div id="crashRocket">▲</div></div>
+      <div id="crashMult">1.00×</div>
+      <div id="crashStake"></div>
+      <div id="crashHist"></div>
+      <div class="wheelMsg" id="crashMsg"></div>
+    </div>
+  </div>
+  <div id="wheelLayer" class="layer hidden">
+    <div class="wheelShell">
+      <div class="wheelTitle">☸ WHEEL OF SOULS ☸</div>
+      <div class="wheelMult hidden" id="wheelMult">×2</div>
+      <div class="wheelBox">
+        <div class="wheelPtr">▼</div>
+        <div id="soulWheel"></div>
+        <div class="wheelHub">◈</div>
+      </div>
+      <div class="wheelMsg" id="wheelMsg"><span class="keyhint">SPACE</span> — spin the wheel</div>
+    </div>
+  </div>
+  <div id="achToasts"></div>
+  <div id="announce" class="hidden"></div>
+  <div id="tarotReveal" class="hidden"><div class="trVeil"></div><div class="trCard"><div class="trNum">XIX</div><div class="trGlyph">★</div><div class="trName">THE SUN</div><div class="trTier">BLESSING</div></div></div>
+  <div id="relicTip" class="hidden"></div>
+  <div id="pauseLayer" class="hidden">
+    <div class="pauseCard">
+      <div class="pz">◈ PAUSED ◈</div>
+      <div class="pzsub">ESC OR CLICK TO RESUME · HOVER YOUR RELICS TO INSPECT THEM</div>
+      <div id="pauseStats"></div>
+    </div>
+    <div class="pauseRules">
+      <div class="prCorner tl">❧</div><div class="prCorner tr">❦</div>
+      <h3>⚜ HOUSE RULES ⚜</h3>
+      <div class="prLine"></div>
+      <div class="prRule"><span class="prIco">♞</span><span><b>MOVE</b> — WASD · arrows · drag. Your weapons fire themselves.</span></div>
+      <div class="prRule"><span class="prIco">🎰</span><span><b>LEVEL UP</b> — spin the reels. Pair pays <b>+2</b>. Triple pays <b>+5</b>, JACKPOT.</span></div>
+      <div class="prRule"><span class="prIco">🎲</span><span><b>THE DICE</b> — climb 7·8·9·10. Two safe rolls curse you. The last two take the skill. All four: <b>GOD LEVEL</b>.</span></div>
+      <div class="prRule"><span class="prIco">✦</span><span><b>PERFECT 12</b> — double six pays a bonus level.</span></div>
+      <div class="prRule"><span class="prIco">☨</span><span><b>LAST RITES</b> — below 40% blood: rolls cost blood, wins restore it, the fates soften.</span></div>
+      <div class="prRule"><span class="prIco">⚡</span><span><b>FEVER</b> — kills fill the gold meter. Full: 3s untouchable death-touch, then 8s of fury.</span></div>
+      <div class="prRule"><span class="prIco">➤</span><span><b>OFFERINGS</b> — follow the pulsing arrow. Fountains heal. Floor bets gamble. Gifts may bite.</span></div>
+      <div class="prRule"><span class="prIco">♠</span><span><b>THE MARKER</b> — die once, and the House may deal you one more hand.</span></div>
+      <div class="prRule"><span class="prIco">⚜</span><span><b>BOSSES</b> — every tenth wave. Good luck.</span></div>
+      <div class="prLine"></div>
+      <div class="prFoot">THE HOUSE ALWAYS BLEEDS</div>
+    </div>
+  </div>
+  <div id="bossBar" class="hidden"><div id="bossName">BOSS</div><div class="bossTrack"><div id="bossFill"></div></div></div>
+  <div id="vaultPanel" class="layer hidden">
+    <div class="panel vaultShell">
+      <div class="vaultHead">
+        <div class="vaultTitle">◈ THE VAULT ◈</div>
+        <div class="vaultSub">PERMANENT BLESSINGS · SEALED IN GILT</div>
+        <div class="vaultGilt">BANKED GILT: <b id="vaultGilt">0</b> ◈</div>
+      </div>
+      <div id="vaultGrid"></div>
+      <button class="btn" id="vaultClose" style="margin-top:14px;">Back</button>
+    </div>
+  </div>
+  <div id="achPanel" class="layer hidden">
+    <div class="panel" style="max-width:min(760px,94vw);max-height:86vh;display:flex;flex-direction:column;">
+      <h2 style="font-family:var(--disp);color:var(--gold-bright);letter-spacing:.14em;margin:0 0 4px;">☩ ACHIEVEMENTS</h2>
+      <div id="achCount" style="color:#c9b78e;font-family:var(--disp);letter-spacing:.1em;margin-bottom:6px;">0 / 0</div>
+      <div style="height:10px;border-radius:5px;background:rgba(0,0,0,.6);border:1px solid rgba(232,182,76,.4);overflow:hidden;margin-bottom:12px;"><div id="achProg" style="height:100%;width:0%;background:linear-gradient(90deg,#8a5a10,#ffd36b);box-shadow:0 0 12px rgba(255,211,107,.6);transition:width .4s;"></div></div>
+      <div id="achList" style="overflow-y:auto;flex:1;text-align:left;padding-right:6px;"></div>
+      <button class="btn" id="achClose" style="margin-top:12px;">Back</button>
+    </div>
+  </div>
+
+  <!-- GAME OVER -->
+  <div id="gameover" class="layer hidden">
+    <div class="panel">
+      <div class="result" id="goResult">YOU BLINKED OUT</div>
+      <div class="subline" id="goSub">The house collects its due.</div>
+      <div class="scoreBig" id="goScore">0</div>
+      <div class="subline"><span id="goTime">0:00</span> survived &nbsp;·&nbsp; <span id="goKills">0</span> slain &nbsp;·&nbsp; level <span id="goLevel">1</span></div>
+      <div class="pctl" id="goPctl">Tallying the ledger…</div>
+      <div class="gilt">Gilt earned: <b id="goGilt">0</b> &nbsp; (total <b id="goGiltTotal">0</b>)</div>
+      <ol id="board"></ol>
+      <div>
+        <input id="nameInput" maxlength="12" placeholder="YOUR NAME" spellcheck="false" autocomplete="off">
+      </div>
+      <button class="btn" id="againBtn">Wager Again</button>
+      <div class="soon">Soon: spend your Gilt in the Cloakroom — outfits, relics & Faustian Pacts.</div>
+    </div>
+  </div>
+</div>
+
+<script src="./src/core.js"></script>
+<script src="./src/sfx.js"></script>
+<script src="./src/fx.js"></script>
+<script src="./src/weapons.js"></script>
+<script src="./src/passives.js"></script>
+<script src="./src/tarot.js"></script>
+<script src="./src/wheel.js"></script>
+<script src="./src/ascent.js"></script>
+<script src="./src/slot.js"></script>
+<script src="./src/marker.js"></script>
+<script src="./src/ranks.js"></script>
+<script src="./src/vault.js"></script>
+<script src="./src/ui.js"></script>
+</body>
+</html>
