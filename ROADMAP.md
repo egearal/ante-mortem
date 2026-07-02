@@ -3,7 +3,7 @@
 
 ## PRIORITY — Steam-ready commercial features (agreed with director)
 - [ ] **PLAYABLE CHARACTERS** (4-6 unlockable gamblers, each warps core rules; unlocked via Ranks/secrets; character select screen on menu). Examples: The Debtor (starts cursed, +50% coins), The Croupier (slot odds shifted), The Widow (1 HP, triple damage). Biggest replay multiplier.
-- [ ] **THE COLLECTION** — permanent museum built from the TAB codex: silhouettes fill in for every weapon/passive/tarot/curse ever encountered across all runs (persist!). Completion % shown on main menu.
+- [x] **THE COLLECTION** — shipped 2026-07 as **THE INDEX** (menu panel, 8 sections, ??? tiles fill in as encountered, persists under `am_index_v1`, completion % on menu, milestone gilt+favor rewards at 25/50/75/100%).
 - [ ] **DAILY DEBT** — daily seeded challenge, fixed loadout, one attempt, local best (leaderboard later).
 - [ ] **STAKES** — post-win difficulty ladder (CRIMSON DECK → OBSIDIAN DECK...), each adds modifiers + exclusive rewards.
 - [x] **Next-unlock teaser** on death screen under the rank bar: "NEXT: <reward> — N MARKS AWAY". *(shipped 2026-07)*
