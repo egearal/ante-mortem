@@ -93,7 +93,7 @@ function openCrash(){
   prerollAsc();
   $('crashStake').innerHTML='<span class="stk on">I at 1.77×: '+przLabel(1)+'</span><span class="stk">II at 2.77×: '+przLabel(2)+'</span><span class="stk">III at 3.69×: '+przLabel(3)+'</span><span class="stk" style="color:#fff2c0;border-color:#fff2c0">7.77× JACKPOT: PICK OF 3 WEAPONS</span>';
   $('crashHist').innerHTML=crashHist.slice(-6).map(h=>'<span class="'+(h.ok?'ok':'no')+'">'+h.v.toFixed(2)+'×</span>').join('');
-  $('crashMsg').innerHTML='THE HOUSE ASKS NOTHING — ONLY NERVE · WIN: A <b style="color:#8bffd0">PASSIVE</b> (II AT 2×, III AT 3×) · CRASH: <b style="color:#ff6b6b">THE FALL — A RANDOM CURSE, 5-15s</b> · <span class="keyhint">SPACE</span> PUSH';
+  $('crashMsg').innerHTML='THE HOUSE ASKS NOTHING — ONLY NERVE · WIN: A <b style="color:#8bffd0">PASSIVE</b> (II AT 2.77×, III AT 3.69×) · CRASH: <b style="color:#ff6b6b">THE FALL — A RANDOM CURSE, 5-15s</b> · <span class="keyhint">SPACE</span> PUSH';
   $('crashLayer').classList.remove('hidden'); SFX.vaultOpen(); startDrone();
 }
 // crash-point sampler pinned to the director's reach odds:
@@ -257,8 +257,8 @@ function pushCrash(){
     $('crashLayer').classList.add('rip'); setTimeout(()=>$('crashLayer').classList.remove('rip'),200);
     noise(0.5,0.3,320); tone(320,0.55,'sawtooth',0.22,80); tone(90,0.6,'sine',0.2,40);
     crashHist.push({v:crash.cp,ok:false});
-    theFall();
-    $('crashMsg').innerHTML='<b style="color:#ff6b6b">☄ THE FALL — CURSED FOR 30 SECONDS ☄</b>';
+    const fell=theFall();
+    $('crashMsg').innerHTML='<b style="color:#ff6b6b">☄ THE FALL — '+fell+' ☄</b>';
     SFX.bust(); SFX.thud(); flash(0.5,'#8b1620'); shake=Math.min(22,shake+14);
     LT.crash=(LT.crash||0)+1; bump('crash',LT.crash);
     setTimeout(closeCrash, 1600);
@@ -292,6 +292,7 @@ function theFall(){
   const lbl=applyDebuff({label:d.label, dur:dur, dot:d.dot, ap:d.ap});
   flash(0.6,'#8b1620'); SFX.bust(); SFX.thud(); shake=Math.min(20,shake+10);
   setTimeout(()=>announce('☄ THE FALL — '+lbl+' ☄', false), 400);
+  return lbl;
 }
 function ascTier(m){ return m>=7.77?4:m>=3.69?3:m>=2.77?2:m>=1.77?1:0; }
 const ASC_POOLS=[null,['a_iron','a_eye','a_wind','a_gild','a_hand','a_skin'],['a_fang','a_storm','a_greed','a_fuse','a_holl','a_veil','a_swrm'],['a_crown','a_void','a_king','a_reap','a_engn','a_mirr']];
