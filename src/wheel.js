@@ -3,126 +3,134 @@
 let wheelTok=null, wheelTokT=40;
 let wheel={rot:0, vel:0, spinning:false, mult:1, lastSeg:-1, done:false};
 const WSEGS=[
- {n:'60 COINS', c:'#c8860a', tier:1, f:(m)=>{ const g2=60*m; P.coins+=g2; LT.coins+=g2; coinRain(14*m); SFX.cashout(); announce('◈ +'+g2+' COINS ◈',true); }},
- {n:'CURSE', c:'#640a16', tier:0, f:()=>{ const dl=applyDebuff(DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0]); SFX.bust(); flash(0.45,'#8b1620'); announce('☠ '+dl+' ☠',false); }},
- {n:'HEAL 33%', c:'#0e8a4a', tier:1, f:(m)=>{ const hl=Math.round(P.maxHp*0.33*m); P.hp=Math.min(P.maxHp,P.hp+hl); flash(0.4,'#8bff9a'); SFX.dingBells(); announce('✚ +'+hl+' BLOOD ✚',true); }},
- {n:'DOUBLE', c:'#7a3cff', tier:2, f:null},
- {n:'90 COINS', c:'#e8a112', tier:2, f:(m)=>{ const g2=90*m; P.coins+=g2; LT.coins+=g2; coinRain(24); SFX.cashout(); SFX.dingBells(); announce('◈ +'+g2+' COINS ◈',true); }},
- {n:'GILT +35', c:'#96700e', tier:2, f:(m)=>{ const g3=35*m; gilt+=g3; saveGilt(); SFX.chipStack(); SFX.casinoDing(); announce('◈ +'+g3+' GILT BANKED ◈',true); }},
- {n:'⚔ ARSENAL', c:'#c22ca0', tier:3, f:()=>{ slotForceWeapon=true; pending.push({}); SFX.levelUp(); announce('⚔ THE ARSENAL WHEEL AWAITS ⚔',true); }},
- {n:'+1 LEVEL', c:'#e0203a', tier:3, f:(m)=>{ for(let i=0;i<m;i++) pending.push({}); SFX.levelUp(); announce('⚜ +'+m+' LEVEL'+(m>1?'S':'')+' ⚜',true); }},
- {n:'FEVER', c:'#f2701a', tier:2, f:()=>{ if(!feverOn){ fever=1; startFever(); } else { feverT=Math.min(12+(P.feverDur||0),feverT+5); announce('⚡ FEVER +5s ⚡',true); SFX.dingBells(); } }},
- {n:'DOUBLE', c:'#7a3cff', tier:2, f:null},
- {n:'✦ SKILL', c:'#3c58e8', tier:3, f:(m)=>{ rollAscentPrize(m*1.6); }},
- {n:'▲ ASCENT', c:'#0ac878', tier:3, f:()=>{ wheel.toAscent=true; announce('▲ THE WHEEL OPENS THE ASCENT ▲',true); SFX.riser(); }}
+ {n:'60 COINS', g:'◈', c:'#c8860a', tier:1, f:(m)=>{ const g2=60*m; P.coins+=g2; LT.coins+=g2; coinRain(14*m); SFX.cashout(); announce('◈ +'+g2+' COINS ◈',true); }},
+ {n:'CURSE', g:'☠', c:'#640a16', tier:0, f:()=>{ const dl=applyDebuff(DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0]); SFX.bust(); flash(0.45,'#8b1620'); announce('☠ '+dl+' ☠',false); }},
+ {n:'HEAL 33%', g:'✚', c:'#0e8a4a', tier:1, f:(m)=>{ const hl=Math.round(P.maxHp*0.33*m); P.hp=Math.min(P.maxHp,P.hp+hl); flash(0.4,'#8bff9a'); SFX.dingBells(); announce('✚ +'+hl+' BLOOD ✚',true); }},
+ {n:'DOUBLE', g:'×2', c:'#7a3cff', tier:2, f:null},
+ {n:'90 COINS', g:'◈', c:'#e8a112', tier:2, f:(m)=>{ const g2=90*m; P.coins+=g2; LT.coins+=g2; coinRain(24); SFX.cashout(); SFX.dingBells(); announce('◈ +'+g2+' COINS ◈',true); }},
+ {n:'GILT +35', g:'◆', c:'#96700e', tier:2, f:(m)=>{ const g3=35*m; gilt+=g3; saveGilt(); SFX.chipStack(); SFX.casinoDing(); announce('◈ +'+g3+' GILT BANKED ◈',true); }},
+ {n:'⚔ ARSENAL', g:'⚔', c:'#c22ca0', tier:3, f:()=>{ slotForceWeapon=true; pending.push({}); SFX.levelUp(); announce('⚔ THE ARSENAL WHEEL AWAITS ⚔',true); }},
+ {n:'+1 LEVEL', g:'⚜', c:'#e0203a', tier:3, f:(m)=>{ for(let i=0;i<m;i++) pending.push({}); SFX.levelUp(); announce('⚜ +'+m+' LEVEL'+(m>1?'S':'')+' ⚜',true); }},
+ {n:'FEVER', g:'⚡', c:'#f2701a', tier:2, f:()=>{ if(!feverOn){ fever=1; startFever(); } else { feverT=Math.min(12+(P.feverDur||0),feverT+5); announce('⚡ FEVER +5s ⚡',true); SFX.dingBells(); } }},
+ {n:'DOUBLE', g:'×2', c:'#7a3cff', tier:2, f:null},
+ {n:'✦ SKILL', g:'✦', c:'#3c58e8', tier:3, f:(m)=>{ rollAscentPrize(m*1.6); }},
+ {n:'▲ ASCENT', g:'▲', c:'#0ac878', tier:3, f:()=>{ wheel.toAscent=true; announce('▲ THE WHEEL OPENS THE ASCENT ▲',true); SFX.riser(); }},
+ {n:'⚔ SIDE ARM', g:'⚔', c:'#2a9db8', tier:3, w:3, f:()=>{
+   const fresh=availableWeapons().filter(w=>!(P.wlv[w.id]>0) && w.rar==='common');
+   let def=fresh.length?pick(fresh):null;
+   if(!def){ const grown=WEAPONS.filter(w=>(P.wlv[w.id]||0)>0 && (P.wlv[w.id]||0)<w.max); def=grown.length?pick(grown):null; }
+   if(def){ grantWeaponLevels(def,1); flash(0.35,'#2a9db8'); }
+   else { P.coins+=45; LT.coins+=45; coinRain(14); SFX.cashout(); announce('⚔ ARSENAL FULL — +45 COINS ⚔',true); }
+ }},
+ {n:'↻ FREE SPIN', g:'↻', c:'#ff5fa2', tier:1, w:3, f:null}
 ];
+const TK_STEP=118, TK_CARD=110; // card 110px + 8px gap
 function buildWheelDom(){
-  const w=$('soulWheel'); if(w._built) return; w._built=true;
-  const n=WSEGS.length, segA=360/n;
-  let cg='conic-gradient(from -'+(segA/2)+'deg';
-  WSEGS.forEach((sg,i)=>{ cg+=', '+sg.c+' '+(i*segA)+'deg '+((i+1)*segA)+'deg'; });
-  w.style.background=cg+')';
-  const sh=document.createElement('div'); sh.className='wshade'; w.appendChild(sh);
-  WSEGS.forEach((sg,i)=>{
-    const k=document.createElement('div'); k.className='wspk';
-    k.style.transform='rotate('+(i*segA-segA/2)+'deg)'; w.appendChild(k);
-    const p=document.createElement('div'); p.className='wpin';
-    p.style.transform='rotate('+(i*segA-segA/2)+'deg) translateY(-176px)'; w.appendChild(p);
-    const d=document.createElement('div'); d.className='wseg wt'+sg.tier; d.textContent=sg.n;
-    d.style.transform='rotate('+(i*segA-90)+'deg) translate(68px,-7px)';
-    w.appendChild(d); });
-  const box=w.parentNode;
-  const rim=document.createElement('div'); rim.className='wheelRim'; box.insertBefore(rim,w);
-  const sp=document.createElement('div'); sp.className='wheelSpot'; box.insertBefore(sp,rim);
-  const wd=document.createElement('div'); wd.id='wheelWedge'; box.appendChild(wd);
-  const bm=document.createElement('div'); bm.className='wheelBeam'; box.appendChild(bm);
-  const bl=document.createElement('div'); bl.id='wheelBulbs';
-  for(let i=0;i<36;i++){ const b=document.createElement('span'); b.className='wb';
-    b.style.setProperty('--i',i);
-    b.style.transform='rotate('+(i*10)+'deg) translateY(-211px)'; bl.appendChild(b); }
-  box.appendChild(bl);
-  const hub=box.querySelector('.wheelHub'); if(hub) hub.textContent='♠';
+  const box=$('tickerBox'); if(box._built) return; box._built=true;
   const mq=document.createElement('div'); mq.className='wheelMarq'; mq.textContent='THE HOUSE SPINS FOR YOUR SOUL';
-  box.parentNode.insertBefore(mq, box.parentNode.firstChild);
+  box.parentNode.insertBefore(mq, box);
   const felt=document.createElement('div'); felt.className='wheelFelt';
   $('wheelLayer').insertBefore(felt, $('wheelLayer').firstChild);
 }
+function buildTickerStrip(){
+  // weighted bag (w||5 copies of each prize), shuffled with no adjacent twins, tiled long enough to roll across
+  const bag=[]; WSEGS.forEach((sg,i)=>{ const w=sg.w||5; for(let k=0;k<w;k++) bag.push(i); });
+  for(let i=bag.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; [bag[i],bag[j]]=[bag[j],bag[i]]; }
+  for(let i=1;i<bag.length;i++){ if(bag[i]===bag[i-1]) { const j=(i+7)%bag.length; [bag[i],bag[j]]=[bag[j],bag[i]]; } }
+  const strip=[]; while(strip.length<96) strip.push(...bag);
+  wheel.strip=strip;
+  const el=$('tickerStrip'); el.innerHTML='';
+  strip.forEach(si=>{ const sg=WSEGS[si];
+    const c=document.createElement('div'); c.className='tkCard tk'+sg.tier; c.style.setProperty('--tc',sg.c);
+    const dn=(sg.g && sg.n.indexOf(sg.g)===0)? sg.n.slice(sg.g.length).trim() : sg.n;
+    c.innerHTML='<span class="tkG">'+(sg.g||'◈')+'</span><span class="tkN">'+dn+'</span>';
+    el.appendChild(c); });
+}
+function tkX(x){ $('tickerStrip').style.transform='translate3d('+x+'px,0,-0px)'; }
+function tkCenter(i){ return i*TK_STEP+TK_CARD/2; }
 function openWheel(){
   buildWheelDom(); state='wheel';
-  wheel={rot:Math.random()*360, vel:0, phase:'idle', mult:1, lastSeg:-1, done:false, windT:0, setT:0, toAscent:false,
-    golden:Math.random()<0.05, windK:0, slowTicks:0, hbT:0};
+  wheel={x:0, phase:'idle', mult:1, lastSeg:-1, done:false, windT:0, setT:0, toAscent:false,
+    golden:Math.random()<0.05, windK:0, slowTicks:0, hbT:0, strip:[], tIdx:0, jit:0, rigSeg:(wheel&&wheel.rigSeg)||null};
+  buildTickerStrip();
   $('wheelMult').classList.add('hidden');
-  const wd=$('wheelWedge'); if(wd) wd.className='';
-  const bl=$('wheelBulbs'); if(bl){ bl.classList.remove('chase','all'); }
-  const bm=document.querySelector('.wheelBeam'); if(bm) bm.classList.remove('on');
   { const ww=$('wheelWin'); if(ww) ww.classList.remove('go'); }
-  $('soulWheel').style.boxShadow='';
+  const box=$('tickerBox'); box.classList.remove('landed','rehot'); box.style.boxShadow='';
   stopDrumroll();
   $('wheelLayer').classList.toggle('golden', wheel.golden);
   const mq=document.querySelector('.wheelMarq'); if(mq) mq.textContent=wheel.golden?'✦ GOLDEN SPIN — ALL PRIZES DOUBLED ✦':'THE HOUSE SPINS FOR YOUR SOUL';
-  $('soulWheel').style.transform='rotate('+wheel.rot+'deg)';
-  $('wheelMsg').innerHTML='<span class="keyhint">SPACE</span> — spin the wheel';
+  $('wheelMsg').innerHTML='<span class="keyhint">SPACE</span> — spin the ticker';
   $('wheelLayer').classList.remove('hidden');
+  wheel.boxW=box.clientWidth||Math.min(720,window.innerWidth*0.92);
+  wheel.x=-(tkCenter(8)-wheel.boxW/2); tkX(wheel.x);
   SFX.vaultOpen(); startDrone();
   if(wheel.golden) setTimeout(()=>{ if(state==='wheel'){ SFX.achieve(); SFX.tingle(); flash(0.4,'#ffd36b');
     $('wheelMsg').innerHTML='✦ ALL PRIZES DOUBLED ✦ · <span class="keyhint">SPACE</span> — spin'; } },350);
 }
 function launchWheel(){
   if(wheel.phase!=='idle'||wheel.done) return;
-  wheel.phase='wind'; wheel.windT=0; wheel.windFrom=wheel.rot; wheel.windK=0;
-  $('wheelMsg').textContent='FATE TURNS…';
+  wheel.phase='wind'; wheel.windT=0; wheel.windFrom=wheel.x; wheel.windK=0;
+  $('wheelMsg').textContent='FATE SLIDES…';
   tone(140,0.24,'sawtooth',0.12,70); SFX.leverWind();
 }
+function startRoll(){
+  const box=$('tickerBox'); wheel.boxW=box.clientWidth||wheel.boxW||660;
+  let tIdx=60+((Math.random()*20)|0);
+  if(wheel.rigSeg){ let k=56; while(k<wheel.strip.length && WSEGS[wheel.strip[k]].n!==wheel.rigSeg) k++;
+    if(k<wheel.strip.length) tIdx=k; wheel.rigSeg=null; }
+  // THE FIX IS IN — the CURSE card never holds, the ticker slides one past it
+  if(WSEGS[wheel.strip[tIdx]].n==='CURSE' && typeof contractDone==='function' && contractDone('thefix')){
+    tIdx++; setTimeout(()=>announce('♠ THE FIX IS IN — THE CURSE NEVER HOLDS ♠',true), 900); }
+  wheel.tIdx=tIdx;
+  let jit=(Math.random()*0.68-0.34)*TK_STEP;
+  if(Math.abs(jit)<0.22*TK_STEP && Math.random()<0.6) jit=(jit<0?-1:1)*(0.26+Math.random()*0.08)*TK_STEP; // bias toward visible hangs
+  wheel.jit=jit;
+  wheel.xClean=-(tkCenter(tIdx)-wheel.boxW/2);
+  wheel.rx0=wheel.x; wheel.rx1=wheel.xClean-jit;
+  wheel.rollT=0; wheel.rollDur=3.9+Math.random()*0.6; wheel.slowTicks=0; wheel.hbT=0; wheel.lastSeg=-1;
+  wheel.phase='roll';
+  SFX.riser(); noise(0.3,0.22,2600); tone(150,0.5,'sawtooth',0.1,900);
+  setTimeout(()=>SFX.chipStack(),60); setTimeout(()=>SFX.coinPling(),130); setTimeout(()=>SFX.tingle(),220);
+  if(wheel.golden) startDrumroll();
+}
 function tickWheel(dt){
-  const segA=360/WSEGS.length;
+  const el=$('tickerStrip'); if(!el) return;
   if(wheel.phase==='wind'){
     wheel.windT+=dt; const f=Math.min(1,wheel.windT/0.22);
-    wheel.rot=wheel.windFrom - 26*Math.sin(f*Math.PI*0.5);
-    $('soulWheel').style.transform='rotate('+wheel.rot+'deg)';
+    wheel.x=wheel.windFrom + 0.8*TK_STEP*Math.sin(f*Math.PI*0.5); tkX(wheel.x);
     if(Math.floor(f*4)>wheel.windK){ wheel.windK=Math.floor(f*4); tone(240+wheel.windK*70,0.03,'square',0.12); noise(0.02,0.06,3000); }
-    if(f>=1){ wheel.phase='spin'; wheel.vel=820+Math.random()*320; wheel.slowTicks=0; wheel.hbT=0;
-      SFX.riser(); noise(0.3,0.22,2600); tone(150,0.5,'sawtooth',0.1,900);
-      setTimeout(()=>SFX.chipStack(),60); setTimeout(()=>SFX.coinPling(),130); setTimeout(()=>SFX.chipStack(),210); setTimeout(()=>SFX.tingle(),220);
-      const bl=$('wheelBulbs'); if(bl) bl.classList.add('chase');
-      if(wheel.golden) startDrumroll();
-    }
+    if(f>=1) startRoll();
     return;
   }
-  if(wheel.phase==='spin'){
-    wheel.rot=(wheel.rot+wheel.vel*dt)%360;
-    wheel.vel*=Math.pow(0.42,dt); wheel.vel-=26*dt;
-    $('soulWheel').style.transform='rotate('+wheel.rot+'deg)';
-    const seg=Math.floor((((-wheel.rot%360)+360+segA/2)%360)/segA)%WSEGS.length;
-    if(seg!==wheel.lastSeg){ wheel.lastSeg=seg;
-      $('soulWheel').style.boxShadow='0 0 0 3px #3a0a10,0 0 56px '+WSEGS[seg].c+',inset 0 0 40px rgba(0,0,0,.8)';
-      const heat=1-Math.min(1,wheel.vel/900), tf=950+heat*1450;
-      tone(tf,0.045,'square',0.08+heat*0.07); tone(tf*2,0.03,'sine',0.04+heat*0.03);
-      if(wheel.vel<420) tone(2400+heat*800,0.05,'sine',0.05);
-      const p9=document.querySelector('.wheelPtr');
-      if(wheel.vel<170){ wheel.slowTicks++; SFX.dingHit(Math.min(5,wheel.slowTicks));
-        if(p9){ p9.style.transform=''; p9.classList.remove('kick'); void p9.offsetWidth; p9.classList.add('kick'); } }
-      else if(p9){ p9.style.transform='translateX(-50%) rotate(-16deg)'; setTimeout(()=>{ p9.style.transform='translateX(-50%)'; },50); }
+  if(wheel.phase==='roll'){
+    wheel.rollT+=dt; const t=Math.min(1,wheel.rollT/wheel.rollDur);
+    const e=1-Math.pow(1-t,3);
+    wheel.x=wheel.rx0+(wheel.rx1-wheel.rx0)*e; tkX(wheel.x);
+    const card=Math.round((wheel.boxW/2-wheel.x-TK_CARD/2)/TK_STEP);
+    if(card!==wheel.lastSeg){ wheel.lastSeg=card;
+      SFX.wheelTick(t);
+      const sg=WSEGS[wheel.strip[card]];
+      if(sg) $('tickerBox').style.boxShadow='0 0 0 2px #3a0a10,0 0 56px '+sg.c+',inset 0 0 60px rgba(0,0,0,.85)';
+      const cEl=el.children[card]; if(cEl){ cEl.classList.remove('pass'); void cEl.offsetWidth; cEl.classList.add('pass'); }
+      const mk=$('tickerMarker'); if(mk){ mk.classList.remove('kick'); void mk.offsetWidth; mk.classList.add('kick'); }
+      if(t>0.82){ wheel.slowTicks++; SFX.dingHit(Math.min(5,wheel.slowTicks)); }
     }
-    if(wheel.vel<95){ wheel.hbT-=dt; if(wheel.hbT<=0){ wheel.hbT=0.16+0.3*(wheel.vel/95); tone(50,0.16,'sine',0.3,38); setTimeout(()=>tone(62,0.1,'sine',0.2,44),120); } }
-    if(wheel.vel<=16){
-      wheel.phase='settle'; wheel.setT=0;
-      tone(170,0.2,'sine',0.2,330); setTimeout(()=>tone(330,0.15,'sine',0.12,180),100);
-      const cur=((wheel.rot%360)+360)%360;
-      const seg2=Math.floor((((-cur)+360+segA/2)%360)/segA)%WSEGS.length;
-      wheel.landSeg=seg2;
-      let tgt=(-seg2*segA); while(tgt>cur) tgt-=360; while(cur-tgt>360) tgt+=360;
-      wheel.setFrom=cur; wheel.setTo=tgt;
-    }
+    if(t>0.86){ wheel.hbT-=dt; if(wheel.hbT<=0){ wheel.hbT=0.22+0.3*(1-t); tone(50,0.16,'sine',0.3,38); setTimeout(()=>tone(62,0.1,'sine',0.2,44),120); } }
+    if(t>=1){ wheel.phase='settle'; wheel.setT=0;
+      tone(170,0.2,'sine',0.2,330); setTimeout(()=>tone(330,0.15,'sine',0.12,180),100); }
     return;
   }
   if(wheel.phase==='settle'){
+    // the near-miss: the strip landed off-center on the winner's edge, now it slides back with a bounce
     wheel.setT+=dt; const f=Math.min(1,wheel.setT/0.55);
     const ease=1-Math.pow(1-f,3);
-    const over=Math.sin(f*Math.PI)* -7*(1-f);
-    wheel.rot=wheel.setFrom+(wheel.setTo-wheel.setFrom)*ease+over;
-    $('soulWheel').style.transform='rotate('+wheel.rot+'deg)';
+    wheel.x=wheel.rx1+(wheel.xClean-wheel.rx1)*ease + Math.sin(f*Math.PI)*(-wheel.jit*0.3)*(1-f);
+    tkX(wheel.x);
     if(f>=0.5 && f-dt/0.55<0.5) tone(120,0.14,'sine',0.14,70);
-    if(f>=1){ wheel.phase='done'; landWheel(wheel.landSeg); }
+    if(f>=1){ wheel.phase='done';
+      const cEl=$('tickerStrip').children[wheel.tIdx]; if(cEl) cEl.classList.add('hit');
+      $('tickerBox').classList.add('landed');
+      landWheel(wheel.strip[wheel.tIdx]); }
   }
 }
 function domConfetti(n,lid){
@@ -139,18 +147,26 @@ function landChime(t){
   else if(t===2){ setTimeout(()=>SFX.tingle(),90); setTimeout(()=>SFX.chipStack(),220); setTimeout(()=>SFX.casinoDing(),330); }
   else { setTimeout(()=>SFX.dingBells(),60); setTimeout(()=>SFX.seraph(),320); }
 }
+function respinTicker(){
+  if(state!=='wheel') return;
+  const box=$('tickerBox'); box.classList.remove('landed');
+  [...$('tickerStrip').children].forEach(c=>c.classList.remove('hit','pass'));
+  wheel.phase='wind'; wheel.windT=0; wheel.windFrom=wheel.x; wheel.windK=0;
+}
 function landWheel(seg){
-  const sg=WSEGS[seg], segA=360/WSEGS.length;
+  const sg=WSEGS[seg];
   stopDrumroll();
   const gm=wheel.golden?2:1;
   shake=Math.min(18,shake+8+sg.tier*3); landChime(sg.tier);
-  const wd=$('wheelWedge');
-  if(wd){ wd.style.background='conic-gradient(from '+(-segA/2)+'deg, transparent 0deg '+(seg*segA)+'deg, rgba(255,240,190,.85) '+(seg*segA)+'deg '+((seg+1)*segA)+'deg, transparent '+((seg+1)*segA)+'deg)';
-    wd.style.transform='rotate('+wheel.rot+'deg)'; wd.className='flash'; }
-  const sw9=$('soulWheel'); if(sw9){ sw9.style.boxShadow='0 0 0 2px #3a0a10,0 0 90px rgba(255,220,130,.95),inset 0 0 34px rgba(0,0,0,.75)'; setTimeout(()=>{ sw9.style.boxShadow=''; },800); }
-  const p9=document.querySelector('.wheelPtr'); if(p9){ p9.style.transform=''; p9.classList.remove('slam'); void p9.offsetWidth; p9.classList.add('slam'); setTimeout(()=>p9.classList.remove('slam'),600); }
-  const bm=document.querySelector('.wheelBeam'); if(bm){ bm.classList.remove('on'); void bm.offsetWidth; bm.classList.add('on'); }
-  const bl=$('wheelBulbs'); if(bl){ bl.classList.remove('chase'); bl.classList.add('all'); setTimeout(()=>bl.classList.remove('all'),1300); }
+  const box=$('tickerBox');
+  if(box){ box.style.boxShadow='0 0 0 2px #3a0a10,0 0 90px '+sg.c+',inset 0 0 60px rgba(0,0,0,.85)'; }
+  const mk=$('tickerMarker'); if(mk){ mk.classList.remove('slam'); void mk.offsetWidth; mk.classList.add('slam'); setTimeout(()=>mk.classList.remove('slam'),600); }
+  if(sg.n==='↻ FREE SPIN'){
+    announce('↻ THE HOUSE SPINS AGAIN — FREE ↻',true); SFX.achieve(); SFX.dingBells(); flash(0.35,'#ff5fa2');
+    $('wheelMsg').textContent='↻ FREE SPIN — AGAIN!';
+    setTimeout(respinTicker, 900);
+    return;
+  }
   if(sg.n==='DOUBLE'){
     if(wheel.mult>=4){ const g4=60*wheel.mult*gm; P.coins+=g4; LT.coins+=g4; coinRain(26); SFX.cashout(); SFX.dingBells(); SFX.dingHit(6); domConfetti(20); announce('◈ MAX FORTUNE +'+g4+' COINS ◈',true); }
     if(wheel.mult<4){
@@ -163,7 +179,8 @@ function landWheel(seg){
       SFX.dingBells(); flash(0.5,'#c98bff'); domConfetti(12); coinRain(8);
       $('wheelMsg').textContent='+'+inst+' COINS · ALL PRIZES ×'+(wheel.mult*gm)+' — AGAIN!';
       startDrumroll();
-      setTimeout(()=>{ if(state==='wheel'){ wheel.phase='wind'; wheel.windT=0; wheel.windFrom=wheel.rot; wheel.windK=0; if(wd) wd.className=''; if(bl) bl.classList.remove('all'); } },800);
+      if(box){ box.classList.remove('rehot'); void box.offsetWidth; box.classList.add('rehot'); }
+      setTimeout(respinTicker, 800);
       return;
     }
   }

@@ -23,7 +23,7 @@ $('indexBtn').addEventListener('click',()=>{ openIndexPanel(); SFX.uiDing(); });
         ['FEVER','Kills charge the fever meter. Full = a golden killing rush. Every 3rd minute is GOLDEN HOUR: double coins.']
       ]},
       {ico:'🎡', name:'THE GAMBLES', col:'#c98bff', items:[
-        ['WHEEL OF SOULS','Grab the violet token, SPACE spins. DOUBLE wedges respin everything at ×2 then ×4. One wheel in 20 comes up GOLDEN — all prizes doubled.'],
+        ['WHEEL OF SOULS','Grab the violet token — SPACE rolls a strip of prizes past the gold needle, tick by tick, until one lands. DOUBLE respins everything at ×2 then ×4. FREE SPIN rolls again for nothing. SIDE ARM hands you a weapon on the spot. One spin in 20 comes up GOLDEN — all prizes doubled.'],
         ['THE ASCENT','The green gate. Free to ride: SPACE pushes the number up, ENTER cashes out. Prizes at 1.77× / 2.77× / 3.69× — and 7.77× is the JACKPOT: your pick of 3 weapons. Crash = a random curse, 5-15 seconds.'],
         ['TAROT','Ghost cards flip on the marble — half bless, half curse. The violet arrow points to them.'],
         ['THE MARKER','On death the House flips LIVE or DIE — 30% to live. SPACE bribes with your gilt: 30% of it (+5-10%), 30% more (+5-10%), then the rest (+5%). Cap 75%.']
