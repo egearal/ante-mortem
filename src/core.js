@@ -1144,6 +1144,12 @@ function render(){
     ctx.strokeStyle='#ffd36b'; ctx.lineWidth=2.4;
     ctx.beginPath(); ctx.arc(0,0,be.r*1.4+10,-1.5708,-1.5708+(bounty.t/12)*6.283); ctx.stroke();
     ctx.restore(); }
+  // horde LOD: beyond the nearest 60 enemies, draw cheap silhouettes
+  if(enemies.length>60){
+    const ds=enemies.map(e=>{ const dx=e.x-P.x, dy=e.y-P.y; return e._d2=dx*dx+dy*dy; }).sort((a,b)=>a-b);
+    const cut=ds[59];
+    for(const e of enemies) e._lod = e._d2>cut && !e.boss && !e.elite;
+  } else for(const e of enemies) e._lod=false;
   for(const e of enemies) drawEnemy(e);
 
   // chain lightning — jagged bolts, white core + halo
@@ -1441,6 +1447,14 @@ function render(){
 }
 function drawEnemy(e){
   const t=gt*4+e.ph, T=e.vt||e.type, r=e.r;
+  if(e._lod){ // cheap distant silhouette: shadow, flat body, glowing eyes
+    ctx.save(); ctx.translate(e.x,e.y);
+    ctx.fillStyle='rgba(0,0,0,0.32)'; ctx.beginPath(); ctx.ellipse(0,r*0.72,r*0.78,r*0.26,0,0,6.28); ctx.fill();
+    if(e.flash>0){ const sq=Math.min(0.16,e.flash*1.4); ctx.scale(1+sq,1-sq); }
+    ctx.fillStyle=e.flash>0?'#fff':e.dark; ctx.beginPath(); ctx.ellipse(0,0,r*0.8,r*0.9,0,0,6.28); ctx.fill();
+    ctx.fillStyle=e.col; ctx.beginPath(); ctx.arc(-r*0.22,-r*0.18,r*0.11,0,6.28); ctx.arc(r*0.22,-r*0.18,r*0.11,0,6.28); ctx.fill();
+    ctx.restore(); return;
+  }
   ctx.save(); ctx.translate(e.x,e.y);
   // contact shadow
   const fly=(T==='wraith'||T==='hexer');
@@ -2011,7 +2025,7 @@ function loop(now){
   requestAnimationFrame(loop);
   try{
   const dt=Math.min((now-last)/1000,0.05); last=now;
-  if(loopPrev){ frameAvg=frameAvg*0.93+(now-loopPrev)*0.07; } loopPrev=now; qLow = GFX.q==='low' ? true : GFX.q==='high' ? false : (qLow ? (frameAvg>21) : (frameAvg>26));
+  if(loopPrev){ frameAvg=frameAvg*0.93+(now-loopPrev)*0.07; } loopPrev=now; qLow = GFX.q==='low' ? true : GFX.q==='high' ? false : (qLow ? (frameAvg>18) : (frameAvg>22));
   if(qLow!==window._qPrev){ window._qPrev=qLow; resize(); }
   if(GFX.shake===0) shake=0; else if(GFX.shake<1) shake*=0.8;
   document.body.classList.toggle('gamble', state==='slot'||state==='wheel'||state==='crash'||state==='marker');
