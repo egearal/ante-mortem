@@ -2,7 +2,8 @@
 { const rt=$('relicTip'); if(rt) document.body.appendChild(rt); } // escape #wrap stacking contexts — must beat #tabPanel (z 340)
 $('achBtn').addEventListener('click',()=>{ openAchPanel(); });
 $('indexBtn').addEventListener('click',()=>{ openIndexPanel(); SFX.uiDing(); });
-{ const vb=$('achBtn'); if(vb){ const gb=document.createElement('button'); gb.className=vb.className; gb.id='gfxBtn'; gb.textContent='⚙ GRAPHICS'; vb.parentNode.insertBefore(gb,vb.nextSibling); gb.addEventListener('click',openGfx); } }
+$('gfxBtn').addEventListener('click',openGfx);
+$('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.uiDing(); });
 { const pl=$('pauseLayer');
   if(pl){
     const row=document.createElement('div'); row.id='howBtnRow';
@@ -62,7 +63,7 @@ function quitToMenu(){
   $('mute').addEventListener('click',()=>{ const n2=performance.now(); if(n2-lastMute<2000 && lastMute>0) secret('checking','JUST CHECKING'); lastMute=n2; });
   let tclk=0; const h1=document.querySelector('#menu h1');
   if(h1){ h1.style.cursor='default'; h1.addEventListener('click',()=>{ if(++tclk>=7) secret('namehouse','NAME OF THE HOUSE'); }); } }
-$('vaultClose').addEventListener('click',()=>{ $('vaultPanel').classList.add('hidden'); if(state==='vault') state='playing'; });
+$('vaultClose').addEventListener('click',()=>{ $('vaultPanel').classList.add('hidden'); vaultBrowse=false; if(state==='vault') state='playing'; });
 document.querySelector('.pauseCard').addEventListener('click',()=>{ if(state==='paused'){ state='playing'; $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); } });
 $('achClose').addEventListener('click',()=>{ $('achPanel').classList.add('hidden'); });
 $('idxClose').addEventListener('click',()=>{ $('indexPanel').classList.add('hidden'); SFX.casinoDing(); });
@@ -336,6 +337,15 @@ window.addEventListener('error',ev=>{ if(!window._amErr){ window._amErr=1; conso
 $('againBtn').addEventListener('click',()=>{ const nm=$('nameInput').value.trim().toUpperCase(); if(nm){ sessionName=nm; if(pendingEntry)pendingEntry.n=nm.slice(0,12); } startGame(); });
 $('nameInput').addEventListener('change',e=>{ sessionName=e.target.value.trim().toUpperCase(); });
 
+/* a rare shooting star across the menu sky */
+function menuStar(){
+  setTimeout(()=>{ menuStar();
+    if(state!=='menu') return;
+    const s=document.createElement('div'); s.className='mStar';
+    s.style.left=(8+Math.random()*64)+'%'; s.style.top=(4+Math.random()*30)+'%';
+    $('menu').appendChild(s); setTimeout(()=>s.remove(),1500);
+  }, 6000+Math.random()*8000);
+}
 /* boot */
 (async function boot(){
   buildAch(); await loadAch(); await loadGilt(); await loadGfx(); await idxLoad();
@@ -346,7 +356,16 @@ $('nameInput').addEventListener('change',e=>{ sessionName=e.target.value.trim().
       gilt+=bonus; saveGilt(); achSaveSoon();
       window._daily='DAILY BLESSING +'+bonus+' ◈ · DAY '+LT.dayStreak;
     } }
-  { const seals=Object.values(VAULT.lv).reduce((a,b)=>a+b,0);
-    $('bestLine').innerHTML=(best>0?`Your best: <b>${best.toLocaleString()}</b> &nbsp;·&nbsp; `:'')+`Gilt: <b>${gilt}</b> ◈ &nbsp;·&nbsp; Index: <b>${idxPct()}%</b> &nbsp;·&nbsp; Secrets: <b>${SEC.size}</b>/34`+(window._daily?` &nbsp;·&nbsp; <b style="color:#8bff9a">${window._daily}</b>`:''); }
+  if(!RANK._ld){ RANK._ld=1; await loadRank(); }
+  { const chips=[
+      best>0?['🏆',best.toLocaleString(),'#ffd36b']:null,
+      ['◈',gilt+' GILT','#e8b64c'],
+      ['📖',idxPct()+'%','#c98bff'],
+      ['✦',SEC.size+'/34','#8bffd0'],
+      ['⚜','RANK '+RANK.rank+' · '+RANKS[RANK.rank-1].n,'#fff2c0'],
+      window._daily?['☀',window._daily,'#8bff9a']:null
+    ].filter(Boolean);
+    const cr=$('chipRow'); if(cr) cr.innerHTML=chips.map(c=>'<span class="mChip" style="--cc:'+c[2]+'"><b>'+c[0]+'</b>'+c[1]+'</span>').join(''); }
+  menuStar();
   requestAnimationFrame(loop);
 })();

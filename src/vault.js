@@ -87,8 +87,11 @@ function buyVault(id){
   renderVault();
   setTimeout(()=>{ if(state==='vault'){ $('vaultPanel').classList.add('hidden'); state='playing'; announce('◈ THE VAULT SEALS ITSELF — RETURNS IN 5 MINUTES ◈',true); SFX.reelLock(); } },1300);
 }
+let vaultBrowse=false; // menu window-shopping: everything visible, nothing buyable
 function renderVault(){
   $('vaultGilt').textContent=gilt;
+  const sub=document.querySelector('#vaultPanel .vaultSub');
+  if(sub) sub.textContent = vaultBrowse ? '◈ THE DOOR MANIFESTS IN THE PIT — EVERY 5:00, ONE SEAL PER VISIT ◈' : 'PERMANENT BLESSINGS · SEALED IN GILT';
   const grid=$('vaultGrid'); let html='';
   for(const def of VAULT_DEFS){
     const lv=vlv(def.id), unlocked2=vaultUnlocked(def), maxed=lv>=def.max, cost=vaultCost(def);
@@ -99,6 +102,7 @@ function renderVault(){
       +'<div class="vPips">'+pips+'</div>'
       +(!unlocked2 ? '<div class="vLock">🔒 '+def.reqTxt+'</div>'
         : maxed ? '<button class="vBuy" disabled>FULLY UNSEALED</button>'
+        : vaultBrowse ? '<button class="vBuy" disabled>AT THE DOOR — '+cost+' ◈</button>'
         : vaultSpent ? '<button class="vBuy" disabled>THE DOOR CLOSES</button>'
         : '<button class="vBuy" data-vid="'+def.id+'" '+(gilt<cost?'disabled':'')+'>UNSEAL — '+cost+' ◈</button>')
       +'</div>';
