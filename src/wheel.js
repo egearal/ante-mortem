@@ -3,13 +3,13 @@
 let wheelTok=null, wheelTokT=40;
 let wheel={rot:0, vel:0, spinning:false, mult:1, lastSeg:-1, done:false};
 const WSEGS=[
- {n:'45 COINS', c:'#8a5a10', tier:1, f:(m)=>{ const g2=45*m; P.coins+=g2; LT.coins+=g2; coinRain(14*m); SFX.cashout(); announce('◈ +'+g2+' COINS ◈',true); }},
+ {n:'60 COINS', c:'#8a5a10', tier:1, f:(m)=>{ const g2=60*m; P.coins+=g2; LT.coins+=g2; coinRain(14*m); SFX.cashout(); announce('◈ +'+g2+' COINS ◈',true); }},
  {n:'CURSE', c:'#3a0a10', tier:0, f:()=>{ const dl=applyDebuff(DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0]); SFX.bust(); flash(0.45,'#8b1620'); announce('☠ '+dl+' ☠',false); }},
  {n:'HEAL 33%', c:'#14432a', tier:1, f:(m)=>{ const hl=Math.round(P.maxHp*0.33*m); P.hp=Math.min(P.maxHp,P.hp+hl); flash(0.4,'#8bff9a'); SFX.dingBells(); announce('✚ +'+hl+' BLOOD ✚',true); }},
  {n:'DOUBLE', c:'#6a4ab5', tier:2, f:null},
  {n:'90 COINS', c:'#a8781c', tier:2, f:(m)=>{ const g2=90*m; P.coins+=g2; LT.coins+=g2; coinRain(24); SFX.cashout(); SFX.dingBells(); announce('◈ +'+g2+' COINS ◈',true); }},
- {n:'GILT +15', c:'#4a3616', tier:2, f:(m)=>{ const g3=15*m; gilt+=g3; saveGilt(); SFX.chipStack(); SFX.casinoDing(); announce('◈ +'+g3+' GILT BANKED ◈',true); }},
- {n:'NOTHING', c:'#14090c', tier:0, f:()=>{ SFX.thud(); tone(300,0.4,'sawtooth',0.12,140); announce('… THE HOUSE KEEPS IT …',false); }},
+ {n:'GILT +25', c:'#4a3616', tier:2, f:(m)=>{ const g3=25*m; gilt+=g3; saveGilt(); SFX.chipStack(); SFX.casinoDing(); announce('◈ +'+g3+' GILT BANKED ◈',true); }},
+ {n:'⚔ ARSENAL', c:'#46306a', tier:3, f:()=>{ slotForceWeapon=true; pending.push({}); SFX.levelUp(); announce('⚔ THE ARSENAL WHEEL AWAITS ⚔',true); }},
  {n:'+1 LEVEL', c:'#8a1520', tier:3, f:(m)=>{ for(let i=0;i<m;i++) pending.push({}); SFX.levelUp(); announce('⚜ +'+m+' LEVEL'+(m>1?'S':'')+' ⚜',true); }},
  {n:'FEVER', c:'#a8781c', tier:2, f:()=>{ if(!feverOn){ fever=1; startFever(); } else { feverT=Math.min(12,feverT+5); announce('⚡ FEVER +5s ⚡',true); SFX.dingBells(); } }},
  {n:'DOUBLE', c:'#6a4ab5', tier:2, f:null},

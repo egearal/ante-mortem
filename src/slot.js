@@ -70,6 +70,7 @@ const MINIPOWERS=[
   {t:'+1% Crit', ap:()=>{P.crit=Math.min(0.9,P.crit+0.01);}}
 ];
 function grantMiniPower(){ const m=MINIPOWERS[(Math.random()*MINIPOWERS.length)|0]; m.ap(); return m.t; }
+let slotForceWeapon=false;
 function openNextSlot(){
   if(!pending.length) return;
   const p=pending.shift();
@@ -84,7 +85,8 @@ function openNextSlot(){
   $('machine').classList.remove('win','jackpot','bust','pulling');
   SFX.levelUp();
   if(lastRites){ excite=1; startDrone(); SFX.murmur(); LT.rites=(LT.rites||0)+1; bump('rites',LT.rites); }
-  const weaponTurn = (slotIndex % 4 === 0) && availableWeapons().length>0;
+  const weaponTurn = (slotForceWeapon || slotIndex % 4 === 0) && availableWeapons().length>0;
+  slotForceWeapon=false;
   openSlotReady(weaponTurn?'weapon':'skill');
 }
 function buildStrip(strip, seq, defs){
