@@ -92,6 +92,7 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 .rkBar{height:8px;border:1px solid rgba(232,182,76,.5);border-radius:6px;margin:6px 0;overflow:hidden;background:rgba(0,0,0,.4);}
 .rkBar i{display:block;height:100%;background:linear-gradient(90deg,#8a5a10,#ffd36b);box-shadow:0 0 12px rgba(255,211,107,.8);transition:width .8s ease;}
 .rkSub{font-family:var(--disp);font-size:10px;letter-spacing:.14em;color:#bfae8c;}
+.rkNext{font-family:var(--disp);font-size:11px;letter-spacing:.2em;margin-top:5px;color:var(--gold-bright);text-shadow:0 0 12px rgba(255,211,107,.55);animation:bulbPulse 2.2s infinite;}
 .rkUn{color:#8bff9a;}
 #tabPanel{position:fixed;inset:0;z-index:340;display:none;align-items:center;justify-content:center;gap:40px;background:rgba(4,2,5,.86);pointer-events:none;padding:30px;}
 .tpCol{pointer-events:auto;}
