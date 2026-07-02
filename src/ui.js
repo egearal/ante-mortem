@@ -104,9 +104,21 @@ function showTab(){
   tp.classList.add('show');
 }
 function hideTab(){ const tp=$('tabPanel'); if(tp) tp.classList.remove('show'); }
-const GFX={ q:'auto', shafts:true, ghosts:true, shake:1, flash:1, grade:true, sat:true, pcap:260, fps:false };
+const GFX={ q:'auto', shafts:true, ghosts:true, shake:1, flash:1, grade:true, sat:true, pcap:260, fps:false, lite:false, preset:'medium' };
 const GFX_KEY='antemortem_gfx_v1';
-async function loadGfx(){ try{ const r=await store.get(GFX_KEY,false); if(r&&r.value) Object.assign(GFX,JSON.parse(r.value)); }catch(e){} applyGfxSide(); }
+// one-click presets — MEDIUM matches the classic defaults so old saves label correctly
+const GFX_PRESETS={
+  toaster:{ q:'low',  lite:true,  shafts:false, ghosts:false, grade:false, shake:0.5, flash:0.5, pcap:70 },
+  low:    { q:'low',  lite:false, shafts:false, ghosts:false, grade:true,  shake:1,   flash:1,   pcap:140 },
+  medium: { q:'auto', lite:false, shafts:true,  ghosts:true,  grade:true,  shake:1,   flash:1,   pcap:260 },
+  high:   { q:'high', lite:false, shafts:true,  ghosts:true,  grade:true,  shake:1,   flash:1,   pcap:260 }
+};
+function gfxDerivePreset(){
+  for(const name in GFX_PRESETS){ const p=GFX_PRESETS[name];
+    if(Object.keys(p).every(k=>GFX[k]===p[k])) return name; }
+  return 'custom';
+}
+async function loadGfx(){ try{ const r=await store.get(GFX_KEY,false); if(r&&r.value) Object.assign(GFX,JSON.parse(r.value)); }catch(e){} GFX.preset=gfxDerivePreset(); applyGfxSide(); }
 function saveGfx(){ try{ store.set(GFX_KEY,JSON.stringify(GFX),false); }catch(e){} }
 function applyGfxSide(){}
 const GFX_DEFS=[
@@ -120,20 +132,39 @@ const GFX_DEFS=[
  {k:'fps',   n:'FPS COUNTER',   opts:[[false,'OFF'],[true,'ON']]}
 ];
 function gfxLabel(d){ const o=d.opts.find(o=>o[0]===GFX[d.k]); return o?o[1]:String(GFX[d.k]); }
+function applyGfxPreset(name){
+  const p=GFX_PRESETS[name]; if(!p) return;
+  Object.assign(GFX,p); GFX.preset=name;
+  applyGfxSide(); saveGfx();
+  const gp=$('gfxPanel'); if(gp){ gp.querySelectorAll('.gxBtn[data-k]').forEach(b=>{
+    const d=GFX_DEFS.find(x=>x.k===b.dataset.k); if(d) b.textContent=gfxLabel(d); }); }
+  syncPresetRow();
+}
+function syncPresetRow(){
+  const gp=$('gfxPanel'); if(!gp) return;
+  gp.querySelectorAll('.gxPre').forEach(b=>b.classList.toggle('on', b.dataset.pre===GFX.preset));
+  const cl=gp.querySelector('#gxCustom'); if(cl) cl.style.display = GFX.preset==='custom' ? '' : 'none';
+}
 function buildGfxPanel(){
   if($('gfxPanel')) return;
   const p=document.createElement('div'); p.id='gfxPanel'; p.className='hidden';
   p.innerHTML='<div id="gfxCard"><div id="gfxTitle">⚙ GRAPHICS OF THE HOUSE ⚙</div>'
+    +'<div id="gxPresets">'
+    +[['toaster','🍞 TOASTER'],['low','LOW'],['medium','MEDIUM'],['high','HIGH']].map(x=>'<button class="gxPre" data-pre="'+x[0]+'">'+x[1]+'</button>').join('')
+    +'</div><div id="gxCustom" style="display:none">CUSTOM</div>'
     +GFX_DEFS.map(d=>'<div class="gxRow"><span class="gxName">'+d.n+'</span><button class="gxBtn" data-k="'+d.k+'">'+gfxLabel(d)+'</button></div>').join('')
     +'<button class="gxBtn gxClose" id="gfxClose">CLOSE</button></div>';
   document.body.appendChild(p);
+  p.querySelectorAll('.gxPre').forEach(b=>b.addEventListener('click',()=>{ applyGfxPreset(b.dataset.pre); SFX.casinoDing(); }));
   p.querySelectorAll('.gxBtn[data-k]').forEach(b=>b.addEventListener('click',()=>{
     const d=GFX_DEFS.find(x=>x.k===b.dataset.k);
     const i=d.opts.findIndex(o=>o[0]===GFX[d.k]);
     GFX[d.k]=d.opts[(i+1)%d.opts.length][0];
+    GFX.preset=gfxDerivePreset(); syncPresetRow();
     b.textContent=gfxLabel(d); applyGfxSide(); saveGfx(); SFX.uiDing();
   }));
   $('gfxClose').addEventListener('click',()=>{ p.classList.add('hidden'); SFX.casinoDing(); });
+  syncPresetRow();
 }
 function openGfx(){ buildGfxPanel(); $('gfxPanel').classList.remove('hidden'); SFX.vaultOpen(); }
 function mkBribeLine(p,tier){
