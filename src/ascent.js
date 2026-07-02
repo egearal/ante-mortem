@@ -63,7 +63,7 @@ function openCrash(){
         p.style.left=(Math.random()*100)+'%'; p.style.animationDelay=(Math.random()*5)+'s';
         p.style.width=p.style.height=(8+Math.random()*14)+'px'; em.appendChild(p); }
       $('crashLayer').insertBefore(em,$('crashLayer').firstChild); } }
-  ['crashSlam','crashGhost','crashFrenzy'].forEach(id=>{ let d=$(id);
+  ['crashSlam','crashGhost','crashFrenzy','ascWin'].forEach(id=>{ let d=$(id);
     if(!d){ d=document.createElement('div'); d.id=id; $('crashMult').parentNode.insertBefore(d, id==='crashGhost'?$('crashMult'):$('crashMult').nextSibling); }
     d.className=''; d.textContent=''; });
   { let tl=$('tierLadder'); if(!tl){ tl=document.createElement('div'); tl.id='tierLadder';
@@ -122,13 +122,18 @@ function tickCrash(dt){
   crash.hb-=dt; if(crash.hb<=0){ crash.hb=0.5/Math.min(3,crash.mult); tone(58,0.12,'sine',0.14,44);
     if(crash.mult>=3) setTimeout(()=>tone(72,0.08,'sine',0.1,50),90); }
   const cs9=$('crashStrobe');
-  cs9.style.opacity=(Math.floor(gt*(4+crash.mult))%2)?Math.min(0.85,0.3+crash.mult*0.04):0;
+  cs9.style.opacity=(Math.floor(gt*(4+crash.mult))%2)?Math.min(0.85,0.42+crash.mult*0.04):0;
   if(crash.boostT && performance.now()<crash.boostT) cs9.style.opacity=0.95;
   { const hu='hue-rotate('+Math.round(Math.sin(gt*(1+crash.mult*0.7))*24/3)*3+'deg)';
     if(cs9._f!==hu){ cs9._f=hu; cs9.style.filter=hu; } }
   if(crash.mult>=2 && Math.random()<dt*7) tone(2100+Math.random()*(900+crash.mult*260),0.04,'sine',0.032);
-  { const on9=Math.floor(gt*(3+crash.mult*1.4));
+  { const on9=Math.floor(gt*(4+crash.mult*1.8));
     document.querySelectorAll('#crashBulbs .cb').forEach((b,i)=>b.classList.toggle('on',(i+on9)%4===0)); }
+}
+function ascWinSlam(txt,sub,col){
+  let w=$('ascWin'); if(!w){ w=document.createElement('div'); w.id='ascWin'; $('crashLayer').appendChild(w); }
+  w.innerHTML='<div class="awT" style="color:'+col+'">'+txt+'</div>'+(sub?'<div class="awS">'+sub+'</div>':'');
+  w.classList.remove('go'); void w.offsetWidth; w.classList.add('go');
 }
 function gateSlam(txt,col,hold){ const sl=$('crashSlam'); if(!sl) return;
   sl.textContent=txt; sl.style.color=col; sl.classList.add('tier');
@@ -195,11 +200,12 @@ function pushCrash(){
   { const m9=crash.mult;
     const bc = m9<1.77?'#e8d9c0': m9<2.77?'#8bff9a': m9<3.69?'#6fe3ff': m9<7.77?'#c98bff':'#fff2c0';
     el.style.color=bc;
-    if(m9>=1.3) el.className='hot';
-    $('crashLayer').style.filter='saturate('+(1+Math.min(1.3,(m9-1)*0.24)).toFixed(2)+') contrast('+(1+Math.min(0.28,m9*0.035)).toFixed(2)+')';
+    if(m9>=1.12) el.className='hot';
+    if(m9<2){ shake=Math.min(12,shake+1); flash(0.06,bc); }
+    $('crashLayer').style.filter='saturate('+(1+Math.min(1.6,(m9-1)*0.4)).toFixed(2)+') contrast('+(1+Math.min(0.34,m9*0.035)).toFixed(2)+')';
     const st9=$('crashStars'); if(st9) st9.style.filter='hue-rotate('+Math.round(m9*42)+'deg) saturate(1.7)';
     const cp9=$('crashPing'); if(cp9) cp9.style.borderColor=bc;
-    const au9=$('crashAurora'); if(au9){ au9.style.opacity=Math.max(0,Math.min(0.9,(m9-2.5)/2.5)); au9.style.animationDuration=Math.max(1.1,6-m9*0.55)+'s'; }
+    const au9=$('crashAurora'); if(au9){ au9.style.opacity=Math.max(0,Math.min(0.9,(m9-1.15)/1.8)); au9.style.animationDuration=Math.max(1.1,6-m9*0.55)+'s'; }
     if(m9>=3 && cp9){ setTimeout(()=>{ if(crash.live){ cp9.style.width=cp9.style.height=(180+m9*30)+'px'; cp9.classList.remove('go'); void cp9.offsetWidth; cp9.classList.add('go'); } },110); }
     const nb=m9<1.77?0:m9<2.77?1:m9<3.69?2:m9<7.77?3:4;
     if(nb>crash.band){ crash.band=nb;
@@ -281,11 +287,11 @@ function rollAscentPrize(m){
   }, 500);
 }
 function theFall(){
-  P.damage*=0.82; P.speed*=0.85;
-  debuffs.push({label:'☄ THE FALL −18% DMG −15% SPD', t:30, dur:30, dot:0.6, poison:true,
-    revert:()=>{ P.damage/=0.82; P.speed/=0.85; }});
+  const d=DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0];
+  const dur=Math.round(5+Math.random()*10); // 5-15s, a different curse every fall
+  const lbl=applyDebuff({label:d.label, dur:dur, dot:d.dot, ap:d.ap});
   flash(0.6,'#8b1620'); SFX.bust(); SFX.thud(); shake=Math.min(20,shake+10);
-  setTimeout(()=>announce('☄ THE FALL — THE HOUSE CURSES YOUR DESCENT ☄', false), 400);
+  setTimeout(()=>announce('☄ THE FALL — '+lbl+' ☄', false), 400);
 }
 function ascTier(m){ return m>=7.77?4:m>=3.69?3:m>=2.77?2:m>=1.77?1:0; }
 const ASC_POOLS=[null,['a_iron','a_eye','a_wind','a_gild','a_hand','a_skin'],['a_fang','a_storm','a_greed','a_fuse','a_holl','a_veil','a_swrm'],['a_crown','a_void','a_king','a_reap','a_engn','a_mirr']];
@@ -359,8 +365,11 @@ function cashCrash(){
     LT.crash=(LT.crash||0)+1; bump('crash',LT.crash);
     setTimeout(closeCrash, 1400); return; }
   let pd=crash.prz&&crash.prz[t];
-  if(pd){ pd.ap(); addPassiveHUD(pd); renderRelics(); }
-  else { const g=Math.round(60*crash.mult); P.coins+=g; LT.coins+=g; coinRain(20); announce('◈ ALL HELD — +'+g+' COINS ◈',true); }
+  if(pd){ pd.ap(); addPassiveHUD(pd); renderRelics();
+    ascWinSlam('✦ '+pd.n+' ✦','TIER '+['','I','II','III'][t]+' — '+pd.fx,'#8bffd0'); }
+  else { const g=Math.round(60*crash.mult); P.coins+=g; LT.coins+=g; coinRain(20);
+    ascWinSlam('+'+g+' COINS','ALL PASSIVES HELD — THE HOUSE PAYS GOLD','#ffd36b');
+    announce('◈ ALL HELD — +'+g+' COINS ◈',true); }
   if(pd){
     let gd=$('ascGift');
     if(!gd){ gd=document.createElement('div'); gd.id='ascGift'; $('crashLayer').appendChild(gd); }
