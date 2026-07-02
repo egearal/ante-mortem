@@ -1,4 +1,5 @@
 "use strict";
+{ const rt=$('relicTip'); if(rt) document.body.appendChild(rt); } // escape #wrap stacking contexts — must beat #tabPanel (z 340)
 $('achBtn').addEventListener('click',()=>{ openAchPanel(); });
 $('vaultBtn').addEventListener('click',()=>{ openVault(); });
 { const vb=$('vaultBtn'); if(vb){ const gb=document.createElement('button'); gb.className=vb.className; gb.id='gfxBtn'; gb.textContent='⚙ GRAPHICS'; vb.parentNode.insertBefore(gb,vb.nextSibling); gb.addEventListener('click',openGfx); } }

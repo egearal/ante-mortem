@@ -1402,8 +1402,8 @@ function render(){
     }
     ctx.restore();
   }
-  if(GFX.fps){ ctx.font="700 11px monospace"; ctx.textAlign='left'; ctx.fillStyle='#8bff9a';
-    ctx.fillText(Math.round(1000/Math.max(1,frameAvg))+' FPS', 10, VH-10); }
+  if(GFX.fps){ ctx.font="700 11px 'Cinzel',serif"; ctx.textAlign='right'; ctx.fillStyle='#bfae8c';
+    ctx.globalAlpha=0.85; ctx.fillText(Math.round(1000/Math.max(1,frameAvg))+' FPS', VW-12, 64); ctx.globalAlpha=1; }
   // house dare counter
   if(state==='playing' && dare){
     ctx.font="800 15px 'Cinzel',serif"; ctx.textAlign='center';

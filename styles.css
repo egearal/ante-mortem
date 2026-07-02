@@ -59,7 +59,7 @@ h1{font-family:var(--disp);font-weight:800;letter-spacing:.28em;margin:0 0 2px;f
 #hptext{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:.15em;color:#fff;text-shadow:0 1px 2px #000;}
 .relicRow{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:46vw;margin-bottom:4px;pointer-events:auto;}
 .relicTag{font-family:var(--disp);font-size:9px;letter-spacing:.2em;color:#9a8f7e;text-align:right;margin:3px 0 2px;}
-#relicTip{position:fixed;z-index:360;background:linear-gradient(180deg,rgba(30,15,18,.98),rgba(12,5,7,.98));border:1px solid var(--gold);border-radius:8px;padding:8px 12px;font-size:12px;color:#d8c9a8;box-shadow:0 0 18px rgba(232,182,76,.35);pointer-events:none;text-align:right;}
+#relicTip{position:fixed;z-index:500;background:linear-gradient(180deg,rgba(30,15,18,.98),rgba(12,5,7,.98));border:1px solid var(--gold);border-radius:8px;padding:8px 12px;font-size:12px;color:#d8c9a8;box-shadow:0 0 18px rgba(232,182,76,.35);pointer-events:none;text-align:right;}
 #relicTip b{color:var(--gold-bright);font-family:var(--disp);}
 #pauseLayer{position:absolute;inset:0;z-index:24;background:rgba(4,2,4,.55);display:flex;align-items:center;justify-content:center;pointer-events:none;}
 #pauseLayer .pauseCard{pointer-events:auto;cursor:pointer;text-align:center;}
@@ -285,7 +285,7 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 #tierLadder .tln.pop{animation:tlPop .5s cubic-bezier(.2,1.6,.4,1);}
 @keyframes tlPop{40%{transform:scale(1.3);}}
 #tierLadder .tlbar{width:2px;flex:1;max-height:34px;background:linear-gradient(to top,rgba(139,255,208,.5),rgba(232,182,76,.15));}
-#crashAurora{position:absolute;inset:-25%;pointer-events:none;mix-blend-mode:screen;opacity:0;transition:opacity .6s;
+#crashAurora{position:absolute;left:50%;top:50%;width:220vmax;height:220vmax;margin:-110vmax 0 0 -110vmax;border-radius:50%;pointer-events:none;mix-blend-mode:screen;opacity:0;transition:opacity .6s;
   background:conic-gradient(from 0deg,transparent,rgba(201,139,255,.28) 12%,transparent 28%,rgba(111,227,255,.24) 42%,transparent 58%,rgba(255,211,107,.26) 74%,transparent 90%,rgba(139,255,154,.22),transparent);
   animation:aurSpin 6s linear infinite;}
 @keyframes aurSpin{to{transform:rotate(360deg);}}
