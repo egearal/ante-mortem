@@ -627,8 +627,9 @@ function update(dt){
     const range=P.lode?9999:P.pickup;
     if(d<range){ const pull=P.lode?520:400; c.x+=dx/d*pull*dt; c.y+=dy/d*pull*dt; }
     if(d<P.radius+7){ if(P.ovT>0){ coins.splice(i,1); P.ovT=Math.min(100,P.ovT+2.5*(P.ovFeed||1)); tone(600+P.ovT*9,0.06,'sine',0.1); flash(0.06,'#ffd36b'); ftext(P.x,P.y-12,'+FUEL','#ffd36b'); burst(P.x,P.y,3,'#ff9a3c'); continue; } const gain=Math.max(1,Math.round(P.comboMult)); P.coins+=gain; LT.coins+=gain; if(P.coins===777) secret('sevens','TRIPLE SEVENS'); bump('runCoins',P.coins); bump('ltCoins',LT.coins); if(P.midas)P.midasStacks=Math.min(25,P.midasStacks+1); coins.splice(i,1);
-      { const n8=performance.now(); P._coinCombo=(n8-(P._coinT||0)<600)?(P._coinCombo||0)+1:0; P._coinT=n8;
+      { const n8=performance.now(); P._coinCombo=(n8-(P._coinT||0)<800)?(P._coinCombo||0)+1:0; P._coinT=n8;
         tone(700*Math.pow(1.0595,Math.min(16,P._coinCombo)),0.06,'sine',0.07);
+        if(P._coinCombo>0 && P._coinCombo%10===0){ SFX.casinoDing(); sparkBurst(8); }
         const cc9=$('coinCount'); if(cc9){ cc9.classList.remove('pop'); void cc9.offsetWidth; cc9.classList.add('pop'); } }
       burst(P.x,P.y,2,'#e8b64c'); }
   }
@@ -1004,6 +1005,10 @@ function bakeVign(danger,db){
   { B.heart=mk(); const x=B.heart.getContext('2d');
     const g=x.createRadialGradient(w/2,h/2,Math.min(w,h)*0.34,w/2,h/2,Math.max(w,h)*0.72);
     g.addColorStop(0,'rgba(140,10,20,0)'); g.addColorStop(1,'rgba(140,10,20,1)');
+    x.fillStyle=g; x.fillRect(0,0,w,h); }
+  { B.gold=mk(); const x=B.gold.getContext('2d');
+    const g=x.createRadialGradient(w/2,h/2,Math.min(w,h)*0.44,w/2,h/2,Math.max(w,h)*0.75);
+    g.addColorStop(0,'rgba(255,190,80,0)'); g.addColorStop(1,'rgba(255,190,80,1)');
     x.fillStyle=g; x.fillRect(0,0,w,h); }
   { B.grd=mk(); const x=B.grd.getContext('2d');
     const g=x.createRadialGradient(w/2,h*0.42,45,w/2,h*0.55,Math.max(w,h)*0.75);
@@ -1494,6 +1499,13 @@ function render(){
     const fgrad=ctx.createLinearGradient(mx,0,mx+mw,0); fgrad.addColorStop(0,'#8a5a10'); fgrad.addColorStop(1,'#ffd36b');
     ctx.fillStyle=fgrad; ctx.fillRect(mx,my,mw*fvf,6);
     if(fever>0.85){ ctx.shadowColor='#ffd36b'; ctx.shadowBlur=10+Math.sin(gt*10)*6; ctx.fillRect(mx,my,mw*fvf,6); ctx.shadowBlur=0; }
+    // on the brink of ignition: gold edges pulse + soft tingle
+    if(fever>0.97 && vignB){
+      const eb2=(Math.sin(gt*6)*0.5+0.5)*0.22+0.06;
+      ctx.save(); ctx.globalCompositeOperation='screen'; ctx.globalAlpha=eb2;
+      ctx.drawImage(vignB.gold,0,0,VW,VH); ctx.restore();
+      P._fvTk=(P._fvTk||0)-1/60; if(P._fvTk<=0){ P._fvTk=1.2; SFX.tingle(); }
+    } else P._fvTk=0;
   }
   // streak counter
   if(killStreak>=15 && state==='playing'){

@@ -60,9 +60,16 @@ async function actuallyDie(){
   const newBest = score>best; if(newBest) best=score;
   $('goResult').textContent = newBest? 'A RECORD IN BLOOD' : 'YOU BLINKED OUT';
   $('goSub').textContent = newBest? 'The court will remember this run.' : 'The house collects its due.';
-  $('goScore').textContent=score.toLocaleString();
+  // the tally ticks up like a payout counter
+  const countUp=(el,target,dur)=>{ const t0=performance.now(); let lastTick=0;
+    const tick=()=>{ const f=Math.min(1,(performance.now()-t0)/dur), e=1-Math.pow(1-f,3);
+      const v=Math.round(target*e); el.textContent=v.toLocaleString();
+      if(performance.now()-lastTick>45 && f<1){ lastTick=performance.now(); tone(600+e*900,0.025,'square',0.045); }
+      if(f<1) setTimeout(tick,16); else { el.textContent=target.toLocaleString(); SFX.coinPling(); } };
+    tick(); };
+  countUp($('goScore'), score, 1200);
   $('goTime').textContent=fmt(gt); $('goKills').textContent=P.kills; $('goLevel').textContent=P.level;
-  $('goGilt').textContent=giltEarned; $('goGiltTotal').textContent=gilt;
+  countUp($('goGilt'), giltEarned, 900); $('goGiltTotal').textContent=gilt;
   $('goPctl').textContent='Tallying the ledger…';
   { const mk9=P.kills + wave*12 + P.level*10 + giltEarned*2;
     const res=awardMarks(mk9);

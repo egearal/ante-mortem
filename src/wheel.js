@@ -203,7 +203,9 @@ function tickWheelTok(dt){
     if(wheelTokT<=0){ wheelTokT=(44+Math.random()*26)*(1-(P.wheelHaste||0));
       const a=Math.random()*6.283, d=280+Math.random()*320;
       wheelTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:20, ph:Math.random()*6.28};
-      announce('☸ THE WHEEL OF SOULS MANIFESTS ☸', true); SFX.dingBells(); }
+      announce('☸ THE WHEEL OF SOULS MANIFESTS ☸', true); SFX.dingBells();
+      [1046,1318,1568].forEach((f,i)=>setTimeout(()=>tone(f,0.14,'sine',0.08),i*110)); // come-play beckon
+      ring(wheelTok.x,wheelTok.y,90,'#c98bff'); ring(wheelTok.x,wheelTok.y,54,'#ffd36b'); }
   } else {
     wheelTok.t-=dt; wheelTok._p=(wheelTok._p||0)-dt; if(wheelTok._p<=0){ wheelTok._p=6; tone(1046,0.09,'sine',0.05); ring(wheelTok.x,wheelTok.y,52,'#c98bff'); }
     if(wheelTok.t<=0){ wheelTok=null; return; }

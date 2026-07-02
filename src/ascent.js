@@ -394,7 +394,9 @@ function tickCrashTok(dt){
     if(crashTokT<=0){ crashTokT=48+Math.random()*34;
       const a=Math.random()*6.283, d=300+Math.random()*300;
       crashTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:20, ph:Math.random()*6.28};
-      announce('▲ THE ASCENT BECKONS ▲', true); SFX.dingBells(); }
+      announce('▲ THE ASCENT BECKONS ▲', true); SFX.dingBells();
+      [988,1318,1760].forEach((f,i)=>setTimeout(()=>tone(f,0.14,'sine',0.08),i*110)); // come-play beckon
+      ring(crashTok.x,crashTok.y,90,'#8bffd0'); ring(crashTok.x,crashTok.y,54,'#fff2c0'); }
   } else {
     crashTok.t-=dt; crashTok._p=(crashTok._p||0)-dt; if(crashTok._p<=0){ crashTok._p=6; tone(1318,0.09,'sine',0.05); ring(crashTok.x,crashTok.y,52,'#8bff9a'); }
     if(crashTok.t<=0){ crashTok=null; return; }

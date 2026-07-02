@@ -88,7 +88,7 @@ function openNextSlot(){
   makeBulbs();
   elSlot.classList.remove('hidden');
   elSlot.classList.toggle('lastrites',lastRites);
-  $('machine').classList.remove('win','jackpot','bust','pulling');
+  $('machine').classList.remove('win','jackpot','bust','pulling','dicing');
   SFX.levelUp();
   if(lastRites){ excite=1; startDrone(); SFX.murmur(); LT.rites=(LT.rites||0)+1; bump('rites',LT.rites); }
   const weaponTurn = (slotForceWeapon || slotIndex % 4 === 0) && availableWeapons().length>0;
@@ -355,6 +355,7 @@ function doRisk(){
   if(slotStage!=='offer' || !gamble) return;
   const g=gamble;
   $('reelsRow').style.display='none'; $('diceRow').style.display='';
+  $('machine').classList.add('dicing');
   if(!diceShown){ dice=[ {el:$('dieL'),val:1+((Math.random()*6)|0),rolling:false,ft:0}, {el:$('dieR'),val:1+((Math.random()*6)|0),rolling:false,ft:0} ]; diceShown=true; }
   dice.forEach(d=>{ d.rolling=true; d.ft=0; d.el.classList.remove('settle','crit','hot'); d.el.classList.add('rolling'); renderDie(d.el,d.val); });
   slotStage='dicing'; stopLock=performance.now()+150;
@@ -656,7 +657,7 @@ function closeSlot(){
   slotStage='idle';
   spaceHold=false; holdProg=0; holdFired=false; ringShow(false);
   dice.forEach(d=>{ if(d.el) d.el.classList.remove('rolling','settle','crit'); });
-  $('machine').classList.remove('win','jackpot','bust','pulling');
+  $('machine').classList.remove('win','jackpot','bust','pulling','dicing');
   elSlot.classList.add('hidden'); elSlot.classList.remove('lastrites');
   if(pending.length){ setTimeout(openNextSlot,250); }
   else { state='playing'; last=performance.now(); }
