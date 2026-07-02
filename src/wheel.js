@@ -22,32 +22,54 @@ function buildWheelDom(){
   let cg='conic-gradient(from -'+(segA/2)+'deg';
   WSEGS.forEach((sg,i)=>{ cg+=', '+sg.c+' '+(i*segA)+'deg '+((i+1)*segA)+'deg'; });
   w.style.background=cg+')';
-  WSEGS.forEach((sg,i)=>{ const d=document.createElement('div'); d.className='wseg'; d.textContent=sg.n;
+  const sh=document.createElement('div'); sh.className='wshade'; w.appendChild(sh);
+  WSEGS.forEach((sg,i)=>{
+    const k=document.createElement('div'); k.className='wspk';
+    k.style.transform='rotate('+(i*segA-segA/2)+'deg)'; w.appendChild(k);
+    const p=document.createElement('div'); p.className='wpin';
+    p.style.transform='rotate('+(i*segA-segA/2)+'deg) translateY(-150px)'; w.appendChild(p);
+    const d=document.createElement('div'); d.className='wseg wt'+sg.tier; d.textContent=sg.n;
     d.style.transform='rotate('+(i*segA-90)+'deg) translate(58px,-6px)';
     w.appendChild(d); });
   const box=w.parentNode;
-  const sp=document.createElement('div'); sp.className='wheelSpot'; box.insertBefore(sp,w);
+  const rim=document.createElement('div'); rim.className='wheelRim'; box.insertBefore(rim,w);
+  const sp=document.createElement('div'); sp.className='wheelSpot'; box.insertBefore(sp,rim);
   const wd=document.createElement('div'); wd.id='wheelWedge'; box.appendChild(wd);
+  const bm=document.createElement('div'); bm.className='wheelBeam'; box.appendChild(bm);
   const bl=document.createElement('div'); bl.id='wheelBulbs';
-  for(let i=0;i<18;i++){ const b=document.createElement('span'); b.className='wb';
-    b.style.transform='rotate('+(i*20)+'deg) translateY(-176px)'; bl.appendChild(b); }
+  for(let i=0;i<36;i++){ const b=document.createElement('span'); b.className='wb';
+    b.style.setProperty('--i',i);
+    b.style.transform='rotate('+(i*10)+'deg) translateY(-180px)'; bl.appendChild(b); }
   box.appendChild(bl);
+  const hub=box.querySelector('.wheelHub'); if(hub) hub.textContent='♠';
+  const mq=document.createElement('div'); mq.className='wheelMarq'; mq.textContent='THE HOUSE SPINS FOR YOUR SOUL';
+  box.parentNode.insertBefore(mq, box.parentNode.firstChild);
+  const felt=document.createElement('div'); felt.className='wheelFelt';
+  $('wheelLayer').insertBefore(felt, $('wheelLayer').firstChild);
 }
 function openWheel(){
   buildWheelDom(); state='wheel';
-  wheel={rot:Math.random()*360, vel:0, phase:'idle', mult:1, lastSeg:-1, done:false, windT:0, setT:0, toAscent:false};
+  wheel={rot:Math.random()*360, vel:0, phase:'idle', mult:1, lastSeg:-1, done:false, windT:0, setT:0, toAscent:false,
+    golden:Math.random()<0.05, windK:0, slowTicks:0, hbT:0};
   $('wheelMult').classList.add('hidden');
   const wd=$('wheelWedge'); if(wd) wd.className='';
+  const bl=$('wheelBulbs'); if(bl){ bl.classList.remove('chase','all'); }
+  const bm=document.querySelector('.wheelBeam'); if(bm) bm.classList.remove('on');
+  stopDrumroll();
+  $('wheelLayer').classList.toggle('golden', wheel.golden);
+  const mq=document.querySelector('.wheelMarq'); if(mq) mq.textContent=wheel.golden?'✦ GOLDEN SPIN — ALL PRIZES DOUBLED ✦':'THE HOUSE SPINS FOR YOUR SOUL';
   $('soulWheel').style.transform='rotate('+wheel.rot+'deg)';
   $('wheelMsg').innerHTML='<span class="keyhint">SPACE</span> — spin the wheel';
   $('wheelLayer').classList.remove('hidden');
   SFX.vaultOpen(); startDrone();
+  if(wheel.golden) setTimeout(()=>{ if(state==='wheel'){ SFX.achieve(); SFX.tingle(); flash(0.4,'#ffd36b');
+    $('wheelMsg').innerHTML='✦ ALL PRIZES DOUBLED ✦ · <span class="keyhint">SPACE</span> — spin'; } },350);
 }
 function launchWheel(){
   if(wheel.phase!=='idle'||wheel.done) return;
-  wheel.phase='wind'; wheel.windT=0; wheel.windFrom=wheel.rot;
+  wheel.phase='wind'; wheel.windT=0; wheel.windFrom=wheel.rot; wheel.windK=0;
   $('wheelMsg').textContent='FATE TURNS…';
-  tone(160,0.3,'sawtooth',0.14,90); SFX.diceRattle();
+  tone(140,0.24,'sawtooth',0.12,70); SFX.leverWind();
 }
 function tickWheel(dt){
   const segA=360/WSEGS.length;
@@ -55,7 +77,13 @@ function tickWheel(dt){
     wheel.windT+=dt; const f=Math.min(1,wheel.windT/0.22);
     wheel.rot=wheel.windFrom - 26*Math.sin(f*Math.PI*0.5);
     $('soulWheel').style.transform='rotate('+wheel.rot+'deg)';
-    if(f>=1){ wheel.phase='spin'; wheel.vel=820+Math.random()*320; SFX.riser(); sparkBurst(14); }
+    if(Math.floor(f*4)>wheel.windK){ wheel.windK=Math.floor(f*4); tone(240+wheel.windK*70,0.03,'square',0.12); noise(0.02,0.06,3000); }
+    if(f>=1){ wheel.phase='spin'; wheel.vel=820+Math.random()*320; wheel.slowTicks=0; wheel.hbT=0;
+      SFX.riser(); noise(0.3,0.22,2600); tone(150,0.5,'sawtooth',0.1,900);
+      setTimeout(()=>SFX.chipStack(),60); setTimeout(()=>SFX.coinPling(),130); setTimeout(()=>SFX.chipStack(),210); setTimeout(()=>SFX.tingle(),220);
+      const bl=$('wheelBulbs'); if(bl) bl.classList.add('chase');
+      if(wheel.golden) startDrumroll();
+    }
     return;
   }
   if(wheel.phase==='spin'){
@@ -64,13 +92,18 @@ function tickWheel(dt){
     $('soulWheel').style.transform='rotate('+wheel.rot+'deg)';
     const seg=Math.floor((((-wheel.rot%360)+360+segA/2)%360)/segA)%WSEGS.length;
     if(seg!==wheel.lastSeg){ wheel.lastSeg=seg;
-      SFX.wheelTick(Math.min(1,wheel.vel/700));
-      tone(170+Math.min(1,wheel.vel/700)*90,0.05,'sine',0.08);
-      const p9=document.querySelector('.wheelPtr'); if(p9){ p9.style.transform='translateX(-50%) rotate(-16deg)'; setTimeout(()=>{ p9.style.transform='translateX(-50%)'; },50); }
-      const on9=seg; document.querySelectorAll('#wheelBulbs .wb').forEach((b,i)=>b.classList.toggle('on',(i+on9)%3===0));
+      const heat=1-Math.min(1,wheel.vel/900), tf=950+heat*1450;
+      tone(tf,0.045,'square',0.08+heat*0.07); tone(tf*2,0.03,'sine',0.04+heat*0.03);
+      if(wheel.vel<420) tone(2400+heat*800,0.05,'sine',0.05);
+      const p9=document.querySelector('.wheelPtr');
+      if(wheel.vel<170){ wheel.slowTicks++; SFX.dingHit(Math.min(5,wheel.slowTicks));
+        if(p9){ p9.style.transform=''; p9.classList.remove('kick'); void p9.offsetWidth; p9.classList.add('kick'); } }
+      else if(p9){ p9.style.transform='translateX(-50%) rotate(-16deg)'; setTimeout(()=>{ p9.style.transform='translateX(-50%)'; },50); }
     }
+    if(wheel.vel<95){ wheel.hbT-=dt; if(wheel.hbT<=0){ wheel.hbT=0.16+0.3*(wheel.vel/95); tone(50,0.16,'sine',0.3,38); setTimeout(()=>tone(62,0.1,'sine',0.2,44),120); } }
     if(wheel.vel<=16){
       wheel.phase='settle'; wheel.setT=0;
+      tone(170,0.2,'sine',0.2,330); setTimeout(()=>tone(330,0.15,'sine',0.12,180),100);
       const cur=((wheel.rot%360)+360)%360;
       const seg2=Math.floor((((-cur)+360+segA/2)%360)/segA)%WSEGS.length;
       wheel.landSeg=seg2;
@@ -96,33 +129,48 @@ function domConfetti(n,lid){
     p.style.animationDelay=(Math.random()*0.15)+'s'; p.style.setProperty('--dx',(Math.random()*160-80)+'px');
     L.appendChild(p); setTimeout(()=>p.remove(),1300); }
 }
+function landChime(t){
+  if(t<=0){ tone(92,0.35,'sine',0.3,44); noise(0.14,0.14,480); return; }
+  SFX.reelLock();
+  if(t===1){ setTimeout(()=>SFX.casinoDing(),110); setTimeout(()=>SFX.coinPling(),230); }
+  else if(t===2){ setTimeout(()=>SFX.tingle(),90); setTimeout(()=>SFX.chipStack(),220); setTimeout(()=>SFX.casinoDing(),330); }
+  else { setTimeout(()=>SFX.dingBells(),60); setTimeout(()=>SFX.seraph(),320); }
+}
 function landWheel(seg){
   const sg=WSEGS[seg], segA=360/WSEGS.length;
-  shake=Math.min(18,shake+8+sg.tier*3); SFX.reelLock();
+  stopDrumroll();
+  const gm=wheel.golden?2:1;
+  shake=Math.min(18,shake+8+sg.tier*3); landChime(sg.tier);
   const wd=$('wheelWedge');
   if(wd){ wd.style.background='conic-gradient(from '+(-segA/2)+'deg, transparent 0deg '+(seg*segA)+'deg, rgba(255,240,190,.85) '+(seg*segA)+'deg '+((seg+1)*segA)+'deg, transparent '+((seg+1)*segA)+'deg)';
     wd.style.transform='rotate('+wheel.rot+'deg)'; wd.className='flash'; }
   const sw9=$('soulWheel'); if(sw9){ sw9.style.boxShadow='0 0 0 2px #3a0a10,0 0 90px rgba(255,220,130,.95),inset 0 0 34px rgba(0,0,0,.75)'; setTimeout(()=>{ sw9.style.boxShadow=''; },800); }
-  document.querySelectorAll('#wheelBulbs .wb').forEach(b=>b.classList.add('on'));
+  const p9=document.querySelector('.wheelPtr'); if(p9){ p9.style.transform=''; p9.classList.remove('slam'); void p9.offsetWidth; p9.classList.add('slam'); setTimeout(()=>p9.classList.remove('slam'),600); }
+  const bm=document.querySelector('.wheelBeam'); if(bm){ bm.classList.remove('on'); void bm.offsetWidth; bm.classList.add('on'); }
+  const bl=$('wheelBulbs'); if(bl){ bl.classList.remove('chase'); bl.classList.add('all'); setTimeout(()=>bl.classList.remove('all'),1300); }
   if(sg.n==='DOUBLE'){
-    if(wheel.mult>=4){ const g4=60*wheel.mult; P.coins+=g4; LT.coins+=g4; coinRain(26); SFX.cashout(); SFX.dingBells(); domConfetti(20); announce('◈ MAX FORTUNE +'+g4+' COINS ◈',true); }
+    if(wheel.mult>=4){ const g4=60*wheel.mult*gm; P.coins+=g4; LT.coins+=g4; coinRain(26); SFX.cashout(); SFX.dingBells(); SFX.dingHit(6); domConfetti(20); announce('◈ MAX FORTUNE +'+g4+' COINS ◈',true); }
     if(wheel.mult<4){
-      const inst=15*wheel.mult; P.coins+=inst; LT.coins+=inst;
+      const inst=15*wheel.mult*gm; P.coins+=inst; LT.coins+=inst;
       wheel.mult*=2;
-      const wm=$('wheelMult'); wm.textContent='×'+wheel.mult+' !'; wm.classList.remove('hidden','slam'); void wm.offsetWidth; wm.classList.add('slam');
-      [523,659,784,1046].forEach((f9,i9)=>setTimeout(()=>tone(f9,0.16,'square',0.12),i9*70));
+      const wm=$('wheelMult'); wm.textContent='×'+(wheel.mult*gm)+' !'; wm.classList.remove('hidden','slam'); void wm.offsetWidth; wm.classList.add('slam');
+      const esc=wheel.mult/2;
+      [523,659,784,1046].concat(esc>1?[1318]:[]).forEach((f9,i9)=>setTimeout(()=>{ tone(f9*esc,0.18,'square',0.13); tone(f9*esc*2,0.12,'sine',0.06); },i9*62));
+      setTimeout(()=>SFX.achieve(),350);
       SFX.dingBells(); flash(0.5,'#c98bff'); domConfetti(12); coinRain(8);
-      $('wheelMsg').textContent='+'+inst+' COINS · ALL PRIZES ×'+wheel.mult+' — AGAIN!';
-      setTimeout(()=>{ if(state==='wheel'){ wheel.phase='wind'; wheel.windT=0; wheel.windFrom=wheel.rot; if(wd) wd.className=''; } },800);
+      $('wheelMsg').textContent='+'+inst+' COINS · ALL PRIZES ×'+(wheel.mult*gm)+' — AGAIN!';
+      startDrumroll();
+      setTimeout(()=>{ if(state==='wheel'){ wheel.phase='wind'; wheel.windT=0; wheel.windFrom=wheel.rot; wheel.windK=0; if(wd) wd.className=''; if(bl) bl.classList.remove('all'); } },800);
       return;
     }
   }
   wheel.done=true;
-  const big=sg.tier>=3||(wheel.mult>=2&&sg.f);
+  const big=sg.tier>=3||(wheel.mult*gm>=2&&sg.f);
   if(big){ bigWin(sg.n,3); domConfetti(18+sg.tier*6); }
-  if(sg.f) sg.f(wheel.mult);
+  if(sg.f) sg.f(wheel.mult*gm);
+  if(wheel.golden&&sg.tier>=1) setTimeout(()=>SFX.record(),150);
   LT.wheel=(LT.wheel||0)+1; bump('wheel',LT.wheel);
-  $('wheelMsg').textContent=sg.n+(wheel.mult>1&&sg.f?'  ×'+wheel.mult:'');
+  $('wheelMsg').textContent=sg.n+((wheel.mult*gm)>1&&sg.f?'  ×'+(wheel.mult*gm):'');
   setTimeout(()=>{ $('wheelLayer').classList.add('hidden'); stopDrone();
     if(state==='wheel'){ state='playing'; if(wheel.toAscent) setTimeout(()=>{ if(state==='playing') openCrash(); },300);
       else if(pending.length) setTimeout(()=>{ if(state==='playing' && pending.length) openNextSlot(); },450); } }, 1600);

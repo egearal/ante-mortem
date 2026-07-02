@@ -335,6 +335,38 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 .wseg{position:absolute;left:50%;top:50%;transform-origin:0 0;font-family:var(--disp);font-size:12px;letter-spacing:.04em;color:#f2e6c8;text-shadow:0 1px 2px #000;white-space:nowrap;}
 .wheelHub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:56px;height:56px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe9a8,#8a5a10);border:3px solid #3a0a10;display:flex;align-items:center;justify-content:center;font-size:22px;color:#3a0a10;box-shadow:0 0 18px rgba(232,182,76,.7);z-index:2;}
 .wheelMsg{margin-top:16px;font-family:var(--disp);font-size:14px;letter-spacing:.14em;color:#d4c5a2;min-height:24px;}
+/* ═══ WHEEL REVAMP ═══ */
+.wheelFelt{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 72% 54% at 50% 58%,rgba(20,67,42,.5),rgba(10,30,20,.22) 55%,transparent 76%);box-shadow:inset 0 0 180px 40px rgba(0,0,0,.8);}
+.wheelMarq{font-family:var(--disp);font-size:11px;font-weight:700;letter-spacing:.5em;text-transform:uppercase;color:#ffd36b;width:max-content;max-width:94vw;margin:0 auto 8px;padding:5px 20px;border:1px solid rgba(232,182,76,.5);border-radius:20px;background:linear-gradient(115deg,transparent 30%,rgba(255,240,200,.16) 50%,transparent 70%) rgba(20,8,10,.85);background-size:250% 100%;animation:goldSheen 3.4s linear infinite;text-shadow:0 0 12px var(--gold);}
+.wheelRim{position:absolute;inset:-21px;border-radius:50%;pointer-events:none;background:conic-gradient(#8a6a1c,#f8e2a0 8%,#a8781c 17%,#e8b64c 26%,#8a6a1c 34%,#fff2c0 42%,#a8781c 55%,#e8b64c 66%,#8a6a1c 75%,#f8e2a0 88%,#8a6a1c);box-shadow:0 0 36px rgba(232,182,76,.35),0 0 0 2px #3a0a10,inset 0 0 10px rgba(0,0,0,.8);}
+.wheelRim::after{content:'';position:absolute;inset:16px;border-radius:50%;background:#0a0507;box-shadow:inset 0 0 14px #000;}
+#soulWheel{border:none;box-shadow:0 0 0 3px #3a0a10,0 0 46px rgba(232,182,76,.4),inset 0 0 40px rgba(0,0,0,.8);}
+.wshade{position:absolute;inset:0;border-radius:50%;pointer-events:none;background:repeating-conic-gradient(from -15deg,rgba(255,242,192,.13) 0deg 1.5deg,rgba(255,255,255,.05) 1.5deg 8deg,transparent 8deg 23deg,rgba(0,0,0,.4) 27deg 30deg),radial-gradient(circle,transparent 32%,rgba(0,0,0,.42) 80%,rgba(0,0,0,.7));}
+.wspk{position:absolute;left:calc(50% - 1px);top:0;width:2px;height:50%;transform-origin:bottom center;pointer-events:none;background:linear-gradient(to top,rgba(232,182,76,0) 14%,rgba(232,182,76,.75) 55%,#f8e2a0);box-shadow:0 0 6px rgba(232,182,76,.5);}
+.wpin{position:absolute;left:calc(50% - 4px);top:calc(50% - 4px);width:8px;height:8px;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 35% 30%,#fff,#ffd36b 45%,#8a5a10);box-shadow:0 0 8px rgba(255,211,107,.9),0 0 2px #fff;}
+.wseg{font-size:12.5px;letter-spacing:.08em;font-weight:700;text-shadow:0 1px 2px #000,0 0 10px currentColor;}
+.wseg.wt0{color:#8d8175;}.wseg.wt1{color:#ffd36b;}.wseg.wt2{color:#c98bff;}
+.wseg.wt3{color:#fff2c0;text-shadow:0 1px 2px #000,0 0 14px #fff2c0,0 0 30px rgba(255,240,192,.6);}
+#wheelBulbs .wb{left:-4.5px;top:-4.5px;width:9px;height:9px;background:radial-gradient(circle at 40% 35%,#6a4a16,#241408);box-shadow:inset 0 0 2px #000;}
+#wheelBulbs.chase .wb{animation:wbChase .72s linear infinite;animation-delay:calc(var(--i)*-.02s);}
+#wheelBulbs.all .wb{background:#fff2c0;box-shadow:0 0 14px #ffd36b,0 0 30px rgba(255,211,107,.7);animation:bulbStrobe .14s linear 8;}
+@keyframes wbChase{0%,18%{background:#ffe9a8;box-shadow:0 0 12px #ffd36b,0 0 24px rgba(255,211,107,.6);}30%,100%{background:radial-gradient(circle at 40% 35%,#6a4a16,#241408);box-shadow:inset 0 0 2px #000;}}
+.wheelPtr{top:-32px;font-size:34px;z-index:4;color:#fff2c0;text-shadow:0 0 8px #fff,0 0 22px var(--gold),0 2px 2px #000;transition:transform .09s cubic-bezier(.3,2,.5,1);}
+.wheelPtr.kick{animation:ptrKick .3s cubic-bezier(.2,2.4,.4,1);}
+.wheelPtr.slam{animation:ptrSlam .55s cubic-bezier(.2,2,.4,1);}
+@keyframes ptrKick{30%{transform:translateX(-50%) rotate(-26deg);}100%{transform:translateX(-50%);}}
+@keyframes ptrSlam{0%{transform:translateX(-50%) translateY(11px) scale(1.35);}55%{transform:translateX(-50%) translateY(-4px);}100%{transform:translateX(-50%);}}
+.wheelHub{width:64px;height:64px;font-size:26px;color:#2a0708;background:radial-gradient(circle at 35% 28%,#fff2c0,#e8b64c 40%,#8a5a10 75%,#3a0a10);box-shadow:0 0 22px rgba(232,182,76,.8),inset 0 2px 3px rgba(255,255,255,.75),inset 0 -3px 5px rgba(0,0,0,.6);text-shadow:0 1px 0 rgba(255,240,192,.85),0 -1px 1px rgba(0,0,0,.7);}
+.wheelBeam{position:absolute;left:50%;top:-38px;width:150px;height:58%;transform:translateX(-50%);transform-origin:top;pointer-events:none;opacity:0;clip-path:polygon(38% 0,62% 0,100% 100%,0 100%);background:linear-gradient(to bottom,rgba(255,242,192,.9),rgba(255,211,107,.28) 55%,transparent);mix-blend-mode:screen;}
+.wheelBeam.on{animation:beamIn .9s ease;}
+@keyframes beamIn{0%{opacity:0;transform:translateX(-50%) scaleY(.2);}18%{opacity:1;transform:translateX(-50%) scaleY(1);}70%{opacity:.9;}100%{opacity:0;}}
+.wheelMult{font-size:44px;background:linear-gradient(180deg,#fff2c0,#ffd36b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 18px rgba(255,211,107,.9));}
+/* ═══ GOLDEN SPIN ═══ */
+#wheelLayer.golden .wheelFelt{background:radial-gradient(ellipse 72% 54% at 50% 58%,rgba(138,90,16,.55),rgba(74,54,22,.25) 55%,transparent 76%);}
+#wheelLayer.golden .wheelBox{filter:saturate(1.55) sepia(.35) brightness(1.12);}
+#wheelLayer.golden .wheelMarq{color:#fff2c0;border-color:#ffd36b;box-shadow:0 0 22px rgba(255,211,107,.55);animation:goldSheen 1.2s linear infinite,bulbPulse .7s infinite;}
+#wheelLayer.golden .wheelTitle{color:#fff2c0;text-shadow:0 0 30px #ffd36b,0 0 60px rgba(255,211,107,.5);}
+#wheelLayer.golden .wheelBeam{background:linear-gradient(to bottom,rgba(255,255,255,.95),rgba(255,211,107,.4) 55%,transparent);}
 #tarotReveal{position:absolute;inset:0;z-index:34;pointer-events:none;display:flex;align-items:flex-start;justify-content:center;padding-top:64px;}
 #tarotReveal .trVeil{position:absolute;inset:0;background:radial-gradient(circle at 50% 22%,rgba(0,0,0,.3),rgba(0,0,0,.08) 55%,transparent);opacity:0;animation:trVeil .4s ease forwards, trVeilOut .5s ease 2s forwards;}
 @keyframes trVeil{to{opacity:1;}} @keyframes trVeilOut{to{opacity:0;}}

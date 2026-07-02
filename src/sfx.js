@@ -111,3 +111,19 @@ function stopDrone(){
   try{ droneGain.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+0.4); drone.stop(AC.currentTime+0.45);}catch(e){}
   drone=null; droneGain=null;
 }
+let _drumSrc=null, _drumGain=null;
+function startDrumroll(){
+  if(!AC||muted||_drumSrc) return;
+  const len=Math.floor(AC.sampleRate*0.5), buf=AC.createBuffer(1,len,AC.sampleRate), d=buf.getChannelData(0);
+  for(let i=0;i<len;i++){ const ph=(i/len*9)%1; d[i]=(Math.random()*2-1)*Math.pow(1-ph,3)*0.9; }
+  _drumSrc=AC.createBufferSource(); _drumSrc.buffer=buf; _drumSrc.loop=true;
+  const f=AC.createBiquadFilter(); f.type='bandpass'; f.frequency.value=2400; f.Q.value=0.8;
+  _drumGain=AC.createGain(); _drumGain.gain.setValueAtTime(0.0001,AC.currentTime);
+  _drumGain.gain.exponentialRampToValueAtTime(0.12,AC.currentTime+0.3);
+  _drumSrc.connect(f); f.connect(_drumGain); _drumGain.connect(master); _drumSrc.start();
+}
+function stopDrumroll(){
+  if(!_drumSrc) return;
+  try{ _drumGain.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+0.25); _drumSrc.stop(AC.currentTime+0.3);}catch(e){}
+  _drumSrc=null; _drumGain=null;
+}
