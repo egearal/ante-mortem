@@ -11,6 +11,15 @@ function glowSprite(c0,c1,r){
     _glowCache[key]=cv2; }
   return cv2;
 }
+// cached vertical linear gradients for enemy body parts (local coords after
+// ctx.translate) — keyed by half-height bucket + colors
+const _lgCache={};
+function lgrad(ry,c1,c2,mp,mc){
+  const rb=Math.max(0.5,Math.round(ry*2)/2), key=rb+'|'+c1+'|'+c2+(mp?'|'+mp+'|'+mc:'');
+  let g=_lgCache[key];
+  if(!g){ g=ctx.createLinearGradient(0,-rb,0,rb); g.addColorStop(0,c1); if(mp) g.addColorStop(mp,mc); g.addColorStop(1,c2); _lgCache[key]=g; }
+  return g;
+}
 function buildGrain(){
   grainC=document.createElement('canvas'); grainC.width=140; grainC.height=140;
   const g=grainC.getContext('2d'); const id=g.createImageData(140,140); const d=id.data;
