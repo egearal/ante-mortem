@@ -147,8 +147,11 @@ function slotTap(){
   else if(slotStage==='offer') takeReward();
   else if(slotStage==='resolved') closeSlot();
 }
-function ringShow(on){ const r=$('holdRing'); if(!r)return; r.classList.toggle('show',on); if(!on){ const rc=r.querySelector('.hrRect'); if(rc) rc.style.strokeDashoffset=1000; } }
-function ringUpdate(p){ const r=$('holdRing'); if(!r)return; const rc=r.querySelector('.hrRect'); if(rc) rc.style.strokeDashoffset=1000*(1-Math.min(1,p)); }
+function ringShow(on){ const r=$('holdRing'); if(!r)return; r.classList.toggle('show',on); if(on) window._hq=0;
+  if(!on){ r.querySelectorAll('.hrRect,.hrGlow').forEach(rc=>rc.style.strokeDashoffset=1000); } }
+function ringUpdate(p){ const r=$('holdRing'); if(!r)return; const off=1000*(1-Math.min(1,p));
+  r.querySelectorAll('.hrRect,.hrGlow').forEach(rc=>rc.style.strokeDashoffset=off);
+  const q=Math.floor(Math.min(0.999,p)*4); if(q>(window._hq||0)){ window._hq=q; SFX.dingHit(1+q); } }
 function stopNextReel(){
   if(slotStage!=='spinning') return;
   if(performance.now()<(stopLock||0)) return;
