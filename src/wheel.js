@@ -3,18 +3,18 @@
 let wheelTok=null, wheelTokT=40;
 let wheel={rot:0, vel:0, spinning:false, mult:1, lastSeg:-1, done:false};
 const WSEGS=[
- {n:'60 COINS', c:'#8a5a10', tier:1, f:(m)=>{ const g2=60*m; P.coins+=g2; LT.coins+=g2; coinRain(14*m); SFX.cashout(); announce('◈ +'+g2+' COINS ◈',true); }},
- {n:'CURSE', c:'#3a0a10', tier:0, f:()=>{ const dl=applyDebuff(DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0]); SFX.bust(); flash(0.45,'#8b1620'); announce('☠ '+dl+' ☠',false); }},
- {n:'HEAL 33%', c:'#14432a', tier:1, f:(m)=>{ const hl=Math.round(P.maxHp*0.33*m); P.hp=Math.min(P.maxHp,P.hp+hl); flash(0.4,'#8bff9a'); SFX.dingBells(); announce('✚ +'+hl+' BLOOD ✚',true); }},
- {n:'DOUBLE', c:'#6a4ab5', tier:2, f:null},
- {n:'90 COINS', c:'#a8781c', tier:2, f:(m)=>{ const g2=90*m; P.coins+=g2; LT.coins+=g2; coinRain(24); SFX.cashout(); SFX.dingBells(); announce('◈ +'+g2+' COINS ◈',true); }},
- {n:'GILT +25', c:'#4a3616', tier:2, f:(m)=>{ const g3=25*m; gilt+=g3; saveGilt(); SFX.chipStack(); SFX.casinoDing(); announce('◈ +'+g3+' GILT BANKED ◈',true); }},
- {n:'⚔ ARSENAL', c:'#46306a', tier:3, f:()=>{ slotForceWeapon=true; pending.push({}); SFX.levelUp(); announce('⚔ THE ARSENAL WHEEL AWAITS ⚔',true); }},
- {n:'+1 LEVEL', c:'#8a1520', tier:3, f:(m)=>{ for(let i=0;i<m;i++) pending.push({}); SFX.levelUp(); announce('⚜ +'+m+' LEVEL'+(m>1?'S':'')+' ⚜',true); }},
- {n:'FEVER', c:'#a8781c', tier:2, f:()=>{ if(!feverOn){ fever=1; startFever(); } else { feverT=Math.min(12,feverT+5); announce('⚡ FEVER +5s ⚡',true); SFX.dingBells(); } }},
- {n:'DOUBLE', c:'#6a4ab5', tier:2, f:null},
- {n:'✦ SKILL', c:'#241f4a', tier:3, f:(m)=>{ rollAscentPrize(m*1.6); }},
- {n:'▲ ASCENT', c:'#123a22', tier:3, f:()=>{ wheel.toAscent=true; announce('▲ THE WHEEL OPENS THE ASCENT ▲',true); SFX.riser(); }}
+ {n:'60 COINS', c:'#c8860a', tier:1, f:(m)=>{ const g2=60*m; P.coins+=g2; LT.coins+=g2; coinRain(14*m); SFX.cashout(); announce('◈ +'+g2+' COINS ◈',true); }},
+ {n:'CURSE', c:'#640a16', tier:0, f:()=>{ const dl=applyDebuff(DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0]); SFX.bust(); flash(0.45,'#8b1620'); announce('☠ '+dl+' ☠',false); }},
+ {n:'HEAL 33%', c:'#0e8a4a', tier:1, f:(m)=>{ const hl=Math.round(P.maxHp*0.33*m); P.hp=Math.min(P.maxHp,P.hp+hl); flash(0.4,'#8bff9a'); SFX.dingBells(); announce('✚ +'+hl+' BLOOD ✚',true); }},
+ {n:'DOUBLE', c:'#7a3cff', tier:2, f:null},
+ {n:'90 COINS', c:'#e8a112', tier:2, f:(m)=>{ const g2=90*m; P.coins+=g2; LT.coins+=g2; coinRain(24); SFX.cashout(); SFX.dingBells(); announce('◈ +'+g2+' COINS ◈',true); }},
+ {n:'GILT +25', c:'#96700e', tier:2, f:(m)=>{ const g3=25*m; gilt+=g3; saveGilt(); SFX.chipStack(); SFX.casinoDing(); announce('◈ +'+g3+' GILT BANKED ◈',true); }},
+ {n:'⚔ ARSENAL', c:'#c22ca0', tier:3, f:()=>{ slotForceWeapon=true; pending.push({}); SFX.levelUp(); announce('⚔ THE ARSENAL WHEEL AWAITS ⚔',true); }},
+ {n:'+1 LEVEL', c:'#e0203a', tier:3, f:(m)=>{ for(let i=0;i<m;i++) pending.push({}); SFX.levelUp(); announce('⚜ +'+m+' LEVEL'+(m>1?'S':'')+' ⚜',true); }},
+ {n:'FEVER', c:'#f2701a', tier:2, f:()=>{ if(!feverOn){ fever=1; startFever(); } else { feverT=Math.min(12,feverT+5); announce('⚡ FEVER +5s ⚡',true); SFX.dingBells(); } }},
+ {n:'DOUBLE', c:'#7a3cff', tier:2, f:null},
+ {n:'✦ SKILL', c:'#3c58e8', tier:3, f:(m)=>{ rollAscentPrize(m*1.6); }},
+ {n:'▲ ASCENT', c:'#0ac878', tier:3, f:()=>{ wheel.toAscent=true; announce('▲ THE WHEEL OPENS THE ASCENT ▲',true); SFX.riser(); }}
 ];
 function buildWheelDom(){
   const w=$('soulWheel'); if(w._built) return; w._built=true;
@@ -27,9 +27,9 @@ function buildWheelDom(){
     const k=document.createElement('div'); k.className='wspk';
     k.style.transform='rotate('+(i*segA-segA/2)+'deg)'; w.appendChild(k);
     const p=document.createElement('div'); p.className='wpin';
-    p.style.transform='rotate('+(i*segA-segA/2)+'deg) translateY(-150px)'; w.appendChild(p);
+    p.style.transform='rotate('+(i*segA-segA/2)+'deg) translateY(-176px)'; w.appendChild(p);
     const d=document.createElement('div'); d.className='wseg wt'+sg.tier; d.textContent=sg.n;
-    d.style.transform='rotate('+(i*segA-90)+'deg) translate(58px,-6px)';
+    d.style.transform='rotate('+(i*segA-90)+'deg) translate(68px,-7px)';
     w.appendChild(d); });
   const box=w.parentNode;
   const rim=document.createElement('div'); rim.className='wheelRim'; box.insertBefore(rim,w);
@@ -39,7 +39,7 @@ function buildWheelDom(){
   const bl=document.createElement('div'); bl.id='wheelBulbs';
   for(let i=0;i<36;i++){ const b=document.createElement('span'); b.className='wb';
     b.style.setProperty('--i',i);
-    b.style.transform='rotate('+(i*10)+'deg) translateY(-180px)'; bl.appendChild(b); }
+    b.style.transform='rotate('+(i*10)+'deg) translateY(-211px)'; bl.appendChild(b); }
   box.appendChild(bl);
   const hub=box.querySelector('.wheelHub'); if(hub) hub.textContent='♠';
   const mq=document.createElement('div'); mq.className='wheelMarq'; mq.textContent='THE HOUSE SPINS FOR YOUR SOUL';
@@ -55,6 +55,8 @@ function openWheel(){
   const wd=$('wheelWedge'); if(wd) wd.className='';
   const bl=$('wheelBulbs'); if(bl){ bl.classList.remove('chase','all'); }
   const bm=document.querySelector('.wheelBeam'); if(bm) bm.classList.remove('on');
+  { const ww=$('wheelWin'); if(ww) ww.classList.remove('go'); }
+  $('soulWheel').style.boxShadow='';
   stopDrumroll();
   $('wheelLayer').classList.toggle('golden', wheel.golden);
   const mq=document.querySelector('.wheelMarq'); if(mq) mq.textContent=wheel.golden?'✦ GOLDEN SPIN — ALL PRIZES DOUBLED ✦':'THE HOUSE SPINS FOR YOUR SOUL';
@@ -92,6 +94,7 @@ function tickWheel(dt){
     $('soulWheel').style.transform='rotate('+wheel.rot+'deg)';
     const seg=Math.floor((((-wheel.rot%360)+360+segA/2)%360)/segA)%WSEGS.length;
     if(seg!==wheel.lastSeg){ wheel.lastSeg=seg;
+      $('soulWheel').style.boxShadow='0 0 0 3px #3a0a10,0 0 56px '+WSEGS[seg].c+',inset 0 0 40px rgba(0,0,0,.8)';
       const heat=1-Math.min(1,wheel.vel/900), tf=950+heat*1450;
       tone(tf,0.045,'square',0.08+heat*0.07); tone(tf*2,0.03,'sine',0.04+heat*0.03);
       if(wheel.vel<420) tone(2400+heat*800,0.05,'sine',0.05);
@@ -167,6 +170,9 @@ function landWheel(seg){
   wheel.done=true;
   const big=sg.tier>=3||(wheel.mult*gm>=2&&sg.f);
   if(big){ bigWin(sg.n,3); domConfetti(18+sg.tier*6); }
+  { let ww=$('wheelWin'); if(!ww){ ww=document.createElement('div'); ww.id='wheelWin'; $('wheelLayer').appendChild(ww); }
+    ww.innerHTML='<div class="awT" style="color:'+(sg.tier===0?'#ff7b7b':sg.c)+';filter:brightness(1.6) saturate(1.3)">'+sg.n+((wheel.mult*gm)>1&&sg.f?' ×'+(wheel.mult*gm):'')+'</div>';
+    ww.classList.remove('go'); void ww.offsetWidth; ww.classList.add('go'); }
   if(sg.f) sg.f(wheel.mult*gm);
   if(wheel.golden&&sg.tier>=1) setTimeout(()=>SFX.record(),150);
   LT.wheel=(LT.wheel||0)+1; bump('wheel',LT.wheel);
