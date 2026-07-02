@@ -6,12 +6,12 @@
 - [ ] **THE COLLECTION** — permanent museum built from the TAB codex: silhouettes fill in for every weapon/passive/tarot/curse ever encountered across all runs (persist!). Completion % shown on main menu.
 - [ ] **DAILY DEBT** — daily seeded challenge, fixed loadout, one attempt, local best (leaderboard later).
 - [ ] **STAKES** — post-win difficulty ladder (CRIMSON DECK → OBSIDIAN DECK...), each adds modifiers + exclusive rewards.
-- [ ] **Next-unlock teaser** on death screen under the rank bar: "NEXT: <reward> — N MARKS AWAY".
+- [x] **Next-unlock teaser** on death screen under the rank bar: "NEXT: <reward> — N MARKS AWAY". *(shipped 2026-07)*
 - [ ] **Controller / Steam Deck support** (menus + gameplay navigable by pad). Mandatory for Steam.
 - [ ] Steam achievements mapped from existing achievement system; cloud-save-safe persistence.
 - [ ] Free demo build target (first 15 min / rank-capped) for Next Fest wishlisting.
 
-## MENU JUICE PASS — "kill the HTML look" (full spec, ready to implement)
+## MENU JUICE PASS — "kill the HTML look" *(SHIPPED 2026-07 — spec kept for reference)*
 Goal: every menu element behaves like a physical casino object. Pure CSS+JS, no libraries.
 - Buttons become **gilded plaques**: layered gradient (dark velvet body, gold bevel edge, inner shadow), NOT flat rects.
 - **Hover:** lift (translateY -3px, scale 1.04) + glow bloom + slight 3D tilt toward cursor (perspective transform following mouse) + a light-shimmer sweep (moving diagonal gradient) + hover-chime SFX where EACH button has a slightly different pitch (like piano keys). Letter-spacing eases wider on hover.
