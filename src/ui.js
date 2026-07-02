@@ -274,15 +274,18 @@ window.addEventListener('keyup',e=>{
   keys.delete(k);
 });
 function ptr(e){ const t=e.touches?e.touches[0]:e; touch.wx=t.clientX+camX; touch.wy=t.clientY+camY; }
-cv.addEventListener('pointerdown',e=>{ touch.active=true; ptr(e); });
+cv.addEventListener('pointerdown',e=>{ if(e.button!==0) return; touch.active=true; ptr(e); });
 cv.addEventListener('pointermove',e=>{ if(touch.active)ptr(e); });
 window.addEventListener('pointerup',()=>touch.active=false);
+window.addEventListener('pointercancel',()=>touch.active=false);
+cv.addEventListener('contextmenu',e=>e.preventDefault());
 cv.addEventListener('touchstart',e=>{ touch.active=true; ptr(e); e.preventDefault(); },{passive:false});
 cv.addEventListener('touchmove',e=>{ ptr(e); e.preventDefault(); },{passive:false});
 cv.addEventListener('touchend',()=>touch.active=false);
+cv.addEventListener('touchcancel',()=>touch.active=false,{passive:true});
 $('startBtn').addEventListener('click',startGame);
 document.querySelectorAll('.btn').forEach(b=>b.addEventListener('mouseenter',()=>SFX.uiDing()));
-window.addEventListener('blur',()=>{ if(state==='playing'){ state='paused'; $('pauseLayer').classList.remove('hidden'); } });
+window.addEventListener('blur',()=>{ keys.clear(); touch.active=false; tabHold=false; hideTab(); if(state==='playing'){ state='paused'; $('pauseLayer').classList.remove('hidden'); } });
 window.addEventListener('error',ev=>{ if(!window._amErr){ window._amErr=1; console.error('[ANTE MORTEM]',ev.error||ev.message); } });
 $('againBtn').addEventListener('click',()=>{ const nm=$('nameInput').value.trim().toUpperCase(); if(nm){ sessionName=nm; if(pendingEntry)pendingEntry.n=nm.slice(0,12); } startGame(); });
 $('nameInput').addEventListener('change',e=>{ sessionName=e.target.value.trim().toUpperCase(); });
