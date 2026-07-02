@@ -28,7 +28,9 @@ function rollMainReward(floor){
    SLOT
    ============================================================ */
 const SYMS=['♠','♥','♦','♣','7','★','☠','♛','◆','✦','♜','♞','⚔','☾','⚄'];
-const RARC={common:'#c9c1b4',rare:'#6db4ff',epic:'#c98bff',legendary:'#f8e2a0'};
+const RARC={common:'#c9c1b4',rare:'#6db4ff',epic:'#c98bff',legendary:'#f8e2a0',ascend:'#8bffd0',mythic:'#fff2c0'};
+const SLOT_RAR={common:'COMMON',rare:'RARE',epic:'ULTRA RARE',legendary:'LEGENDARY',ascend:'▲ ASCENSION',mythic:'✸ MYTHIC'};
+const RAR_TIER={common:0,rare:1,epic:2,legendary:3,ascend:4,mythic:4};
 let reelTimers=[];
 function makeBulbs(){
   const cab=$('cabinet'); if(!cab || cab.querySelector('.bulb')) return;
@@ -97,6 +99,22 @@ function buildStrip(strip, seq, defs){
   strip.innerHTML='';
   seq.concat(seq).forEach(id=>{ const s=defs.find(x=>x.id===id); const d=document.createElement('div'); d.className='sym symBig'; d.innerHTML=iconSvg(s.id); d.style.color=RARC[s.rar]||'#c9c1b4'; strip.appendChild(d); });
 }
+function ensurePayTable(){
+  let pt=$('payTable');
+  if(!pt){ pt=document.createElement('div'); pt.id='payTable'; $('machine').appendChild(pt); }
+  const w=CFG.weights, tot=w.common+w.rare+w.epic+w.legendary;
+  const row=(rar,pc)=>'<div class="ptRow" data-rar="'+rar+'" style="--pc:'+RARC[rar]+'"><span class="ptG">◆</span><span class="ptN">'+SLOT_RAR[rar]+'</span><span class="ptP">'+pc+'%</span></div>';
+  const hasAsc=P.passiveList && P.passiveList.some(x=>x.rar==='ascend');
+  pt.innerHTML='<div class="ptHead">THE ODDS</div>'
+    +row('common',Math.round(w.common/tot*100))+row('rare',Math.round(w.rare/tot*100))
+    +row('epic',Math.round(w.epic/tot*100))+row('legendary',Math.round(w.legendary/tot*100))
+    +(hasAsc?'<div class="ptRow" data-rar="ascend" style="--pc:'+RARC.ascend+'"><span class="ptG">▲</span><span class="ptN">ASCENSION</span><span class="ptP">YOURS</span></div>':'')
+    +'<div class="ptFoot">PAIR +2 LV · TRIPLE +5 LV<br>DICE RAISE THE RARITY</div>';
+}
+function flarePayRow(rar){
+  const pt=$('payTable'); if(!pt) return;
+  pt.querySelectorAll('.ptRow').forEach(r=>r.classList.toggle('on', r.dataset.rar===rar));
+}
 function ensureBulbs(){
   const m=$('machine'); if(m._bulbs) return; m._bulbs=true;
   for(let i=0;i<26;i++){ const b=document.createElement('div'); b.className='bulb chase';
@@ -112,9 +130,11 @@ function openSlotReady(kind){
   $('reelsRow').style.display=''; $('diceRow').style.display='none'; $('riskWrap').style.display='none';
   $('prizeTag').textContent = isW?'YOUR WEAPON':'YOUR SKILL';
   $('cardName').textContent='—'; $('cardName').className='r-common'; $('cardDesc').textContent = isW?'spin for a weapon':'spin for a skill';
+  { const rb=$('rarBanner'); if(rb){ rb.textContent=''; rb.className=''; } flarePayRow(''); }
   const defs=isW?WEAPONS:PASSIVES; const avail=isW?availableWeapons():availableSkills(); const pool=avail.length?avail:defs;
+  ensurePayTable();
   const preStrips=[$('strip0'),$('strip1'),$('strip2')];
-  preStrips.forEach(el=>{ const seq=[]; for(let k=0;k<22;k++) seq.push(pick(pool).id); buildStrip(el,seq,defs); el.classList.remove('blur'); el.style.transition='none'; el.style.transform='translateY(0px)'; });
+  preStrips.forEach(el=>{ const seq=[]; for(let k=0;k<22;k++) seq.push(weightedByRarity(pool).id); buildStrip(el,seq,defs); el.classList.remove('blur'); el.style.transition='none'; el.style.transform='translateY(0px)'; });
   requestAnimationFrame(()=>{ preStrips.forEach(el=>{ const symH=(el.children[0]&&el.children[0].offsetHeight)||63; const boxH=(el.parentElement&&el.parentElement.clientHeight)||189; el.style.transform='translateY('+(boxH/2 - symH*1.5)+'px)'; }); });
   slotReels=[]; slotStage='ready';
   document.querySelectorAll('.reelbox').forEach(b=>b.classList.remove('antici','slam','pick','locked')); $('reelsRow').classList.remove('sweeping');
@@ -128,7 +148,7 @@ function spinReels(){
   const strips=[$('strip0'),$('strip1'),$('strip2')];
   document.querySelectorAll('.reelbox').forEach(b=>b.classList.remove('antici','slam','pick','locked')); $('reelsRow').classList.remove('sweeping');
   slotReels = strips.map((el,i)=>{
-    const N=22, seq=[]; for(let k=0;k<N;k++) seq.push(pick(pool).id);
+    const N=22, seq=[]; for(let k=0;k<N;k++) seq.push(weightedByRarity(pool).id);
     buildStrip(el,seq,defs); el.style.transition='none';
     return {el,seq,N,offset:Math.random()*N,speed:19+i*1.8,stopped:false,landedSym:null,symH:63,boxH:189};
   });
@@ -275,6 +295,15 @@ function finalizeReward(bestId, matchN){
 function showRewardPanel(){
   const g=gamble, def=g.def;
   $('cardName').textContent=def.n; $('cardName').className='r-'+def.rar+' bigname';
+  const rb=$('rarBanner');
+  if(rb){
+    rb.textContent=SLOT_RAR[def.rar]||def.rar.toUpperCase();
+    rb.className='rb-'+def.rar;
+    rb.classList.remove('go'); void rb.offsetWidth; rb.classList.add('go');
+  }
+  flarePayRow(def.rar);
+  if(!g._stung){ g._stung=true; SFX.rarSting(RAR_TIER[def.rar]||0);
+    if((RAR_TIER[def.rar]||0)>=3){ flash(0.3,RARC[def.rar]); domConfetti(14,'machine'); } }
 }
 function openOffer(){
   slotStage='offer'; endSeance(); const g=gamble; showRewardPanel();
