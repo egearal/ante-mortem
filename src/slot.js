@@ -428,7 +428,7 @@ function tickSlot(dt){
       selPos=(selPos+1)%3;
       boxOf(selPos).classList.add('pick');
       SFX.selectorTick(selStopping?selHopsLeft:2); sparkBurst(8);
-      if(selStopping){ selHopsLeft--; selHop+=0.028; if(selHopsLeft<=0){ lockSelector(); } }
+      if(selStopping){ selHopsLeft--; selHop+=0.022; if(selHopsLeft<=0){ lockSelector(); } }
     }
   }
   for(const d of dice){ if(!d.rolling) continue; d.ft-=dt; if(d.ft<=0){ d.val=1+((Math.random()*6)|0); renderDie(d.el,d.val); d.ft=0.055; } }
