@@ -353,6 +353,40 @@ function killEnemy(e,idx){
 }
 
 /* ---------- audience ---------- */
+function drawCourt(creep, eyeRGB, eyeHex){
+  const nR=6, tt=performance.now()/1000;
+  ctx.save();
+  for(let i=0;i<nR;i++){
+    const side=i%2? -1:1;
+    const gx = side>0 ? VW*(0.06+ (i/nR)*0.05) : VW*(0.94-(i/nR)*0.05);
+    const gy = VH*(0.16+ (i*0.145));
+    const sway2=Math.sin(tt*0.9+i*1.7)*8, hh=90+((i*29)%40);
+    ctx.save(); ctx.translate(gx+sway2, gy);
+    ctx.globalAlpha=(0.5+Math.sin(tt*1.3+i)*0.12)*creep;
+    const rgd=ctx.createLinearGradient(0,-hh,0,hh*0.5);
+    rgd.addColorStop(0,'#10131a'); rgd.addColorStop(1,'rgba(6,8,12,0)');
+    ctx.fillStyle=rgd;
+    ctx.beginPath();
+    ctx.moveTo(0,-hh);
+    ctx.quadraticCurveTo(hh*0.42,-hh*0.45, hh*0.30, hh*0.5);
+    ctx.quadraticCurveTo(0, hh*0.3, -hh*0.30, hh*0.5);
+    ctx.quadraticCurveTo(-hh*0.42,-hh*0.45, 0,-hh);
+    ctx.fill();
+    // hood void + burning eyes
+    ctx.fillStyle='#04050a'; ctx.beginPath(); ctx.ellipse(0,-hh*0.72,hh*0.15,hh*0.17,0,0,6.28); ctx.fill();
+    const bl=(0.55+Math.sin(tt*2.6+i*2.2)*0.35)*creep;
+    ctx.fillStyle='rgba('+eyeRGB+','+bl+')'; ctx.shadowColor=eyeHex; ctx.shadowBlur=12;
+    ctx.beginPath(); ctx.arc(-hh*0.05,-hh*0.72,2.4,0,6.28); ctx.arc(hh*0.05,-hh*0.72,2.4,0,6.28); ctx.fill(); ctx.shadowBlur=0;
+    // bony hand reaching toward the machine
+    ctx.strokeStyle='rgba(170,180,190,0.5)'; ctx.lineWidth=2.6; ctx.lineCap='round';
+    const rx=-side*(hh*0.42+Math.sin(tt*1.6+i)*7);
+    ctx.beginPath(); ctx.moveTo(-side*hh*0.2,-hh*0.3); ctx.quadraticCurveTo(rx*0.6,-hh*0.34, rx,-hh*0.3);
+    ctx.stroke();
+    for(let f2=0;f2<3;f2++){ ctx.beginPath(); ctx.moveTo(rx,-hh*0.3); ctx.lineTo(rx-side*8, -hh*0.3-5+f2*5); ctx.stroke(); }
+    ctx.restore();
+  }
+  ctx.restore(); ctx.globalAlpha=1;
+}
 function buildAudience(){
   audience=[]; const n=26;
   for(let i=0;i<n;i++){
@@ -1256,41 +1290,14 @@ function render(){
   const vg=ctx.createRadialGradient(VW/2,VH/2,Math.min(VW,VH)*(0.30-danger*0.12),VW/2,VH/2,Math.max(VW,VH)*0.74);
   vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(0.7,'rgba(6,4,10,'+((0.34+danger*0.4)*cf)+')'); vg.addColorStop(1,'rgba(2,2,8,'+((0.7+danger*0.3)*cf)+')');
   ctx.fillStyle=vg; ctx.fillRect(0,0,VW,VH);
-  // LAST RITES — Death's court gathers around the slot, waiting for your soul
-  if(state==='slot' && lastRites){
-    const nR=6, creep=Math.min(1,(gt-(P._riteT||gt))); if(!P._riteT)P._riteT=gt;
-    ctx.save();
-    for(let i=0;i<nR;i++){
-      const side=i%2? -1:1;
-      const gx = side>0 ? VW*(0.06+ (i/nR)*0.05) : VW*(0.94-(i/nR)*0.05);
-      const gy = VH*(0.16+ (i*0.145));
-      const sway2=Math.sin(gt*0.9+i*1.7)*8, hh=90+((i*29)%40);
-      ctx.save(); ctx.translate(gx+sway2, gy);
-      ctx.globalAlpha=0.5+Math.sin(gt*1.3+i)*0.12;
-      const rgd=ctx.createLinearGradient(0,-hh,0,hh*0.5);
-      rgd.addColorStop(0,'#10131a'); rgd.addColorStop(1,'rgba(6,8,12,0)');
-      ctx.fillStyle=rgd;
-      ctx.beginPath();
-      ctx.moveTo(0,-hh);
-      ctx.quadraticCurveTo(hh*0.42,-hh*0.45, hh*0.30, hh*0.5);
-      ctx.quadraticCurveTo(0, hh*0.3, -hh*0.30, hh*0.5);
-      ctx.quadraticCurveTo(-hh*0.42,-hh*0.45, 0,-hh);
-      ctx.fill();
-      // hood void + burning eyes
-      ctx.fillStyle='#04050a'; ctx.beginPath(); ctx.ellipse(0,-hh*0.72,hh*0.15,hh*0.17,0,0,6.28); ctx.fill();
-      const bl=0.55+Math.sin(gt*2.6+i*2.2)*0.35;
-      ctx.fillStyle='rgba(150,220,255,'+bl+')'; ctx.shadowColor='#9adcff'; ctx.shadowBlur=12;
-      ctx.beginPath(); ctx.arc(-hh*0.05,-hh*0.72,2.4,0,6.28); ctx.arc(hh*0.05,-hh*0.72,2.4,0,6.28); ctx.fill(); ctx.shadowBlur=0;
-      // bony hand reaching toward the machine
-      ctx.strokeStyle='rgba(170,180,190,0.5)'; ctx.lineWidth=2.6; ctx.lineCap='round';
-      const rx=-side*(hh*0.42+Math.sin(gt*1.6+i)*7);
-      ctx.beginPath(); ctx.moveTo(-side*hh*0.2,-hh*0.3); ctx.quadraticCurveTo(rx*0.6,-hh*0.34, rx,-hh*0.3);
-      ctx.stroke();
-      for(let f2=0;f2<3;f2++){ ctx.beginPath(); ctx.moveTo(rx,-hh*0.3); ctx.lineTo(rx-side*8, -hh*0.3-5+f2*5); ctx.stroke(); }
-      ctx.restore();
-    }
-    ctx.restore(); ctx.globalAlpha=1;
-  } else if(state!=='slot') P._riteT=0;
+  // Death's court gathers around the slot — for LAST RITES (ice-eyed) and the FATE SPINS séance (violet-eyed)
+  { const seance = state==='slot' && !lastRites && (slotStage==='select'||slotStage==='locking') && typeof selPos!=='undefined';
+    if(state==='slot' && (lastRites || seance)){
+      if(!P._courtT0) P._courtT0=performance.now();
+      const creep=Math.min(1,(performance.now()-P._courtT0)/800);
+      drawCourt(creep, lastRites?'150,220,255':'201,139,255', lastRites?'#9adcff':'#c98bff');
+    } else if(state!=='slot' || (!lastRites && !seance)) P._courtT0=0;
+  }
   // low-HP heartbeat vignette
   if(state==='playing' && P.hp/P.maxHp<0.25){
     const hb=(Math.sin(gt*7.4)*0.5+0.5)*0.22+0.08;

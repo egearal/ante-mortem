@@ -70,7 +70,11 @@ const MINIPOWERS=[
   {t:'+1% Crit', ap:()=>{P.crit=Math.min(0.9,P.crit+0.01);}}
 ];
 function grantMiniPower(){ const m=MINIPOWERS[(Math.random()*MINIPOWERS.length)|0]; m.ap(); return m.t; }
-let slotForceWeapon=false;
+let slotForceWeapon=false, _seanceOn=false;
+function endSeance(){
+  if(_seanceOn){ _seanceOn=false; elSlot.classList.remove('seance'); if(!lastRites) stopDrone(); }
+  const m9=$('machine'); if(m9) m9.classList.remove('selecting','hopShake');
+}
 function openNextSlot(){
   if(!pending.length) return;
   const p=pending.shift();
@@ -208,6 +212,8 @@ function startSelector(){
   // all different — random reveal wheel (your stop does NOT change the result)
   slotStage='select';
   $('reelsRow').classList.add('sweeping');
+  if(!lastRites){ elSlot.classList.add('seance'); _seanceOn=true; startDrone(); }
+  $('machine').classList.add('selecting');
   selWinner=(Math.random()*3)|0;
   selPos=(Math.random()*3)|0; selT=0; selHop=0.08; selStopping=false; selHopsLeft=0;
   boxOf(selPos).classList.add('pick');
@@ -268,7 +274,7 @@ function showRewardPanel(){
   $('cardName').textContent=def.n; $('cardName').className='r-'+def.rar+' bigname';
 }
 function openOffer(){
-  slotStage='offer'; const g=gamble; showRewardPanel();
+  slotStage='offer'; endSeance(); const g=gamble; showRewardPanel();
   const deadly = g.round>=3;
   if(!deadly && !g.pendingCurse) g.pendingCurse=DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0];
   const gain=rollGain(g.round);
@@ -444,7 +450,9 @@ function tickSlot(dt){
       boxOf(selPos).classList.remove('pick');
       selPos=(selPos+1)%3;
       boxOf(selPos).classList.add('pick');
-      SFX.selectorTick(selStopping?selHopsLeft:2); sparkBurst(8);
+      { const m9=$('machine'); if(m9){ m9.classList.remove('hopShake'); void m9.offsetWidth; m9.classList.add('hopShake'); } }
+      shake=Math.min(10,shake+2);
+      SFX.selectorTick(selStopping?selHopsLeft:2); sparkBurst(16);
       if(selStopping){ selHopsLeft--; selHop+=0.022; if(selHopsLeft<=0){ lockSelector(); } }
     }
   }
@@ -569,6 +577,7 @@ function rollGain(r){ return r>=3 ? 2 : 1; }
 const MAXROLL=4;
 function shinyWord(){ return SHINY[(Math.random()*SHINY.length)|0]; }
 function closeSlot(){
+  endSeance();
   stopDrone();
   slotStage='idle';
   spaceHold=false; holdProg=0; holdFired=false; ringShow(false);
