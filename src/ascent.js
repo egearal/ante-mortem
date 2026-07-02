@@ -139,6 +139,7 @@ function pushCrash(){
       shl.style.transform='translate('+rnd(-j,j)+'px,'+rnd(-j,j)+'px)';
       setTimeout(()=>{ if(shl) shl.style.transform=''; },70); } }
   $('crashMult').style.animationDuration=Math.max(0.16,0.5-crash.mult*0.03)+'s';
+  const el=$('crashMult');
   { const m9=crash.mult;
     const bc = m9<1.5?'#e8d9c0': m9<2?'#8bff9a': m9<3?'#6fe3ff': m9<5?'#c98bff':'#fff2c0';
     el.style.color=bc;
@@ -173,7 +174,6 @@ function pushCrash(){
         sl.classList.remove('go'); void sl.offsetWidth; sl.classList.add('go'); } }
     crash.msIdx++;
   }
-  const el=$('crashMult');
   { const gh=$('crashGhost'); if(gh){ gh.textContent=el.textContent; gh.style.color=el.style.color||'#e8d9c0';
       gh.classList.remove('go'); void gh.offsetWidth; gh.classList.add('go'); } }
   { const nw=performance.now();
