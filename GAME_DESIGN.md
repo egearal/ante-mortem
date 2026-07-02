@@ -25,7 +25,7 @@ XP-full → bar 100, +50% dmg & fire rate; at ≥90% also +50% damage TAKEN. Dra
 Entry: green token (48-82s spawns) or rage-earned gate. **FREE to ride — no stake.**
 SPACE = launch, then each SPACE = one push: mult += (0.01+rnd*0.19)*(1+m*0.08). ENTER = cash.
 Crash point: 5% instant (≈1.01), else 0.99/(1−u·0.99), cap 40.
-**Prize tiers (cash-out): <1.5× = NOTHING · Tier I ≥1.5× (62%) · Tier II ≥2.5× (37%) · Tier III ≥5× (18%) · ☆ JACKPOT ≥10× (8.5%).**
+**Prize tiers (cash-out): <1.77× = NOTHING · Tier I ≥1.77× · Tier II ≥2.77× · Tier III ≥3.69× · ☆ JACKPOT ≥7.77×.** (Retuned 2026-07 from 1.5/2.5/5/10 — old gates were too hard to reach.)
 - Tiers I-III grant one pre-rolled un-owned ASCENSION passive (shown in lobby chips + live line with fx labels).
 - JACKPOT: pick 1 of 3 rarity-weighted weapons (cards, click or keys 1/2/3; new or +1 level; availableWeapons()/weightedByRarity()).
 **Crash = THE FALL:** 30s composite curse (−18% dmg, −15% spd, dot 0.6) + ceremony. Rank XI shortens all curses 25%.

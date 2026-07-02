@@ -15,7 +15,7 @@ $('vaultBtn').addEventListener('click',()=>{ openVault(); });
       ['🎲','DICE LADDER','After the reels, SPACE rolls the bones. Beat the number to climb; four wins in one visit is a GOD LEVEL. A miss costs a curse or a skill.'],
       ['☨','LAST RITES','Gamble while below 40% blood: each roll drains life, but wins return it doubled in fortune.'],
       ['☸','WHEEL OF SOULS','Grab the violet token, SPACE to spin. DOUBLE segments respin everything at ×2, then ×4.'],
-      ['▲','THE ASCENT','Hold RAGE 90%+ or find the green gate. Free to ride: SPACE pushes the multiplier. Cash below 1.5× and you get NOTHING. Tier I passive at 1.5×, II at 2.5×, III at 5× — and at 10×, the JACKPOT: your pick of 3 weapons. Crash and THE FALL curses you 30 seconds.'],
+      ['▲','THE ASCENT','Hold RAGE 90%+ or find the green gate. Free to ride: SPACE pushes the multiplier. Cash below 1.77× and you get NOTHING. Tier I passive at 1.77×, II at 2.77×, III at 3.69× — and at 7.77×, the JACKPOT: your pick of 3 weapons. Crash and THE FALL curses you 30 seconds.'],
       ['💀','THE MARKER','On death the House flips LIVE or DIE. Hammer SPACE to bribe with Gilt — 1◈ +10%, then 2◈ +10%, then 3◈ +5%. Odds cap at 75%.'],
       ['◈','COINS','The gold of this run. They feed the rage bar, and a 27+ kill streak can be CASHED with SPACE for coins.'],
       ['◈','GILT','Eternal money from boss bounties and the Wheel. Spend it in the VAULT — or on death bribes.'],

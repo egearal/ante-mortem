@@ -67,7 +67,7 @@ function openCrash(){
     if(!d){ d=document.createElement('div'); d.id=id; $('crashMult').parentNode.insertBefore(d, id==='crashGhost'?$('crashMult'):$('crashMult').nextSibling); }
     d.className=''; d.textContent=''; });
   { let tl=$('tierLadder'); if(!tl){ tl=document.createElement('div'); tl.id='tierLadder';
-      tl.innerHTML='<div class="tln" data-x="10" style="color:#6a5a30">☆ 10×</div><div class="tlbar"></div><div class="tln" data-x="5">III · 5×</div><div class="tlbar"></div><div class="tln" data-x="2.5">II · 2.5×</div><div class="tlbar"></div><div class="tln" data-x="1.5">I · 1.5×</div>';
+      tl.innerHTML='<div class="tln" data-x="7.77" style="color:#6a5a30">☆ 7.77×</div><div class="tlbar"></div><div class="tln" data-x="3.69">III · 3.69×</div><div class="tlbar"></div><div class="tln" data-x="2.77">II · 2.77×</div><div class="tlbar"></div><div class="tln" data-x="1.77">I · 1.77×</div>';
       $('crashSky').appendChild(tl); }
     tl.querySelectorAll('.tln').forEach(n=>{ if(n.dataset.x!=='1') n.classList.remove('lit','pop'); }); }
   crash.band=0; crash.fz=0; crash.lastP=0; $('crashStrobe').style.opacity=0;
@@ -91,7 +91,7 @@ function openCrash(){
   { const ct=$('crashTimer'); if(ct) ct.remove(); }
   $('crashMult').textContent='1.00×'; $('crashMult').className='';
   prerollAsc();
-  $('crashStake').innerHTML='<span class="stk on">I at 1.5×: '+przLabel(1)+'</span><span class="stk">II at 2.5×: '+przLabel(2)+'</span><span class="stk">III at 5×: '+przLabel(3)+'</span><span class="stk" style="color:#fff2c0;border-color:#fff2c0">10× JACKPOT: PICK OF 3 WEAPONS</span>';
+  $('crashStake').innerHTML='<span class="stk on">I at 1.77×: '+przLabel(1)+'</span><span class="stk">II at 2.77×: '+przLabel(2)+'</span><span class="stk">III at 3.69×: '+przLabel(3)+'</span><span class="stk" style="color:#fff2c0;border-color:#fff2c0">7.77× JACKPOT: PICK OF 3 WEAPONS</span>';
   $('crashHist').innerHTML=crashHist.slice(-6).map(h=>'<span class="'+(h.ok?'ok':'no')+'">'+h.v.toFixed(2)+'×</span>').join('');
   $('crashMsg').innerHTML='THE HOUSE ASKS NOTHING — ONLY NERVE · WIN: A <b style="color:#8bffd0">PASSIVE</b> (II AT 2×, III AT 3×) · CRASH: <b style="color:#ff6b6b">THE FALL — 30s CURSE</b> · <span class="keyhint">SPACE</span> PUSH';
   $('crashLayer').classList.remove('hidden'); SFX.vaultOpen(); startDrone();
@@ -107,7 +107,7 @@ function launchCrash(){
   $('crashMsg').innerHTML='CLIMB FOR HIGHER TIERS · CRASH = <b style="color:#ff6b6b">THE FALL</b> · <span class="keyhint">ENTER</span> CASH';
   SFX.riser();
 }
-const CR_MS=[1.5,2,3,5,7,10,15,20];
+const CR_MS=[1.77,2.77,3.69,5,7.77,10,15,20];
 function tickCrash(dt){
   if(!crash.live) return;
   { const fr=$('crashFrenzy'); if(fr && performance.now()-crash.lastP>520) fr.classList.remove('on'); }
@@ -132,26 +132,26 @@ function gateHold(ms){ $('crashLayer').classList.add('gatehold'); setTimeout(()=
 function gateBulbs(ms){ const cb=$('crashBulbs'); if(!cb) return; cb.classList.add('frenzy'); setTimeout(()=>cb.classList.remove('frenzy'),ms); }
 function gateFx(x){
   const G=(ms,fn)=>setTimeout(()=>{ if(state!=='crash') return; fn(); },ms);
-  if(x===1.5){
+  if(x===1.77){
     gateSlam('TIER I — THE FLOOR FALLS AWAY','#8bffd0'); SFX.dingHit(2);
     flash(0.22,'#8bffd0'); shake=Math.min(18,shake+5); gatePing('#8bffd0',200);
     crash.boostT=performance.now()+180;
     G(130,()=>{ SFX.casinoDing(); flash(0.14,'#8bff9a'); });
-  } else if(x===2.5){
+  } else if(x===2.77){
     gateSlam('TIER II — THE CHANDELIERS BOW','#c98bff'); SFX.dingHit(3); SFX.chipStack();
     flash(0.3,'#c98bff'); shake=Math.min(20,shake+7); gatePing('#c98bff',240);
     crash.boostT=performance.now()+260; gateBulbs(700);
     const au=$('crashAurora'); if(au) au.style.opacity=0.45;
     G(120,()=>SFX.tingle());
     G(260,()=>{ SFX.casinoDing(); flash(0.18,'#c98bff'); gatePing('#c98bff',300); });
-  } else if(x===5){
+  } else if(x===3.69){
     gateSlam('TIER III — DEAD STARS APPLAUD','#ffd36b'); SFX.dingHit(4); SFX.record();
     flash(0.34,'#ffd36b'); shake=Math.min(22,shake+9); gatePing('#ffd36b',280);
     crash.boostT=performance.now()+380; gateHold(160); gateBulbs(1000);
     G(120,()=>{ SFX.tingle(); flash(0.2,'#c98bff'); });
     G(260,()=>{ SFX.hotSix(); gatePing('#fff2c0',340); coinRain(12); });
     G(420,()=>{ SFX.casinoDing(); flash(0.16,'#fff2c0'); domConfetti(12,'crashLayer'); });
-  } else if(x===10){
+  } else if(x===7.77){
     gateSlam('☆ THE HOUSE LOSES SIGHT OF YOU ☆','#fff2c0',1400); SFX.seraph(); SFX.record();
     flash(0.5,'#fff2c0'); shake=Math.min(26,shake+14); gatePing('#fff2c0',320);
     crash.boostT=performance.now()+1000; gateHold(240); gateBulbs(1800);
@@ -184,7 +184,7 @@ function pushCrash(){
   $('crashMult').style.animationDuration=Math.max(0.16,0.5-crash.mult*0.03)+'s';
   const el=$('crashMult');
   { const m9=crash.mult;
-    const bc = m9<1.5?'#e8d9c0': m9<2?'#8bff9a': m9<3?'#6fe3ff': m9<5?'#c98bff':'#fff2c0';
+    const bc = m9<1.77?'#e8d9c0': m9<2.77?'#8bff9a': m9<3.69?'#6fe3ff': m9<7.77?'#c98bff':'#fff2c0';
     el.style.color=bc;
     if(m9>=1.3) el.className='hot';
     $('crashLayer').style.filter='saturate('+(1+Math.min(1.3,(m9-1)*0.24)).toFixed(2)+') contrast('+(1+Math.min(0.28,m9*0.035)).toFixed(2)+')';
@@ -192,7 +192,7 @@ function pushCrash(){
     const cp9=$('crashPing'); if(cp9) cp9.style.borderColor=bc;
     const au9=$('crashAurora'); if(au9){ au9.style.opacity=Math.max(0,Math.min(0.9,(m9-2.5)/2.5)); au9.style.animationDuration=Math.max(1.1,6-m9*0.55)+'s'; }
     if(m9>=3 && cp9){ setTimeout(()=>{ if(crash.live){ cp9.style.width=cp9.style.height=(180+m9*30)+'px'; cp9.classList.remove('go'); void cp9.offsetWidth; cp9.classList.add('go'); } },110); }
-    const nb=m9<1.5?0:m9<2?1:m9<3?2:m9<5?3:4;
+    const nb=m9<1.77?0:m9<2.77?1:m9<3.69?2:m9<7.77?3:4;
     if(nb>crash.band){ crash.band=nb;
       noise(0.25,0.1,900+nb*500);
       [392,523,659].forEach((f9,i9)=>setTimeout(()=>tone(f9*Math.pow(1.25,nb),0.18,'triangle',0.1),i9*60));
@@ -206,14 +206,14 @@ function pushCrash(){
   noise(0.06,0.03,1600+crash.mult*260);
   { const st=$('crashStars'); if(st) st.style.setProperty('--sd',Math.max(0.35,2.4/(0.6+crash.mult*0.45))+'s'); }
   { const cz=$('crashZone'); if(cz){ const m=crash.mult;
-      cz.textContent = m<1.5?'LEAVING THE FLOOR': m<2?'ABOVE THE CHANDELIERS': m<3?'THROUGH THE VAULTED DARK': m<5?'AMONG DEAD STARS':'THE HOUSE CANNOT SEE YOU';
-      cz.style.color = m<2?'#9adcff': m<3?'#c98bff': m<5?'#ffd36b':'#fff2c0'; } }
+      cz.textContent = m<1.77?'LEAVING THE FLOOR': m<2.77?'ABOVE THE CHANDELIERS': m<3.69?'THROUGH THE VAULTED DARK': m<7.77?'AMONG DEAD STARS':'THE HOUSE CANNOT SEE YOU';
+      cz.style.color = m<2.77?'#9adcff': m<3.69?'#c98bff': m<7.77?'#ffd36b':'#fff2c0'; } }
   if(big){ SFX.uiDing(); flash(0.1,'#8bff9a'); sparkBurst(6); }
   while(crash.msIdx<CR_MS.length && crash.mult>=CR_MS[crash.msIdx]){
     SFX.casinoDing(); if(CR_MS[crash.msIdx]>=3) SFX.dingBells();
     flash(0.18,'#8bff9a'); sparkBurst(12);
     if(!(crash.slamHold&&performance.now()<crash.slamHold)){ const sl=$('crashSlam'); if(sl){ sl.textContent=CR_MS[crash.msIdx]+'×';
-        const m8=crash.mult; sl.style.color=m8<1.5?'#e8d9c0':m8<2?'#8bff9a':m8<3?'#6fe3ff':m8<5?'#c98bff':'#fff2c0';
+        const m8=crash.mult; sl.style.color=m8<1.77?'#e8d9c0':m8<2.77?'#8bff9a':m8<3.69?'#6fe3ff':m8<7.77?'#c98bff':'#fff2c0';
         sl.classList.remove('go'); void sl.offsetWidth; sl.classList.add('go'); } }
     crash.msIdx++;
   }
@@ -232,8 +232,8 @@ function pushCrash(){
   $('crashRocket').style.bottom=Math.min(104, Math.log(crash.mult)*46)+'px';
   { const t=ascTier(crash.mult);
     if(t>=4){ $('crashMsg').innerHTML='CASH: <b style="color:#fff2c0">☆ JACKPOT — CHOOSE OF 3 WEAPONS ☆</b> · <span class="keyhint">ENTER</span>'; }
-    else if(t===0){ $('crashMsg').innerHTML='CASH: <b style="color:#8a7a58">NOTHING — TIER I AT 1.5×</b> · <span class="keyhint">ENTER</span>'; }
-    else { const gates=[1.5,2.5,5,10];
+    else if(t===0){ $('crashMsg').innerHTML='CASH: <b style="color:#8a7a58">NOTHING — TIER I AT 1.77×</b> · <span class="keyhint">ENTER</span>'; }
+    else { const gates=[1.77,2.77,3.69,7.77];
       $('crashMsg').innerHTML='CASH: <b style="color:#8bffd0">'+przLabel(t)+'</b> · AT '+gates[t]+'×: '+(t<3?przLabel(t+1):'<b style="color:#fff2c0">JACKPOT</b>')+' · <span class="keyhint">ENTER</span>'; } }
   if(crash.mult>=crash.cp){
     crash.live=false; crash.done=true;
@@ -249,7 +249,7 @@ function pushCrash(){
     setTimeout(closeCrash, 1600);
   }
 }
-const ASC_TIERS=[['common',65,0],['rare',20,2.0],['epic',10,2.5],['mythic',5,3.5]];
+const ASC_TIERS=[['common',65,0],['rare',20,1.77],['epic',10,2.77],['mythic',5,3.69]];
 const RAR_LABEL={common:'COMMON',rare:'RARE',epic:'ULTRA RARE',legendary:'ULTRA RARE',mythic:'MYTHIC'};
 function rollAscentPrize(m){
   const un=ASC_TIERS.filter(t=>m>=t[2]);
@@ -277,7 +277,7 @@ function theFall(){
   flash(0.6,'#8b1620'); SFX.bust(); SFX.thud(); shake=Math.min(20,shake+10);
   setTimeout(()=>announce('☄ THE FALL — THE HOUSE CURSES YOUR DESCENT ☄', false), 400);
 }
-function ascTier(m){ return m>=10?4:m>=5?3:m>=2.5?2:m>=1.5?1:0; }
+function ascTier(m){ return m>=7.77?4:m>=3.69?3:m>=2.77?2:m>=1.77?1:0; }
 const ASC_POOLS=[null,['a_iron','a_eye','a_wind','a_gild','a_hand','a_skin'],['a_fang','a_storm','a_greed','a_fuse','a_holl','a_veil','a_swrm'],['a_crown','a_void','a_king','a_reap','a_engn','a_mirr']];
 function prerollAsc(){
   crash.prz={};
@@ -359,9 +359,9 @@ function cashCrash(){
     setTimeout(()=>{ announce('✦ PASSIVE CLAIMED — '+pd.n+' ✦', true); if(t>=3){ SFX.seraph(); flash(0.5,'#fff2c0'); } },450);
   }
   $('crashMsg').textContent='ASCENDED AT '+crash.mult.toFixed(2)+'×';
-  if(crash.mult>=5) bigWin('×'+crash.mult.toFixed(1)+' ASCENT',3);
+  if(crash.mult>=3.69) bigWin('×'+crash.mult.toFixed(1)+' ASCENT',3);
   LT.crash=(LT.crash||0)+1; bump('crash',LT.crash);
-  if(crash.mult>=10) secret('icarus','ICARUS ASCENDANT');
+  if(crash.mult>=7.77) secret('icarus','ICARUS ASCENDANT');
   setTimeout(closeCrash, 2100);
 }
 function closeCrash(){ crash.jk=false; { const w9=$('jkWrap'); if(w9){ w9.classList.remove('show'); w9.innerHTML=''; } } $('crashLayer').classList.add('hidden'); $('crashLayer').style.filter=''; stopDrone(); if(state==='crash'){ state='playing'; while(P.xp>=P.xpNext){ P.xp-=P.xpNext; P.level++; P.xpNext=Math.round(P.xpNext*1.18); pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); SFX.levelUp(); }
