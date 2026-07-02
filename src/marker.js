@@ -14,7 +14,10 @@ function markerSpin(){
   state='marker'; stopDrone();
   const l=$('jackpotLayer'), t=$('jackpotText');
   l.classList.remove('hidden');
-  let n=0, N=14; const mk={p:0.32+0.05*vlv('marker'), tier:0, resolved:false}; markerRef=mk;
+  let n=0, N=14;
+  const g0=gilt, c1=Math.ceil(g0*0.30), c2=Math.ceil(g0*0.30);
+  const mk={p:0.30+0.05*vlv('marker'), tier:0, resolved:false, g0:g0,
+    costs:[g0>0?Math.max(1,c1):0, g0>0?Math.max(1,c2):0, Math.max(0,g0-c1-c2)]}; markerRef=mk;
   const step=()=>{
     n++;
     const showLive=n%2===0;
@@ -40,7 +43,7 @@ function markerSpin(){
     }
   };
   SFX.riser(); SFX.murmur(); t.textContent='THE HOUSE CONSIDERS…'; t.className='jackpotText marker'; t.style.color='#e8b64c';
-  const sub=$('jackpotSub'); sub.textContent=mkBribeLine(mk.p,0); sub.classList.remove('hidden');
+  const sub=$('jackpotSub'); sub.innerHTML=mkBribeLine(mk.p,0); sub.classList.remove('hidden');
   flash(0.4,'#8b1620'); shake=Math.min(16,shake+8);
   setTimeout(step, 750);
 }

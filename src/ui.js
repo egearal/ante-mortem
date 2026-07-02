@@ -125,13 +125,16 @@ function buildGfxPanel(){
 }
 function openGfx(){ buildGfxPanel(); $('gfxPanel').classList.remove('hidden'); SFX.vaultOpen(); }
 function mkBribeLine(p,tier){
-  const pct=Math.min(75,Math.round(p*100)), costs=[1,2,3];
-  if(tier>=3||p>=0.75) return 'THE HOUSE IS BOUGHT — '+pct+'% TO LIVE';
-  return 'ODDS '+pct+'% TO LIVE · SPACE — BRIBE '+costs[tier]+' GILT (+'+(tier<2?10:5)+'%) · YOU HOLD '+gilt+' ◈';
+  const pct=Math.min(75,Math.round(p*100)), mk=markerRef||{};
+  const paid=mk.lastPaid?('PAID <b style="color:#ff7b7b">−'+mk.lastPaid+' ◈</b> (+'+Math.round((mk.lastGain||0)*100)+'%) · '):'';
+  if(tier>=3||p>=0.75) return paid+'THE HOUSE IS BOUGHT — <b style="color:#8bff9a">'+pct+'% TO LIVE</b> · <b style="color:#ffd36b">'+gilt+' ◈</b> REMAIN';
+  const cost=mk.costs?mk.costs[tier]:0;
+  if(!cost||gilt<cost) return paid+'ODDS <b style="color:#8bff9a">'+pct+'%</b> TO LIVE · YOU HOLD <b style="color:#ffd36b">'+gilt+' ◈</b> — NOTHING LEFT TO OFFER';
+  return paid+'ODDS <b style="color:#8bff9a">'+pct+'%</b> TO LIVE · YOU HOLD <b style="color:#ffd36b">'+gilt+' ◈</b> · SPACE — BRIBE <b style="color:#ff7b7b">−'+cost+' ◈</b> ('+(tier<2?'+5-10%':'+5%')+')';
 }
 function bribeFx(tier,p){
   const jt=$('jackpotText'); if(jt){ jt.classList.remove('bribePop'); void jt.offsetWidth; jt.classList.add('bribePop'); }
-  { const sb=$('jackpotSub'); sb.textContent=mkBribeLine(p,tier); sb.classList.remove('subPop'); void sb.offsetWidth; sb.classList.add('subPop'); }
+  { const sb=$('jackpotSub'); sb.innerHTML=mkBribeLine(p,tier); sb.classList.remove('subPop'); void sb.offsetWidth; sb.classList.add('subPop'); }
   SFX.chipStack(); SFX.casinoDing();
   [660,880,1046].slice(0,tier).forEach((f9,i9)=>setTimeout(()=>tone(f9*(1+tier*0.12),0.16,'sine',0.12),i9*70));
   coinRain(6+tier*7);
@@ -253,13 +256,15 @@ window.addEventListener('keydown',e=>{
   }
   if(state==='marker'){
     if(k===' ' && markerRef && !markerRef.resolved){
-      const costs=[1,2,3], gains=[0.10,0.10,0.05], t9=markerRef.tier;
-      if(t9<3 && markerRef.p<0.75 && gilt>=costs[t9]){
-        gilt-=costs[t9]; saveGilt();
-        markerRef.p=Math.min(0.75, markerRef.p+gains[t9]); markerRef.tier++;
+      const t9=markerRef.tier, cost=markerRef.costs?markerRef.costs[t9]:0;
+      if(t9<3 && markerRef.p<0.75 && cost>0 && gilt>=cost){
+        gilt-=cost; saveGilt();
+        const gain = t9<2 ? (0.05+Math.random()*0.05) : 0.05;
+        markerRef.p=Math.min(0.75, markerRef.p+gain); markerRef.tier++;
+        markerRef.lastPaid=cost; markerRef.lastGain=gain;
         bribeFx(markerRef.tier, markerRef.p);
       } else if(t9<3 && markerRef.p<0.75){
-        SFX.thud(); $('jackpotSub').textContent='THE HOUSE REJECTS EMPTY HANDS — YOU NEED '+costs[t9]+' GILT';
+        SFX.thud(); $('jackpotSub').innerHTML=markerRef.g0>0?'THE HOUSE REJECTS EMPTY HANDS — <b style="color:#ff7b7b">'+cost+' ◈</b> NEEDED':'EMPTY HANDS — THE HOUSE PITIES NO BEGGAR';
       }
     }
     return; }
