@@ -190,11 +190,11 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 .reelsRow.sweeping .reelbox::after{background:linear-gradient(0deg,#050203 48%,rgba(5,2,3,.85) 80%,rgba(5,2,3,.35));}
 .reelStrip{position:absolute;left:0;right:0;top:0;will-change:transform;}
 .reelStrip.blur{filter:blur(2px);}
-.sym{height:63px;display:flex;align-items:center;justify-content:center;font-size:42px;line-height:1;filter:drop-shadow(0 0 8px currentColor);}
-.sym svg{width:60%;height:60%;}
+.sym{height:63px;display:flex;align-items:center;justify-content:center;font-size:48px;line-height:1;filter:drop-shadow(0 0 8px currentColor);}
+.sym svg{width:68%;height:68%;}
 .relic svg{width:66%;height:66%;filter:drop-shadow(0 0 6px currentColor);}
 .relic.weapon svg{width:58%;height:58%;}
-.reelsRow.four .sym{font-size:34px;}
+.reelsRow.four .sym{font-size:38px;}
 .boonList{font-size:12px;color:#b7a9c8;letter-spacing:.03em;min-height:16px;margin-top:6px;line-height:1.3;}
 .boonList b{color:var(--gold-bright);font-size:14px;}
 .payline{position:absolute;left:-4px;right:-4px;top:50%;transform:translateY(-50%);height:63px;z-index:4;pointer-events:none;  border-top:2px solid rgba(232,182,76,.75);border-bottom:2px solid rgba(232,182,76,.75);box-shadow:0 0 18px rgba(232,182,76,.4),inset 0 0 20px rgba(232,182,76,.1);animation:payPulse 1.6s ease-in-out infinite;}
@@ -461,7 +461,7 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 .gambleMsg{font-family:var(--disp);letter-spacing:.06em;font-size:14px;min-height:20px;margin-top:6px;font-weight:700;color:#c9bfb0;}
 .reelbox.antici{border-color:var(--gold-bright);box-shadow:inset 0 0 26px rgba(0,0,0,.9),0 0 30px 5px rgba(232,182,76,.7);animation:anticiPulse .5s infinite;}
 @keyframes anticiPulse{0%,100%{box-shadow:inset 0 0 26px rgba(0,0,0,.9),0 0 22px 3px rgba(232,182,76,.5);}50%{box-shadow:inset 0 0 26px rgba(0,0,0,.9),0 0 42px 8px rgba(232,182,76,.9);}}
-.symBig{font-size:46px!important;}
+.symBig{font-size:52px!important;}
 .reelbox.slam{animation:reelSlam .3s cubic-bezier(.2,1.9,.35,1);}
 .reelbox.pick{border-color:#ff5a5a!important;box-shadow:inset 0 0 22px rgba(255,40,40,.4),0 0 0 3px rgba(255,60,60,.9),0 0 30px 8px rgba(255,40,40,.75);animation:pickPulse .26s infinite alternate;z-index:3;}
 @keyframes pickPulse{from{box-shadow:inset 0 0 18px rgba(255,40,40,.35),0 0 0 3px rgba(255,60,60,.85),0 0 22px 5px rgba(255,40,40,.6);}to{box-shadow:inset 0 0 28px rgba(255,70,70,.5),0 0 0 4px rgba(255,100,100,1),0 0 40px 12px rgba(255,60,60,.9);transform:scale(1.05);}}
@@ -498,8 +498,14 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 .jackpotText.seraph{color:#eaf3ff;text-shadow:0 0 40px rgba(180,210,255,.95),0 0 12px #fff;}
 @keyframes hueThrob{0%,100%{filter:brightness(1);}50%{filter:brightness(1.4);}}
 @keyframes jackPop{0%{transform:scale(.3);opacity:0;}60%{transform:scale(1.15);opacity:1;}100%{transform:scale(1);opacity:1;}}
-/* last rites */
-#slot.lastrites{position:absolute;inset:0;background:rgba(0,0,0,.96);z-index:30;}
+/* last rites — arena stays faintly visible so Death's court can be seen gathering */
+#slot.lastrites{position:absolute;inset:0;background:radial-gradient(ellipse 120% 90% at 50% 46%,rgba(22,2,6,.56) 0%,rgba(14,1,4,.76) 55%,rgba(3,0,1,.94) 100%);z-index:30;}
+#slot.lastrites::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;animation:ritesVign 1.6s ease-in-out infinite;}
+#slot.lastrites::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;
+  background-image:radial-gradient(ellipse 2px 30px at 50% 50%,rgba(255,70,80,.5),rgba(255,70,80,0) 72%),radial-gradient(ellipse 1.5px 22px at 50% 50%,rgba(212,33,47,.42),rgba(212,33,47,0) 72%);
+  background-size:150px 300px,110px 240px;animation:ritesDrip 3.4s linear infinite;}
+@keyframes ritesVign{0%,100%{box-shadow:inset 0 0 160px 46px rgba(139,22,32,.34);}50%{box-shadow:inset 0 0 230px 90px rgba(139,22,32,.58);}}
+@keyframes ritesDrip{0%{background-position:26px 0px,84px 0px;}100%{background-position:26px 300px,84px 240px;}}
 #slot.lastrites .machine{width:min(560px,96vw);border-color:var(--blood-bright);box-shadow:0 0 0 3px #3a0a10,0 0 90px rgba(212,33,47,.6),0 30px 90px rgba(0,0,0,.9);animation:pulseRites 1.6s infinite;}
 #slot.lastrites .marquee{color:var(--blood-bright);text-shadow:0 0 20px var(--blood-bright);}
 #slot.lastrites .bulb{background:radial-gradient(circle at 40% 35%,#fff,#ff6b6b 45%,#7a1420);box-shadow:0 0 8px #d4212f;}
@@ -509,9 +515,10 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 #slot.lastrites .ritesLabel{display:block;}
 @keyframes flick{0%,100%{opacity:1;}92%{opacity:1;}94%{opacity:.3;}96%{opacity:1;}}
 @media (max-width:520px){
-  .reelbox{height:150px;max-width:94px;} .sym{height:50px;font-size:32px;} #slot.lastrites .reelbox{height:168px;}
-  .reelsRow.four .reelbox{max-width:80px;} .reelsRow.four .sym{font-size:24px;} .reelTag{font-size:7px;padding:1px 4px;}
+  .reelbox{height:150px;max-width:94px;} .sym{height:50px;font-size:36px;} #slot.lastrites .reelbox{height:168px;}
+  .reelsRow.four .reelbox{max-width:80px;} .reelsRow.four .sym{font-size:27px;} .reelTag{font-size:7px;padding:1px 4px;}
   .die{width:56px;height:56px;} .pip{width:11px;height:11px;} .marquee{font-size:12px;} .lever{display:none;}
+  .symBig{font-size:46px!important;}
 }
 
 /* ---------- game over ---------- */
