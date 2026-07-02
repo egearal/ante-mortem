@@ -114,9 +114,26 @@ function buildAch(){
   foes.forEach(f=>{ [100,500,1000,2500,5000].forEach(v=>achAdd('ek_'+f,v,f.charAt(0).toUpperCase()+f.slice(1)+' Bane ×'+v,'Slay '+v+' '+f+'s')); STAT_LABEL['ek_'+f]=f.charAt(0).toUpperCase()+f.slice(1)+'s'; });
   ['pitboss','croupier','collector','thehouse'].forEach(b=>{ [1,3,5,10,25,50].forEach(v=>achAdd('boss_'+b,v,BOSS_DEFS[b].name+' ×'+v,'Slay '+BOSS_DEFS[b].name+' '+v+' times')); STAT_LABEL['boss_'+b]=BOSS_DEFS[b].name; });
 }
+// HOUSE FAVORS — specific feats seal small permanent bonuses, forever
+const ACH_PERKS={
+ 'minutes_3':   {n:'PIT LEGS',          fx:'+2 MOVE SPEED, FOREVER',  ap:()=>{P.speed+=2;}},
+ 'triples_1':   {n:'JACKPOT NERVES',    fx:'+2 MOVE SPEED, FOREVER',  ap:()=>{P.speed+=2;}},
+ 'wave_15':     {n:'VELVET SHOULDERS',  fx:'+5 MAX BLOOD, FOREVER',   ap:()=>{P.maxHp+=5;P.hp+=5;}},
+ 'runKills_1000':{n:'THOUSAND TEETH',   fx:'+2% DAMAGE, FOREVER',     ap:()=>{P.damage*=1.02;}},
+ 'ltKills_25000':{n:'ETERNAL HEADCOUNT',fx:'+2% DAMAGE, FOREVER',     ap:()=>{P.damage*=1.02;}},
+ 'streak_54':   {n:'BLOODRUSH MEMORY',  fx:'+2% FIRE RATE, FOREVER',  ap:()=>{P.fireRate*=1.02;}},
+ 'diceWins_25': {n:'HOT HANDS',         fx:'+1% CRIT, FOREVER',       ap:()=>{P.crit=Math.min(0.9,(P.crit||0)+0.01);}},
+ 'perfects_5':  {n:"TWELVE'S BLESSING", fx:'+2% XP, FOREVER',         ap:()=>{P.xpMult=(P.xpMult||1)*1.02;}},
+ 'spins_100':   {n:"REGULAR'S RATE",    fx:'+2% COINS, FOREVER',      ap:()=>{P.coinMult=(P.coinMult||1)+0.02;}},
+ 'bossKills_10':{n:'TROPHY WALL',       fx:'+2% COINS, FOREVER',      ap:()=>{P.coinMult=(P.coinMult||1)+0.02;}}
+};
+function applyAchPerks(){ for(const id in ACH_PERKS){ if(unlocked.has(id)) try{ ACH_PERKS[id].ap(); }catch(e){} } }
 function bump(stat,value){
   const arr=ACH_BY_STAT[stat]; if(!arr) return;
-  for(const a of arr){ if(a.v>value) break; if(!unlocked.has(a.id)){ unlocked.add(a.id); achQ.push(a); } }
+  for(const a of arr){ if(a.v>value) break; if(!unlocked.has(a.id)){ unlocked.add(a.id); achQ.push(a);
+    const pk=ACH_PERKS[a.id];
+    if(pk){ try{ pk.ap(); }catch(e){} // this run benefits immediately; future runs via applyAchPerks
+      setTimeout(()=>{ announce('★ HOUSE FAVOR SEALED — '+pk.n+': '+pk.fx+' ★',true); SFX.seraph(); SFX.dingBells(); flash(0.4,'#fff2c0'); coinRain(16); },600); } } }
   if(achQ.length) pumpToasts();
 }
 function pumpToasts(){

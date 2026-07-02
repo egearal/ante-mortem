@@ -2054,7 +2054,7 @@ function startGame(){
   owned.clear();
   gt=0; shake=0; hitstop=0; killStreak=0; streakT=0; excite=0; fireAcc=0; pending=[]; LT.runs++; bump('runs',LT.runs); fever=0; feverOn=false; feverT=0; tarots=[]; tarotT=14; decals=[]; wheelTok=null; wheelTokT=40; crashTok=null; crashTokT=38; bounty=null; bountyT=34; slotBank=0; vouchers=0; bountyStk=0; goldenT=0; ovBonusNext=false; slowT=0; prevHp=0; dare=null; dareT=46; ascTime=5; ascPend=0;
   if(!RANK._ld){ RANK._ld=1; loadRank(); }
-  applyRankPerks(); recToasted=new Set(); applyVault();
+  applyRankPerks(); recToasted=new Set(); applyVault(); applyAchPerks();
   P._idle=0; P._sigT=0; P._corners=new Set(); P._chestsRun=0; P._roulRun=0; P._pauses=0; P._1313=false;
   { const now=new Date();
     if(now.getHours()===0) secret('midnight','THE WITCHING HOUR');
