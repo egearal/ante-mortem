@@ -367,6 +367,12 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 #wheelLayer.golden .wheelMarq{color:#fff2c0;border-color:#ffd36b;box-shadow:0 0 22px rgba(255,211,107,.55);animation:goldSheen 1.2s linear infinite,bulbPulse .7s infinite;}
 #wheelLayer.golden .wheelTitle{color:#fff2c0;text-shadow:0 0 30px #ffd36b,0 0 60px rgba(255,211,107,.5);}
 #wheelLayer.golden .wheelBeam{background:linear-gradient(to bottom,rgba(255,255,255,.95),rgba(255,211,107,.4) 55%,transparent);}
+/* ═══ ASCENT TIER GATES ═══ */
+#crashLayer.gatehold{filter:brightness(1.7) saturate(2.6) !important;}
+#crashBulbs.frenzy .cb{background:#ffe9a8;animation:bulbStrobe .12s linear infinite;}
+#crashSlam.tier{font-size:32px;letter-spacing:.18em;white-space:nowrap;}
+#crashSlam.tier.go{animation:slamIn 1.35s cubic-bezier(.2,1.5,.4,1);}
+#crashZone.gatepop{animation:tlPop .5s cubic-bezier(.2,1.6,.4,1);}
 #tarotReveal{position:absolute;inset:0;z-index:34;pointer-events:none;display:flex;align-items:flex-start;justify-content:center;padding-top:64px;}
 #tarotReveal .trVeil{position:absolute;inset:0;background:radial-gradient(circle at 50% 22%,rgba(0,0,0,.3),rgba(0,0,0,.08) 55%,transparent);opacity:0;animation:trVeil .4s ease forwards, trVeilOut .5s ease 2s forwards;}
 @keyframes trVeil{to{opacity:1;}} @keyframes trVeilOut{to{opacity:0;}}
