@@ -36,10 +36,17 @@ $('vaultBtn').addEventListener('click',()=>{ openVault(); });
     hp.addEventListener('click',e=>e.stopPropagation());
     $('howBtn').addEventListener('click',()=>{ hp.classList.remove('hidden'); SFX.uiDing(); });
     $('howClose').addEventListener('click',()=>{ hp.classList.add('hidden'); SFX.casinoDing(); });
-    $('quitBtn').addEventListener('click',()=>{ hp.classList.add('hidden'); pl.classList.add('hidden');
-      elHud.classList.add('hidden'); elGO.classList.add('hidden'); elMenu.classList.remove('hidden');
-      try{ stopDrone(); }catch(e){} state='menu'; SFX.casinoDing(); });
+    $('quitBtn').addEventListener('click',()=>quitToMenu());
   } }
+function quitToMenu(){
+  const hp=$('howPanel'), pl=$('pauseLayer');
+  if(hp) hp.classList.add('hidden'); if(pl) pl.classList.add('hidden');
+  elHud.classList.add('hidden'); elGO.classList.add('hidden'); elMenu.classList.remove('hidden');
+  { const bb=$('bossBar'); if(bb) bb.classList.add('hidden'); }
+  hideTab(); tabHold=false; keys.clear(); touch.active=false;
+  try{ stopDrone(); }catch(e){} try{ stopDrumroll(); }catch(e){}
+  state='menu'; SFX.casinoDing();
+}
 { let lastMute=0;
   $('mute').addEventListener('click',()=>{ const n2=performance.now(); if(n2-lastMute<2000 && lastMute>0) secret('checking','JUST CHECKING'); lastMute=n2; });
   let tclk=0; const h1=document.querySelector('#menu h1');
@@ -223,6 +230,7 @@ window.addEventListener('keydown',e=>{
     else if(state==='paused'){ state='playing'; $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); }
     return;
   }
+  if(k==='q' && state==='paused'){ e.preventDefault(); quitToMenu(); return; }
   if(state==='playing' && k===' '){
     e.preventDefault();
     if(P.ovT>0){ cashRage(); return; }
