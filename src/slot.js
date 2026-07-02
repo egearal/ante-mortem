@@ -486,14 +486,34 @@ const ICONS={
  regen:'<path d="M12 3 C8.4 8.6 7.2 11.4 7.2 13.6 a4.8 4.8 0 0 0 9.6 0 c0-2.2-1.2-5-4.8-10.6Z"/><path d="M10 14 h4 M12 12 v4"/>',
  exec:'<path d="M13.6 4.6 L6 20"/><path d="M13 4 c5 -.6 8 2.6 8 6.4 -3.4 .4 -6.6 -.8 -8.6 -3.2Z" fill="currentColor" stroke="none"/>'
 };
+// per-icon viewBox normalized to the drawing's ink bbox (measured once, cached),
+// so every icon renders at the same visual size regardless of how much of the
+// 24x24 canvas its paths cover
+const _iconVB={};
+function _vbFor(id){
+  if(_iconVB[id]) return _iconVB[id];
+  let vb='0 0 24 24';
+  try{
+    const host=document.createElement('div');
+    host.style.cssText='position:absolute;left:-9999px;top:0;visibility:hidden;';
+    host.innerHTML='<svg viewBox="0 0 24 24" width="24" height="24"><g>'+ICONS[id]+'</g></svg>';
+    document.body.appendChild(host);
+    const b=host.querySelector('g').getBBox(); host.remove();
+    if(b && b.width>0 && b.height>0){
+      const pad=1.6, s=Math.max(b.width,b.height)+pad*2, cx=b.x+b.width/2, cy=b.y+b.height/2;
+      vb=(cx-s/2).toFixed(2)+' '+(cy-s/2).toFixed(2)+' '+s.toFixed(2)+' '+s.toFixed(2);
+    }
+  }catch(e){}
+  _iconVB[id]=vb; return vb;
+}
 function iconSvg(id){ const p=ICONS[id];
   if(!p){
     const src=(typeof PASSIVES!=='undefined'&&PASSIVES.find(x=>x.id===id))||(typeof WEAPONS!=='undefined'&&WEAPONS.find(x=>x.id===id));
     const g=src?src.g:'✦';
     const c=(typeof GLYPH_COL!=='undefined'&&GLYPH_COL[id])||'currentColor';
-    return '<span style="font-size:22px;line-height:1;color:'+c+';text-shadow:0 0 8px '+c+'">'+g+'</span>';
+    return '<span style="font-size:inherit;line-height:1;color:'+c+';text-shadow:0 0 8px '+c+'">'+g+'</span>';
   }
-  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>'; }
+  return '<svg viewBox="'+_vbFor(id)+'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>'; }
 const PROJ_FX={
   coil: l=>'Lash '+(180+l*40)+'% dmg / '+(1.6-l*0.12).toFixed(1)+'s',
   mortar: l=>(90+l*20)+'% blast, '+(70+l*12)+'px',

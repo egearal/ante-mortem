@@ -190,8 +190,8 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 .reelsRow.sweeping .reelbox::after{background:linear-gradient(0deg,#050203 48%,rgba(5,2,3,.85) 80%,rgba(5,2,3,.35));}
 .reelStrip{position:absolute;left:0;right:0;top:0;will-change:transform;}
 .reelStrip.blur{filter:blur(2px);}
-.sym{height:63px;display:flex;align-items:center;justify-content:center;font-size:48px;line-height:1;filter:drop-shadow(0 0 8px currentColor);}
-.sym svg{width:68%;height:68%;}
+.sym{height:63px;display:flex;align-items:center;justify-content:center;font-size:58px;line-height:1;filter:drop-shadow(0 0 8px currentColor);}
+.sym svg{width:58px;height:58px;}
 .relic svg{width:66%;height:66%;filter:drop-shadow(0 0 6px currentColor);}
 .relic.weapon svg{width:58%;height:58%;}
 .reelsRow.four .sym{font-size:38px;}
@@ -392,7 +392,7 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
   background:linear-gradient(180deg,rgba(36,18,22,.95),rgba(12,5,7,.95));box-shadow:inset 0 1px 0 rgba(255,230,170,.14),0 6px 16px rgba(0,0,0,.5);}
 .vCard.locked{opacity:.55;filter:saturate(.4);}
 .vCard.maxed{border-color:#8bff9a;box-shadow:0 0 16px rgba(139,255,154,.3),inset 0 1px 0 rgba(255,255,255,.1);}
-.vTop{display:flex;align-items:center;gap:9px;margin-bottom:4px;}
+.vTop{display:flex;align-items:center;gap:9px;margin-bottom:4px;font-size:26px;}
 .vTop svg{width:26px;height:26px;color:var(--gold-bright);filter:drop-shadow(0 0 6px rgba(232,182,76,.6));flex:0 0 26px;}
 .vName{font-family:var(--disp);font-size:13px;letter-spacing:.1em;color:var(--gold-bright);}
 .vDesc{font-size:11.5px;color:#c9b997;line-height:1.4;min-height:30px;}
@@ -461,7 +461,7 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 .gambleMsg{font-family:var(--disp);letter-spacing:.06em;font-size:14px;min-height:20px;margin-top:6px;font-weight:700;color:#c9bfb0;}
 .reelbox.antici{border-color:var(--gold-bright);box-shadow:inset 0 0 26px rgba(0,0,0,.9),0 0 30px 5px rgba(232,182,76,.7);animation:anticiPulse .5s infinite;}
 @keyframes anticiPulse{0%,100%{box-shadow:inset 0 0 26px rgba(0,0,0,.9),0 0 22px 3px rgba(232,182,76,.5);}50%{box-shadow:inset 0 0 26px rgba(0,0,0,.9),0 0 42px 8px rgba(232,182,76,.9);}}
-.symBig{font-size:52px!important;}
+.symBig{font-size:58px!important;}
 .reelbox.slam{animation:reelSlam .3s cubic-bezier(.2,1.9,.35,1);}
 .reelbox.pick{border-color:#ff5a5a!important;box-shadow:inset 0 0 22px rgba(255,40,40,.4),0 0 0 3px rgba(255,60,60,.9),0 0 30px 8px rgba(255,40,40,.75);animation:pickPulse .26s infinite alternate;z-index:3;}
 @keyframes pickPulse{from{box-shadow:inset 0 0 18px rgba(255,40,40,.35),0 0 0 3px rgba(255,60,60,.85),0 0 22px 5px rgba(255,40,40,.6);}to{box-shadow:inset 0 0 28px rgba(255,70,70,.5),0 0 0 4px rgba(255,100,100,1),0 0 40px 12px rgba(255,60,60,.9);transform:scale(1.05);}}
@@ -518,7 +518,8 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
   .reelbox{height:150px;max-width:94px;} .sym{height:50px;font-size:36px;} #slot.lastrites .reelbox{height:168px;}
   .reelsRow.four .reelbox{max-width:80px;} .reelsRow.four .sym{font-size:27px;} .reelTag{font-size:7px;padding:1px 4px;}
   .die{width:56px;height:56px;} .pip{width:11px;height:11px;} .marquee{font-size:12px;} .lever{display:none;}
-  .symBig{font-size:46px!important;}
+  .symBig{font-size:44px!important;}
+  .sym svg{width:44px;height:44px;}
 }
 
 /* ---------- game over ---------- */
