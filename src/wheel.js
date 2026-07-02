@@ -124,7 +124,8 @@ function landWheel(seg){
   LT.wheel=(LT.wheel||0)+1; bump('wheel',LT.wheel);
   $('wheelMsg').textContent=sg.n+(wheel.mult>1&&sg.f?'  ×'+wheel.mult:'');
   setTimeout(()=>{ $('wheelLayer').classList.add('hidden'); stopDrone();
-    if(state==='wheel'){ state='playing'; if(wheel.toAscent) setTimeout(()=>{ if(state==='playing') openCrash(); },300); } }, 1600);
+    if(state==='wheel'){ state='playing'; if(wheel.toAscent) setTimeout(()=>{ if(state==='playing') openCrash(); },300);
+      else if(pending.length) setTimeout(()=>{ if(state==='playing' && pending.length) openNextSlot(); },450); } }, 1600);
 }
 function tickWheelTok(dt){
   if(!wheelTok){ wheelTokT-=dt;

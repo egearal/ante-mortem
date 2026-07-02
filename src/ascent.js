@@ -321,7 +321,8 @@ function cashCrash(){
   if(crash.mult>=10) secret('icarus','ICARUS ASCENDANT');
   setTimeout(closeCrash, 2100);
 }
-function closeCrash(){ crash.jk=false; { const w9=$('jkWrap'); if(w9){ w9.classList.remove('show'); w9.innerHTML=''; } } $('crashLayer').classList.add('hidden'); $('crashLayer').style.filter=''; stopDrone(); if(state==='crash'){ state='playing'; while(P.xp>=P.xpNext){ P.xp-=P.xpNext; P.level++; P.xpNext=Math.round(P.xpNext*1.18); pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); SFX.levelUp(); } } }
+function closeCrash(){ crash.jk=false; { const w9=$('jkWrap'); if(w9){ w9.classList.remove('show'); w9.innerHTML=''; } } $('crashLayer').classList.add('hidden'); $('crashLayer').style.filter=''; stopDrone(); if(state==='crash'){ state='playing'; while(P.xp>=P.xpNext){ P.xp-=P.xpNext; P.level++; P.xpNext=Math.round(P.xpNext*1.18); pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); SFX.levelUp(); }
+  if(pending.length) setTimeout(()=>{ if(state==='playing' && pending.length) openNextSlot(); },450); } }
 (function(){ const wrap=f=>function(...a){ try{ return f.apply(this,a); }catch(e){ if(!window._ascErr){ window._ascErr=1; console.error('[ANTE ASCENT]',e); } } };
   openCrash=wrap(openCrash); launchCrash=wrap(launchCrash); pushCrash=wrap(pushCrash); cashCrash=wrap(cashCrash); closeCrash=wrap(closeCrash);
 })();
