@@ -8,30 +8,40 @@ $('vaultBtn').addEventListener('click',()=>{ openVault(); });
     const row=document.createElement('div'); row.id='howBtnRow';
     row.innerHTML='<button class="gxBtn" id="howBtn">❓ HOW TO PLAY</button><button class="gxBtn" id="quitBtn">⌂ QUIT TO MENU</button>';
     pl.appendChild(row);
-    const H=[
-      ['🎮','MOVE & FIGHT','WASD or drag to move. Vesper auto-fires at the nearest soul. Survive the waves.'],
-      ['⚜','LEVEL CHARGE','Kills fill the red bar at the bottom. A full bar ignites RAGE.'],
-      ['⚡','RAGE','+50% power, but coins become bar FUEL. Hold above 90% for 10s to enter THE ASCENT with a bonus level. Slip below 90 and half your XP burns and the floor is swept. SPACE cashes a level any time above 90.'],
-      ['🎰','THE MACHINE','Every level opens the slots. SPACE stops the reels — pairs and triples pay extra skill picks.'],
-      ['🎲','DICE LADDER','After the reels, SPACE rolls the bones. Beat the number to climb; four wins in one visit is a GOD LEVEL. A miss costs a curse or a skill.'],
-      ['☨','LAST RITES','Gamble while below 40% blood: each roll drains life, but wins return it doubled in fortune.'],
-      ['☸','WHEEL OF SOULS','Grab the violet token, SPACE to spin. DOUBLE segments respin everything at ×2, then ×4.'],
-      ['▲','THE ASCENT','Hold RAGE 90%+ or find the green gate. Free to ride: SPACE pushes the multiplier. Cash below 1.77× and you get NOTHING. Tier I passive at 1.77×, II at 2.77×, III at 3.69× — and at 7.77×, the JACKPOT: your pick of 3 weapons. Crash and THE FALL curses you 30 seconds.'],
-      ['💀','THE MARKER','On death the House flips LIVE or DIE. Hammer SPACE to bribe with Gilt — 1◈ +10%, then 2◈ +10%, then 3◈ +5%. Odds cap at 75%.'],
-      ['◈','COINS','The gold of this run. They feed the rage bar, and a 27+ kill streak can be CASHED with SPACE for coins.'],
-      ['◈','GILT','Eternal money from boss bounties and the Wheel. Spend it in the VAULT — or on death bribes.'],
-      ['🚪','THE VAULT','Walk to the great door and press SPACE mid-run. Buy permanent seals and fulfil Contracts for forever-perks.'],
-      ['🃏','TAROT','Flipping ghost-cards on the marble. 24 fates — half bless, half curse. A violet arrow guides you to them; a phantom card at the top reveals your draw.'],
-      ['☠','BOUNTY','A marked soul with a gold ring and timer. Kill it in 12s for rising pay — streaks pay more.'],
-      ['⚔','HOUSE DARE','A kill quota flashes mid-screen. Meet it inside 10 seconds for +40 coins.'],
-      ['✨','FEVER & GOLDEN HOUR','Kills fill the fever meter — full means a god-flash then a golden rush. Every 3rd minute is GOLDEN HOUR: double coins for 20s.'],
-      ['🗝','SECRETS','34 hidden rituals — typed words, strange behaviors, cursed numbers. Each one is scratched forever into the Vault door.'],
-      ['⏸','THIS SCREEN','ESC or click resumes. Hover your relics below to inspect them.']
+    const H4=[
+      {ico:'🎮', name:'SURVIVE', col:'#8bff9a', items:[
+        ['MOVE','WASD or arrows. On a phone, drag. Your weapon fires by itself — you steer, dodge, and collect.'],
+        ['LEVEL CHARGE','Kills drop ⚜ light. It fills the red bar at the bottom. Full bar = RAGE ignites.'],
+        ['RAGE','+50% power while it burns, and coins now FEED the bar. Hold it above 90 for 10 seconds and THE ASCENT arrives. SPACE cashes it into a level. Slip below 90 and the House sweeps the floor.'],
+        ['BLOOD','Your life. Below 40% the slot machine turns to LAST RITES — blood gambling.'],
+        ['BOUNTY & DARES','Marked souls with gold rings pay big if killed fast. Kill-quota dares pay +40 coins.']
+      ]},
+      {ico:'🎰', name:'THE MACHINE', col:'#ffd36b', items:[
+        ['THE SLOTS','Every level-up opens the reels. SPACE stops them one by one. A pair = +1 level, a triple = +2.'],
+        ['THE DICE','After the reels: TAKE the safe level, or HOLD SPACE to roll the bones. Beat the number = bigger level. Miss = a curse. Four wins in one visit = ⚜ GOD LEVEL.'],
+        ['LAST RITES','Gambling under 40% blood: every roll drains life, every win returns it doubled.'],
+        ['FEVER','Kills charge the fever meter. Full = a golden killing rush. Every 3rd minute is GOLDEN HOUR: double coins.']
+      ]},
+      {ico:'🎡', name:'THE GAMBLES', col:'#c98bff', items:[
+        ['WHEEL OF SOULS','Grab the violet token, SPACE spins. DOUBLE wedges respin everything at ×2 then ×4. One wheel in 20 comes up GOLDEN — all prizes doubled.'],
+        ['THE ASCENT','The green gate. Free to ride: SPACE pushes the number up, ENTER cashes out. Prizes at 1.77× / 2.77× / 3.69× — and 7.77× is the JACKPOT: your pick of 3 weapons. Crash = a random curse, 5-15 seconds.'],
+        ['TAROT','Ghost cards flip on the marble — half bless, half curse. The violet arrow points to them.'],
+        ['THE MARKER','On death the House flips LIVE or DIE — 30% to live. SPACE bribes with your gilt: 30% of it (+5-10%), 30% more (+5-10%), then the rest (+5%). Cap 75%.']
+      ]},
+      {ico:'◈', name:'THE LONG GAME', col:'#ff9a9a', items:[
+        ['COINS','This run\'s gold. They feed RAGE, and a 27+ kill streak can be CASHED with SPACE.'],
+        ['GILT','Forever-money: bosses, the wheel, your final score. It survives death.'],
+        ['THE VAULT','The great door MANIFESTS every 5 minutes. One seal per visit — choose well. Contracts grant forever-perks.'],
+        ['RANKS & FAVORS','Marks raise your House Rank (12 rewards). Certain feats seal permanent FAVORS — small bonuses forever.'],
+        ['THE INDEX & SECRETS','Everything you meet — weapons, curses, enemies, fates — is pinned in THE INDEX on the menu. 34 secrets hide in the walls.']
+      ]}
     ];
     const hp=document.createElement('div'); hp.id='howPanel'; hp.className='hidden';
-    hp.innerHTML='<div id="howTitle">❓ HOUSE RULES — EVERYTHING</div><div class="howGrid">'
-      +H.map(h=>'<div class="howItem"><div class="howIco">'+h[0]+'</div><div><div class="howName">'+h[1]+'</div><div class="howDesc">'+h[2]+'</div></div></div>').join('')
-      +'</div><button class="gxBtn gxClose" id="howClose">CLOSE</button>';
+    const sec=s=>'<div class="howSec" style="--hc:'+s.col+'"><div class="howSecH"><span class="howIco">'+s.ico+'</span>'+s.name+'</div>'
+      +s.items.map(h=>'<div class="howItem"><div><div class="howName">'+h[0]+'</div><div class="howDesc">'+h[1]+'</div></div></div>').join('')+'</div>';
+    hp.innerHTML='<div id="howTitle">♠ HOUSE RULES ♠</div><div class="howCols"><div class="howCol">'
+      +sec(H4[0])+sec(H4[1])+'</div><div class="howCol">'+sec(H4[2])+sec(H4[3])+'</div></div>'
+      +'<button class="gxBtn gxClose" id="howClose">CLOSE</button>';
     pl.appendChild(hp);
     row.addEventListener('click',e=>e.stopPropagation());
     hp.addEventListener('click',e=>e.stopPropagation());
