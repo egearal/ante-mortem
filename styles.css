@@ -868,3 +868,7 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
 .die .pip{background:radial-gradient(circle at 32% 26%,#4a3540,#160a12 65%);box-shadow:inset 0 1.5px 2px rgba(0,0,0,.7),0 0.5px 0 rgba(255,255,255,.35);}
 .die.crit .pip{background:radial-gradient(circle at 32% 26%,#ffe9a8,#b8860b 70%);box-shadow:0 0 8px rgba(255,211,107,.9),inset 0 1px 1px rgba(255,255,255,.5);}
 .die.crit{box-shadow:inset 0 3px 6px rgba(255,255,255,.9),0 8px 16px rgba(0,0,0,.5),0 0 30px rgba(232,182,76,.95),0 0 0 3px var(--gold-bright);}
+
+/* fallback glyphs sit in the same box as SVG icons — no more giant emoji chips */
+.relic .gfall{display:inline-block;font-size:19px;line-height:1;width:26px;height:26px;text-align:center;overflow:hidden;}
+.relic.weapon .gfall{font-size:18px;}

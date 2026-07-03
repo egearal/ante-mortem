@@ -200,7 +200,7 @@ function updateHUD(){
   if(killStreak>=4){ cm.classList.remove('hidden'); cm.textContent='×'+(P.comboMult||1).toFixed(1)+'  COMBO'; cm.style.transform='translateX(-50%) scale('+(1+Math.min(0.5,killStreak*0.01))+')'; }
   else cm.classList.add('hidden');
   const db=$('debuffs');
-  if(db){ if(debuffs.length){ db.innerHTML=debuffs.map(b=>'<span class="debuff'+(b.good?' buff':(b.poison?' poison':''))+'">'+b.label+' '+Math.ceil(b.t)+'s</span>').join(''); } else if(db.childElementCount) db.innerHTML=''; }
+  if(db){ if(debuffs.length){ db.innerHTML=debuffs.map(b=>'<span class="debuff'+(b.good?' buff':(b.poison?' poison':''))+'">'+(b.good?'✦ ':(b.poison?'☣ ':'☠ '))+b.label+' '+Math.ceil(b.t)+'s</span>').join(''); } else if(db.childElementCount) db.innerHTML=''; }
 }
 function relicTip(el, name, lv, fx){
   el.onmouseenter=(ev)=>{ const t=$('relicTip'); t.innerHTML='<b>'+name+'</b> · Lv '+lv+'<br>'+fx; t.classList.remove('hidden');
@@ -221,7 +221,7 @@ const GLYPH_COL={
  a_gild:'#ffe082',a_hand:'#80deea',a_skin:'#cfd8dc',a_fuse:'#82b1ff',a_holl:'#ffab91',a_swrm:'#ea80fc',a_veil:'#b39ddb',a_reap:'#ff5252',a_engn:'#69f0ae',a_mirr:'#fff59d'
 };
 function renderRelics(){
-  const bw=$('relicsW'), bs=$('relicsS'); bw.innerHTML=''; bs.innerHTML='';
+  const bw=$('relicsW'), bs=$('relicsS'), bc=$('relicsC'); bw.innerHTML=''; bs.innerHTML=''; if(bc) bc.innerHTML='';
   WEAPONS.forEach(w=>{ const lv=P.wlv[w.id]||0; if(lv>0){
     const d=document.createElement('div'); d.className='relic weapon r-'+w.rar;
     if(GLYPH_COL[w.id]) d.style.color=GLYPH_COL[w.id];
@@ -233,11 +233,13 @@ function renderRelics(){
     const def=PASSIVES.find(p=>p.g===r.g)||r;
     relicTip(d, r.n, r.count, projFx(def,r.count));
     if(r.count>1){ const c=document.createElement('span'); c.className='pcount'; c.textContent=r.count; d.appendChild(c); } bs.appendChild(d); });
-  const box=bs;
-  // active curses
-  if(P.curses){ P.curses.forEach(c=>{ const d=document.createElement('div'); d.className='relic curse'; d.textContent='☠'; d.title='CURSE '+c.short+' · '+c.waves+' waves left'; box.appendChild(d); }); }
-  // scars — permanent wounds from the dice
-  if(P.scars){ P.scars.forEach(sl=>{ const d=document.createElement('div'); d.className='relic scar'; d.textContent='☒'; relicTip(d,'SCAR',1,sl+' — this run'); box.appendChild(d); }); }
+  // afflictions live in their OWN row now — curses and scars are not skills
+  { const tag=$('relicTagC');
+    const any=(P.curses&&P.curses.length)||(P.scars&&P.scars.length);
+    if(tag) tag.style.display=any?'':'none';
+    if(bc){ bc.style.display=any?'':'none';
+      if(P.curses) P.curses.forEach(c=>{ const d=document.createElement('div'); d.className='relic curse'; d.textContent='☠'; d.title='CURSE '+c.short+' · '+c.waves+' waves left'; bc.appendChild(d); });
+      if(P.scars) P.scars.forEach(sl=>{ const d=document.createElement('div'); d.className='relic scar'; d.textContent='☒'; relicTip(d,'SCAR',1,sl+' — this run'); bc.appendChild(d); }); } }
 }
 
 /* ============================================================
