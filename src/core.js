@@ -115,41 +115,25 @@ function tickMapProps(dt){
     if(it.life<3){ it._bp=(it._bp||0)-dt; if(it._bp<=0){ it._bp=0.5; tone(1500,0.05,'square',0.07); ring(it.x,it.y,58,'#ff9a3c'); } }
     const idist=Math.hypot(P.x-it.x,P.y-it.y);
     if(it.kind==='fountain'){
-      it.ph=(it.ph||0)+0.016; const alive=it.res>0;
-      ctx.save(); ctx.translate(it.x,it.y);
-      // shadow + gilded twin basins
-      ctx.fillStyle='rgba(0,0,0,0.42)'; ctx.beginPath(); ctx.ellipse(0,10,56,19,0,0,6.28); ctx.fill();
-      ctx.fillStyle='#241a26'; ctx.beginPath(); ctx.ellipse(0,2,52,24,0,0,6.28); ctx.fill();
-      ctx.strokeStyle='rgba(232,182,76,0.55)'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.ellipse(0,2,52,24,0,0,6.28); ctx.stroke();
-      ctx.fillStyle=alive?'#7a1019':'#241014'; ctx.beginPath(); ctx.ellipse(0,0,42,18,0,0,6.28); ctx.fill();
-      if(alive){ // the pool shimmers
-        ctx.save(); ctx.globalCompositeOperation='lighter';
-        ctx.drawImage(glowSprite('rgba(200,30,44,0.3)','rgba(200,30,44,0)',64),-64,-64,128,128);
-        ctx.fillStyle='rgba(255,110,120,'+(0.25+Math.sin(it.ph*3)*0.12)+')';
-        ctx.beginPath(); ctx.ellipse(-8,-3,20,7,0.3,0,6.28); ctx.fill(); ctx.restore(); }
-      // pedestal + upper basin
-      ctx.fillStyle='#3a2f40'; ctx.fillRect(-5,-32,10,26);
-      ctx.strokeStyle='rgba(232,182,76,0.5)'; ctx.lineWidth=1.5; ctx.strokeRect(-5,-32,10,26);
-      ctx.fillStyle='#241a26'; ctx.beginPath(); ctx.ellipse(0,-32,20,7,0,0,6.28); ctx.fill();
-      ctx.strokeStyle='rgba(232,182,76,0.55)'; ctx.beginPath(); ctx.ellipse(0,-32,20,7,0,0,6.28); ctx.stroke();
-      ctx.fillStyle=alive?'#a3121f':'#2a1218'; ctx.beginPath(); ctx.ellipse(0,-33,15,4.5,0,0,6.28); ctx.fill();
-      if(alive){ // twin arcs of blood falling from the upper basin
-        ctx.strokeStyle='rgba(220,50,64,0.75)'; ctx.lineWidth=2.4;
-        for(const sgn of [-1,1]){ ctx.beginPath(); ctx.moveTo(sgn*13,-31);
-          ctx.quadraticCurveTo(sgn*26,-18,sgn*18,-2); ctx.stroke(); }
-        for(let d2=0;d2<4;d2++){ const f2=((it.ph*1.3+d2*0.25)%1);
-          ctx.fillStyle='rgba(255,90,100,'+(0.9-f2*0.6)+')';
-          ctx.beginPath(); ctx.arc(13+f2*6-((d2%2)*26+f2*12*(d2%2?1:-1))*0, -31+f2*29, 2.1-f2*0.8,0,6.28); ctx.fill();
-          ctx.beginPath(); ctx.arc(-13-f2*6, -31+f2*29, 2.1-f2*0.8,0,6.28); ctx.fill(); } }
-      // gothic finial
-      ctx.fillStyle=alive?'#e04050':'#3a1a20'; ctx.beginPath(); ctx.moveTo(0,-42); ctx.lineTo(5,-33); ctx.lineTo(-5,-33); ctx.closePath(); ctx.fill();
-      if(alive){ ctx.save(); ctx.globalCompositeOperation='lighter';
-        ctx.drawImage(glowSprite('rgba(255,120,130,0.65)','rgba(255,80,90,0)',10),-10,-52,20,20); ctx.restore(); }
-      // reserve gauge, gilt-framed
-      ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(-26,28,52,5);
-      ctx.fillStyle='#c81e2c'; ctx.fillRect(-26,28,52*(Math.max(0,it.res)/100),5);
-      ctx.strokeStyle='rgba(232,182,76,0.4)'; ctx.lineWidth=1; ctx.strokeRect(-26,28,52,5);
-      ctx.restore();
+      // THE HEAL — it never existed (the gilded redraw shipped as dead draw
+      // code in this update path and got painted over every frame). Now:
+      // stand within 60px, drink 16 blood/s, the reserve drains, dry = gone.
+      if(it.res>0 && idist<60 && P.hp<P.maxHp){
+        it._on=true;
+        const heal=Math.min(16*dt, P.maxHp-P.hp, it.res);
+        P.hp+=heal; it.res-=heal;
+        it._tick=(it._tick||0)-dt;
+        if(it._tick<=0){ it._tick=0.5; it._tk=(it._tk||0)+1;
+          ftext(P.x, P.y-28, '+8', '#ff8090');
+          tone(700*Math.pow(1.0595,Math.min(12,it._tk)), 0.09, 'sine', 0.11);
+          tone(1400*Math.pow(1.0595,Math.min(12,it._tk)), 0.06, 'sine', 0.05);
+          ring(it.x, it.y, 46, '#c81e2c');
+        }
+        if(it.res<=0){
+          announce('🩸 THE FOUNTAIN RUNS DRY 🩸', false); SFX.thud();
+          burst(it.x, it.y, 14, '#8b1620'); despawnInter(); return;
+        }
+      } else { it._on=false; it._tk=0; }
     } else if(it.kind==='roulette'){
       if(idist<52){ it.stand+=dt;
         if(it.stand>=1.6){ rouletteBet(it); despawnInter(); return; } }
@@ -888,17 +872,39 @@ function drawLandmarks(){
     if(it.kind==='fountain'){
       it.ph=(it.ph||0)+0.016; const alive=it.res>0;
       ctx.save(); ctx.translate(it.x,it.y);
-      ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.beginPath(); ctx.ellipse(0,8,52,18,0,0,6.28); ctx.fill();
-      ctx.fillStyle='#2e2430'; ctx.beginPath(); ctx.ellipse(0,0,50,26,0,0,6.28); ctx.fill();
-      ctx.fillStyle=alive?'#6e0f18':'#241014'; ctx.beginPath(); ctx.ellipse(0,0,40,19,0,0,6.28); ctx.fill();
+      // shadow + gilded twin basins (the redraw finally lives where it renders)
+      ctx.fillStyle='rgba(0,0,0,0.42)'; ctx.beginPath(); ctx.ellipse(0,10,56,19,0,0,6.28); ctx.fill();
+      ctx.fillStyle='#241a26'; ctx.beginPath(); ctx.ellipse(0,2,52,24,0,0,6.28); ctx.fill();
+      ctx.strokeStyle='rgba(232,182,76,0.55)'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.ellipse(0,2,52,24,0,0,6.28); ctx.stroke();
+      ctx.fillStyle=alive?'#7a1019':'#241014'; ctx.beginPath(); ctx.ellipse(0,0,42,18,0,0,6.28); ctx.fill();
+      if(alive){ // the pool shimmers — brighter while someone drinks
+        ctx.save(); ctx.globalCompositeOperation='lighter';
+        ctx.drawImage(glowSprite('rgba(200,30,44,0.3)','rgba(200,30,44,0)',64),-64,-64,128,128);
+        if(it._on) ctx.drawImage(glowSprite('rgba(255,90,104,0.4)','rgba(255,90,104,0)',80),-80,-80,160,160);
+        ctx.fillStyle='rgba(255,110,120,'+(0.25+Math.sin(it.ph*(it._on?7:3))*0.12)+')';
+        ctx.beginPath(); ctx.ellipse(-8,-3,20,7,0.3,0,6.28); ctx.fill(); ctx.restore(); }
+      // pedestal + upper basin
+      ctx.fillStyle='#3a2f40'; ctx.fillRect(-5,-32,10,26);
+      ctx.strokeStyle='rgba(232,182,76,0.5)'; ctx.lineWidth=1.5; ctx.strokeRect(-5,-32,10,26);
+      ctx.fillStyle='#241a26'; ctx.beginPath(); ctx.ellipse(0,-32,20,7,0,0,6.28); ctx.fill();
+      ctx.strokeStyle='rgba(232,182,76,0.55)'; ctx.beginPath(); ctx.ellipse(0,-32,20,7,0,0,6.28); ctx.stroke();
+      ctx.fillStyle=alive?'#a3121f':'#2a1218'; ctx.beginPath(); ctx.ellipse(0,-33,15,4.5,0,0,6.28); ctx.fill();
+      if(alive){ // twin arcs of blood falling from the upper basin
+        ctx.strokeStyle='rgba(220,50,64,0.75)'; ctx.lineWidth=2.4;
+        for(const sgn of [-1,1]){ ctx.beginPath(); ctx.moveTo(sgn*13,-31);
+          ctx.quadraticCurveTo(sgn*26,-18,sgn*18,-2); ctx.stroke(); }
+        for(let d2=0;d2<4;d2++){ const f2=((it.ph*1.3+d2*0.25)%1);
+          ctx.fillStyle='rgba(255,90,100,'+(0.9-f2*0.6)+')';
+          ctx.beginPath(); ctx.arc(13+f2*6, -31+f2*29, 2.1-f2*0.8,0,6.28); ctx.fill();
+          ctx.beginPath(); ctx.arc(-13-f2*6, -31+f2*29, 2.1-f2*0.8,0,6.28); ctx.fill(); } }
+      // gothic finial
+      ctx.fillStyle=alive?'#e04050':'#3a1a20'; ctx.beginPath(); ctx.moveTo(0,-42); ctx.lineTo(5,-33); ctx.lineTo(-5,-33); ctx.closePath(); ctx.fill();
       if(alive){ ctx.save(); ctx.globalCompositeOperation='lighter';
-        const fg3=ctx.createRadialGradient(0,0,0,0,0,64); fg3.addColorStop(0,'rgba(200,30,44,0.28)'); fg3.addColorStop(1,'rgba(200,30,44,0)');
-        ctx.fillStyle=fg3; ctx.beginPath(); ctx.arc(0,0,64,0,6.28); ctx.fill(); ctx.restore();
-        for(let d2=0;d2<3;d2++){ const dy2=((it.ph*40+d2*14)%26); ctx.fillStyle='rgba(255,80,90,0.8)'; ctx.beginPath(); ctx.arc(rnd(-2,2), -22+dy2, 2,0,6.28); ctx.fill(); } }
-      ctx.fillStyle='#3a2f40'; ctx.fillRect(-4,-30,8,22);
-      ctx.fillStyle=alive?'#c81e2c':'#3a1a20'; ctx.beginPath(); ctx.moveTo(0,-36); ctx.lineTo(6,-28); ctx.lineTo(-6,-28); ctx.closePath(); ctx.fill();
-      ctx.fillStyle='rgba(0,0,0,0.55)'; ctx.fillRect(-26,26,52,5);
-      ctx.fillStyle='#c81e2c'; ctx.fillRect(-26,26,52*(Math.max(0,it.res)/100),5);
+        ctx.drawImage(glowSprite('rgba(255,120,130,0.65)','rgba(255,80,90,0)',10),-10,-52,20,20); ctx.restore(); }
+      // reserve gauge, gilt-framed
+      ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(-26,28,52,5);
+      ctx.fillStyle='#c81e2c'; ctx.fillRect(-26,28,52*(Math.max(0,it.res)/100),5);
+      ctx.strokeStyle='rgba(232,182,76,0.4)'; ctx.lineWidth=1; ctx.strokeRect(-26,28,52,5);
       ctx.restore();
     } else if(it.kind==='roulette'){
       it.spin=(it.spin||0)+0.02+(it.stand>0?0.14:0);
