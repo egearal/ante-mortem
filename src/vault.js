@@ -31,7 +31,7 @@ const CONTRACTS=[
  {id:'cinder',    n:'CINDER CLAUSE',   d:'Entering FEVER detonates a golden nova (60 blood, close range)', goal:25, cur:()=>(LT.fevers||0), gtxt:'Enter Fever Mode 25 times'},
  {id:'pallbearer',n:"PALLBEARER'S TAB",d:'Bosses arrive already bleeding — a tenth of their blood gone', goal:50, cur:()=>(LT.bossKills||0), gtxt:'Slay 50 bosses'},
  {id:'dividend',  n:'GRAVE DIVIDEND',  d:'Gilded souls burst with double coin, forever', goal:50000, cur:()=>(LT.kills||0), gtxt:'50,000 lifetime kills'},
- {id:'codicil',   n:'BLOOD CODICIL',   d:'LAST RITES dice cost half the blood, forever', goal:30, cur:()=>(LT.rites||0), gtxt:"Gamble at death's door 30 times"}
+ {id:'codicil',   n:'BLOOD CODICIL',   d:'Your first miss at THE RED TABLE is forgiven, once per table, forever', goal:30, cur:()=>(LT.rites||0), gtxt:"Sit at the red table 30 times"}
 ];
 function contractDone(id){ const c=CONTRACTS.find(x=>x.id===id); return c && c.cur()>=c.goal; }
 function vlv(id){ return (VAULT.lv[id]|0); }

@@ -14,13 +14,13 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
         ['MOVE','WASD or arrows. On a phone, drag. Your weapon fires by itself — you steer, dodge, and collect.'],
         ['LEVEL CHARGE','Kills drop ⚜ light. It fills the red bar at the bottom. Full bar = RAGE ignites.'],
         ['RAGE','+50% power while it burns, and coins now FEED the bar. Hold it above 90 for 10 seconds and THE ASCENT arrives. SPACE cashes it into a level. Slip below 90 and the House sweeps the floor.'],
-        ['BLOOD','Your life. Below 40% the slot machine turns to LAST RITES — blood gambling.'],
+        ['BLOOD','Your life. Below 40% the slot machine becomes THE RED TABLE — richer, crueler.'],
         ['BOUNTY & DARES','Marked souls with gold rings pay big if killed fast. Kill-quota dares pay +40 coins.']
       ]},
       {ico:'🎰', name:'THE MACHINE', col:'#ffd36b', items:[
         ['THE SLOTS','Every level-up opens the reels. SPACE stops them one by one. A pair = +1 level, a triple = +2.'],
         ['THE DICE','After the reels: TAKE the sure thing, or HOLD SPACE to roll the bones. Every win UPGRADES your prize one rarity — common to RARE to ULTRA RARE to LEGENDARY — plus levels. If it can\'t go higher, the House pays coins instead. A win ALWAYS pays. Miss = a curse. Four wins in one visit = ⚜ GOD LEVEL.'],
-        ['LAST RITES','Gambling under 40% blood: every roll drains life, every win returns it doubled.'],
+        ['THE RED TABLE','Under 40% blood the slot deals richer reels and softer dice (7+) — but ONE miss busts the ladder and leaves a permanent SCAR. The BLOOD CODICIL contract forgives your first miss.'],
         ['FEVER','Kills charge the fever meter. Full = a golden killing rush. Every 3rd minute is GOLDEN HOUR: double coins.']
       ]},
       {ico:'🎡', name:'THE GAMBLES', col:'#c98bff', items:[

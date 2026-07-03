@@ -42,8 +42,9 @@ function makeBulbs(){
   for(let j=side;j>=1;j--) add(0,j/(side+1));
   order.forEach((b,i)=>{ b.style.animationDelay=(i*0.09)+'s'; });
 }
-function weightedByRarity(arr){
-  const w=CFG.weights, buckets={};
+const RED_W={common:30,rare:40,epic:22,legendary:8}; // the red table runs richer reels
+function weightedByRarity(arr, wOver){
+  const w=wOver||CFG.weights, buckets={};
   arr.forEach(o=>{ (buckets[o.rar]=buckets[o.rar]||[]).push(o); });
   const keys=Object.keys(buckets); if(!keys.length) return pick(arr);
   let t=0; keys.forEach(k=>t+=w[k]||1);
@@ -102,14 +103,15 @@ function buildStrip(strip, seq, defs){
 function ensurePayTable(){
   let pt=$('payTable');
   if(!pt){ pt=document.createElement('div'); pt.id='payTable'; $('machine').appendChild(pt); }
-  const w=CFG.weights, tot=w.common+w.rare+w.epic+w.legendary;
+  const w=lastRites?RED_W:CFG.weights, tot=w.common+w.rare+w.epic+w.legendary;
   const row=(rar,pc)=>'<div class="ptRow" data-rar="'+rar+'" style="--pc:'+RARC[rar]+'"><span class="ptG">◆</span><span class="ptN">'+SLOT_RAR[rar]+'</span><span class="ptP">'+pc+'%</span></div>';
   const hasAsc=P.passiveList && P.passiveList.some(x=>x.rar==='ascend');
-  pt.innerHTML='<div class="ptHead">THE ODDS</div>'
+  pt.classList.toggle('red', !!lastRites);
+  pt.innerHTML='<div class="ptHead">'+(lastRites?'☨ RICHER ODDS ☨':'THE ODDS')+'</div>'
     +row('common',Math.round(w.common/tot*100))+row('rare',Math.round(w.rare/tot*100))
     +row('epic',Math.round(w.epic/tot*100))+row('legendary',Math.round(w.legendary/tot*100))
     +(hasAsc?'<div class="ptRow" data-rar="ascend" style="--pc:'+RARC.ascend+'"><span class="ptG">▲</span><span class="ptN">ASCENSION</span><span class="ptP">YOURS</span></div>':'')
-    +'<div class="ptFoot"><b>PAIR = 2 · TRIPLE = 3 LEVELS</b><br>RUNG 2 OF THE DICE UPGRADES</div>';
+    +'<div class="ptFoot">'+(lastRites?'<b style="color:#ff7b7b">ONE MISS = SCAR & BUST</b><br>THE TABLE FORGIVES NOTHING':'<b>PAIR = 2 · TRIPLE = 3 LEVELS</b><br>RUNG 2 OF THE DICE UPGRADES')+'</div>';
 }
 function flarePayRow(rar){
   const pt=$('payTable'); if(!pt) return;
@@ -126,7 +128,7 @@ function ensureBulbs(){
 function openSlotReady(kind){
   ensureBulbs();
   slotKind=kind; gamble=null; diceShown=false; const isW=kind==='weapon';
-  $('slotTag').textContent = (lastRites?'☨ LAST RITES — BLOOD FOR FORTUNE ☨':(isW?'⚔ THE ARSENAL WHEEL ⚔':'THE WHEELS OF FATE'))+(slotBank>0?' · BANK '+slotBank+'/7':'');
+  $('slotTag').textContent = (lastRites?'☨ THE RED TABLE — RICHER, CRUELER ☨':(isW?'⚔ THE ARSENAL WHEEL ⚔':'THE WHEELS OF FATE'))+(slotBank>0?' · BANK '+slotBank+'/7':'');
   $('reelsRow').style.display=''; $('diceRow').style.display='none'; $('riskWrap').style.display='none';
   $('prizeTag').textContent = isW?'YOUR WEAPON':'YOUR SKILL';
   $('cardName').textContent='—'; $('cardName').className='r-common'; $('cardDesc').textContent = isW?'spin for a weapon':'spin for a skill';
@@ -134,7 +136,7 @@ function openSlotReady(kind){
   const defs=isW?WEAPONS:PASSIVES; const avail=isW?availableWeapons():availableSkills(); const pool=avail.length?avail:defs;
   ensurePayTable();
   const preStrips=[$('strip0'),$('strip1'),$('strip2')];
-  preStrips.forEach(el=>{ const seq=[]; for(let k=0;k<22;k++) seq.push(weightedByRarity(pool).id); buildStrip(el,seq,defs); el.classList.remove('blur'); el.style.transition='none'; el.style.transform='translateY(0px)'; });
+  preStrips.forEach(el=>{ const seq=[]; for(let k=0;k<22;k++) seq.push(weightedByRarity(pool, lastRites?RED_W:null).id); buildStrip(el,seq,defs); el.classList.remove('blur'); el.style.transition='none'; el.style.transform='translateY(0px)'; });
   requestAnimationFrame(()=>{ preStrips.forEach(el=>{ const symH=(el.children[0]&&el.children[0].offsetHeight)||63; const boxH=(el.parentElement&&el.parentElement.clientHeight)||189; el.style.transform='translateY('+(boxH/2 - symH*1.5)+'px)'; }); });
   slotReels=[]; slotStage='ready';
   document.querySelectorAll('.reelbox').forEach(b=>b.classList.remove('antici','slam','pick','locked')); $('reelsRow').classList.remove('sweeping');
@@ -148,7 +150,7 @@ function spinReels(){
   const strips=[$('strip0'),$('strip1'),$('strip2')];
   document.querySelectorAll('.reelbox').forEach(b=>b.classList.remove('antici','slam','pick','locked')); $('reelsRow').classList.remove('sweeping');
   slotReels = strips.map((el,i)=>{
-    const N=22, seq=[]; for(let k=0;k<N;k++) seq.push(weightedByRarity(pool).id);
+    const N=22, seq=[]; for(let k=0;k<N;k++) seq.push(weightedByRarity(pool, lastRites?RED_W:null).id);
     buildStrip(el,seq,defs); el.style.transition='none';
     return {el,seq,N,offset:Math.random()*N,speed:19+i*1.8,stopped:false,landedSym:null,symH:63,boxH:189};
   });
@@ -318,7 +320,7 @@ function showRewardPanel(){
 }
 // the rung script: rung 1 win = +1 level · rung 2 win = THE UPGRADE · rung 3 win = +2 levels · rung 4 = GOD LEVEL
 function rungGain(r){ return r===1?1 : r===2?0 : 2; }
-function missShort(g){ return g.round>=3 ? 'LOSE SKILL + SCAR' : (g.round===2 ? 'SCAR' : 'CURSE'); }
+function missShort(g){ if(g.rites) return 'BUST + SCAR'; return g.round>=3 ? 'LOSE SKILL + SCAR' : (g.round===2 ? 'SCAR' : 'CURSE'); }
 function openOffer(){
   slotStage='offer'; endSeance(); const g=gamble; showRewardPanel();
   const deadly = g.round>=3;
@@ -333,7 +335,8 @@ function openOffer(){
     '<div class="ofstat">'+projFx(g.def, takeLv)+'</div>'+
     '<div class="ofrow"><span class="ofg">🎲 '+g.threshold+'+ → '+winLine(g)+'</span>'+
     '<span class="ofl">✕ '+missShort(g)+'</span></div>'+
-    (g.round===1?'<div class="ofmini">✕ = '+curseLabel(g.pendingCurse)+'</div>':
+    (g.rites?'<div class="ofmini">✕ = the ladder ends, wounded'+(contractDone('codicil')&&!g._forgiven?' · CODICIL: first miss forgiven':'')+'</div>':
+     g.round===1?'<div class="ofmini">✕ = '+curseLabel(g.pendingCurse)+'</div>':
      g.round===2?'<div class="ofmini">✕ = a permanent wound, this run</div>':'');
   $('gambleMsg').innerHTML='';
   SFX.casinoDing();
@@ -364,7 +367,7 @@ function doRisk(){
   if(!diceShown){ dice=[ {el:$('dieL'),val:1+((Math.random()*6)|0),rolling:false,ft:0}, {el:$('dieR'),val:1+((Math.random()*6)|0),rolling:false,ft:0} ]; diceShown=true; }
   dice.forEach(d=>{ d.rolling=true; d.ft=0; d.el.classList.remove('settle','crit','hot'); d.el.classList.add('rolling'); renderDie(d.el,d.val); });
   slotStage='dicing'; stopLock=performance.now()+150;
-  if(g.rites){ P.hp=Math.max(1, P.hp-P.maxHp*(contractDone('codicil')?0.03:0.06)); flash(0.35,'#8b1620'); SFX.thud(); shake=Math.min(14,shake+5); }
+  if(g.rites){ flash(0.3,'#8b1620'); SFX.thud(); } // the red table asks no blood — only nerve
   SFX.diceRattle(); SFX.riser(); sparkBurst(12);
   $('cardName').textContent=g.def.n; $('cardName').className='r-'+g.def.rar+' bigname';
   $('cardDesc').innerHTML='<div class="ofbig">NEED '+g.threshold+'+</div>'+
@@ -438,8 +441,6 @@ function resolveRisk(){
     if(perfect && g.round===1) secret('bornlucky','BORN LUCKY');
     if(perfect && g._lastPerfect) secret('dblperfect','DOUBLE PERFECTION');
     g._lastPerfect=perfect;
-    if(g.rites){ const hl=Math.round(P.maxHp*0.22); P.hp=Math.min(P.maxHp,P.hp+hl); flash(0.4,'#8bff9a'); SFX.tingle();
-      setTimeout(()=>{ if($('gambleMsg')) $('gambleMsg').innerHTML='<span style="color:#8bff9a">☨ THE BLOOD RETURNS +'+hl+' ☨</span>'; },60); }
     LT.diceWins++; bump('diceWins',LT.diceWins);
     if(perfect){ LT.perfects++; bump('perfects',LT.perfects); }
     if(g.round>=MAXROLL){ LT.ladders++; bump('ladders',LT.ladders); }
@@ -476,16 +477,29 @@ function resolveRisk(){
       setTimeout(()=>{ $('machine').classList.remove('win'); dice.forEach(d=>d.el.classList.remove('crit')); openOffer(); }, perfect?1250:850);
     }
   } else {
-    if(g.round>=3){
+    const forgive = g.rites && contractDone('codicil') && !g._forgiven;
+    if(g.rites && forgive){
+      // the CODICIL forgives the first miss at the red table — once
+      g._forgiven=true;
+      (g.hist=g.hist||[]).push('l'); updateLadderPips();
+      tone(520,0.3,'sine',0.14,170);
+      dice.forEach(d=>d.el.classList.remove('crit'));
+      $('machine').classList.remove('win','jackpot');
+      $('cardName').textContent=g.def.n; $('cardName').className='r-'+g.def.rar+' bigname';
+      $('cardDesc').innerHTML='<div class="ofbig" style="color:#9adcff">☨ THE CODICIL FORGIVES ☨</div><div class="ofmini">once per table</div>';
+      SFX.tingle(); flash(0.3,'#9adcff');
+      g.round++; g.threshold=Math.min(12, g.threshold+1); g.pendingCurse=null;
+      setTimeout(()=>{ openOffer(); }, 1000);
+    } else if(g.rites || g.round>=3){
       g.reward=0;
       (g.hist=g.hist||[]).push('l'); updateLadderPips();
       if(g.hist.length>=3 && g.hist.every(h=>h==='l')) secret('longfall','THE LONG FALL');
       LT.skillLost++; bump('skillLost',LT.skillLost);
-      const scarL=applyScar(); // the deep rungs wound you on the way down
+      const scarL=applyScar(); // the deep rungs (and the red table) wound you on the way down
       const near2 = sum===g.threshold-1;
       if(near2) SFX.nearMiss();
       $('machine').classList.remove('win','jackpot'); $('machine').classList.add('bust');
-      $('cardName').textContent='SKILL LOST'; $('cardName').className='r-common bigname';
+      $('cardName').textContent=g.rites?'THE TABLE TAKES':'SKILL LOST'; $('cardName').className='r-common bigname';
       $('cardDesc').innerHTML=(near2?'<div class="ofbig" style="color:#ffb066">SO CLOSE…</div>':'')+'<div class="ofrow"><span class="ofl">✕ '+sum+' &lt; '+g.threshold+' — BUST · ☒ '+scarL+'</span></div>';
       const l=$('jackpotLayer'), t=$('jackpotText'); t.textContent='BUST'; t.className='jackpotText'; t.style.color='#ff5560';
       l.classList.remove('hidden'); t.style.animation='none'; void t.offsetWidth; t.style.animation='';
