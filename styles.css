@@ -243,7 +243,7 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
   padding:4px 0 12px;text-shadow:0 0 18px var(--gold),0 0 4px #fff;}
 .cabinet{position:relative;background:linear-gradient(180deg,#070304,#110709);border-radius:12px;padding:24px 26px;
   border:1px solid #4a1017;box-shadow:inset 0 0 40px rgba(0,0,0,.92);}
-.bulb.chase{animation:bulbChase 1.35s infinite;}
+.bulb.chase{animation:bulbChase var(--chase,1.35s) infinite;}
 @keyframes bulbChase{0%,72%,100%{opacity:.22;box-shadow:0 0 3px #a06a12;}80%{opacity:1;box-shadow:0 0 16px #ffe9a8,0 0 6px #fff;transform:translate(-50%,-50%) scale(1.5);}}
 .bulb{position:absolute;width:9px;height:9px;border-radius:50%;transform:translate(-50%,-50%);z-index:3;
   background:radial-gradient(circle at 40% 35%,#fff,#f6d98f 45%,#a06a12);box-shadow:0 0 8px #e8b64c;animation:bulbPulse 1.3s infinite ease-in-out;}
@@ -326,6 +326,14 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
 /* marquee ring of bulbs around the death meter */
 #fpRing{position:absolute;left:50%;top:46%;width:min(520px,86vw);height:min(340px,60vh);transform:translate(-50%,-50%);pointer-events:none;}
 #fpRing .bulb{position:absolute;}
+/* press shockwave — a ring blooms from the number with every SPACE */
+.fpWave{position:absolute;left:50%;top:44%;width:30px;height:30px;border-radius:50%;transform:translate(-50%,-50%);
+  border:2.5px solid rgba(255,211,107,.85);box-shadow:0 0 18px rgba(255,211,107,.5);pointer-events:none;
+  animation:fpWaveOut .5s ease-out forwards;}
+@keyframes fpWaveOut{0%{width:30px;height:30px;opacity:1;}100%{width:min(560px,80vw);height:min(560px,80vw);opacity:0;border-width:1px;}}
+/* the growing number lands with a spring on each rebuild */
+.fpPct{animation:fpPop .16s cubic-bezier(.2,1.7,.4,1);}
+@keyframes fpPop{0%{transform:scale(1.14);}100%{transform:scale(1);}}
 #jackpotSub.subPop{animation:subPop .3s cubic-bezier(.2,1.6,.4,1), subGlow .55s ease;}
 @keyframes subPop{45%{transform:translateX(-50%) scale(1.09);}}
 #jackpotSub{position:absolute;top:calc(50% + 78px);left:50%;transform:translateX(-50%);width:min(720px,94vw);font-family:var(--disp);font-size:15px;letter-spacing:.22em;color:#c9b78e;text-align:center;text-shadow:0 0 10px rgba(0,0,0,.8);}
@@ -477,6 +485,22 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
 #ascWin,#wheelWin{position:absolute;left:50%;top:32%;transform:translateX(-50%);text-align:center;pointer-events:none;opacity:0;z-index:6;}
 #ascWin.go,#wheelWin.go{animation:ascWinIn 2.4s cubic-bezier(.2,1.4,.4,1);}
 #wheelWin.quick.go{animation-duration:1s;}
+/* JACKPOT v2 — seven letters slam one by one over the crash sky */
+#jkMarq{position:absolute;left:50%;top:20%;transform:translateX(-50%);display:flex;gap:10px;z-index:8;pointer-events:none;opacity:0;
+  transition:transform .5s cubic-bezier(.3,1.4,.5,1), top .5s, opacity .3s;}
+#jkMarq.go{opacity:1;}
+#jkMarq span{font-family:var(--disp);font-weight:800;font-size:clamp(44px,8vw,84px);color:#fff2c0;opacity:0;
+  text-shadow:0 0 34px #ffd36b,0 0 80px rgba(255,211,107,.6),0 3px 0 #6a4a10;
+  animation:jkLetter .5s cubic-bezier(.2,1.6,.4,1) forwards;}
+@keyframes jkLetter{0%{opacity:0;transform:scale(3) translateY(-30px);filter:blur(6px);}
+  60%{opacity:1;transform:scale(.92);filter:none;}100%{opacity:1;transform:scale(1);}}
+#jkMarq.up{top:9%;transform:translateX(-50%) scale(.55);opacity:.85;}
+/* godray backlight behind the armory cards */
+#jkWrap.show .jkRow{position:relative;}
+#jkWrap.show .jkRow::before{content:'';position:absolute;left:50%;top:50%;width:640px;height:640px;transform:translate(-50%,-50%);
+  background:conic-gradient(from 0deg,transparent 0 14%,rgba(255,211,107,.10) 17% 20%,transparent 23% 39%,rgba(255,211,107,.10) 42% 45%,transparent 48% 64%,rgba(255,211,107,.10) 67% 70%,transparent 73% 89%,rgba(255,211,107,.10) 92% 95%,transparent 98%);
+  border-radius:50%;z-index:-1;animation:jkRay 9s linear infinite;pointer-events:none;}
+@keyframes jkRay{to{transform:translate(-50%,-50%) rotate(360deg);}}
 #ascWin .awT,#wheelWin .awT{font-family:var(--disp);font-weight:800;font-size:clamp(34px,6vw,56px);letter-spacing:.1em;white-space:nowrap;text-shadow:0 0 36px currentColor,0 2px 0 #000;}
 #ascWin .awS,#wheelWin .awS{font-family:var(--disp);font-size:16px;letter-spacing:.18em;color:#d7cdbe;margin-top:8px;text-shadow:0 0 12px rgba(255,240,192,.5);}
 #wheelWin{top:14%;}
