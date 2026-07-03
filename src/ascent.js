@@ -67,9 +67,9 @@ function openCrash(){
     if(!d){ d=document.createElement('div'); d.id=id; $('crashMult').parentNode.insertBefore(d, id==='crashGhost'?$('crashMult'):$('crashMult').nextSibling); }
     d.className=''; d.textContent=''; });
   { let tl=$('tierLadder'); if(!tl){ tl=document.createElement('div'); tl.id='tierLadder';
-      tl.innerHTML='<div class="tln" data-x="7.77" style="color:#6a5a30">☆ 7.77×</div><div class="tlbar"></div><div class="tln" data-x="3.69">III · 3.69×</div><div class="tlbar"></div><div class="tln" data-x="2.77">II · 2.77×</div><div class="tlbar"></div><div class="tln" data-x="1.77">I · 1.77×</div>';
+      tl.innerHTML='<div class="tln" data-x="7.77">☆ 7.77×</div><div class="tlbar"></div><div class="tln" data-x="3.69">III · 3.69×</div><div class="tlbar"></div><div class="tln" data-x="2.77">II · 2.77×</div><div class="tlbar"></div><div class="tln" data-x="1.77">I · 1.77×</div>';
       $('crashSky').appendChild(tl); }
-    tl.querySelectorAll('.tln').forEach(n=>{ if(n.dataset.x!=='1') n.classList.remove('lit','pop'); }); }
+    tl.querySelectorAll('.tln').forEach(n=>n.classList.remove('lit','pop')); }
   crash.band=0; crash.fz=0; crash.lastP=0; $('crashStrobe').style.opacity=0;
   const cm0=$('crashMult'); cm0.style.transform=''; cm0.style.animationDuration='';
   { let cz=$('crashZone'); if(!cz){ cz=document.createElement('div'); cz.id='crashZone'; $('crashMult').parentNode.insertBefore(cz,$('crashMult').nextSibling); } cz.textContent='THE CASINO FLOOR'; }
@@ -118,6 +118,16 @@ function launchCrash(){
 const CR_MS=[1.77,2.77,3.69,5,7.77,10,15,20];
 function tickCrash(dt){
   if(!crash.live) return;
+  // ladder rungs light per FRAME against the ROUNDED display value — if the
+  // big number reads 2.77x, rung II is lit. (True-mult 2.768 shows 2.77x; the
+  // old per-press check against raw mult left the rung dark. Diagnosed live.)
+  { const md=+crash.mult.toFixed(2);
+    document.querySelectorAll('#tierLadder .tln').forEach(n=>{
+      if(md>=+n.dataset.x && !n.classList.contains('lit')){
+        n.classList.add('lit','pop');
+        try{ gateFx(+n.dataset.x); }catch(e){ console.error('[ANTE ASCENT] gateFx',e); }
+      }
+    }); }
   { const fr=$('crashFrenzy'); if(fr && performance.now()-crash.lastP>520) fr.classList.remove('on'); }
   crash.hb-=dt; if(crash.hb<=0){ crash.hb=0.5/Math.min(3,crash.mult); tone(58,0.12,'sine',0.14,44);
     if(crash.mult>=3) setTimeout(()=>tone(72,0.08,'sine',0.1,50),90); }
@@ -213,10 +223,6 @@ function pushCrash(){
       [392,523,659].forEach((f9,i9)=>setTimeout(()=>tone(f9*Math.pow(1.25,nb),0.18,'triangle',0.1),i9*60));
       $('crashLayer').classList.add('bandflash'); setTimeout(()=>$('crashLayer').classList.remove('bandflash'),260);
     }
-    document.querySelectorAll('#tierLadder .tln').forEach(n=>{
-      const x=+n.dataset.x;
-      if(x>1 && m9>=x && !n.classList.contains('lit')){ n.classList.add('lit','pop'); gateFx(x); }
-    });
   }
   noise(0.06,0.03,1600+crash.mult*260);
   { const st=$('crashStars'); if(st) st.style.setProperty('--sd',Math.max(0.35,2.4/(0.6+crash.mult*0.45))+'s'); }
