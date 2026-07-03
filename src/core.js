@@ -1698,8 +1698,8 @@ function render(){
   if(feverOn){
     ctx.save(); ctx.globalCompositeOperation='screen';
     const fg2=ctx.createRadialGradient(VW/2,VH/2,Math.min(VW,VH)*0.2,VW/2,VH/2,Math.max(VW,VH)*0.75);
-    const fp=0.12+Math.sin(gt*9)*0.05;
-    fg2.addColorStop(0,'rgba(255,190,70,'+fp*0.5+')'); fg2.addColorStop(1,'rgba(255,150,30,'+fp+')');
+    const fp=0.07+Math.sin(gt*9)*0.03;
+    fg2.addColorStop(0,'rgba(255,190,70,'+fp*0.4+')'); fg2.addColorStop(1,'rgba(255,150,30,'+fp+')');
     ctx.fillStyle=fg2; ctx.fillRect(0,0,VW,VH); ctx.restore();
     ctx.save(); ctx.font="800 26px 'Cinzel',serif"; ctx.textAlign='center';
     ctx.fillStyle='#ffd36b'; ctx.shadowColor='#ffb020'; ctx.shadowBlur=18;
