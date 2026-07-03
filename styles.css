@@ -276,6 +276,12 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 .lever{position:absolute;right:-26px;bottom:22px;width:20px;height:118px;z-index:6;}
 .leverArm{position:absolute;left:7px;bottom:0;width:6px;height:78px;background:linear-gradient(90deg,#5a5a62,#c8c8d0,#5a5a62);border-radius:3px;transform-origin:bottom center;transition:transform .25s cubic-bezier(.3,1.4,.5,1);}
 .leverBall{position:absolute;left:0;top:-4px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff6b6b,#8b1620 60%,#3a0a10);box-shadow:0 0 12px rgba(200,30,44,.6);transition:transform .25s cubic-bezier(.3,1.4,.5,1);}
+/* the blood lever asks: red heartbeat on the ball until you choose */
+.machine.leverArmed .leverBall{animation:leverBeat .7s ease-in-out infinite;}
+@keyframes leverBeat{
+  0%,100%{box-shadow:0 0 12px rgba(200,30,44,.6);filter:brightness(1);}
+  50%{box-shadow:0 0 26px rgba(255,40,60,.95),0 0 44px rgba(200,30,44,.5);filter:brightness(1.5);}
+}
 .machine.pulling .leverArm{transform:rotate(50deg);}
 .machine.pulling .leverBall{transform:translate(28px,54px);}
 .lever.up .leverArm{transform:rotate(-20deg);}

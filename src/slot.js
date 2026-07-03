@@ -83,18 +83,62 @@ function openNextSlot(){
   const p=pending.shift();
   slotFloor=p.floor||null;
   state='slot';
-  lastRites=(P.hp/P.maxHp)<=CFG.slot.critPct;
+  // THE BLOOD LEVER: low blood no longer forces the red table — the House
+  // OFFERS it. The slot opens common; the lever stage asks first.
+  lastRites=false;
+  const bloodLow=(P.hp/P.maxHp)<=CFG.slot.critPct;
   if(P.coins===13) secret('cursed13','CURSED POCKET');
   slotIndex++;
   makeBulbs();
   elSlot.classList.remove('hidden');
-  elSlot.classList.toggle('lastrites',lastRites);
+  elSlot.classList.remove('lastrites');
   $('machine').classList.remove('win','jackpot','bust','pulling','dicing');
   SFX.levelUp();
-  if(lastRites){ excite=1; startDrone(); SFX.murmur(); LT.rites=(LT.rites||0)+1; bump('rites',LT.rites); }
   const weaponTurn = (slotForceWeapon || slotIndex % 4 === 0) && availableWeapons().length>0;
   slotForceWeapon=false;
   openSlotReady(weaponTurn?'weapon':'skill');
+  if(bloodLow) offerBloodLever();
+}
+function offerBloodLever(){
+  slotStage='lever';
+  $('machine').classList.add('leverArmed');
+  excite=1; SFX.murmur(); flash(0.25,'#8b1620'); startDrone();
+  $('slotTag').textContent='☨ THE HOUSE SMELLS BLOOD ☨';
+  $('cardName').textContent='THE BLOOD LEVER'; $('cardName').className='bigname'; $('cardName').style.color='#ff5560';
+  $('cardDesc').innerHTML='<div class="ofsub" style="color:#ff7b7b">RICHER REELS · DICE 7+</div>'
+    +'<div class="ofrow"><span class="ofl">ANY MISS = SCAR + BUST</span></div>';
+  $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> pull the lever · <span class="keyhint">X</span> refuse';
+  showSlotButtons();
+}
+function pullBloodLever(){
+  if(slotStage!=='lever') return;
+  lastRites=true;
+  $('machine').classList.remove('leverArmed');
+  $('cardName').style.color='';
+  elSlot.classList.add('lastrites');
+  SFX.leverWind(); setTimeout(()=>SFX.leverSlam(),220);
+  flash(0.5,'#8b1620'); shake=Math.min(18,shake+9); sparkBurst(22);
+  LT.rites=(LT.rites||0)+1; bump('rites',LT.rites);
+  $('slotTag').textContent='☨ THE RED TABLE — RICHER, CRUELER ☨'+(slotBank>0?' · BANK '+slotBank+'/7':'');
+  ensurePayTable();
+  { const isW=slotKind==='weapon'; const defs=isW?WEAPONS:PASSIVES;
+    const avail=isW?availableWeapons():availableSkills();
+    buildPreStrips(avail.length?avail:defs, defs); }
+  $('cardName').textContent='—'; $('cardDesc').textContent='';
+  $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> spin the reels';
+  slotStage='ready';
+  showSlotButtons();
+}
+function refuseBloodLever(){
+  if(slotStage!=='lever') return;
+  $('machine').classList.remove('leverArmed');
+  $('cardName').style.color='';
+  stopDrone(); SFX.thud();
+  $('slotTag').textContent=(slotKind==='weapon'?'⚔ THE ARSENAL WHEEL ⚔':'THE WHEELS OF FATE')+(slotBank>0?' · BANK '+slotBank+'/7':'');
+  $('cardName').textContent='—'; $('cardDesc').textContent='';
+  $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> spin the reels';
+  slotStage='ready';
+  showSlotButtons();
 }
 function buildStrip(strip, seq, defs){
   strip.innerHTML='';
@@ -125,6 +169,11 @@ function ensureBulbs(){
     b.style.left=x+'%'; b.style.top=y+'%'; b.style.animationDelay=((i%13)*0.104)+'s';
     m.appendChild(b); }
 }
+function buildPreStrips(pool, defs){
+  const preStrips=[$('strip0'),$('strip1'),$('strip2')];
+  preStrips.forEach(el=>{ const seq=[]; for(let k=0;k<22;k++) seq.push(weightedByRarity(pool, lastRites?RED_W:null).id); buildStrip(el,seq,defs); el.classList.remove('blur'); el.style.transition='none'; el.style.transform='translateY(0px)'; });
+  requestAnimationFrame(()=>{ preStrips.forEach(el=>{ const symH=(el.children[0]&&el.children[0].offsetHeight)||63; const boxH=(el.parentElement&&el.parentElement.clientHeight)||189; el.style.transform='translateY('+(boxH/2 - symH*1.5)+'px)'; }); });
+}
 function openSlotReady(kind){
   ensureBulbs(); window._slotFF=null; rerollCarry=null;
   slotKind=kind; gamble=null; diceShown=false; const isW=kind==='weapon';
@@ -135,9 +184,7 @@ function openSlotReady(kind){
   { const rb=$('rarBanner'); if(rb){ rb.textContent=''; rb.className=''; } flarePayRow(''); }
   const defs=isW?WEAPONS:PASSIVES; const avail=isW?availableWeapons():availableSkills(); const pool=avail.length?avail:defs;
   ensurePayTable();
-  const preStrips=[$('strip0'),$('strip1'),$('strip2')];
-  preStrips.forEach(el=>{ const seq=[]; for(let k=0;k<22;k++) seq.push(weightedByRarity(pool, lastRites?RED_W:null).id); buildStrip(el,seq,defs); el.classList.remove('blur'); el.style.transition='none'; el.style.transform='translateY(0px)'; });
-  requestAnimationFrame(()=>{ preStrips.forEach(el=>{ const symH=(el.children[0]&&el.children[0].offsetHeight)||63; const boxH=(el.parentElement&&el.parentElement.clientHeight)||189; el.style.transform='translateY('+(boxH/2 - symH*1.5)+'px)'; }); });
+  buildPreStrips(pool, defs);
   slotReels=[]; slotStage='ready';
   document.querySelectorAll('.reelbox').forEach(b=>b.classList.remove('antici','slam','pick','locked')); $('reelsRow').classList.remove('sweeping');
   $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> spin the reels';
@@ -182,7 +229,8 @@ function spinReels(){
   showSlotButtons();
 }
 function slotTap(){
-  if(slotStage==='ready') spinReels();
+  if(slotStage==='lever') pullBloodLever();
+  else if(slotStage==='ready') spinReels();
   else if(slotStage==='spinning') stopNextReel();
   else if(slotStage==='select') stopSelector();
   else if(slotStage==='dicing') stopDie();
@@ -607,7 +655,11 @@ function tickSlot(dt){
 }
 function showSlotButtons(){
   const box=$('slotBtns'); box.innerHTML='';
-  if(slotStage==='ready'){ box.appendChild(makeBtn('◈ SPIN','gold','press SPACE',()=>slotTap())); }
+  if(slotStage==='lever'){
+    box.appendChild(makeBtn('☨ PULL','red','SPACE',()=>pullBloodLever()));
+    box.appendChild(makeBtn('REFUSE','','X',()=>refuseBloodLever()));
+  }
+  else if(slotStage==='ready'){ box.appendChild(makeBtn('◈ SPIN','gold','press SPACE',()=>slotTap())); }
   else if(slotStage==='spinning'){ const left=slotReels.filter(x=>!x.stopped).length; box.appendChild(makeBtn('■ STOP','gold',left+' left · SPACE',()=>slotTap())); }
   else if(slotStage==='select'){ box.appendChild(makeBtn('🔴 LOCK','red',selStopping?'locking…':'SPACE',()=>slotTap())); }
   else if(slotStage==='dicing'){ const rolling=dice.filter(x=>x.rolling).length; box.appendChild(makeBtn('🎲 STOP DIE','gold',(rolling>1?'left die':'right die')+' · SPACE',()=>slotTap())); }
