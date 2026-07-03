@@ -316,20 +316,20 @@ function enemyShoot(e){
 function trackDmg(d){ P.dmgDealt=(P.dmgDealt||0)+d; }
 /* SCARS — permanent-for-the-run wounds the dice can leave. No mercy, no timer. */
 const SCARS=[
- {label:'−8 MAX BLOOD',      ap:()=>{ P.maxHp=Math.max(20,P.maxHp-8); P.hp=Math.min(P.hp,P.maxHp); }},
- {label:'−4 MOVE SPEED',     ap:()=>{ P.speed=Math.max(60,P.speed-4); }},
- {label:'−3% DAMAGE',        ap:()=>{ P.damage*=0.97; }},
- {label:'−3% FIRE RATE',     ap:()=>{ P.fireRate*=0.97; }},
- {label:'−6% COINS',         ap:()=>{ P.coinMult=Math.max(0.2,(P.coinMult||1)-0.06); }},
- {label:'−20 PICKUP RANGE',  ap:()=>{ P.pickup=Math.max(30,P.pickup-20); }},
- {label:'−2% XP',            ap:()=>{ P.xpMult=Math.max(0.4,(P.xpMult||1)*0.98); }},
- {label:'+3% DAMAGE TAKEN',  ap:()=>{ P.dmgTakenMult=(P.dmgTakenMult||1)+0.03; }},
- {label:'−0.1s INVULN',      ap:()=>{ P.invBonus=(P.invBonus||0)-0.1; }},
- {label:'CROOKED TABLE — NEXT DICE +1', ap:()=>{ P.crookedT=true; }}
+ {label:'−8 MAX BLOOD',      g:'♥', ap:()=>{ P.maxHp=Math.max(20,P.maxHp-8); P.hp=Math.min(P.hp,P.maxHp); }},
+ {label:'−4 MOVE SPEED',     g:'👢', ap:()=>{ P.speed=Math.max(60,P.speed-4); }},
+ {label:'−3% DAMAGE',        g:'⚔', ap:()=>{ P.damage*=0.97; }},
+ {label:'−3% FIRE RATE',     g:'⚡', ap:()=>{ P.fireRate*=0.97; }},
+ {label:'−6% COINS',         g:'◈', ap:()=>{ P.coinMult=Math.max(0.2,(P.coinMult||1)-0.06); }},
+ {label:'−20 PICKUP RANGE',  g:'◎', ap:()=>{ P.pickup=Math.max(30,P.pickup-20); }},
+ {label:'−2% XP',            g:'✦', ap:()=>{ P.xpMult=Math.max(0.4,(P.xpMult||1)*0.98); }},
+ {label:'+3% DAMAGE TAKEN',  g:'▣', ap:()=>{ P.dmgTakenMult=(P.dmgTakenMult||1)+0.03; }},
+ {label:'−0.1s INVULN',      g:'◑', ap:()=>{ P.invBonus=(P.invBonus||0)-0.1; }},
+ {label:'CROOKED TABLE — NEXT DICE +1', g:'🎲', ap:()=>{ P.crookedT=true; }}
 ];
 function applyScar(){
   const s=SCARS[(Math.random()*SCARS.length)|0];
-  s.ap(); (P.scars=P.scars||[]).push(s.label);
+  s.ap(); (P.scars=P.scars||[]).push({l:s.label, g:s.g||'☒'});
   LT.scars=(LT.scars||0)+1; bump('scars',LT.scars);
   setTimeout(()=>announce('☒ SCARRED — '+s.label+', THIS RUN ☒', false), 250);
   SFX.bust(); SFX.thud(); flash(0.5,'#8b1620'); shake=Math.min(20,shake+10);

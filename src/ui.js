@@ -100,13 +100,13 @@ function showTab(){
   col1.appendChild(mk('<div class="tpH">⚔ WEAPONS</div>'));
   let anyW=false;
   WEAPONS.forEach(w=>{ const lv=P.wlv[w.id]||0; if(lv>0){ anyW=true;
-    const it=mk('<div class="tpi hov"><span class="tpg" style="color:'+(GLYPH_COL[w.id]||rc[w.rar]||'#fff')+'">'+w.g+'</span><span>'+w.n+' — Lv '+lv+'</span></div>');
+    const it=mk('<div class="tpi hov"><span class="tpg" style="color:'+(GLYPH_COL[w.id]||rc[w.rar]||'#fff')+'">'+w.g+'</span><span><b>'+w.n+'</b> · Lv '+lv+'<i class="tpfx">'+projFx(w,lv)+'</i></span></div>');
     relicTip(it, w.n, lv, projFx(w,lv)); col1.appendChild(it); }});
   if(!anyW) col1.appendChild(mk('<div class="tpi">—</div>'));
   col1.appendChild(mk('<div class="tpH">✦ PASSIVES</div>'));
   if(P.passiveList.length){ P.passiveList.forEach(r=>{
     const pdef=PASSIVES.find(p=>p.id===r.id);
-    const it=mk('<div class="tpi hov"><span class="tpg" style="color:'+(GLYPH_COL[r.id]||rc[r.rar]||'#fff')+'">'+r.g+'</span><span>'+r.n+(r.count>1?' ×'+r.count:'')+(pdef&&pdef.fx?' — '+pdef.fx:'')+'</span></div>');
+    const it=mk('<div class="tpi hov"><span class="tpg" style="color:'+(GLYPH_COL[r.id]||rc[r.rar]||'#fff')+'">'+r.g+'</span><span><b>'+r.n+'</b>'+(r.count>1?' ×'+r.count:'')+'<i class="tpfx">'+(pdef?String(pdef.d(r.count)).slice(0,64):'')+'</i></span></div>');
     relicTip(it, r.n, r.count, pdef?pdef.d(r.count):''); col1.appendChild(it); });
   } else col1.appendChild(mk('<div class="tpi">—</div>'));
   const col2=document.createElement('div'); col2.className='tpCol';
@@ -121,7 +121,7 @@ function showTab(){
     +'<div class="tpi" style="color:#ffd36b">HOUSE RANK '+RANK.rank+' — '+RANKS[RANK.rank-1].n+' · '+RANK.marks+' MARKS</div>'
     +'<div class="tpH" style="margin-top:10px">RARITIES</div>'
     +'<div class="tpi"><span style="color:#cfc2a6">COMMON</span> · <span style="color:#8fd977">UNCOMMON</span> · <span style="color:#6fb7ff">RARE</span> · <span style="color:#c98bff">ULTRA</span> · <span style="color:#f8e2a0">LEGENDARY</span> · <span style="color:#8bffd0">ASCENSION</span></div>'
-    +'<div class="tpi" style="opacity:.7">HOVER ANY ITEM FOR ITS TALE</div>';
+    +'<div class="tpi" style="opacity:.7">EVERYTHING AT A GLANCE — ONE HAND IS ENOUGH</div>';
   tp.appendChild(col1); tp.appendChild(col2);
   tp.classList.add('show');
 }
@@ -258,7 +258,7 @@ function renderRelics(){
     if(tag) tag.style.display=any?'':'none';
     if(bc){ bc.style.display=any?'':'none';
       if(P.curses) P.curses.forEach(c=>{ const d=document.createElement('div'); d.className='relic curse'; d.textContent='☠'; d.title='CURSE '+c.short+' · '+c.waves+' waves left'; bc.appendChild(d); });
-      if(P.scars) P.scars.forEach(sl=>{ const d=document.createElement('div'); d.className='relic scar'; d.textContent='☒'; relicTip(d,'SCAR',1,sl+' — this run'); bc.appendChild(d); }); } }
+      if(P.scars) P.scars.forEach(sl=>{ const isO=typeof sl==='object'; const d=document.createElement('div'); d.className='relic scar'; d.textContent=isO?sl.g:'☒'; relicTip(d,'SCAR',1,(isO?sl.l:sl)+' — this run'); bc.appendChild(d); }); } }
 }
 
 /* ============================================================
@@ -295,9 +295,9 @@ window.addEventListener('keydown',e=>{
     if(e.repeat) return;
     e.preventDefault();
     if(state==='vault'){ $('vaultPanel').classList.add('hidden'); state='playing'; SFX.casinoDing(); return; }
-    if(state==='playing'){ state='paused'; $('pauseLayer').classList.remove('hidden'); SFX.thud();
+    if(state==='playing'){ state='paused'; document.body.classList.add('paused'); $('pauseLayer').classList.remove('hidden'); SFX.thud();
       $('pauseStats').innerHTML='<div class="ps"><b>'+P.kills+'</b><i>KILLS</i></div><div class="ps"><b>'+P.level+'</b><i>LEVEL</i></div><div class="ps"><b>'+P.coins+'</b><i>COINS</i></div><div class="ps"><b>'+wave+'</b><i>WAVE</i></div><div class="ps"><b>'+Math.floor(gt/60)+':'+String(Math.floor(gt%60)).padStart(2,'0')+'</b><i>TIME</i></div>'+'<div style="flex-basis:100%;text-align:center;font-family:var(--disp);font-size:10px;letter-spacing:.08em;color:#9a8f7e;margin-top:8px">◈ COINS — the House&#39;s gold, this run · ⚜ XP — level charge, wagered in the Ascent · GILT — eternal Vault currency</div>'; if(P){ P._pauses=(P._pauses||0)+1; if(P._pauses>=13) secret('coldfeet','COLD FEET'); } }
-    else if(state==='paused'){ state='playing'; $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); }
+    else if(state==='paused'){ state='playing'; document.body.classList.remove('paused'); $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); }
     return;
   }
   if(k==='q' && state==='paused'){ e.preventDefault(); quitToMenu(); return; }

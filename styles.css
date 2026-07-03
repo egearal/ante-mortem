@@ -54,7 +54,7 @@ h1{font-family:var(--disp);font-weight:800;letter-spacing:.28em;margin:0 0 2px;f
 .hudBottom{position:absolute;bottom:14px;left:0;right:0;display:flex;align-items:flex-end;justify-content:space-between;padding:0 18px;}
 #hpwrap{width:min(340px,52vw);}
 #hplabel{font-size:11px;letter-spacing:.3em;color:var(--ash);margin-bottom:4px;}
-#hpbar{height:22px;background:rgba(0,0,0,.7);border:1px solid rgba(232,182,76,.35);border-radius:11px;overflow:hidden;position:relative;box-shadow:0 0 16px rgba(139,22,32,.45),inset 0 2px 5px rgba(0,0,0,.8);}
+#hpbar{height:28px;background:linear-gradient(180deg,rgba(10,4,8,.85),rgba(0,0,0,.75));border:1px solid rgba(232,182,76,.45);border-radius:14px;overflow:hidden;position:relative;box-shadow:0 4px 18px rgba(0,0,0,.6),0 0 20px rgba(139,22,32,.4),inset 0 2px 6px rgba(0,0,0,.8),inset 0 -1px 0 rgba(255,240,192,.08);}
 #hpbar::after{content:'';position:absolute;left:2px;right:2px;top:2px;height:7px;border-radius:6px;background:linear-gradient(180deg,rgba(255,255,255,.22),transparent);pointer-events:none;}
 #hpbar.lowhp #hpfill{height:100%;background:linear-gradient(90deg,#6e0f18,#c81e2c 60%,#ff4050);transition:width .18s ease;border-radius:10px;}
 @keyframes hpShimmer{0%,100%{filter:brightness(1);}50%{filter:brightness(1.5) saturate(1.4);}}
@@ -181,7 +181,8 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
 @media(max-width:700px){.pauseRules{display:none;}}
 .relic{position:relative;width:45px;height:45px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:default;pointer-events:auto;
   background:linear-gradient(180deg,rgba(40,16,20,.9),rgba(12,6,8,.9));border:1px solid var(--gold);box-shadow:0 0 10px rgba(232,182,76,.3);}
-.relic.weapon{width:auto;min-width:45px;padding:0 7px;flex-direction:column;gap:0;border-color:var(--gold-bright);box-shadow:0 0 12px rgba(232,182,76,.45);}
+.relic.weapon{width:45px;min-width:45px;max-width:45px;padding:0;position:relative;border-color:var(--gold-bright);box-shadow:0 0 12px rgba(232,182,76,.45);}
+.relic.weapon .lvpips{position:absolute;left:0;right:0;bottom:1px;font-size:6px;letter-spacing:1px;line-height:1;text-align:center;color:#ffd36b;text-shadow:0 0 4px #000;pointer-events:none;}
 .relic.weapon .lvpips{font-size:6px;line-height:5px;letter-spacing:-1px;color:var(--gold-bright);margin-top:-2px;max-width:40px;overflow:hidden;}
 .relic .pcount{position:absolute;bottom:-3px;right:-3px;background:var(--blood);color:#fff;font-size:9px;font-weight:700;border-radius:8px;padding:0 3px;line-height:12px;}
 .relic.r-uncommon{border-color:#8fd977;box-shadow:0 0 8px rgba(143,217,119,.35);} .relic.r-rare{border-color:#6db4ff;box-shadow:0 0 10px rgba(109,180,255,.3);} .relic.r-epic{border-color:#c98bff;box-shadow:0 0 10px rgba(201,139,255,.3);}
@@ -940,3 +941,14 @@ body.bloodhour #machine{animation:bloodTremble 2.2s ease-in-out infinite;}
 #slot.arsenal .marquee{color:#ff9a3c;text-shadow:0 0 18px rgba(255,154,60,.6);}
 #slot.arsenal .cabinet::after{content:'⚔';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-8deg);
   font-size:150px;color:rgba(255,154,60,.05);pointer-events:none;z-index:0;}
+
+/* pause: the HUD stays lit above the veil */
+body.paused #hud{z-index:25;}
+/* hp v3 fill smoothness */
+#hpfill{transition:width .25s cubic-bezier(.3,.9,.4,1)!important;}
+/* TAB codex v2 — readable with one hand on WASD */
+.tpi{font-size:14px!important;line-height:1.5;}
+.tpg{font-size:26px!important;}
+.tpfx{display:block;font-style:normal;font-size:11.5px;color:#9a8f7e;letter-spacing:.03em;}
+.tpCol{min-width:340px!important;max-width:440px!important;}
+.tpH{font-size:15px!important;}
