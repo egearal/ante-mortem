@@ -161,13 +161,13 @@ function ensurePayTable(){
   let pt=$('payTable');
   if(!pt){ pt=document.createElement('div'); pt.id='payTable'; $('machine').appendChild(pt); }
   // the House never shows its numbers — rarity reads in pips, hotter tables read in flames
-  const pips=lastRites?{common:'☨',uncommon:'☨☨',rare:'☨☨☨',epic:'☨☨☨☨',legendary:'☨☨☨☨☨'}:{common:'◆',uncommon:'◆◆',rare:'◆◆◆',epic:'◆◆◆◆',legendary:'◆◆◆◆◆'};
+  const pips={common:'◆',uncommon:'◆◆',rare:'◆◆◆',epic:'◆◆◆◆',legendary:'◆◆◆◆◆'}; // one symbol, every table — the color carries the mood
   const row=(rar)=>'<div class="ptRow" data-rar="'+rar+'" style="--pc:'+RARC[rar]+'"><span class="ptN">'+SLOT_RAR[rar]+'</span><span class="ptPips">'+pips[rar]+'</span></div>';
   const hasAsc=P.passiveList && P.passiveList.some(x=>x.rar==='ascend');
   pt.classList.toggle('red', !!lastRites);
   pt.innerHTML='<div class="ptHead">'+(lastRites?'☨ RICHER ODDS ☨':'THE ODDS')+'</div>'
     +row('common')+row('uncommon')+row('rare')+row('epic')+row('legendary')
-    +(hasAsc?'<div class="ptRow" data-rar="ascend" style="--pc:'+RARC.ascend+'"><span class="ptN">ASCENSION</span><span class="ptPips">▲▲▲▲▲▲</span></div>':'')
+    +(hasAsc?'<div class="ptRow" data-rar="ascend" style="--pc:'+RARC.ascend+'"><span class="ptN">ASCENSION</span><span class="ptPips">◆◆◆◆◆◆</span></div>':'')
     +'<div class="ptFoot">'+(lastRites?'<b style="color:#ff7b7b">50/50 — PAYS OR TAKES</b><br>THE COIN IS ALREADY CAST':'<b>PAIR = LEVEL 2 · TRIPLE = MAX</b><br>EVERY DICE WIN = +1 LEVEL')+'</div>';
 }
 function flarePayRow(rar){
@@ -190,6 +190,7 @@ function buildPreStrips(pool, defs){
 function openSlotReady(kind){
   ensureBulbs(); window._slotFF=null; rerollCarry=null;
   slotKind=kind; gamble=null; diceShown=false; const isW=kind==='weapon';
+  elSlot.classList.toggle('arsenal', isW);
   $('slotTag').textContent = (lastRites?'☨ THE RED TABLE — RICHER, CRUELER ☨':(isW?'⚔ THE ARSENAL WHEEL ⚔':'THE WHEELS OF FATE'))+(slotBank>0?' · BANK '+slotBank+'/7':'');
   $('reelsRow').style.display=''; $('diceRow').style.display='none'; $('riskWrap').style.display='none';
   $('prizeTag').textContent = isW?'YOUR WEAPON':'YOUR SKILL';
@@ -235,7 +236,7 @@ function spinReels(){
     return {el,seq:seqs[i],N,offset:Math.random()*N,speed:19+i*1.8,stopped:false,landedSym:null,symH:63,boxH:189};
   });
   LT.spins++; bump('spins',LT.spins);
-  slotStage='spinning'; reelsStopped=0; stopLock=performance.now()+150;
+  slotStage='spinning'; reelsStopped=0; stopLock=performance.now()+40;
   tone(90,0.5,'sine',0.1,140); noise(0.35,0.05,700); // the reels hum awake
   requestAnimationFrame(()=>{ slotReels.forEach(r=>{ r.symH=(r.el.children[0]&&r.el.children[0].offsetHeight)||63; r.boxH=r.el.parentElement.clientHeight||189; r.el.classList.add('blur'); }); });
   $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> stop each reel — match for more';
@@ -261,7 +262,7 @@ function stopNextReel(){
   if(slotStage!=='spinning') return;
   if(performance.now()<(stopLock||0)) return;
   const r=slotReels.find(x=>!x.stopped); if(!r) return;
-  stopLock=performance.now()+180;
+  stopLock=performance.now()+45;
   r.stopped=true; r.el.classList.remove('blur');
   const centerBias=(r.boxH/2 - r.symH/2)/r.symH;
   let target=Math.round((r.offset % r.N)+centerBias);
@@ -524,7 +525,7 @@ function doRisk(){
   $('machine').classList.add('dicing');
   if(!diceShown){ dice=[ {el:$('dieL'),val:1+((Math.random()*6)|0),rolling:false,ft:0}, {el:$('dieR'),val:1+((Math.random()*6)|0),rolling:false,ft:0} ]; diceShown=true; }
   dice.forEach(d=>{ d.rolling=true; d.ft=0; d.el.classList.remove('settle','crit','hot'); d.el.classList.add('rolling'); renderDie(d.el,d.val); });
-  slotStage='dicing'; stopLock=performance.now()+150;
+  slotStage='dicing'; stopLock=performance.now()+60;
   if(g.rites){ flash(0.3,'#8b1620'); SFX.thud(); } // the red table asks no blood — only nerve
   SFX.diceRattle(); SFX.riser(); sparkBurst(12);
   $('cardName').textContent=g.def.n; $('cardName').className='r-'+g.def.rar+' bigname';
@@ -541,7 +542,7 @@ function stopDie(){
   const d=dice[idx]; if(!d.rolling) return;
   d.rolling=false; d.val=1+((Math.random()*6)|0); renderDie(d.el,d.val);
   d.el.classList.remove('rolling'); d.el.classList.add('settle'); setTimeout(()=>{ if(d.el)d.el.classList.remove('settle'); },340);
-  stopLock=performance.now()+200;
+  stopLock=performance.now()+60;
   const mag = gamble? gamble.round : 1;
   // the tingle ladder — every die across the visit rings one step higher; a miss resets the scale
   if(gamble){ gamble.diceN=(gamble.diceN||0)+1; const tn=gamble.diceN-1;
@@ -609,7 +610,8 @@ function resolveRisk(){
     g.reward+=gain;
     if(g.rites){ const hl=Math.ceil(P.maxHp*0.25); P.hp=Math.min(P.maxHp,P.hp+hl);
       setTimeout(()=>announce('♥ THE TABLE PAYS IN BLOOD — +'+hl+' ♥', true), 250); flash(0.3,'#ff8090'); }
-    dice.forEach(d=>d.el.classList.add('crit'));
+    dice.forEach(d=>{ d.el.classList.add('crit'); d.el.classList.remove('goldwin'); void d.el.offsetWidth; d.el.classList.add('goldwin'); });
+    shake=Math.min(20,shake+2); tone(52,0.18,'sine',0.22,34);
     const rw=g.reward; SFX.dingBells(); SFX.casinoDing(); if(rw>=4) setTimeout(()=>SFX.cashout(),120); if(rw>=5) setTimeout(()=>SFX.dingBells(),220); coinRain(16+rw*4); flash(0.42,'#8bff9a'); $('machine').classList.add('win'); shake=Math.min(22,shake+7+rw); excite=1; sparkBurst(24+rw*5);
     if(perfect) perfectFlash();
     const nowLv=Math.min(g.def.max, skLevel(g.def)+g.reward);
@@ -749,7 +751,7 @@ function showSlotButtons(){
   else if(slotStage==='dicing'){ const rolling=dice.filter(x=>x.rolling).length; box.appendChild(makeBtn('🎲 STOP DIE','gold',(rolling>1?'left die':'right die')+' · SPACE',()=>slotTap())); }
   else if(slotStage==='offer'){ const g=gamble;
     box.appendChild(makeBtn('◈ TAKE +'+g.reward,'gold','SPACE',()=>takeReward()));
-    box.appendChild(makeBtn('🎲 ROLL','red','HOLD SPACE',()=>doRisk()));
+    { const rb=makeBtn('🎲 ROLL','red','HOLD SPACE',()=>doRisk()); rb.id='rollBtn'; box.appendChild(rb); }
     if(g.round===MAXROLL && !g.rerolled) box.appendChild(makeBtn('↻ RESPIN','','R · once',()=>rerollReels()));
   }
   else if(slotStage==='resolved'){ box.appendChild(makeBtn('CONTINUE','gold','press SPACE',()=>slotTap())); }

@@ -350,7 +350,9 @@ window.addEventListener('keydown',e=>{
     if(k===' '){
       if(e.repeat) return;
       SFX.press(); pressPulse('gambleMsg');
-      if(slotStage==='offer'){ spaceHold=true; holdProg=0; holdFired=false; ringShow(true); }
+      { const ab=document.querySelector('#slotBtns .btn'); if(ab) pressPulse(ab); }
+      if(slotStage==='offer'){ spaceHold=true; holdProg=0; holdFired=false; ringShow(true);
+        const rb=$('rollBtn'); if(rb) rb.classList.add('held'); }
       else slotTap();
     }
     return;
@@ -360,6 +362,7 @@ window.addEventListener('keydown',e=>{
 window.addEventListener('keyup',e=>{
   const k=e.key.toLowerCase();
   if(k===' ' && state==='slot'){
+    { const rb=$('rollBtn'); if(rb) rb.classList.remove('held'); }
     if(spaceHold){ spaceHold=false; ringShow(false); if(!holdFired && holdProg<1) slotTap(); holdProg=0; }
     return;
   }
