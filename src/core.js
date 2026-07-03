@@ -397,6 +397,7 @@ function killEnemy(e,idx){
   if(P.explode){ for(const o of enemies){ if(o!==e && Math.hypot(o.x-e.x,o.y-e.y)<80){ o.hp-=P.damage*1.2; o.flash=0.1; } } burst(e.x,e.y,10,'#ff9a5b'); ring(e.x,e.y,80,'#ff9a5b'); }
   if(dare) dare.got++;
   killStreak++; streakT=1.0; if(killStreak>(P.bestStreak||0)) P.bestStreak=killStreak;
+  if(killStreak%25===0 && killStreak<=500) tone(700*Math.pow(1.0595,Math.min(24,killStreak/25)),0.09,'sine',0.12); // the streak climbs a scale too
   if(STREAK_MS.includes(killStreak)){
     const big9=killStreak>=100;
     announce('⚔ '+killStreak+' STREAK ⚔', true);
@@ -985,7 +986,14 @@ function gainXP(n){
     const pay=Math.min(P.debt, Math.ceil(n*0.5)); P.debt-=pay; n-=pay;
     if(P.debt<=0){ P.debt=0; announce('◈ DEBT CLEARED — THE HOUSE IS PAID ◈', true); SFX.chipStack(); SFX.casinoDing(); flash(0.25,'#8bff9a'); }
   }
-  P.xp+=n; SFX.xp();
+  P.xp+=n;
+  // NUMBER GO UP, SOUND GO UP — every gem within 1.5s of the last rings one
+  // semitone higher (cap +14). Silence resets the scale. The VS loop, distilled.
+  { const nw=performance.now();
+    P._xpCombo = (nw-(P._xpComboT||0)<1500) ? Math.min(14,(P._xpCombo||0)+1) : 0;
+    P._xpComboT=nw;
+    tone(520*Math.pow(1.0595,P._xpCombo),0.05,'triangle',0.07+P._xpCombo*0.003);
+    if(P._xpCombo===14 && !P._xpPeak){ P._xpPeak=true; SFX.tingle(); setTimeout(()=>P._xpPeak=false,3000); } }
   while(P.xp>=P.xpNext){ if(!P._ovPass && state==='playing'){ startOvercharge(); break; } P._ovPass=false;
     P.xp-=P.xpNext; P.level++; P.xpNext=Math.floor(6+P.level*3.4+P.level*P.level*0.7); pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); { const lv9=$('level'); if(lv9){ lv9.classList.remove('pop'); void lv9.offsetWidth; lv9.classList.add('pop'); } } ring(P.x,P.y,120,'#c81e2c'); ring(P.x,P.y,70,'#ffd36b'); burst(P.x,P.y,16,'#e8b64c'); for(let i=0;i<16;i++){ parts.push({x:P.x+rnd(-10,10),y:P.y+rnd(-4,4),vx:rnd(-14,14),vy:-rnd(90,220),life:rnd(.4,.8),col:i%3?'#ffd36b':'#fff2c0',r:rnd(1.6,3.2)}); } flash(0.25,'#c81e2c'); }
   if(pending.length && state==='playing') openNextSlot();
