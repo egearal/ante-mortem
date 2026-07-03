@@ -8,7 +8,7 @@ function rollMainReward(floor){
   WEAPONS.forEach(w=>{
     const cur=P.wlv[w.id]||0;
     if(cur>0){ if(cur<w.max && order[w.rar]>=min) cands.push(weaponReward(w)); }
-    else if(ownedCount<WEAPON_CAP && order[w.rar]>=min) cands.push(weaponReward(w));
+    else if(ownedCount<WEAPON_CAP && order[w.rar]>=min && weaponUnlocked(w.id)) cands.push(weaponReward(w));
   });
   PASSIVES.forEach(pd=>{ if(order[pd.rar]>=min && !(pd.u && owned.has(pd.id)) && skillLevel(pd.id)<pd.max) cands.push(passiveReward(pd)); });
   const w=Object.assign({},CFG.weights);

@@ -225,7 +225,12 @@ function openIndexPanel(){
       const r9=el.getBoundingClientRect(); tp.style.right=(innerWidth-r9.left+10)+'px'; tp.style.top=(r9.top-6)+'px'; });
     list.addEventListener('mouseout',ev=>{ if(ev.target.closest('.idxTile')) $('relicTip').classList.add('hidden'); }); }
   list.innerHTML=
-    sec('⚔','THE ARSENAL','#ff9a3c', WEAPONS.map(w=>[IDX.w.indexOf(w.id)>=0, w.g, w.n, GLYPH_COL[w.id]||'#ffd36b']))
+    ('<div class="idxSec" style="--sc:#ff9a3c"><div class="idxSecH"><b>⚔ THE ARSENAL</b><span>'+WEAPONS.filter(w=>IDX.w.indexOf(w.id)>=0).length+' / '+WEAPONS.length+'</span></div><div class="idxGrid">'
+      +WEAPONS.map(w=>{ const seen=IDX.w.indexOf(w.id)>=0, unl=weaponUnlocked(w.id);
+        if(!unl) return '<div class="idxTile lockedW"><span class="idxG" style="color:#6a5e50">'+w.g+'</span>🔒 RANK '+WEAPON_UNLOCKS[w.id]+'</div>';
+        return seen? '<div class="idxTile on" style="--ic:'+(GLYPH_COL[w.id]||'#ffd36b')+'"><span class="idxG">'+w.g+'</span>'+w.n+'</div>'
+                   : '<div class="idxTile"><span class="idxG">?</span>???</div>'; }).join('')
+      +'</div></div>')
    +sec('✦','PASSIVES','#8bff9a', PASSIVES.filter(s=>s.rar!=='ascend'&&s.rar!=='mythic').map(s=>[IDX.p.indexOf(s.id)>=0, s.g, s.n, GLYPH_COL[s.id]||'#8bff9a']))
    +sec('▲','ASCENSIONS','#8bffd0', PASSIVES.filter(s=>s.rar==='ascend'||s.rar==='mythic').map(s=>[IDX.p.indexOf(s.id)>=0, s.g, s.n, GLYPH_COL[s.id]||'#8bffd0']))
    +sec('☠','CURSES ENDURED','#ff5560', DEBUFF_POOL.map(d=>[IDX.c.indexOf(d.label)>=0, '☠', d.label, '#ff5560']))
@@ -356,6 +361,9 @@ function awardMarks(m){
     const cur=RANKS[RANK.rank-1], nx=RANKS[RANK.rank];
     setTimeout(()=>{ announce('⚜ RANK '+RANK.rank+' — '+cur.n+' · UNLOCKED: '+(cur.r||'THE TITLE')+' ⚜', true); SFX.seraph(); }, 500);
     if(nx) setTimeout(()=>{ announce('▲ NEXT: '+nx.n+' — '+(nx.r||'')+' ▲', true); }, 2600);
+    { const arm=Object.keys(WEAPON_UNLOCKS).find(id=>WEAPON_UNLOCKS[id]===RANK.rank);
+      if(arm){ const wd=WEAPONS.find(x=>x.id===arm);
+        if(wd) setTimeout(()=>{ announce('🗡 '+wd.n.toUpperCase()+' JOINS THE HOUSE — '+wd.g+' 🗡', true); SFX.rarSting(RAR_TIER[wd.rar]||1); flash(0.4,GLYPH_COL[wd.id]||'#ffd36b'); }, 3500); } }
     if(STORY_PAGES.some(pg=>pg.r===RANK.rank)) setTimeout(()=>{ announce('📜 A LEDGER PAGE BURNS INTO MEMORY 📜', true); SFX.murmur(); SFX.tingle(); try{ storyPulse(); }catch(e){} }, 4400);
   }
   const base=rkCum(RANK.rank), next=RANK.rank<RANKS.length?rkCum(RANK.rank+1):base+1;

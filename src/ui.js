@@ -377,6 +377,8 @@ function renderChips(){
     ['◈',gilt+' GILT','#e8b64c'],
     ['📖',idxPct()+'%','#c98bff'],
     ['✦',SEC.size+'/'+WHISPER_TOTAL,'#8bffd0'],
+    ...(function(){ const nx=nextArmUnlock(); if(!nx) return []; const wd=WEAPONS.find(x=>x.id===nx.id);
+      return wd?[['🗡','NEXT ARM: '+wd.n.toUpperCase()+' · RANK '+nx.thr,'#ff9a3c']]:[]; })(),
     ['⚜','RANK '+RANK.rank+' · '+RANKS[RANK.rank-1].n,'#fff2c0'],
     window._daily?['☀',window._daily,'#8bff9a']:null
   ].filter(Boolean);

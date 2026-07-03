@@ -808,6 +808,7 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
 .idxTile.on .idxG{color:var(--ic,#ffd36b);text-shadow:0 0 9px var(--ic,#ffd36b);}
 .idxHint{color:#8a7c66;font-size:12px;font-style:italic;letter-spacing:.04em;}
 /* THE WHISPERS — riddles until solved */
+.idxTile.lockedW{opacity:.6;border-style:dashed;font-size:10px;letter-spacing:.06em;color:#8a7c66;}
 .wspGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:7px;margin:8px 0;}
 .wsp{padding:7px 10px;border:1px solid rgba(201,139,255,.18);border-radius:9px;font-size:12.5px;letter-spacing:.03em;
   color:#8a7c8e;background:rgba(20,10,24,.5);line-height:1.45;}

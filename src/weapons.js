@@ -189,9 +189,20 @@ function fireSeekers(n){
   SFX.seeker();
 }
 function ownedWeaponCount(){ return WEAPONS.filter(w=>(P.wlv[w.id]||0)>0).length; }
+// THE ARSENAL DRIP — 14 blades on night one; the House hands over the rest as
+// your RANK climbs. Pure derivation: old saves own everything at/below their
+// rank automatically, and nothing is ever taken away mid-run.
+const WEAPON_UNLOCKS={coil:3, chalice:5, spark:7, chand:9, dice:11, mortar:13, nova:15, bell:18, phantom:21, gramo:24, cylinder:27, seeker:30, moths:34, candelabra:38, guillotine:42};
+function weaponUnlocked(id){ const thr=WEAPON_UNLOCKS[id]; return !thr || (typeof RANK!=='undefined' && RANK.rank>=thr); }
+function nextArmUnlock(){
+  let best=null;
+  for(const id in WEAPON_UNLOCKS){ const thr=WEAPON_UNLOCKS[id];
+    if(RANK.rank<thr && (!best||thr<best.thr)) best={id,thr}; }
+  return best;
+}
 function availableWeapons(){
   const canNew = ownedWeaponCount() < WEAPON_CAP;
-  return WEAPONS.filter(w=>{ const lv=P.wlv[w.id]||0; return lv>0 ? lv<w.max : canNew; });
+  return WEAPONS.filter(w=>{ const lv=P.wlv[w.id]||0; return lv>0 ? lv<w.max : (canNew && weaponUnlocked(w.id)); });
 }
 // levels the House can't fit into a maxed item are paid out in coins — a win must always pay
 function grantOverflow(lost){
