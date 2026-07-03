@@ -897,3 +897,12 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
   100%{transform:translateY(112vh) rotate(300deg);opacity:0;}}
 #menu .panel{position:relative;z-index:2;animation:panelBreath 4.5s ease-in-out infinite;}
 @keyframes panelBreath{0%,100%{box-shadow:0 24px 90px rgba(0,0,0,.75),0 0 40px rgba(232,182,76,.12);}50%{box-shadow:0 24px 90px rgba(0,0,0,.75),0 0 64px rgba(232,182,76,.26);}}
+
+/* story page arrows */
+.prArrow{position:absolute;top:50%;transform:translateY(-50%);font-size:44px;color:#e8b64c;cursor:pointer;
+  padding:6px 14px;user-select:none;text-shadow:0 0 14px rgba(232,182,76,.5);transition:color .15s, opacity .15s;}
+.prPrev{left:-58px;} .prNext{right:-58px;}
+.prArrow:hover{color:#fff2c0;}
+.prArrow.dim{opacity:.22;color:#6a5e50;cursor:default;text-shadow:none;}
+.prArrow.deny{animation:arrowDeny .3s;}
+@keyframes arrowDeny{0%,100%{transform:translateY(-50%) translateX(0);}30%{transform:translateY(-50%) translateX(5px);}60%{transform:translateY(-50%) translateX(-4px);}}

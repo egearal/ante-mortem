@@ -287,22 +287,48 @@ function openStoryPanel(){
   }
   p.classList.remove('hidden'); SFX.uiDing();
 }
+let _storyCur=null;
+function stepStoryPage(dir){
+  if(_storyCur===null) return;
+  const i=STORY_PAGES.findIndex(p=>p.id===_storyCur);
+  const j=i+dir;
+  if(j<0 || j>=STORY_PAGES.length){ SFX.thud(); return; }
+  const nx=STORY_PAGES[j];
+  if(!storyUnlocked(nx)){
+    SFX.thud();
+    const rv=$('pageReveal'); const ar=rv&&rv.querySelector(dir>0?'.prNext':'.prPrev');
+    if(ar){ ar.classList.remove('deny'); void ar.offsetWidth; ar.classList.add('deny'); }
+    announce('🔒 '+(nx.r?('HOUSE RANK '+nx.r):(nx.w+' WHISPERS'))+' TO READ ON', false);
+    return;
+  }
+  readStoryPage(nx.id);
+}
 function readStoryPage(id){
   const pg=STORY_PAGES.find(x=>x.id===id); if(!pg||!storyUnlocked(pg)) return;
+  _storyCur=id;
   if((IDX.st||[]).indexOf(id)<0){ (IDX.st=IDX.st||[]).push(id); idxSaveSoon(); }
   let rv=$('pageReveal');
   if(!rv){ rv=document.createElement('div'); rv.id='pageReveal';
-    rv.innerHTML='<div class="prVeil"></div><div class="prPage"><div class="prTitle"></div><div class="prBody"></div><div class="prFoot">— from the House\'s own ledger</div></div>';
+    rv.innerHTML='<div class="prVeil"></div><div class="prPage"><span class="prArrow prPrev">‹</span><span class="prArrow prNext">›</span><div class="prTitle"></div><div class="prBody"></div><div class="prFoot">— from the House\'s own ledger</div></div>';
     document.body.appendChild(rv);
-    rv.querySelector('.prVeil').addEventListener('click',()=>rv.classList.add('hidden'));
+    rv.querySelector('.prVeil').addEventListener('click',()=>{ rv.classList.add('hidden'); _storyCur=null; });
+    rv.querySelector('.prPrev').addEventListener('click',()=>stepStoryPage(-1));
+    rv.querySelector('.prNext').addEventListener('click',()=>stepStoryPage(1));
   }
+  // arrow states: dim when the neighbor is locked or absent
+  { const i=STORY_PAGES.findIndex(p=>p.id===id);
+    const pv=rv.querySelector('.prPrev'), nx=rv.querySelector('.prNext');
+    const prevOk=i>0 && storyUnlocked(STORY_PAGES[i-1]);
+    const nextOk=i<STORY_PAGES.length-1 && storyUnlocked(STORY_PAGES[i+1]);
+    if(pv) pv.classList.toggle('dim', !prevOk);
+    if(nx) nx.classList.toggle('dim', !nextOk); }
   rv.querySelector('.prTitle').textContent=pg.t;
   rv.querySelector('.prBody').textContent=pg.tx;
   const card=rv.querySelector('.prPage');
   card.style.animation='none'; void card.offsetWidth; card.style.animation='';
   rv.classList.remove('hidden');
   noise(0.28,0.1,900); tone(96,0.4,'sine',0.14,60); setTimeout(()=>SFX.murmur(),200); // the page turns, the walls murmur
-  clearTimeout(rv._t); rv._t=setTimeout(()=>rv.classList.add('hidden'), 14000);
+  clearTimeout(rv._t); rv._t=setTimeout(()=>{ rv.classList.add('hidden'); _storyCur=null; }, 30000);
   openStoryPanel(); // refresh badges
   try{ storyPulse(); }catch(e){}
 }
