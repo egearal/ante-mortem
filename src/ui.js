@@ -277,7 +277,7 @@ window.addEventListener('keydown',e=>{
     if(P.ovT>0){ cashRage(); return; }
     if(vaultProp && Math.hypot(P.x-vaultProp.x,P.y-vaultProp.y)<115){
       if(vaultWindowOpen()){ state='vault'; openVault(); }
-      else { announce('◈ THE VAULT IS SEALED — IT RETURNS AT '+fmt(nextVaultTime())+' ◈',false); SFX.thud(); }
+      else { announce('◈ THE VAULT IS SEALED — THE KEY HANGS ON THE PIT BOSS ◈',false); SFX.thud(); }
       return; }
     if(killStreak>=27){ const cash=Math.floor(killStreak/3);
       P.coins+=cash; LT.coins+=cash; bump('runCoins',P.coins); bump('ltCoins',LT.coins);
@@ -374,7 +374,6 @@ function renderChips(){
   try{ storyPulse(); }catch(e){}
   const chips=[
     best>0?['🏆',best.toLocaleString(),'#ffd36b']:null,
-    ['◈',gilt+' GILT','#e8b64c'],
     ['📖',idxPct()+'%','#c98bff'],
     ['✦',SEC.size+'/'+WHISPER_TOTAL,'#8bffd0'],
     ...(function(){ const nx=nextArmUnlock(); if(!nx) return []; const wd=WEAPONS.find(x=>x.id===nx.id);
