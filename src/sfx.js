@@ -94,12 +94,13 @@ const SFX={
   nearMiss(){ tone(880,0.22,'sine',0.2,660); setTimeout(()=>tone(560,0.3,'sine',0.16,420),140); noise(0.12,0.05,1800); },
   vaultOpen(){ tone(64,0.5,'sine',0.28,50); noise(0.4,0.16,400); setTimeout(()=>{ noise(0.14,0.12,900); tone(96,0.3,'sine',0.2); },240); setTimeout(()=>{ [880,1174,1568].forEach((f,i)=>setTimeout(()=>tone(f,0.24,'sine',0.14),i*70)); },480); },
   wheelTick(sp){ tone(1400+sp*900,0.045,'square',0.09+sp*0.06); },
-  rarSting(t){ // rarity reveal: 0 common … 3 legendary, 4 ascension/mythic
+  rarSting(t){ // rarity reveal: 0 common · 1 uncommon … 4 legendary, 5 ascension/mythic
     if(t<=0){ tone(880,0.08,'sine',0.07); return; }
-    if(t===1){ tone(988,0.1,'sine',0.1); setTimeout(()=>tone(1480,0.09,'sine',0.07),60); return; }
-    if(t===2){ [1175,1568,1976].forEach((f,i)=>setTimeout(()=>tone(f,0.12,'sine',0.11),i*70)); setTimeout(()=>SFX.chipStack(),120); return; }
+    if(t===1){ tone(932,0.09,'sine',0.09); setTimeout(()=>tone(1244,0.08,'sine',0.06),55); return; }
+    if(t===2){ tone(988,0.1,'sine',0.1); setTimeout(()=>tone(1480,0.09,'sine',0.07),60); return; }
+    if(t===3){ [1175,1568,1976].forEach((f,i)=>setTimeout(()=>tone(f,0.12,'sine',0.11),i*70)); setTimeout(()=>SFX.chipStack(),120); return; }
     [1319,1760,2217,2637].forEach((f,i)=>setTimeout(()=>{ tone(f,0.16,'sine',0.13); tone(f/2,0.14,'triangle',0.05); },i*80));
-    SFX.dingBells(); if(t>=4) setTimeout(()=>SFX.seraph(),220);
+    SFX.dingBells(); if(t>=5) setTimeout(()=>SFX.seraph(),220);
   },
   uiDing(){ tone(2093,0.09,'sine',0.08); tone(2637,0.07,'sine',0.05); },
   // universal press-click: felt-tick under every interactive SPACE, throttled

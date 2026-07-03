@@ -1,7 +1,7 @@
 "use strict";
  let slotBank=0, vouchers=0;
 function rollMainReward(floor){
-  const order={common:0,rare:1,epic:2,legendary:3};
+  const order={common:0,uncommon:1,rare:2,epic:3,legendary:4};
   const min = floor?order[floor]:0;
   const cands=[];
   const ownedCount = WEAPONS.filter(w=>(P.wlv[w.id]||0)>0).length;
@@ -13,7 +13,7 @@ function rollMainReward(floor){
   PASSIVES.forEach(pd=>{ if(order[pd.rar]>=min && !(pd.u && owned.has(pd.id)) && skillLevel(pd.id)<pd.max) cands.push(passiveReward(pd)); });
   const w=Object.assign({},CFG.weights);
   if(floor){ for(const k in w){ if(order[k]<order[floor]) w[k]=0; } }
-  const have={common:0,rare:0,epic:0,legendary:0};
+  const have={common:0,uncommon:0,rare:0,epic:0,legendary:0};
   cands.forEach(c=>have[c.rar]++);
   for(const k in w) if(!have[k]) w[k]=0;
   let total=0; for(const k in w) total+=w[k];
@@ -28,9 +28,9 @@ function rollMainReward(floor){
    SLOT
    ============================================================ */
 const SYMS=['♠','♥','♦','♣','7','★','☠','♛','◆','✦','♜','♞','⚔','☾','⚄'];
-const RARC={common:'#c9c1b4',rare:'#6db4ff',epic:'#c98bff',legendary:'#f8e2a0',ascend:'#8bffd0',mythic:'#fff2c0'};
-const SLOT_RAR={common:'COMMON',rare:'RARE',epic:'ULTRA RARE',legendary:'LEGENDARY',ascend:'▲ ASCENSION',mythic:'✸ MYTHIC'};
-const RAR_TIER={common:0,rare:1,epic:2,legendary:3,ascend:4,mythic:4};
+const RARC={common:'#c9c1b4',uncommon:'#8fd977',rare:'#6db4ff',epic:'#c98bff',legendary:'#f8e2a0',ascend:'#8bffd0',mythic:'#fff2c0'};
+const SLOT_RAR={common:'COMMON',uncommon:'UNCOMMON',rare:'RARE',epic:'ULTRA RARE',legendary:'LEGENDARY',ascend:'▲ ASCENSION',mythic:'✸ MYTHIC'};
+const RAR_TIER={common:0,uncommon:1,rare:2,epic:3,legendary:4,ascend:5,mythic:5};
 let reelTimers=[];
 function makeBulbs(){
   const cab=$('cabinet'); if(!cab || cab.querySelector('.bulb')) return;
@@ -42,7 +42,7 @@ function makeBulbs(){
   for(let j=side;j>=1;j--) add(0,j/(side+1));
   order.forEach((b,i)=>{ b.style.animationDelay=(i*0.09)+'s'; });
 }
-const RED_W={common:30,rare:40,epic:22,legendary:8}; // the red table runs richer reels
+const RED_W={common:16,uncommon:26,rare:30,epic:21,legendary:7}; // the red table runs richer reels
 function weightedByRarity(arr, wOver){
   const w=wOver||CFG.weights, buckets={};
   arr.forEach(o=>{ (buckets[o.rar]=buckets[o.rar]||[]).push(o); });
@@ -148,12 +148,12 @@ function ensurePayTable(){
   let pt=$('payTable');
   if(!pt){ pt=document.createElement('div'); pt.id='payTable'; $('machine').appendChild(pt); }
   // the House never shows its numbers — rarity reads in pips, hotter tables read in flames
-  const pips=lastRites?{common:'☨',rare:'☨☨',epic:'☨☨☨',legendary:'☨☨☨☨'}:{common:'◆',rare:'◆◆',epic:'◆◆◆',legendary:'◆◆◆◆'};
+  const pips=lastRites?{common:'☨',uncommon:'☨☨',rare:'☨☨☨',epic:'☨☨☨☨',legendary:'☨☨☨☨☨'}:{common:'◆',uncommon:'◆◆',rare:'◆◆◆',epic:'◆◆◆◆',legendary:'◆◆◆◆◆'};
   const row=(rar)=>'<div class="ptRow" data-rar="'+rar+'" style="--pc:'+RARC[rar]+'"><span class="ptN">'+SLOT_RAR[rar]+'</span><span class="ptPips">'+pips[rar]+'</span></div>';
   const hasAsc=P.passiveList && P.passiveList.some(x=>x.rar==='ascend');
   pt.classList.toggle('red', !!lastRites);
   pt.innerHTML='<div class="ptHead">'+(lastRites?'☨ RICHER ODDS ☨':'THE ODDS')+'</div>'
-    +row('common')+row('rare')+row('epic')+row('legendary')
+    +row('common')+row('uncommon')+row('rare')+row('epic')+row('legendary')
     +(hasAsc?'<div class="ptRow" data-rar="ascend" style="--pc:'+RARC.ascend+'"><span class="ptN">ASCENSION</span><span class="ptPips">▲</span></div>':'')
     +'<div class="ptFoot">'+(lastRites?'<b style="color:#ff7b7b">ONE MISS = SCAR & BUST</b><br>THE TABLE FORGIVES NOTHING':'<b>PAIR = LEVEL 2 · TRIPLE = MAX</b><br>EVERY DICE WIN = +1 LEVEL')+'</div>';
 }

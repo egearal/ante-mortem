@@ -81,6 +81,7 @@ body.gamble canvas{filter:saturate(1.45) contrast(1.1) brightness(1.05);}
 #machine,#wheelLayer,#crashLayer,#jackpotLayer{transition:filter .4s ease;}
 body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble #jackpotLayer{filter:saturate(1.3) brightness(1.04);}
 /* the rarity LANDS — the whole arena washes by tier for ~0.65s (skipped on lite) */
+body.rw-uncommon canvas{filter:saturate(1.55) contrast(1.1) brightness(1.08) hue-rotate(38deg);}
 body.rw-rare canvas{filter:saturate(1.7) contrast(1.12) brightness(1.12) hue-rotate(-14deg);}
 body.rw-epic canvas{filter:saturate(1.85) contrast(1.14) brightness(1.14) hue-rotate(28deg);}
 body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) sepia(.28);}
@@ -183,7 +184,7 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
 .relic.weapon{width:auto;min-width:45px;padding:0 7px;flex-direction:column;gap:0;border-color:var(--gold-bright);box-shadow:0 0 12px rgba(232,182,76,.45);}
 .relic.weapon .lvpips{font-size:6px;line-height:5px;letter-spacing:-1px;color:var(--gold-bright);margin-top:-2px;max-width:40px;overflow:hidden;}
 .relic .pcount{position:absolute;bottom:-3px;right:-3px;background:var(--blood);color:#fff;font-size:9px;font-weight:700;border-radius:8px;padding:0 3px;line-height:12px;}
-.relic.r-rare{border-color:#6db4ff;box-shadow:0 0 10px rgba(109,180,255,.3);} .relic.r-epic{border-color:#c98bff;box-shadow:0 0 10px rgba(201,139,255,.3);}
+.relic.r-uncommon{border-color:#8fd977;box-shadow:0 0 8px rgba(143,217,119,.35);} .relic.r-rare{border-color:#6db4ff;box-shadow:0 0 10px rgba(109,180,255,.3);} .relic.r-epic{border-color:#c98bff;box-shadow:0 0 10px rgba(201,139,255,.3);}
 .relic.r-common{border-color:#9a8f7e;box-shadow:none;}
 .relic.scar{border-color:#5a0a12;color:#c93040;background:rgba(28,6,10,.95);box-shadow:inset 0 0 8px rgba(139,22,32,.5);font-size:15px;display:flex;align-items:center;justify-content:center;}
 /* THE FINAL PRESS — mash meter at death's door */
@@ -681,7 +682,7 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
 #slotBtns{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:14px;}
 #slotBtns .btn{flex:1 1 auto;min-width:130px;font-size:13px;padding:13px 16px;}
 .costnote{font-size:12px;opacity:.78;letter-spacing:.04em;}
-.r-common{color:#c9c1b4;} .r-rare{color:#6db4ff;} .r-epic{color:#c98bff;} .r-legendary{color:var(--gold-bright);} .r-ascend{color:#8bffd0;} .r-mythic{color:#fff2c0;}
+.r-common{color:#c9c1b4;} .r-uncommon{color:#8fd977;} .r-rare{color:#6db4ff;} .r-epic{color:#c98bff;} .r-legendary{color:var(--gold-bright);} .r-ascend{color:#8bffd0;} .r-mythic{color:#fff2c0;}
 /* paytable — the visible odds strip beside the machine (big and flashy) */
 #payTable{position:absolute;left:calc(100% + 16px);top:50%;transform:translateY(-50%);width:222px;text-align:left;filter:saturate(1.3);
   background:linear-gradient(170deg,rgba(24,12,18,.96),rgba(10,5,9,.97));border:1px solid rgba(232,182,76,.5);border-radius:14px;

@@ -73,7 +73,7 @@ function showTab(){
   let tp=$('tabPanel');
   if(!tp){ tp=document.createElement('div'); tp.id='tabPanel'; document.body.appendChild(tp); }
   tp.innerHTML='';
-  const rc={common:'#cfc2a6',rare:'#6fb7ff',epic:'#c98bff',legendary:'#ffd36b',mythic:'#fff2c0',ascend:'#8bffd0'};
+  const rc={common:'#cfc2a6',uncommon:'#8fd977',rare:'#6fb7ff',epic:'#c98bff',legendary:'#ffd36b',mythic:'#fff2c0',ascend:'#8bffd0'};
   const col1=document.createElement('div'); col1.className='tpCol';
   const mk=(html)=>{ const d=document.createElement('div'); d.innerHTML=html; return d.firstChild; };
   col1.appendChild(mk('<div class="tpH">⚔ WEAPONS</div>'));
@@ -99,7 +99,7 @@ function showTab(){
     +'<div class="tpi">SECRETS '+SEC.size+' / 34 · SEALS '+Object.values(VAULT.lv).reduce((a,b)=>a+b,0)+'</div>'
     +'<div class="tpi" style="color:#ffd36b">HOUSE RANK '+RANK.rank+' — '+RANKS[RANK.rank-1].n+' · '+RANK.marks+' MARKS</div>'
     +'<div class="tpH" style="margin-top:10px">RARITIES</div>'
-    +'<div class="tpi"><span style="color:#cfc2a6">COMMON</span> · <span style="color:#6fb7ff">RARE</span> · <span style="color:#c98bff">ULTRA</span> · <span style="color:#fff2c0">MYTHIC</span> · <span style="color:#8bffd0">ASCENSION</span></div>'
+    +'<div class="tpi"><span style="color:#cfc2a6">COMMON</span> · <span style="color:#8fd977">UNCOMMON</span> · <span style="color:#6fb7ff">RARE</span> · <span style="color:#c98bff">ULTRA</span> · <span style="color:#f8e2a0">LEGENDARY</span> · <span style="color:#8bffd0">ASCENSION</span></div>'
     +'<div class="tpi" style="opacity:.7">HOVER ANY ITEM FOR ITS TALE</div>';
   tp.appendChild(col1); tp.appendChild(col2);
   tp.classList.add('show');

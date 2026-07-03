@@ -271,14 +271,14 @@ function pushCrash(){
   }
 }
 const ASC_TIERS=[['common',65,0],['rare',20,1.77],['epic',10,2.77],['mythic',5,3.69]];
-const RAR_LABEL={common:'COMMON',rare:'RARE',epic:'ULTRA RARE',legendary:'ULTRA RARE',mythic:'MYTHIC'};
+const RAR_LABEL={common:'COMMON',uncommon:'UNCOMMON',rare:'RARE',epic:'ULTRA RARE',legendary:'LEGENDARY',mythic:'MYTHIC'};
 function rollAscentPrize(m){
   const un=ASC_TIERS.filter(t=>m>=t[2]);
   let tot=un.reduce((a,t)=>a+t[1],0), r=Math.random()*tot, tier='common';
   for(const t of un){ r-=t[1]; if(r<=0){ tier=t[0]; break; } }
-  let pool=PASSIVES.filter(p=>tier==='epic' ? (p.rar==='epic'||p.rar==='legendary') : p.rar===tier);
+  let pool=PASSIVES.filter(p=>tier==='epic' ? (p.rar==='epic'||p.rar==='legendary') : tier==='common' ? (p.rar==='common'||p.rar==='uncommon') : p.rar===tier);
   if(tier==='mythic'){ pool=pool.filter(p=>!P.passiveList.find(x=>x.id===p.id)); if(!pool.length){ tier='epic'; pool=PASSIVES.filter(p=>p.rar==='epic'||p.rar==='legendary'); } }
-  if(!pool.length) pool=PASSIVES.filter(p=>p.rar==='common');
+  if(!pool.length) pool=PASSIVES.filter(p=>p.rar==='common'||p.rar==='uncommon');
   const pd=pool[(Math.random()*pool.length)|0];
   if(pd.sc) pd.sc(m); else pd.ap();
   if(pd.u) owned.add(pd.id);
@@ -344,7 +344,7 @@ function jackpotOffer(){
     mq.classList.add('up');
     crash.jk=true;
     let w9=$('jkWrap'); if(!w9){ w9=document.createElement('div'); w9.id='jkWrap'; $('crashLayer').appendChild(w9); }
-    const rc={common:'#cfc2a6',rare:'#6fb7ff',epic:'#c98bff',legendary:'#ffd36b'};
+    const rc={common:'#cfc2a6',uncommon:'#8fd977',rare:'#6fb7ff',epic:'#c98bff',legendary:'#ffd36b'};
     w9.innerHTML='<div class="jkTitle">☆ THE HOUSE OPENS THE ARMORY — CHOOSE ☆</div><div class="jkRow">'+
       opts.map((w,i)=>{ const lv=P.wlv[w.id]||0;
         return '<div class="jkCard" data-i="'+i+'"><div class="jkKey">'+(i+1)+'</div>'
@@ -369,7 +369,7 @@ function pickJackpot(i){
   gd.innerHTML='<div class="agG" style="color:'+(GLYPH_COL[def.id]||'#ffd36b')+';text-shadow:0 0 30px currentColor">'+def.g+'</div><div class="agN">'+def.n+'</div><div class="agT">JACKPOT ARM · '+projFx(def,P.wlv[def.id])+'</div>';
   gd.classList.remove('go'); void gd.offsetWidth; gd.classList.add('go');
   announce('☆ JACKPOT — '+def.n+' JOINS YOUR ARSENAL ☆', true);
-  SFX.rarSting(3); SFX.cashout(); setTimeout(()=>SFX.seraph(),180); SFX.casinoDing();
+  SFX.rarSting(4); SFX.cashout(); setTimeout(()=>SFX.seraph(),180); SFX.casinoDing();
   gatePing('#fff2c0',520); flash(0.5,'#fff2c0'); shake=Math.min(24,shake+10);
   coinRain(lite?16:40); domConfetti(lite?20:50,'crashLayer'); sparkBurstAt('crashMult','crashLayer',lite?14:26);
   setTimeout(closeCrash, 2100);

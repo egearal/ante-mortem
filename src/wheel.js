@@ -20,7 +20,7 @@ const WSEGS=[
  {n:'+1 LEVEL', g:'⚜', cs:'pink', c:'#e0203a', tier:3, w:5, f:(m)=>{ for(let i=0;i<m;i++) pending.push({}); SFX.levelUp(); announce('⚜ +'+m+' LEVEL'+(m>1?'S':'')+' ⚜',true); }},
  {n:'⚔ ARSENAL', g:'⚔', cs:'pink', c:'#c22ca0', tier:3, w:4, f:()=>{ slotForceWeapon=true; pending.push({}); SFX.levelUp(); announce('⚔ THE ARSENAL WHEEL AWAITS ⚔',true); }},
  {n:'⚔ SIDE ARM', g:'⚔', cs:'pink', c:'#2a9db8', tier:3, w:4, f:()=>{
-   const fresh=availableWeapons().filter(w=>!(P.wlv[w.id]>0) && w.rar==='common');
+   const fresh=availableWeapons().filter(w=>!(P.wlv[w.id]>0) && (w.rar==='common'||w.rar==='uncommon'));
    let def=fresh.length?pick(fresh):null;
    if(!def){ const grown=WEAPONS.filter(w=>(P.wlv[w.id]||0)>0 && (P.wlv[w.id]||0)<w.max); def=grown.length?pick(grown):null; }
    if(def){ grantWeaponLevels(def,1); flash(0.35,'#2a9db8'); }

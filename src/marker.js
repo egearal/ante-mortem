@@ -170,9 +170,9 @@ async function actuallyDie(){
 function luckVerdict(){
   let score=0, events=0;
   if(RUN.diceTries>0){ score+=(RUN.diceWins-RUN.diceP)/Math.sqrt(Math.max(1,RUN.diceTries))*1.6; events+=RUN.diceTries; }
-  { const tv={common:0,rare:1,epic:2.4,legendary:4}; let n=0,s=0;
+  { const tv={common:0,uncommon:0.5,rare:1.2,epic:2.4,legendary:5}; let n=0,s=0;
     for(const k in RUN.pulls){ n+=RUN.pulls[k]; s+=RUN.pulls[k]*tv[k]; }
-    if(n>0){ score+=(s/n-0.458)*Math.min(2,Math.sqrt(n))*0.9; events+=n; } }
+    if(n>0){ score+=(s/n-0.581)*Math.min(2,Math.sqrt(n))*0.9; events+=n; } }
   { const wv={blue:0,purple:1,pink:2.5,red:4,gold:6}; let s=0;
     RUN.wheelCs.forEach(c=>s+=(wv[c]||0)-0.485);
     if(RUN.wheelCs.length) { score+=s/Math.sqrt(RUN.wheelCs.length)*0.7; events+=RUN.wheelCs.length; } }
@@ -180,7 +180,7 @@ function luckVerdict(){
     if(RUN.crashPts.length){ score+=s/Math.sqrt(RUN.crashPts.length)*0.8; events+=RUN.crashPts.length; } }
   if(RUN.rollMargin!==null){ score+=RUN.rollMargin>0?0.5:-0.5; events+=1; }
   if(events<3) return {grade:'EVEN', col:'#bfae8c', tier:1};
-  const G=[[-2,'EXTREMELY UNLUCKY','#ff3040',0],[-1.2,'UNLUCKY','#ff5560',0],[-0.4,'A LITTLE UNLUCKY','#c98b7e',0],[0.4,'EVEN','#bfae8c',1],[1.2,'LUCKY','#8bff9a',2],[2,'VERY LUCKY','#ffd36b',3],[Infinity,'EXTREMELY LUCKY','#fff2c0',4]];
+  const G=[[-2,'EXTREMELY UNLUCKY','#ff3040',0],[-1.2,'UNLUCKY','#ff5560',0],[-0.4,'A LITTLE UNLUCKY','#c98b7e',0],[0.4,'EVEN','#bfae8c',1],[1.2,'LUCKY','#8bff9a',2],[2,'VERY LUCKY','#ffd36b',4],[Infinity,'EXTREMELY LUCKY','#fff2c0',5]];
   for(const [th,grade,col,tier] of G){ if(score<th || th===Infinity) return {grade,col,tier}; }
   return {grade:'EVEN', col:'#bfae8c', tier:1};
 }

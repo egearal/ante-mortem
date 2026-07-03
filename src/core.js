@@ -11,7 +11,7 @@ const CFG = {
   spawn:{ startInt:0.75, minInt:0.26, ramp:300, baseBatch:4, max:340 },
   wave:{ first:26, grow:6, cap:96, nextAt:0.4, gap:1.15, eliteEvery:4 },
   slot:{ respinBase:14, respinStep:8, critPct:0.40, winSum:7, up:1.6, down:0.85, floor:0.5 },
-  weights:{ common:73, rare:17, epic:7, legendary:3 },
+  weights:{ common:48, uncommon:27, rare:15, epic:9, legendary:1 },
   elite:{ every:40, firstAt:38 },
   scale:{ hp:0.62, dmg:0.22, spd:0.10, spdCap:1.95 },
   enemy:{
@@ -217,7 +217,7 @@ const store = (typeof window!=='undefined' && window.storage) ? window.storage :
 const owned = new Set();
 // per-run fortune ledger — feeds THE LEDGER and the LUCK verdict at death
 let RUN={};
-function resetRun(){ RUN={diceTries:0,diceWins:0,diceP:0,pulls:{common:0,rare:0,epic:0,legendary:0},wheelCs:[],crashPts:[],rollMargin:null,bestPull:null,curses:0}; }
+function resetRun(){ RUN={diceTries:0,diceWins:0,diceP:0,pulls:{common:0,uncommon:0,rare:0,epic:0,legendary:0},wheelCs:[],crashPts:[],rollMargin:null,bestPull:null,curses:0}; }
 resetRun();
 
 /* ---------- entities ---------- */

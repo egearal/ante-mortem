@@ -82,15 +82,16 @@ function drawSmites(){
 function rarityLandFX(rar){
   const t=RAR_TIER[rar]||0, lite=GFX.lite;
   SFX.rarSting(t);
-  document.body.classList.remove('rw-rare','rw-epic','rw-legendary');
+  document.body.classList.remove('rw-uncommon','rw-rare','rw-epic','rw-legendary');
   if(t>=1 && !lite){
-    const cls = t>=3?'rw-legendary' : t>=2?'rw-epic' : 'rw-rare';
+    const cls = t>=4?'rw-legendary' : t>=3?'rw-epic' : t>=2?'rw-rare' : 'rw-uncommon';
     document.body.classList.add(cls);
     setTimeout(()=>document.body.classList.remove(cls), 650);
   }
-  if(t>=3){ flash(0.55,RARC[rar]||'#f8e2a0'); domConfetti(lite?10:20,'machine'); coinRain(lite?5:10); shake=Math.min(20,shake+6); sparkBurst(lite?12:24); }
-  else if(t===2){ flash(0.42,'#c98bff'); sparkBurst(lite?9:18); shake=Math.min(16,shake+3); }
-  else if(t===1){ flash(0.3,'#6db4ff'); sparkBurst(lite?5:10); }
+  if(t>=4){ flash(0.55,RARC[rar]||'#f8e2a0'); domConfetti(lite?10:20,'machine'); coinRain(lite?5:10); shake=Math.min(20,shake+6); sparkBurst(lite?12:24); }
+  else if(t===3){ flash(0.42,'#c98bff'); sparkBurst(lite?9:18); shake=Math.min(16,shake+3); }
+  else if(t===2){ flash(0.3,'#6db4ff'); sparkBurst(lite?5:10); }
+  else if(t===1){ flash(0.24,'#8fd977'); sparkBurst(lite?4:7); }
   else flash(0.18,'#c9c1b4');
 }
 // universal SPACE dopamine: pop the on-screen button/hint tied to a press
