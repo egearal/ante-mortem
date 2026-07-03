@@ -20,7 +20,7 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
       {ico:'🎰', name:'THE MACHINE', col:'#ffd36b', items:[
         ['THE SLOTS','Every level-up opens the reels. SPACE stops them one by one. One of a kind = LEVEL 1 · a PAIR = LEVEL 2 · a TRIPLE = MAX LEVEL on the spot (very rare). The rarity you pull is the rarity you keep.'],
         ['THE DICE','After the reels: TAKE the sure thing, or HOLD SPACE to roll the bones at 8+. EVERY win = +1 LEVEL, shown in real numbers before you roll. Misses curse you, then SCAR you, then take the skill. Beat the 3rd dice and R re-spins the reels, once. Four wins = ⚜ GOD LEVEL.'],
-        ['THE RED TABLE','Under 40% blood the slot deals richer reels and softer dice (7+) — but ONE miss busts the ladder and leaves a permanent SCAR. The BLOOD CODICIL contract forgives your first miss.'],
+        ['THE BLOOD LEVER','Bleeding under 40%, the House smells it and offers the red table: SPACE pulls the lever — richer reels, dice 7+, but ONE miss busts the ladder and leaves a permanent SCAR. X refuses. The BLOOD CODICIL contract forgives your first miss.'],
         ['FEVER','Kills charge the fever meter. Full = a golden killing rush. Every 3rd minute is GOLDEN HOUR: double coins.']
       ]},
       {ico:'🎡', name:'THE GAMBLES', col:'#c98bff', items:[

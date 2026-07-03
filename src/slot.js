@@ -180,8 +180,8 @@ function openSlotReady(kind){
   $('slotTag').textContent = (lastRites?'☨ THE RED TABLE — RICHER, CRUELER ☨':(isW?'⚔ THE ARSENAL WHEEL ⚔':'THE WHEELS OF FATE'))+(slotBank>0?' · BANK '+slotBank+'/7':'');
   $('reelsRow').style.display=''; $('diceRow').style.display='none'; $('riskWrap').style.display='none';
   $('prizeTag').textContent = isW?'YOUR WEAPON':'YOUR SKILL';
-  $('cardName').textContent='—'; $('cardName').className='r-common'; $('cardDesc').textContent = isW?'spin for a weapon':'spin for a skill';
-  { const rb=$('rarBanner'); if(rb){ rb.textContent=''; rb.className=''; } flarePayRow(''); }
+  $('cardName').textContent='—'; $('cardName').className='r-common'; $('cardDesc').textContent='';
+  flarePayRow('');
   const defs=isW?WEAPONS:PASSIVES; const avail=isW?availableWeapons():availableSkills(); const pool=avail.length?avail:defs;
   ensurePayTable();
   buildPreStrips(pool, defs);
@@ -392,17 +392,14 @@ function finalizeReward(bestId, matchN){
 function showRewardPanel(){
   const g=gamble, def=g.def;
   $('cardName').textContent=def.n; $('cardName').className='r-'+def.rar+' bigname';
-  const rb=$('rarBanner');
-  if(rb){
-    rb.textContent=SLOT_RAR[def.rar]||def.rar.toUpperCase();
-    rb.className='rb-'+def.rar;
-    rb.classList.remove('go'); void rb.offsetWidth; rb.classList.add('go');
-  }
   flarePayRow(def.rar);
-  if(!g._stung){ g._stung=true; SFX.rarSting(RAR_TIER[def.rar]||0);
+  // no rarity WORDS on the card — the paytable flares the row and the screen
+  // itself lights up by tier (rarityLandFX). RUN trackers feed the LUCK verdict.
+  if(!g._stung){ g._stung=true;
     if(RUN.pulls[def.rar]!==undefined){ RUN.pulls[def.rar]++;
       if(!RUN.bestPull || (RAR_TIER[def.rar]||0)>(RAR_TIER[RUN.bestPull]||0)) RUN.bestPull=def.rar; }
-    if((RAR_TIER[def.rar]||0)>=3){ flash(0.3,RARC[def.rar]); domConfetti(14,'machine'); } }
+    rarityLandFX(def.rar);
+  }
 }
 // the rung script, purified by decree: EVERY dice win = +1 level. Rarity is
 // dealt once by the reels and never changes. (PERFECT 12 still pays a bonus.)
