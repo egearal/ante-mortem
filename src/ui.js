@@ -9,45 +9,44 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
 { const pl=$('pauseLayer');
   if(pl){
     const row=document.createElement('div'); row.id='howBtnRow';
-    row.innerHTML='<button class="gxBtn" id="howBtn">❓ HOW TO PLAY</button><button class="gxBtn" id="quitBtn">⌂ QUIT TO MENU</button>';
+    row.innerHTML='<button class="pillBtn" id="resumeBtn">RESUME</button><button class="pillBtn" id="howBtn">HOW TO PLAY</button><button class="pillBtn quit" id="quitBtn">QUIT TO MENU</button>';
     pl.appendChild(row);
     const H4=[
       {ico:'🎮', name:'SURVIVE', col:'#8bff9a', items:[
-        ['MOVE','WASD or arrows. On a phone, drag. Your weapon fires by itself — you steer, dodge, and collect.'],
-        ['LEVEL CHARGE','Kills drop ⚜ light. It fills the red bar at the bottom. Full bar = RAGE ignites.'],
-        ['RAGE','+50% power while it burns, and coins now FEED the bar. Hold it above 90 for 10 seconds and THE ASCENT arrives. SPACE cashes it into a level. Slip below 90 and the House sweeps the floor.'],
-        ['BLOOD','Your life. Below 40% the slot machine becomes THE RED TABLE — richer, crueler.'],
-        ['BOUNTY & DARES','Marked souls with gold rings pay big if killed fast. Kill-quota dares pay +40 coins.']
+        ['MOVE','WASD or arrows. Your weapons fire by themselves. You just dodge and collect.'],
+        ['DON\'T GET TOUCHED','Everything that moves wants to touch you. Don\'t let it.'],
+        ['PICK UP THE LIGHT','Dead enemies drop light. Walk over it. When the bottom bar fills, you level up.'],
+        ['RAGE','A full bar sets you on fire: +50% power. Hold it hot for a few seconds and a green gate appears. SPACE banks it early.'],
+        ['THE CLOCK','At 13:00 something unkillable arrives. At 15:00 the run ends. Nobody survives the night — score big before it.']
       ]},
       {ico:'🎰', name:'THE MACHINE', col:'#ffd36b', items:[
-        ['THE SLOTS','Every level-up opens the reels. SPACE stops them one by one. One of a kind = LEVEL 1 · a PAIR = LEVEL 2 · a TRIPLE = MAX LEVEL on the spot (very rare). The rarity you pull is the rarity you keep.'],
-        ['THE DICE','After the reels: TAKE the sure thing, or HOLD SPACE to roll the bones at 8+. EVERY win = +1 LEVEL, shown in real numbers before you roll. Misses curse you, then SCAR you, then take the skill. Beat the 3rd dice and R re-spins the reels, once. Four wins = ⚜ GOD LEVEL.'],
-        ['THE BLOOD LEVER','Bleeding under 40%, the House offers the red table. Pull it and one of YOUR skills goes on the side table as THE STAKE. Take the prize without dicing? A coin decides — lose and BOTH burn. Dice instead: every win heals a quarter of your blood, but ONE miss takes everything. X refuses.'],
-        ['FEVER','Kills charge the fever meter. Full = a golden killing rush. Every 3rd minute is GOLDEN HOUR: double coins.']
+        ['THE REELS','Every level-up: SPACE spins, SPACE stops each reel. One of a kind = level 1. A pair = level 2. A triple = MAX, instantly.'],
+        ['THE DICE','After the reels you can gamble the prize: HOLD SPACE and roll 8 or higher. Every win = +1 level. Every miss hurts more than the last.'],
+        ['THE RED TABLE','Bleeding badly? The House offers a red lever. It stakes one of YOUR skills — dice wins heal you, but one miss takes everything.'],
+        ['FEVER','Kill fast to fill the fever meter. Full = a golden rampage.']
       ]},
       {ico:'🎡', name:'THE GAMBLES', col:'#c98bff', items:[
-        ['WHEEL OF SOULS','Grab the violet token — SPACE rolls a strip of prizes past the gold needle, tick by tick, until one lands. DOUBLE respins everything at ×2 then ×4. FREE SPIN rolls again for nothing. SIDE ARM hands you a weapon on the spot. One spin in 20 comes up GOLDEN — all prizes doubled.'],
-        ['THE ASCENT','The green gate. Free to ride: SPACE pushes the number up, ENTER cashes out. Prizes at 1.77× / 2.77× / 3.69× — and 7.77× is the JACKPOT: your pick of 3 weapons. Crash = a random curse, 5-15 seconds.'],
-        ['TAROT','Ghost cards flip on the marble — half bless, half curse. The violet arrow points to them.'],
-        ['THE FINAL PRESS','Die once and the House considers. 35.000% to live — MASH SPACE for 3 seconds, every press buys +0.25-0.75%, cap 50.000%. Then the House ROLLS 0-100: land at or under your number and you live. Gilt never touched.']
+        ['THE CASE','A little gold case appears on the floor. It costs a cut of your coins. SPACE snaps each chain, then SPACE spins for a prize.'],
+        ['THE ASCENT','The green gate. SPACE pushes a number up, ENTER cashes out. Higher = better prizes. 7.77 is the jackpot — but crash and you\'re cursed.'],
+        ['TAROT','Ghost cards on the floor. Half bless you. Half don\'t. The violet arrow points the way.'],
+        ['THE FINAL PRESS','When you die, the House offers one roll to live. MASH SPACE to raise your odds, then watch the number drop. Under your odds = one more hand.']
       ]},
       {ico:'◈', name:'THE LONG GAME', col:'#ff9a9a', items:[
-        ['COINS','This run\'s gold. They feed RAGE, and a 27+ kill streak can be CASHED with SPACE.'],
-        ['GILT','Forever-money: bosses, the wheel, your final score. It survives death.'],
-        ['THE VAULT','The great door MANIFESTS every 5 minutes. One seal per visit — choose well. Contracts grant forever-perks.'],
-        ['RANKS & FAVORS','Marks raise your House Rank — 100 planned levels, every one pays, milestones every 10th change the game. Certain feats also seal permanent FAVORS.'],
-        ['THE INDEX & SECRETS','Everything you meet — weapons, curses, enemies, fates — is pinned in THE INDEX on the menu. 34 secrets hide in the walls.']
+        ['COINS','This run\'s money. Feeds your rage bar, pays for the case.'],
+        ['GILT','Forever-money. You keep it when you die. Spend it in the VAULT for permanent power.'],
+        ['THE VAULT','A great door in the arena. The first boss drops its KEY. One seal per visit.'],
+        ['RANKS','Every run earns MARKS. Marks raise your HOUSE RANK — 100 levels, every one pays, new weapons unlock as you climb.'],
+        ['SECRETS & PAGES','36 whispers hide in the walls (riddles in the INDEX). The House\'s story unlocks page by page as you rank up.']
       ]}
     ];
     const hp=document.createElement('div'); hp.id='howPanel'; hp.className='hidden';
     const sec=s=>'<div class="howSec" style="--hc:'+s.col+'"><div class="howSecH"><span class="howIco">'+s.ico+'</span>'+s.name+'</div>'
       +s.items.map(h=>'<div class="howItem"><div><div class="howName">'+h[0]+'</div><div class="howDesc">'+h[1]+'</div></div></div>').join('')+'</div>';
     const RULES_TAB={ico:'▣', name:'HOUSE RULES', col:'#e8b64c', items:[
-      ['THE BET','You are Vesper, staked against the House. Survive, level, gamble — every run ends by 15:00, one way or another.'],
-      ['THE REELS','One of a kind = LEVEL 1 · pair = LEVEL 2 · triple = MAX. The rarity you pull is forever.'],
-      ['THE DICE','Climb 8·9·10·11 — every win is +1 level, shown in real numbers. Misses curse, scar, then bust.'],
-      ['THE HOUR','At 13:00 THE HOUSE walks the floor. Nothing else spawns. Nothing kills him. At 15:00 he forecloses.'],
-      ['THE LAW','The House always bleeds — but it never loses. Play accordingly.']
+      ['THE BET','You are Vesper. You owe the House your soul. Survive, level up, gamble — win it back or die trying.'],
+      ['ONE BUTTON','Almost everything is SPACE. Spin, stop, roll, snap, push, live. WASD walks. That\'s the whole game.'],
+      ['EVERY RUN ENDS','At 15:00 the House forecloses, always. The goal isn\'t to survive — it\'s to matter before you don\'t.'],
+      ['THE HOUSE ALWAYS BLEEDS','…but it never loses. Play accordingly.']
     ]};
     const TABS=[RULES_TAB, H4[0], H4[1], H4[2], H4[3]];
     window._howTabs=TABS; window._howTab=0;
@@ -70,6 +69,7 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
     hp.addEventListener('click',e=>{ const b=e.target.closest('.howTab'); if(b) window._howShow(+b.dataset.t); });
     $('howClose').addEventListener('click',()=>{ hp.classList.add('hidden'); SFX.casinoDing(); });
     $('quitBtn').addEventListener('click',()=>quitToMenu());
+    $('resumeBtn').addEventListener('click',()=>{ if(state==='paused'){ state='playing'; document.body.classList.remove('paused'); $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); } });
   } }
 function quitToMenu(){
   const hp=$('howPanel'), pl=$('pauseLayer');
@@ -281,6 +281,10 @@ window.addEventListener('keydown',e=>{
   if(k==='tab'){ e.preventDefault(); if(!e.repeat && state==='playing'){ tabHold=true; showTab(); SFX.uiDing(); } return; }
   const inInput = document.activeElement && document.activeElement.tagName==='INPUT';
   if(!inInput && ['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
+  if(state==='menu' && k===' ' && !e.repeat){
+    const panelOpen=['storyPanel','indexPanel','achPanel','vaultPanel','gfxPanel'].some(id=>{ const p=$(id); return p && !p.classList.contains('hidden'); });
+    if(!panelOpen && !$('menu').classList.contains('hidden')){ e.preventDefault(); SFX.press(); $('startBtn').click(); return; }
+  }
   if(state==='dead'){
     if(k===' ' && !inInput && !e.repeat){
       if(performance.now()-(window._recapT0||0)<500) return; // FINAL PRESS mashers don't skip-restart
@@ -420,6 +424,16 @@ function menuMotion(){
 function renderChips(){
   try{ storyPulse(); }catch(e){}
   try{ menuMotion(); }catch(e){}
+  // the road ahead, visible: rank progress under the chips
+  { let rb=$('menuRank');
+    if(!rb){ rb=document.createElement('div'); rb.id='menuRank';
+      const cr=$('chipRow'); if(cr) cr.parentNode.insertBefore(rb, cr.nextSibling); }
+    if(rb && typeof RANK!=='undefined' && typeof rkCum==='function'){
+      const base=rkCum(RANK.rank), next=RANK.rank<RANKS.length?rkCum(RANK.rank+1):base+1;
+      const pct=Math.min(100,Math.round((RANK.marks-base)/(next-base)*100));
+      rb.innerHTML='<div class="mrTop">⚜ RANK '+RANK.rank+' — '+RANKS[RANK.rank-1].n+'</div>'
+        +'<div class="mrBar"><i style="width:'+pct+'%"></i></div>'
+        +'<div class="mrSub">'+(RANK.marks-base)+' / '+(next-base)+' MARKS TO RANK '+(RANK.rank+1)+'</div>'; } }
   const chips=[
     best>0?['🏆',best.toLocaleString(),'#ffd36b']:null,
     ['📖',idxPct()+'%','#c98bff'],
