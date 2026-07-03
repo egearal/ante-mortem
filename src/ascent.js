@@ -1,6 +1,6 @@
 "use strict";
 let crashTok=null, crashTokT=38;
-let crashHist=[]; let ascTime=5; let ascPend=0;
+let crashHist=[]; let ascTime=7; let ascPend=0;
 let crash={on:false, mult:1, cp:2, stakePct:2, wager:0, live:false, done:false, tick:0};
 function startOvercharge(){
   if(P.ovT>0) return;
@@ -29,7 +29,7 @@ function cashRage(){
   P._ovPass=true; gainXP(0);
 }
 function rageAscend(){
-  ovRevert(); ovBonusNext=true; ascTime=Math.min(10,ascTime+2.5); ascPend=10;
+  ovRevert(); ovBonusNext=true; ascTime=Math.min(12,ascTime+2.5); ascPend=10;
   announce('⚡ THE ASCENT WILL MANIFEST IN 10 SECONDS ⚡', true);
   SFX.seraph(); SFX.dingBells(); flash(0.5,'#8bff9a'); sparkBurst(26);
   P._ovPass=true; gainXP(0);
@@ -417,7 +417,7 @@ function closeCrash(){ crash.jk=false; { const w9=$('jkWrap'); if(w9){ w9.classL
 function tickCrashTok(dt){
   if(houseActive) return;
   if(!crashTok){ crashTokT-=dt;
-    if(crashTokT<=0){ crashTokT=52+Math.random()*20-10; // pity window: 42-62s
+    if(crashTokT<=0){ crashTokT=68+Math.random()*24-12; // pity window: 56-80s
       const a=Math.random()*6.283, d=300+Math.random()*300;
       crashTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:20, ph:Math.random()*6.28};
       announce('▲ THE ASCENT BECKONS ▲', true); SFX.dingBells();

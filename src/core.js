@@ -8,12 +8,12 @@ const CFG = {
     damage:11, fireRate:2.0, projectiles:1, pierce:0,
     projSpeed:440, projLife:1.15, projRadius:6,
     crit:0.05, critMult:2.0, instakill:0, regen:0, coinMult:1, lifesteal:0 },
-  spawn:{ startInt:0.75, minInt:0.26, ramp:300, baseBatch:4, max:340 },
+  spawn:{ startInt:0.75, minInt:0.24, ramp:300, baseBatch:4, max:340 },
   wave:{ first:26, grow:6, cap:96, nextAt:0.4, gap:1.15, eliteEvery:4 },
   slot:{ respinBase:14, respinStep:8, critPct:0.40, winSum:7, up:1.6, down:0.85, floor:0.5 },
   weights:{ common:48, uncommon:27, rare:15, epic:9, legendary:1 },
   elite:{ every:40, firstAt:38 },
-  scale:{ hp:0.62, dmg:0.22, spd:0.10, spdCap:1.95 },
+  scale:{ hp:0.66, dmg:0.22, spd:0.10, spdCap:1.95 },
   enemy:{
     shambler:{ hp:26, spd:90, dmg:8, r:13, xp:1, coins:1, col:'#5c6e50', dark:'#2c3a26' },
     husk:    { hp:15, spd:152,dmg:7, r:10, xp:1, coins:1, col:'#b9b2a0', dark:'#5a5347' },
@@ -278,19 +278,19 @@ function startWave(){
     if(wave>=2 && roll<0.30) t='husk';
     if(wave>=4 && roll>=0.30 && roll<0.36) t='bomber';
     if(wave>=5 && roll>=0.87 && roll<0.90) t='leech';
-    if(wave>=3 && roll>=0.48 && roll<0.58) t='shooter';
-    if(wave>=4 && roll>=0.58 && roll<0.70) t='wraith';
-    if(wave>=6 && roll>=0.70 && roll<0.80) t='stalker';
-    if(wave>=9 && roll>=0.80 && roll<0.87) t='hexer';
+    if(wave>=3 && roll>=0.48 && roll<0.53) t='shooter';
+    if(wave>=4 && roll>=0.53 && roll<0.70) t='wraith';
+    if(wave>=6 && roll>=0.70 && roll<0.83) t='stalker';
+    if(wave>=9 && roll>=0.83 && roll<0.87) t='hexer';
     if(wave>=3 && roll>=0.90 && roll<0.955) t='brute';
     if(wave>=8 && roll>=0.955) t='revenant';
     spawnEnemy(t,x,y);
   }
   // HORDE: a fast swarm pours in from one flank
-  if(wave>=2 && (wave%2===0 || Math.random()<0.4)){
+  if(wave>=2 && (wave%2===0 || Math.random()<0.55)){
     const ha=Math.random()*6.283, hd=Math.max(VW,VH)*0.62;
     const hx=clamp(P.x+Math.cos(ha)*hd,40,CFG.arena-40), hy=clamp(P.y+Math.sin(ha)*hd,40,CFG.arena-40);
-    const hn=14+wave*2;
+    const hn=20+wave*3;
     for(let k=0;k<hn && enemies.length<CFG.spawn.max;k++){ spawnEnemy('swarm', clamp(hx+rnd(-170,170),20,CFG.arena-20), clamp(hy+rnd(-170,170),20,CFG.arena-20)); }
     setTimeout(()=>{ if(state==='playing'){ showStreak('HORDE INCOMING'); SFX.murmur(); } }, 260);
   }
@@ -1035,7 +1035,7 @@ function gainXP(n){
     tone(520*Math.pow(1.0595,P._xpCombo),0.05,'triangle',0.07+P._xpCombo*0.003);
     if(P._xpCombo===14 && !P._xpPeak){ P._xpPeak=true; SFX.tingle(); setTimeout(()=>P._xpPeak=false,3000); } }
   while(P.xp>=P.xpNext){ if(!P._ovPass && state==='playing'){ startOvercharge(); break; } P._ovPass=false;
-    P.xp-=P.xpNext; P.level++; P.xpNext=Math.floor(6+P.level*3.4+P.level*P.level*0.7); pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); { const lv9=$('level'); if(lv9){ lv9.classList.remove('pop'); void lv9.offsetWidth; lv9.classList.add('pop'); } } ring(P.x,P.y,120,'#c81e2c'); ring(P.x,P.y,70,'#ffd36b'); burst(P.x,P.y,16,'#e8b64c'); for(let i=0;i<16;i++){ parts.push({x:P.x+rnd(-10,10),y:P.y+rnd(-4,4),vx:rnd(-14,14),vy:-rnd(90,220),life:rnd(.4,.8),col:i%3?'#ffd36b':'#fff2c0',r:rnd(1.6,3.2)}); } flash(0.25,'#c81e2c'); }
+    P.xp-=P.xpNext; P.level++; P.xpNext=Math.floor(7+P.level*3.9+P.level*P.level*0.8); pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); { const lv9=$('level'); if(lv9){ lv9.classList.remove('pop'); void lv9.offsetWidth; lv9.classList.add('pop'); } } ring(P.x,P.y,120,'#c81e2c'); ring(P.x,P.y,70,'#ffd36b'); burst(P.x,P.y,16,'#e8b64c'); for(let i=0;i<16;i++){ parts.push({x:P.x+rnd(-10,10),y:P.y+rnd(-4,4),vx:rnd(-14,14),vy:-rnd(90,220),life:rnd(.4,.8),col:i%3?'#ffd36b':'#fff2c0',r:rnd(1.6,3.2)}); } flash(0.25,'#c81e2c'); }
   if(pending.length && state==='playing') openNextSlot();
 }
 
@@ -2463,7 +2463,7 @@ function startGame(){
   enemies=[]; bullets=[]; ebullets=[]; orbs=[]; coins=[]; parts=[]; texts=[]; rings=[]; sparks=[]; sideBoons=[]; smites=[];
   waves=[]; guils=[]; gpools=[]; gstakes=[];
   owned.clear();
-  gt=0; shake=0; hitstop=0; killStreak=0; streakT=0; excite=0; fireAcc=0; pending=[]; LT.runs++; bump('runs',LT.runs); fever=0; feverOn=false; feverT=0; tarots=[]; tarotT=14; decals=[]; wheelTok=null; wheelTokT=40; crashTok=null; crashTokT=38; bounty=null; bountyT=34; slotBank=0; vouchers=0; bountyStk=0; goldenT=0; ovBonusNext=false; slowT=0; prevHp=0; dare=null; dareT=46; ascTime=5; ascPend=0;
+  gt=0; shake=0; hitstop=0; killStreak=0; streakT=0; excite=0; fireAcc=0; pending=[]; LT.runs++; bump('runs',LT.runs); fever=0; feverOn=false; feverT=0; tarots=[]; tarotT=14; decals=[]; wheelTok=null; wheelTokT=40; crashTok=null; crashTokT=50; bounty=null; bountyT=34; slotBank=0; vouchers=0; bountyStk=0; goldenT=0; ovBonusNext=false; slowT=0; prevHp=0; dare=null; dareT=46; ascTime=7; ascPend=0;
   if(!RANK._ld){ RANK._ld=1; loadRank(); }
   applyRankPerks(); recToasted=new Set(); applyVault(); applyAchPerks(); idxSee('w','bolt');
   P._idle=0; P._sigT=0; P._corners=new Set(); P._chestsRun=0; P._roulRun=0; P._pauses=0; P._1313=false;
