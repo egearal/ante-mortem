@@ -48,21 +48,54 @@ function buildWheelDom(){
   const felt=document.createElement('div'); felt.className='wheelFelt';
   $('wheelLayer').insertBefore(felt, $('wheelLayer').firstChild);
   const seal=document.createElement('div'); seal.id='wheelSeal';
-  seal.innerHTML='<div class="wsChain a"></div><div class="wsChain b"></div><div class="wsWax">☨</div>';
+  seal.innerHTML='<div class="wsWax">☨</div>';
   box.appendChild(seal);
 }
-// the case costs a cut: 25% of your run coins, paid with a SPACE. Broke = comped.
+// sixteen ways to chain a case — each entry is a set of {t:top%, r:rot°}
+const CHAIN_SETS=[
+  [{t:30,r:-5},{t:66,r:4}], [{t:24,r:8},{t:74,r:-7}], [{t:50,r:-14},{t:50,r:14}],
+  [{t:38,r:0},{t:60,r:0}], [{t:20,r:-3},{t:48,r:6},{t:78,r:-4}], [{t:34,r:12},{t:64,r:-12}],
+  [{t:28,r:-9},{t:52,r:0},{t:76,r:9}], [{t:44,r:-18},{t:56,r:18}], [{t:18,r:5},{t:82,r:-5}],
+  [{t:40,r:7},{t:58,r:-9},{t:30,r:-2}], [{t:26,r:0},{t:50,r:-11},{t:72,r:11}], [{t:60,r:-6},{t:36,r:6}],
+  [{t:48,r:22},{t:52,r:-22}], [{t:22,r:-12},{t:70,r:12}], [{t:32,r:3},{t:56,r:-3},{t:80,r:3}],
+  [{t:42,r:-8},{t:66,r:8}]
+];
+function buildChains(){
+  const seal=$('wheelSeal'); if(!seal) return;
+  seal.querySelectorAll('.wsChain').forEach(c=>c.remove());
+  const set=CHAIN_SETS[(Math.random()*CHAIN_SETS.length)|0];
+  wheel.chains=set.length; wheel.chainEls=[];
+  set.forEach(cd=>{ const c=document.createElement('div'); c.className='wsChain';
+    c.style.top=cd.t+'%'; c.style.transform='rotate('+cd.r+'deg)';
+    seal.insertBefore(c, seal.firstChild); wheel.chainEls.push(c); });
+}
+// the case costs a cut — paid on the FIRST press. Every SPACE snaps ONE chain;
+// when the last snaps, the wax shatters and SPACE spins.
 function unsealWheel(){
   if(wheel.phase!=='sealed') return;
-  const cost=wheel.cost||0;
-  if(cost>0){ P.coins-=cost; $('coinCount').textContent=P.coins;
-    SFX.cashout(); setTimeout(()=>SFX.leverSlam(),110); coinRain(Math.min(14,4+(cost/8|0)));
-    if(cost>=100) secret('highroller','HIGH ROLLER');
-    announce('◈ THE HOUSE TAKES ITS CUT — '+cost+' ◈',true); }
-  else { SFX.casinoDing(); SFX.tingle(); }
+  if(wheel.chains===undefined) wheel.chains=1;
+  // first press pays
+  if(!wheel._paid){ wheel._paid=true;
+    const cost=wheel.cost||0;
+    if(cost>0){ P.coins-=cost; $('coinCount').textContent=P.coins;
+      SFX.cashout(); coinRain(Math.min(14,4+(cost/8|0)));
+      if(cost>=100) secret('highroller','HIGH ROLLER');
+      announce('◈ THE HOUSE TAKES ITS CUT — '+cost+' ◈',true); } }
+  // snap one chain — hard clack, sparks, the box takes the hit
+  const el=(wheel.chainEls||[]).pop();
+  if(el){ el.classList.add('snap'); setTimeout(()=>el.remove(),500); }
+  wheel.chains--;
+  SFX.reelLock(); tone(84,0.16,'sine',0.3,44); noise(0.1,0.2,1600); SFX.leverSlam();
+  flash(0.3,'#ffd36b'); shake=Math.min(16,shake+7); sparkBurstAt('tickerBox','wheelLayer',12);
+  { const box=$('tickerBox'); if(box){ box.classList.remove('slam'); void box.offsetWidth; box.classList.add('slam'); } }
+  if(wheel.chains>0){
+    $('wheelMsg').innerHTML='⛓ '+wheel.chains+' CHAIN'+(wheel.chains>1?'S':'')+' LEFT · <span class="keyhint">SPACE</span> snaps the next';
+    return;
+  }
+  // the wax shatters
   const seal=$('wheelSeal');
   if(seal){ seal.classList.add('crack'); setTimeout(()=>{ seal.classList.add('hidden'); seal.classList.remove('crack'); },450); }
-  flash(0.35,'#ffd36b'); shake=Math.min(14,shake+6); sparkBurstAt('tickerBox','wheelLayer',14);
+  SFX.dingBells(); flash(0.4,'#fff2c0'); sparkBurstAt('tickerBox','wheelLayer',18);
   wheel.phase='idle';
   $('wheelMsg').innerHTML=(wheel.golden?'✦ ALL PRIZES DOUBLED ✦ · ':'')+'<span class="keyhint">SPACE</span> — spin the ticker';
 }
@@ -92,12 +125,13 @@ function openWheel(){
   { const ww=$('wheelWin'); if(ww) ww.classList.remove('go','quick'); }
   const box=$('tickerBox'); box.classList.remove('landed','rehot'); box.style.boxShadow='';
   { const seal=$('wheelSeal'); if(seal){ seal.classList.remove('hidden','crack'); } }
+  buildChains();
   stopDrumroll();
   $('wheelLayer').classList.toggle('golden', wheel.golden);
   const mq=document.querySelector('.wheelMarq'); if(mq) mq.textContent=wheel.golden?'✦ GOLDEN SPIN — ALL PRIZES DOUBLED ✦':'THE HOUSE SPINS FOR YOUR SOUL';
   $('wheelMsg').innerHTML = wheel.cost>0
-    ? '⛓ THE CASE IS SEALED — PAY <b style="color:#ffd36b">'+wheel.cost+' ◈</b> · <span class="keyhint">SPACE</span> unlock'
-    : '⛓ THE HOUSE COMPS THIS ONE · <span class="keyhint">SPACE</span> crack it open';
+    ? '⛓ '+wheel.chains+' CHAINS — PAY <b style="color:#ffd36b">'+wheel.cost+' ◈</b> · <span class="keyhint">SPACE</span> snaps one'
+    : '⛓ '+wheel.chains+' CHAINS — COMPED · <span class="keyhint">SPACE</span> snaps one';
   $('wheelLayer').classList.remove('hidden');
   wheel.boxW=box.clientWidth||Math.min(720,window.innerWidth*0.92);
   wheel.x=-(tkCenter(8)-wheel.boxW/2); tkX(wheel.x);
@@ -204,7 +238,9 @@ function brakeTicker(){
   wheel.rollT=Math.max(wheel.rollT, wheel.rollDur*0.86);
   SFX.reelLock(); tone(120,0.24,'sine',0.26,68); noise(0.16,0.1,900); shake=Math.min(12,shake+6);
   // brake feels like a reel stop now: flash, sparks, and the box takes the hit
-  flash(0.25,'#fff0c8'); sparkBurstAt('tickerBox','wheelLayer',12);
+  tone(64,0.2,'sine',0.34,36); noise(0.12,0.18,1100);
+  flash(0.34,'#fff0c8'); sparkBurstAt('tickerBox','wheelLayer',16);
+  { const box=$('tickerBox'); if(box){ box.style.transition='transform .08s'; box.style.transform='scale(0.986)'; setTimeout(()=>{ box.style.transform=''; },90); } }
   const box=$('tickerBox'); if(box){ box.classList.remove('slam'); void box.offsetWidth; box.classList.add('slam'); }
 }
 // close the wheel NOW (space after landing) — same exit the auto-timer takes

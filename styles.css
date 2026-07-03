@@ -653,8 +653,7 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
 .wsChain{position:absolute;left:-6%;right:-6%;height:13px;border-radius:7px;
   background:repeating-linear-gradient(90deg,#3d3a44 0 14px,#191721 14px 20px,#55515e 20px 26px,#191721 26px 32px);
   box-shadow:0 2px 8px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.14);}
-.wsChain.a{top:32%;transform:rotate(-4deg);}
-.wsChain.b{bottom:30%;transform:rotate(3deg);}
+
 .wsWax{position:relative;width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   background:radial-gradient(circle at 36% 30%,#c22434,#8b1620 55%,#4a0a12);color:#ffd9b8;font-size:26px;
   box-shadow:0 0 24px rgba(139,22,32,.8),0 4px 14px rgba(0,0,0,.7),inset 0 2px 4px rgba(255,150,140,.35);
@@ -928,3 +927,7 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
 body.bloodhour canvas{filter:saturate(1.5) hue-rotate(-16deg) contrast(1.1);}
 body.bloodhour #machine{animation:bloodTremble 2.2s ease-in-out infinite;}
 @keyframes bloodTremble{0%,100%{transform:translate(0,0);}25%{transform:translate(0.6px,-0.5px);}50%{transform:translate(-0.5px,0.6px);}75%{transform:translate(0.4px,0.4px);}}
+
+.wsChain.snap{animation:chainSnap .45s ease forwards;}
+@keyframes chainSnap{0%{opacity:1;filter:none;}30%{transform:rotate(0deg) scaleX(1.04);filter:brightness(2);}
+  100%{opacity:0;transform:translateY(18px) rotate(6deg);filter:blur(3px);}}
