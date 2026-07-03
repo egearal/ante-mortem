@@ -70,7 +70,7 @@ let wave, waveClearTarget, waveGap, sideBoons=[];
 let hallPillars=[], embers=[], chandeliers=[], fogPuffs=[], floorCracks=[], glassPools=[], gargoyles=[], soulCandles=[], ravens=[], vaultProp=null, interactable=null, interT=10, ghostPatrons=[], glints=[], ambientT=9;
 let curReward=null, slotFloor=null, slotBusy=false, lastRites=false;
 let slotReels=[], slotStage='idle', reelsStopped=0, stopLock=0, slotIndex=0, wg=null, slotKind='skill', gamble=null;
-let selPos=0, selT=0, selHop=0.085, selStopping=false, selHopsLeft=0, selLandT=0, selWinner=0;
+let selPos=0, selT=0, selHop=0.085, selStopping=false, selHopsLeft=0, selLandT=0, selWinner=0, selTk=0;
 let xpTick=0;
 let fever=0, feverOn=false, feverT=0, tarots=[], tarotT=14, decals=[];
 let dice=[], diceShown=false, spaceHold=false, holdProg=0, holdFired=false;

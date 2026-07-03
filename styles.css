@@ -480,7 +480,7 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
 .machine.selecting{transform:scale(1.06);transition:transform .35s cubic-bezier(.2,1.3,.4,1);}
 .machine.hopShake{animation:hopShake .14s ease-out;}
 @keyframes hopShake{0%{transform:scale(1.06) translateX(0);}30%{transform:scale(1.07) translateX(-5px) rotate(-.4deg);}70%{transform:scale(1.07) translateX(5px) rotate(.4deg);}100%{transform:scale(1.06) translateX(0);}}
-#slot.seance .reelbox.pick{border-color:#c98bff!important;box-shadow:inset 0 0 30px rgba(180,90,255,.5),0 0 0 4px rgba(201,139,255,.95),0 0 60px 18px rgba(160,80,255,.8);transform:scale(1.05);z-index:3;}
+#slot.seance .reelbox.pick{transform:scale(1.06);z-index:3;}
 /* ═══ ASCENT WIN SLAM ═══ */
 #ascWin,#wheelWin{position:absolute;left:50%;top:32%;transform:translateX(-50%);text-align:center;pointer-events:none;opacity:0;z-index:6;}
 #ascWin.go,#wheelWin.go{animation:ascWinIn 2.4s cubic-bezier(.2,1.4,.4,1);}
@@ -659,8 +659,8 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
 @keyframes sealCrack{0%{opacity:1;transform:scale(1);filter:none;}
   30%{transform:scale(1.05) rotate(1.5deg);filter:brightness(2);}
   100%{opacity:0;transform:scale(1.22) rotate(-3deg);filter:blur(5px) brightness(1.6);}}
-.reelbox.pick{border-color:#ff5a5a!important;box-shadow:inset 0 0 22px rgba(255,40,40,.4),0 0 0 3px rgba(255,60,60,.9),0 0 30px 8px rgba(255,40,40,.75);animation:pickPulse .26s infinite alternate;z-index:3;}
-@keyframes pickPulse{from{box-shadow:inset 0 0 18px rgba(255,40,40,.35),0 0 0 3px rgba(255,60,60,.85),0 0 22px 5px rgba(255,40,40,.6);}to{box-shadow:inset 0 0 28px rgba(255,70,70,.5),0 0 0 4px rgba(255,100,100,1),0 0 40px 12px rgba(255,60,60,.9);transform:scale(1.05);}}
+.reelbox.pick{--pkc:#ff5a5a;border-color:var(--pkc)!important;box-shadow:inset 0 0 22px color-mix(in srgb,var(--pkc) 42%,transparent),0 0 0 3px color-mix(in srgb,var(--pkc) 92%,transparent),0 0 30px 8px color-mix(in srgb,var(--pkc) 72%,transparent);animation:pickPulse .2s infinite alternate;z-index:3;}
+@keyframes pickPulse{from{box-shadow:inset 0 0 18px color-mix(in srgb,var(--pkc) 36%,transparent),0 0 0 3px color-mix(in srgb,var(--pkc) 86%,transparent),0 0 22px 5px color-mix(in srgb,var(--pkc) 58%,transparent);}to{box-shadow:inset 0 0 28px color-mix(in srgb,var(--pkc) 52%,transparent),0 0 0 4px var(--pkc),0 0 44px 14px color-mix(in srgb,var(--pkc) 88%,transparent);transform:scale(1.05);}}
 .reelbox.locked{border-color:#ffd36b!important;box-shadow:inset 0 0 30px rgba(255,200,80,.55),0 0 0 4px rgba(255,215,110,1),0 0 46px 14px rgba(255,180,60,.95);animation:lockedPulse .5s ease-out;z-index:4;}
 @keyframes lockedPulse{0%{transform:scale(1.35);}60%{transform:scale(.94);}100%{transform:scale(1);}}
 @keyframes reelSlam{0%{transform:scale(1.14) translateY(-6px);box-shadow:inset 0 0 26px rgba(0,0,0,.9),0 0 40px 8px rgba(255,240,200,.9);}55%{transform:scale(.95) translateY(3px);}100%{transform:scale(1) translateY(0);}}

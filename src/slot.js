@@ -325,8 +325,8 @@ function startSelector(){
   if(!lastRites){ elSlot.classList.add('seance'); _seanceOn=true; startDrone(); }
   $('machine').classList.add('selecting');
   selWinner=(Math.random()*3)|0;
-  selPos=(Math.random()*3)|0; selT=0; selHop=0.08; selStopping=false; selHopsLeft=0;
-  boxOf(selPos).classList.add('pick');
+  selPos=(Math.random()*3)|0; selT=0; selHop=0.05; selStopping=false; selHopsLeft=0; selTk=0;
+  paintPick(selPos);
   SFX.selectorGo();
   $('cardName').textContent='FATE SPINS'; $('cardName').className='r-common';
   $('cardDesc').innerHTML='';
@@ -337,11 +337,19 @@ function boxOf(i){ return $('reelBox'+i) || (slotReels[i]&&slotReels[i].el.paren
 function stopSelector(){
   if(slotStage!=='select' || selStopping) return;
   selStopping=true;
-  const loops = 2 + ((Math.random()*2)|0);
+  const loops = 1 + ((Math.random()*2)|0);
   let h = loops*3 + ((((selWinner - selPos)%3)+3)%3);
-  if(h < 5) h += 3;
+  if(h < 4) h += 3;
   selHopsLeft = h;
   SFX.tingle();
+}
+// the halo wears the rarity of whatever it sits on
+function paintPick(i){
+  const bx=boxOf(i); if(!bx) return;
+  bx.classList.add('pick');
+  const defs=slotKind==='weapon'?WEAPONS:PASSIVES;
+  const sdef=slotReels[i]&&defs.find(x=>x.id===slotReels[i].landedSym);
+  bx.style.setProperty('--pkc', (sdef&&RARC[sdef.rar])||'#ff5a5a');
 }
 function lockSelector(){
   slotStage='locking';
@@ -352,7 +360,7 @@ function lockSelector(){
   const bestId=landed[selPos];
   const matchN=landed.filter(s=>s===bestId).length;
   SFX.reelLock(); SFX.dingHit(3+matchN); shake=Math.min(18,shake+8); flash(0.42,matchN>=2?'#ffd36b':'#fff0c8'); sparkBurst(22+matchN*8);
-  setTimeout(()=>finalizeReward(bestId, matchN), 430);
+  setTimeout(()=>finalizeReward(bestId, matchN), 240);
 }
 { const _pf=projFx;
   projFx=function(def,lv){
@@ -634,14 +642,14 @@ function tickSlot(dt){
   if(slotStage==='select'){
     selT+=dt;
     if(selT>=selHop){
-      selT=0;
+      selT=0; selTk=(selTk||0)+1;
       boxOf(selPos).classList.remove('pick');
       selPos=(selPos+1)%3;
-      boxOf(selPos).classList.add('pick');
+      paintPick(selPos);
       { const m9=$('machine'); if(m9){ m9.classList.remove('hopShake'); void m9.offsetWidth; m9.classList.add('hopShake'); } }
       shake=Math.min(10,shake+2);
-      SFX.selectorTick(selStopping?selHopsLeft:2); sparkBurst(16);
-      if(selStopping){ selHopsLeft--; selHop+=0.022; if(selHopsLeft<=0){ lockSelector(); } }
+      SFX.selectorTick(selStopping?Math.max(1,7-selHopsLeft):Math.min(4,1+(selTk>>2))); sparkBurst(8);
+      if(selStopping){ selHopsLeft--; selHop+=0.012; if(selHopsLeft<=0){ lockSelector(); } }
     }
   }
   for(const d of dice){ if(!d.rolling) continue; d.ft-=dt; if(d.ft<=0){ d.val=1+((Math.random()*6)|0); renderDie(d.el,d.val); d.ft=0.055; } }
