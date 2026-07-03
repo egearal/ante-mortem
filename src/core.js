@@ -24,14 +24,14 @@ const CFG = {
     revenant:{ hp:230,spd:58, dmg:22,r:24, xp:8, coins:10,col:'#4a1015', dark:'#180406' },
     brute:   { hp:100,spd:64, dmg:17,r:20, xp:3, coins:3, col:'#7a1c22', dark:'#3a0c10' },
     wraith:  { hp:66, spd:128,dmg:15,r:15, xp:4, coins:4, col:'#7b5ea8', dark:'#2e2140' },
-    elite:   { hp:580,spd:82, dmg:26,r:26, xp:16,coins:26,col:'#c98bff', dark:'#3a1a52' },
+    elite:   { hp:580,spd:82, dmg:26,r:26, xp:16,coins:20,col:'#c98bff', dark:'#3a1a52' },
     leech:   { hp:70, spd:55, dmg:8, r:14, xp:5, coins:6, col:'#4a8a5a', dark:'#173a22' },
     bomber:  { hp:30, spd:120,dmg:10,r:11, xp:2, coins:2, col:'#ff8a2c', dark:'#5a2a08' },
     gilded:  { hp:90, spd:170,dmg:0, r:12, xp:6, coins:0, col:'#ffd36b', dark:'#7a5a1c' },
-    pitboss: { hp:2600,spd:74,dmg:30,r:34, xp:40,coins:60, col:'#d4212f', dark:'#4a0a10' },
-    croupier:{ hp:2100,spd:60,dmg:22,r:30, xp:40,coins:60, col:'#e8b64c', dark:'#4a3616' },
-    collector:{hp:3200,spd:48,dmg:26,r:36, xp:50,coins:80, col:'#6a4ab5', dark:'#241540' },
-    thehouse:{ hp:4400,spd:64,dmg:30,r:38, xp:70,coins:120,col:'#c98bff', dark:'#2a0a34' },
+    pitboss: { hp:2600,spd:74,dmg:30,r:34, xp:40,coins:45, col:'#d4212f', dark:'#4a0a10' },
+    croupier:{ hp:2100,spd:60,dmg:22,r:30, xp:40,coins:45, col:'#e8b64c', dark:'#4a3616' },
+    collector:{hp:3200,spd:48,dmg:26,r:36, xp:50,coins:60, col:'#6a4ab5', dark:'#241540' },
+    thehouse:{ hp:4400,spd:64,dmg:30,r:38, xp:70,coins:90,col:'#c98bff', dark:'#2a0a34' },
     housegod:{ hp:1000000,spd:1,dmg:1,r:46, xp:0,coins:0, col:'#1a0f1d', dark:'#07030a' }
   }
 };
@@ -153,7 +153,7 @@ function tickMapProps(dt){
           for(let i2=0;i2<6 && enemies.length<CFG.spawn.max;i2++){ const sa3=Math.random()*6.283;
             spawnEnemy(i2<2?'stalker':'swarm', clamp(it.x+Math.cos(sa3)*60,20,CFG.arena-20), clamp(it.y+Math.sin(sa3)*60,20,CFG.arena-20)); }
         } else {
-          const cg3=12+((Math.random()*10)|0);
+          const cg3=9+((Math.random()*8)|0);
           for(let gi=0;gi<cg3;gi++) coins.push({x:it.x+rnd(-14,14),y:it.y+rnd(-14,14),r:6,vx:rnd(-140,140),vy:rnd(-140,140)});
           coinRain(16); SFX.cashout(); SFX.dingBells(); announce('✦ TREASURE +'+cg3+' COINS ✦', true); flash(0.4,'#ffd36b'); sparkBurst(22);
         }
@@ -278,10 +278,10 @@ function startWave(){
     if(wave>=2 && roll<0.30) t='husk';
     if(wave>=4 && roll>=0.30 && roll<0.36) t='bomber';
     if(wave>=5 && roll>=0.87 && roll<0.90) t='leech';
-    if(wave>=3 && roll>=0.48 && roll<0.53) t='shooter';
-    if(wave>=4 && roll>=0.53 && roll<0.70) t='wraith';
-    if(wave>=6 && roll>=0.70 && roll<0.83) t='stalker';
-    if(wave>=9 && roll>=0.83 && roll<0.87) t='hexer';
+    if(wave>=3 && roll>=0.48 && roll<0.51) t='shooter';
+    if(wave>=4 && roll>=0.51 && roll<0.70) t='wraith';
+    if(wave>=6 && roll>=0.70 && roll<0.845) t='stalker';
+    if(wave>=9 && roll>=0.845 && roll<0.87) t='hexer';
     if(wave>=3 && roll>=0.90 && roll<0.955) t='brute';
     if(wave>=8 && roll>=0.955) t='revenant';
     spawnEnemy(t,x,y);
@@ -309,7 +309,7 @@ function enemyShoot(e){
   const shots = e.type==='hexer'?3:1, spread=0.34;
   for(let i=0;i<shots;i++){
     const ang=base+(shots>1?(i-(shots-1)/2)*spread:0);
-    ebullets.push({x:e.x,y:e.y,px:e.x,py:e.y,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,r:8,dmg:e.dmg*1.1,life:4.5});
+    if(ebullets.length<90) ebullets.push({x:e.x,y:e.y,px:e.x,py:e.y,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,r:8,dmg:e.dmg*1.1,life:4.5});
   }
   burst(e.x,e.y,3,'#ffce5a'); SFX.eshoot();
 }
@@ -395,7 +395,7 @@ function killEnemy(e,idx){
       setTimeout(()=>announce('🗝 THE BOSS DROPPED THE VAULT KEY 🗝', true), 1600); }
     pending.push({floor:'epic'});
     for(let gi=0;gi<16;gi++) coins.push({x:e.x+rnd(-20,20),y:e.y+rnd(-20,20),r:6,vx:rnd(-150,150),vy:rnd(-150,150)}); }
-  orbs.push({x:e.x,y:e.y,xp:e.xp*(P.xpMult||1),r:5,vx:rnd(-30,30),vy:rnd(-30,30)});
+  orbs.push({x:e.x,y:e.y,xp:e.xp*0.75*(P.xpMult||1),r:5,vx:rnd(-30,30),vy:rnd(-30,30)});
   const cn=Math.round(e.coins*P.coinMult);
   for(let i=0;i<cn;i++) coins.push({x:e.x+rnd(-8,8),y:e.y+rnd(-8,8),r:6,vx:rnd(-70,70),vy:rnd(-70,70)});
   burst(e.x,e.y,e.elite?34:14,e.elite?'#c98bff':'#c81e2c');
@@ -632,6 +632,14 @@ function update(dt){
   if(!houseActive){
     if(enemies.length<=waveClearTarget){ waveGap-=dt; if(waveGap<=0) startWave(); }
     else { waveGap=CFG.wave.gap; }
+  }
+  // 8:00 — THE FLOOR RISES. The stretch before the House must be earned.
+  if(!P._floorRose && gt>=480){
+    P._floorRose=true;
+    CFG.spawn.minInt=Math.max(0.17, CFG.spawn.minInt*0.85);
+    CFG.spawn.baseBatch+=2;
+    CFG.scale.hp+=0.06;
+    showStreak('☷ THE FLOOR RISES ☷'); SFX.murmur(); flash(0.35,'#8b1620'); shake=Math.min(18,shake+8);
   }
   // ☷ THE HOUSE — at 13:00 the pit empties and the landlord walks the floor
   if(!houseActive && gt>=780){
@@ -1035,7 +1043,7 @@ function gainXP(n){
     tone(520*Math.pow(1.0595,P._xpCombo),0.05,'triangle',0.07+P._xpCombo*0.003);
     if(P._xpCombo===14 && !P._xpPeak){ P._xpPeak=true; SFX.tingle(); setTimeout(()=>P._xpPeak=false,3000); } }
   while(P.xp>=P.xpNext){ if(!P._ovPass && state==='playing'){ startOvercharge(); break; } P._ovPass=false;
-    P.xp-=P.xpNext; P.level++; P.xpNext=Math.floor(7+P.level*3.9+P.level*P.level*0.8); pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); { const lv9=$('level'); if(lv9){ lv9.classList.remove('pop'); void lv9.offsetWidth; lv9.classList.add('pop'); } } ring(P.x,P.y,120,'#c81e2c'); ring(P.x,P.y,70,'#ffd36b'); burst(P.x,P.y,16,'#e8b64c'); for(let i=0;i<16;i++){ parts.push({x:P.x+rnd(-10,10),y:P.y+rnd(-4,4),vx:rnd(-14,14),vy:-rnd(90,220),life:rnd(.4,.8),col:i%3?'#ffd36b':'#fff2c0',r:rnd(1.6,3.2)}); } flash(0.25,'#c81e2c'); }
+    P.xp-=P.xpNext; P.level++; P.xpNext=Math.floor(14+P.level*5.5+P.level*P.level*1.1); pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); { const lv9=$('level'); if(lv9){ lv9.classList.remove('pop'); void lv9.offsetWidth; lv9.classList.add('pop'); } } ring(P.x,P.y,120,'#c81e2c'); ring(P.x,P.y,70,'#ffd36b'); burst(P.x,P.y,16,'#e8b64c'); for(let i=0;i<16;i++){ parts.push({x:P.x+rnd(-10,10),y:P.y+rnd(-4,4),vx:rnd(-14,14),vy:-rnd(90,220),life:rnd(.4,.8),col:i%3?'#ffd36b':'#fff2c0',r:rnd(1.6,3.2)}); } flash(0.25,'#c81e2c'); }
   if(pending.length && state==='playing') openNextSlot();
 }
 
@@ -2458,7 +2466,7 @@ function startGame(){
     projSpeed:CFG.player.projSpeed, projLife:CFG.player.projLife, projRadius:CFG.player.projRadius,
     crit:CFG.player.crit, critMult:CFG.player.critMult, instakill:CFG.player.instakill, regen:CFG.player.regen,
     coinMult:CFG.player.coinMult, lifesteal:CFG.player.lifesteal,
-    xp:0, xpNext:8, level:1, midasStacks:0, mercy:0, comboMult:1, surgeT:0,
+    xp:0, xpNext:21, level:1, midasStacks:0, mercy:0, comboMult:1, surgeT:0,
     wlv:{bolt:1,cards:0,orbit:0,scythe:0,spark:0,chand:0,knives:0,aura:0,nova:0,seeker:0}, passiveList:[], curses:[] };
   enemies=[]; bullets=[]; ebullets=[]; orbs=[]; coins=[]; parts=[]; texts=[]; rings=[]; sparks=[]; sideBoons=[]; smites=[];
   waves=[]; guils=[]; gpools=[]; gstakes=[];

@@ -308,7 +308,7 @@ window.addEventListener('keydown',e=>{
       if(vaultWindowOpen()){ state='vault'; openVault(); }
       else { announce('◈ THE VAULT IS SEALED — THE KEY HANGS ON THE PIT BOSS ◈',false); SFX.thud(); }
       return; }
-    if(killStreak>=27){ const cash=Math.floor(killStreak/3);
+    if(killStreak>=27){ const cash=Math.floor(killStreak/4);
       P.coins+=cash; LT.coins+=cash; bump('runCoins',P.coins); bump('ltCoins',LT.coins);
       announce('◈ STREAK CASHED ×'+killStreak+' → +'+cash+' COINS ◈', true);
       SFX.cashout(); SFX.dingBells(); coinRain(Math.min(24,cash)); sparkBurst(20);

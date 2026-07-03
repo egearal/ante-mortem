@@ -3,11 +3,11 @@
 async function loadGilt(){ try{ if(!store)return; const r=await store.get(GILT_KEY,false); if(r&&r.value){ const o=JSON.parse(r.value); gilt=o.gilt||0; best=o.best||0; } }catch(e){} }
 const VAULT={ lv:{} };
 const VAULT_DEFS=[
- {id:'hp',    n:'BLOODLINE',      d:'+6% max blood per seal',                    max:5, base:72,  icon:'hp'},
- {id:'dmg',   n:'SHARPER FATE',   d:'+4% damage per seal',                       max:5, base:72,  icon:'dmg'},
+ {id:'hp',    n:'BLOODLINE',      d:'+5% max blood per seal',                    max:5, base:72,  icon:'hp'},
+ {id:'dmg',   n:'SHARPER FATE',   d:'+3% damage per seal',                       max:5, base:72,  icon:'dmg'},
  {id:'fire',  n:'QUICK FINGERS',  d:'+3% fire rate per seal',                    max:5, base:80,  icon:'fire'},
  {id:'spd',   n:'FLEET BOOTS',    d:'+3% move speed per seal',                   max:5, base:64,  icon:'spd'},
- {id:'gold',  n:'GOLDEN TOUCH',   d:'+6% coin gain per seal',                    max:5, base:90,  icon:'luck'},
+ {id:'gold',  n:'GOLDEN TOUCH',   d:'+4% coin gain per seal',                    max:5, base:90,  icon:'luck'},
  {id:'pocket',n:'POCKET CHANGE',  d:'begin each run with +15 coins per seal',    max:4, base:55,  icon:'mag',   req:()=>(LT.chests||0)>=5,    reqTxt:'Open 5 of the House\'s gifts'},
  {id:'fever', n:'FEVER PITCH',    d:'fever charges +8% faster per seal',         max:5, base:110, icon:'nova',  req:()=>(LT.fevers||0)>=3,    reqTxt:'Enter Fever Mode 3 times'},
  {id:'marker',n:"MARKER'S FAVOR", d:'THE DEATH ROLL cap +2% per seal — to 60%', max:5, base:210, icon:'regen', req:()=>(LT.markers||0)>=1,   reqTxt:'Face the House Marker once'},
@@ -38,11 +38,11 @@ function vlv(id){ return (VAULT.lv[id]|0); }
 function vaultCost(def){ return Math.round(def.base*Math.pow(1.6, vlv(def.id))*(1-((P&&P.vaultDisc)||0))); }
 function vaultUnlocked(def){ return !def.req || def.req(); }
 function applyVault(){
-  P.maxHp=Math.round(P.maxHp*(1+0.06*vlv('hp'))); P.hp=P.maxHp;
-  P.damage*=(1+0.04*vlv('dmg'));
+  P.maxHp=Math.round(P.maxHp*(1+0.05*vlv('hp'))); P.hp=P.maxHp;
+  P.damage*=(1+0.03*vlv('dmg'));
   P.fireRate*=(1+0.03*vlv('fire'));
   P.speed*=(1+0.03*vlv('spd'));
-  P.coinMult*=(1+0.06*vlv('gold'));
+  P.coinMult*=(1+0.04*vlv('gold'));
   if(vlv('pocket')){ P.coins+=15*vlv('pocket'); }
   for(let i=0;i<vlv('credit');i++) pending.push({});
   P.wheelHaste=0.08*vlv('wheel');
