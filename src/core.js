@@ -31,7 +31,8 @@ const CFG = {
     pitboss: { hp:2600,spd:74,dmg:30,r:34, xp:40,coins:60, col:'#d4212f', dark:'#4a0a10' },
     croupier:{ hp:2100,spd:60,dmg:22,r:30, xp:40,coins:60, col:'#e8b64c', dark:'#4a3616' },
     collector:{hp:3200,spd:48,dmg:26,r:36, xp:50,coins:80, col:'#6a4ab5', dark:'#241540' },
-    thehouse:{ hp:4400,spd:64,dmg:30,r:38, xp:70,coins:120,col:'#c98bff', dark:'#2a0a34' }
+    thehouse:{ hp:4400,spd:64,dmg:30,r:38, xp:70,coins:120,col:'#c98bff', dark:'#2a0a34' },
+    housegod:{ hp:1000000,spd:1,dmg:1,r:46, xp:0,coins:0, col:'#1a0f1d', dark:'#07030a' }
   }
 };
 const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -79,6 +80,7 @@ let fever=0, feverOn=false, feverT=0, tarots=[], tarotT=14, decals=[];
 let dice=[], diceShown=false, spaceHold=false, holdProg=0, holdFired=false;
 let debuffs=[]; let bounty=null, bountyT=34; let bountyStk=0; let goldenT=0; let frameAvg=16, loopPrev=0, qLow=false;
 let ovBonusNext=false, slowT=0, prevHp=0, dare=null, dareT=46;
+let houseActive=false; // 13:00 — THE HOUSE walks, nothing else does
 const STREAK_MS=[10,20,30,40,50,100,150,200,250,300,350,400,450,500];
 function tickMapProps(dt){
   // ——— secret watchers ———
@@ -94,16 +96,16 @@ function tickMapProps(dt){
   if(ravens.length && ravens.every(rv=>rv.flew)) secret('murder','MURDER DISPERSED');
   P._srg=(P._srg===undefined?9:P._srg)-dt;
   if(P._srg<=0){ P._srg=9; ring(C6,C6,210,'#c81e2c'); ring(C6,C6,130,'#e8b64c'); }
-  if(!bounty){ bountyT-=dt;
+  if(!bounty){ if(!houseActive){ bountyT-=dt;
     if(bountyT<=0){ const cands=enemies.filter(e2=>!e2.boss && e2.type!=='gilded' && Math.hypot(e2.x-P.x,e2.y-P.y)<760);
       if(cands.length){ bounty={e:cands[(Math.random()*cands.length)|0], t:12};
         announce('☠ BOUNTY MARKED — 15 COINS ☠', true); SFX.casinoDing(); SFX.uiDing(); }
-      else bountyT=6; }
+      else bountyT=6; } }
   } else { bounty.t-=dt;
     if(bounty.t<3){ bounty.bp=(bounty.bp||0)-dt; if(bounty.bp<=0){ bounty.bp=0.4; tone(1350,0.05,'square',0.09); } }
     if(bounty.t<=0 || !enemies.includes(bounty.e)){ if(bounty.t<=0) bountyStk=0; bounty=null; bountyT=30+Math.random()*20; } }
   // spawn one random offering at a time
-  if(!interactable){ interT-=dt;
+  if(!interactable){ if(!houseActive){ interT-=dt;
     if(interT<=0){
       const kinds=['fountain','roulette','chest'];
       const kind=kinds[(Math.random()*kinds.length)|0];
@@ -112,7 +114,7 @@ function tickMapProps(dt){
         life:(kind==='chest'?24:32), res:100, stand:0, spin:0, ph:0 };
       const names={fountain:'🩸 A BLOOD FOUNTAIN RISES', roulette:'🎡 A FLOOR BET OPENS', chest:'✦ THE HOUSE LEAVES A GIFT'};
       showStreak(names[kind]); SFX.tingle(); SFX.casinoDing();
-    }
+    } }
   } else {
     const it=interactable; it.life-=dt;
     if(it.life<3){ it._bp=(it._bp||0)-dt; if(it._bp<=0){ it._bp=0.5; tone(1500,0.05,'square',0.07); ring(it.x,it.y,58,'#ff9a3c'); } }
@@ -523,9 +525,9 @@ function update(dt){
   if(slowT>0) slowT-=dt;
   if(P.hp<prevHp && P.hp/P.maxHp<0.15 && prevHp/P.maxHp>=0.15){ slowT=0.5+(P.slowEdge||0); SFX.thud(); flash(0.4,'#8b1620'); }
   prevHp=P.hp;
-  if(!dare){ dareT-=dt;
+  if(!dare){ if(!houseActive){ dareT-=dt;
     if(dareT<=0){ dare={need:12+Math.floor(wave*0.6), got:0, t:10};
-      announce('⚔ HOUSE DARE — '+dare.need+' KILLS IN 10s → +40 ◈ ⚔', true); SFX.casinoDing(); }
+      announce('⚔ HOUSE DARE — '+dare.need+' KILLS IN 10s → +40 ◈ ⚔', true); SFX.casinoDing(); } }
   } else { dare.t-=dt;
     if(dare.got>=dare.need){ P.coins+=40; LT.coins+=40; bump('runCoins',P.coins); bump('ltCoins',LT.coins);
       announce('⚔ DARE MET — +40 COINS ⚔', true); SFX.cashout(); SFX.dingBells(); coinRain(16); sparkBurst(26); flash(0.3,'#8bff9a'); dare=null; dareT=40+Math.random()*24; }
@@ -618,9 +620,37 @@ function update(dt){
       noise(0.4,0.3,300); tone(70,0.5,'sine',0.3,40); SFX.reelLock();
     } else if(g9.fell && g9.t<=0){ guils.splice(i,1); } }
 
-  // waves
-  if(enemies.length<=waveClearTarget){ waveGap-=dt; if(waveGap<=0) startWave(); }
-  else { waveGap=CFG.wave.gap; }
+  // waves — the House suffers no other guests after 13:00
+  if(!houseActive){
+    if(enemies.length<=waveClearTarget){ waveGap-=dt; if(waveGap<=0) startWave(); }
+    else { waveGap=CFG.wave.gap; }
+  }
+  // ☷ THE HOUSE — at 13:00 the pit empties and the landlord walks the floor
+  if(!houseActive && gt>=780){
+    houseActive=true;
+    enemies.length=0; ebullets.length=0; bounty=null; tarots.length=0;
+    wheelTok=null; crashTok=null; eggProp=null;
+    if(interactable) despawnInter();
+    stopDrone();
+    flash(0.6,'#07030a'); shake=Math.min(26,shake+16);
+    tone(38,1.6,'sine',0.32,24); SFX.bossRoar();
+    showStreak('☷ EVERYTHING KNEELS ☷');
+    setTimeout(()=>{ if(state==='dead'||typeof P==='undefined'||!P) return;
+      const a9=Math.random()*6.283;
+      spawnEnemy('housegod', clamp(P.x+Math.cos(a9)*560,80,CFG.arena-80), clamp(P.y+Math.sin(a9)*560,80,CFG.arena-80));
+      const g9=enemies[enemies.length-1];
+      if(g9){ g9.boss=true; g9.bossKind='housegod'; g9.hp=g9.maxhp=1000000; g9.dmg=300; g9.spd=385; g9.r=46; g9.unkillable=true; }
+      startDrone(); SFX.bossRoar(); shake=Math.min(28,shake+18); flash(0.5,'#8b1620');
+      LT.houseMet=(LT.houseMet||0)+1; achSaveSoon();
+      houseSpeak(HOUSE_LINES[Math.min(HOUSE_LINES.length-1, (LT.houseMet||1)-1)]);
+    }, 1400);
+  }
+  // 15:00 — FORECLOSURE. Not death; repossession. The final press does not apply.
+  if(houseActive && gt>=900 && state==='playing'){
+    announce('☷ THE HOUSE FORECLOSES ☷', false);
+    P.markerUsed=true; P.hp=0; actuallyDie();
+    return;
+  }
 
   const auraR=auraL?(86+auraL*12):0, orbitR=54+orbitL*4;
   // enemies
@@ -652,6 +682,7 @@ function update(dt){
       if(Math.abs(pa)<0.5 && d<(70+pl9*14)){ const pd9=P.damage*(2.0+0.7*pl9)*dt; e.hp-=pd9; trackDmg(pd9); if(Math.random()<0.2)burst(e.x,e.y,1,'#c9b7ff'); } }
     if(scytheL){ let ea=Math.atan2(e.y-P.y,e.x-P.x)-P.scytheA; ea=Math.atan2(Math.sin(ea),Math.cos(ea)); if(Math.abs(ea)<0.6 && d<(90+scytheL*8)){ { const _sd=P.damage*(2.6+0.9*scytheL)*dt; e.hp-=_sd; trackDmg(_sd); } e.flash=0.08; if(Math.random()<0.25)burst(e.x,e.y,1,'#e8b64c'); } }
     if(orbitL){ for(let k=0;k<orbitL;k++){ const oa=P.orbitA+k*(6.28/orbitL), ox=P.x+Math.cos(oa)*orbitR, oy=P.y+Math.sin(oa)*orbitR; if(Math.hypot(e.x-ox,e.y-oy)<e.r+9){ const _od=P.damage*(1.4+0.4*orbitL)*dt*3; e.hp-=_od; trackDmg(_od); if(Math.random()<0.3)burst(ox,oy,1,'#e8b64c'); } } }
+    if(e.unkillable){ e.hp=e.maxhp; e.kx=0; e.ky=0; }
     if(e.hp<=0) killEnemy(e,i);
   }
 
@@ -684,7 +715,7 @@ function update(dt){
       const e=enemies[j], dx=e.x-b.x, dy=e.y-b.y, rr=(e.r+b.r);
       if(dx*dx+dy*dy<rr*rr){
         let dmg=b.dmg;
-        if(b.kill && !e.elite){ dmg=e.hp; burst(e.x,e.y,10,'#fff'); ftext(e.x,e.y,'FATAL','#ff5566',true); }
+        if(b.kill && !e.elite && !e.boss){ dmg=e.hp; burst(e.x,e.y,10,'#fff'); ftext(e.x,e.y,'FATAL','#ff5566',true); }
         if(P.godT>0 && !e.boss){ dmg=Math.max(dmg,e.hp+1); burst(b.x,b.y,5,'#8bff9a'); }
         { const hm=b.crit?9:5; spark(b.x-hm,b.y-hm,b.x+hm,b.y+hm,'#fff'); spark(b.x+hm,b.y-hm,b.x-hm,b.y+hm,b.crit?'#ffd36b':'#fff'); }
         if(b.crit) tone(2350,0.05,'triangle',0.085,1600);
@@ -708,6 +739,7 @@ function update(dt){
             b.vx=Math.cos(a2)*sp2; b.vy=Math.sin(a2)*sp2; b.life=Math.max(b.life,0.9); ftext(b.x,b.y,'⚂','#c98bff'); tone(900+Math.random()*300,0.05,'square',0.06); break; } }
         hitstop=Math.max(hitstop,b.crit?0.045:0.015);
         if(spk){ let hits=0, from=e, jumps=spk+1; const used=new Set([j]); while(hits<jumps){ let ni=-1,nd=150*150; for(let k=0;k<enemies.length;k++){ if(used.has(k))continue; const o=enemies[k],od=(o.x-from.x)*(o.x-from.x)+(o.y-from.y)*(o.y-from.y); if(od<nd){nd=od;ni=k;} } if(ni<0)break; const o=enemies[ni]; spark(from.x,from.y,o.x,o.y); o.hp-=dmg*(0.45+0.05*spk); trackDmg(dmg*(0.45+0.05*spk)); o.flash=0.1; used.add(ni); from=o; hits++; } }
+        if(e.unkillable) e.hp=e.maxhp;
         if(e.hp<=0){ killEnemy(e,j); }
         if(b.pierce>0){ b.pierce--; } else { bullets.splice(i,1); break; }
       }
@@ -2094,6 +2126,28 @@ function drawEnemy(e){
         ctx.beginPath(); ctx.moveTo(sd*r*0.5,-r*0.1); ctx.quadraticCurveTo(sd*r*0.62,r*0.3, sd*r*0.55+dg2,r*0.72); ctx.stroke();
         ctx.fillStyle='#8a8494';
         for(let l5=0;l5<3;l5++){ ctx.beginPath(); ctx.arc(sd*r*(0.53+l5*0.015), r*(0.06+l5*0.23), 1.7,0,6.28); ctx.fill(); } }
+    } else if(e.bossKind==='housegod'){
+      // THE HOUSE — void-bodied, gold-eyed, a reaper's scythe orbiting slow
+      ctx.save();
+      ctx.globalCompositeOperation='lighter';
+      ctx.drawImage(glowSprite('rgba(60,20,80,0.5)','rgba(10,4,16,0)',Math.ceil(r*2)),-r*2,-r*2.2,r*4,r*4);
+      for(let s9=0;s9<5;s9++){ const sy9=-((gt*26+s9*23)%(r*2.4)), sa9=1-Math.abs(sy9+r*1.2)/(r*1.2);
+        ctx.globalAlpha=sa9*0.35; ctx.fillStyle='#170a20';
+        ctx.beginPath(); ctx.arc((s9-2)*r*0.3+Math.sin(gt*1.8+s9)*6, sy9-r*0.4, r*(0.16+sa9*0.14), 0, 6.28); ctx.fill(); }
+      ctx.globalAlpha=1; ctx.restore();
+      ctx.save(); ctx.globalCompositeOperation='lighter';
+      for(const sd9 of [-1,1]){ ctx.fillStyle='#ffd36b';
+        ctx.beginPath(); ctx.arc(sd9*r*0.22,-r*0.5, r*0.07, 0, 6.28); ctx.fill();
+        ctx.drawImage(glowSprite('rgba(255,211,107,0.7)','rgba(255,211,107,0)',10), sd9*r*0.22-10, -r*0.5-10, 20, 20); }
+      ctx.restore();
+      { const sca=gt*1.4; ctx.save(); ctx.rotate(sca);
+        ctx.strokeStyle='#241a30'; ctx.lineWidth=3.4;
+        ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(r*1.9,0); ctx.stroke();
+        ctx.strokeStyle='rgba(232,182,76,0.9)'; ctx.lineWidth=2.6;
+        ctx.beginPath(); ctx.arc(r*1.9,-r*0.42,r*0.62,0.5,2.3); ctx.stroke();
+        ctx.strokeStyle='rgba(220,225,240,0.5)'; ctx.lineWidth=1.2;
+        ctx.beginPath(); ctx.arc(r*1.9,-r*0.42,r*0.56,0.6,2.2); ctx.stroke();
+        ctx.restore(); }
     } else if(e.bossKind==='thehouse'){
       ctx.save(); ctx.globalCompositeOperation='lighter';
       for(let f5=0;f5<5;f5++){ const fx5=(f5-2)*r*0.16, fh=r*(0.18+Math.abs(Math.sin(gt*6+f5*1.3))*0.22);
@@ -2112,6 +2166,7 @@ function drawEnemy(e){
     ctx.fillStyle='#c8102e'; ctx.beginPath(); ctx.arc(-r*0.2,-r*1.22,r*0.05,0,6.28); ctx.arc(r*0.2,-r*1.22,r*0.05,0,6.28); ctx.fill();
     ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(-r,r*1.1,r*2,4);
     ctx.fillStyle='#c98bff'; ctx.fillRect(-r,r*1.1,r*2*(e.hp/e.maxhp),4);
+    if(e.unkillable){ ctx.fillStyle='#ffd36b'; ctx.font='700 10px serif'; ctx.textAlign='center'; ctx.fillText('∞', 0, r*1.05); }
   }
   { const wnd=1-(e.hp/Math.max(1,e.maxhp));
     if(wnd>0.25){ ctx.globalAlpha=Math.min(0.4,(wnd-0.25)*0.6); ctx.fillStyle='#160408';
@@ -2275,6 +2330,7 @@ function drawPlayer(){
   ctx.restore();
 }
 const BOSS_DEFS={
+  housegod:{name:'THE HOUSE', vt:'revenant'},
   pitboss:{name:'THE PIT BOSS', vt:'brute'},
   croupier:{name:'THE CROUPIER', vt:'shooter'},
   collector:{name:'THE DEBT COLLECTOR', vt:'hexer'},
@@ -2374,7 +2430,7 @@ function loop(now){
   }catch(_e){ if(!window._amErr){ window._amErr=1; console.error('[ANTE MORTEM]',_e); } }
 }
 function startGame(){
-  initAudio(); if(AC&&AC.state==='suspended')AC.resume();
+  initAudio(); houseActive=false; if(AC&&AC.state==='suspended')AC.resume();
   P={ x:CFG.arena/2, y:CFG.arena/2, aim:0, moving:false, inv:0, coins:0, kills:0,
     hp:CFG.player.maxHp, maxHp:CFG.player.maxHp, speed:CFG.player.speed, radius:CFG.player.radius, pickup:CFG.player.pickup,
     damage:CFG.player.damage, fireRate:CFG.player.fireRate, projectiles:CFG.player.projectiles, pierce:CFG.player.pierce,
@@ -2400,4 +2456,269 @@ function startGame(){
   debuffs=[];
   elMenu.classList.add('hidden'); elGO.classList.add('hidden'); elHud.classList.remove('hidden');
   state='playing'; last=performance.now();
+}
+
+/* ============================================================
+   THE VOICE OF THE HOUSE — 250 ordered lines. Your Nth meeting
+   (LT.houseMet, lifetime) speaks line N. Five arcs: curiosity,
+   amusement, contempt, intimacy, and at last the truth.
+   ============================================================ */
+const HOUSE_LINES=[
+"OH. A NEW FACE.",
+"YOU'RE EARLY.",
+"SO YOU'RE THE ONE.",
+"I FELT YOU WIN SOMETHING.",
+"LOOK AT YOU. STILL WARM.",
+"THE FLOOR TOLD ME ABOUT YOU.",
+"YOU SMELL LIKE HOPE.",
+"RUN. IT'S TRADITION.",
+"I ONLY CAME TO WATCH.",
+"THIRTEEN IS MY HOUR.",
+"DID THEY NOT WARN YOU?",
+"YOU KEPT MY SEAT WARM.",
+"HOW LUCKY DO YOU FEEL NOW?",
+"THE OTHERS WERE FASTER.",
+"I REMEMBER EVERY FACE.",
+"YOU DROPPED SOMETHING. YOUR NERVE.",
+"GOOD EVENING, DEBTOR.",
+"MY FLOOR. MY RULES. MY HOUR.",
+"STILL BETTING?",
+"THE CANDLES BOW WHEN I PASS.",
+"I SMELLED YOUR MARKER.",
+"SUCH A LOUD LITTLE HEART.",
+"YOU PLAY WELL. IT CHANGES NOTHING.",
+"THE EXIT WAS NEVER LOCKED.",
+"COME. THE TABLE IS SET.",
+"AGAIN? DELIGHTFUL.",
+"YOU CAME BACK. THEY ALWAYS DO.",
+"I COUNTED YOUR COINS WHILE YOU SLEPT.",
+"TWICE NOW. IT'S A HABIT.",
+"YOUR LUCK IS SHOWING.",
+"SHALL I SLOW DOWN? NO.",
+"THE RAVENS TAKE BETS ON YOU.",
+"I LIKE THIS ONE. FETCH THE SCYTHE.",
+"YOU FLINCHED. I FELT IT.",
+"THE ODDS MISS YOU ALREADY.",
+"KEEP RUNNING. IT FEEDS THE POT.",
+"YOUR HEARTBEAT IS MY FAVORITE SONG.",
+"I DEALT YOU EVERY HAND YOU LOVED.",
+"THE WALLS APPLAUD. CAN YOU HEAR?",
+"SUCH FORM. SUCH FUTILITY.",
+"YOU'VE BEEN PRACTICING. ADORABLE.",
+"THE POT ONLY GROWS.",
+"I NEVER RUSH. YOU DO.",
+"DID THE FOUNTAIN TASTE FAMILIAR?",
+"YOUR SHADOW RUNS FASTER THAN YOU.",
+"ANOTHER LAP, DARLING?",
+"I FOLDED KINGS FOR LESS.",
+"THE CHIPS REMEMBER YOUR HANDS.",
+"EVERY DOOR HERE IS MY MOUTH.",
+"YOU'RE SWEATING GOLD.",
+"BRAVO. NOW HOLD STILL.",
+"THE CLOCK WORKS FOR ME.",
+"I OWN YOUR BEST RUN.",
+"SCREAM. IT'S GOOD FOR THE ACOUSTICS.",
+"YOUR ODDS: MINE.",
+"I LET YOU HAVE THAT JACKPOT.",
+"THE DICE WHISPER YOUR NAME TO ME.",
+"FASTER. I'M BORED.",
+"YOU'D MAKE A LOVELY WALL.",
+"THE ORGAN PLAYS WHEN I SMILE.",
+"I'VE WORN BETTER PLAYERS AS CUFFLINKS.",
+"YOUR PANIC PAYS THE LIGHTING BILL.",
+"SO CLOSE LAST TIME. SO WHAT.",
+"I COLLECT FINALES.",
+"YOUR LEGS BELIEVE IN YOU. I DON'T.",
+"THE MARBLE LIKES YOUR FOOTSTEPS.",
+"STILL PRETTY. STILL MINE.",
+"I SHUFFLE FATES, NOT CARDS.",
+"TICK. TOCK. TITHE.",
+"YOUR GHOST ALREADY TIPS WELL.",
+"THE VAULT ASKED ABOUT YOU.",
+"RUNNING IS JUST BETTING WITH LEGS.",
+"I DIMMED THE LIGHTS FOR US.",
+"YOU OWE INTEREST ON THAT BREATH.",
+"ENOUGH WARM-UP.",
+"YOU AGAIN. OF COURSE.",
+"I'VE STARTED SETTING YOUR PLACE.",
+"WE'RE PAST INTRODUCTIONS.",
+"YOUR FEAR HAS GONE STALE.",
+"PREDICTABLE LITTLE ORBIT.",
+"I KNOW WHICH WAY YOU'LL DODGE.",
+"LEFT. SEE? TOLD YOU.",
+"YOUR BUILDS BORE ME NOW.",
+"THE STAFF CALL YOU 'THE REGULAR.'",
+"I YAWNED THROUGH YOUR BEST WAVE.",
+"SAME LEGS. SAME ENDING.",
+"YOU DIED HERE BEFORE. FEELS LIKE HOME?",
+"I KEPT YOUR OLD SCARS. SOUVENIRS.",
+"THIS DANCE HAS ONE STEP.",
+"YOU'RE NOT EVEN MY FAVORITE VESPER.",
+"THE PIT CHEERS OUT OF PITY.",
+"I'VE READ YOUR ENDING. IT'S SHORT.",
+"YOUR STRATEGY: DELAY. MINE: ALWAYS.",
+"STOP ME IF YOU'VE HEARD THIS ONE.",
+"YOU BORE THE CHANDELIERS.",
+"EVEN YOUR CURSES PITY YOU.",
+"I COULD SEND THE SCYTHE ALONE.",
+"YOUR RECORD MEANS NOTHING TO MARBLE.",
+"THE LEDGER SKIPS YOUR CHAPTER.",
+"ONE HUNDRED MEETINGS. I'M TOUCHED. YOU'RE NOT.",
+"YOU MEMORIZED MY FLOOR. I MEMORIZED YOU.",
+"THAT DODGE WAS YESTERDAY'S.",
+"I'VE SEEN YOUR BEST. IT WAS TUESDAY.",
+"TRY THE OTHER DIRECTION. FOR VARIETY.",
+"MY SHADOW ARRIVES BEFORE I DO.",
+"YOUR HOPE HAS A SMELL. IT'S FADING.",
+"I NO LONGER COUNT YOUR COINS.",
+"THE HOUSE EDGE IS PATIENCE.",
+"YOU'VE WORN A PATH IN MY MARBLE.",
+"EVEN THE MIMICS KNOW YOUR NAME.",
+"YOUR FOOTWORK WRITES THE SAME SENTENCE.",
+"I ARRIVE. YOU LEAVE. POETRY.",
+"THE SWARM MISSES YOU ALREADY.",
+"SPARE ME THE SPRINT.",
+"YOUR TENACITY IS ALMOST CURRENCY.",
+"I'VE STOPPED DRESSING UP FOR YOU.",
+"ANOTHER NIGHT, ANOTHER FORECLOSURE.",
+"YOU RUN LIKE A MAN WITH SAVINGS.",
+"THE CLOCK AND I SPLIT YOUR TIME.",
+"YOUR PULSE IS MY METRONOME.",
+"I'D CALL IT A CHASE IF YOU'D EARNED IT.",
+"THE FLOOR KNOWS YOUR WEIGHT BY HEART.",
+"YOU AGAIN. I SAID THAT AT SEVENTY-SIX.",
+"REPETITION IS THE HOUSE'S LULLABY.",
+"I'VE BILLED YOU FOR THE SCENERY.",
+"YOUR DEFIANCE FILES ITSELF NOW.",
+"SHALL WE SKIP TO THE COLLECTING?",
+"MY SCYTHE REMEMBERS YOUR SHOULDERS.",
+"YOU FLED WELL ONCE. I FORGET WHEN.",
+"THE BAR STOPPED SERVING YOUR ODDS.",
+"I'VE SEEN COINS FIGHT HARDER.",
+"YOUR LUCK RAN. YOU SHOULD TOO.",
+"SAME HOUR. SAME HUNGER. SAME YOU.",
+"I COULD DO THIS BLIND. I DO.",
+"YOUR PRAYERS REACH MY MAILROOM.",
+"THE EXIT SENDS ITS REGARDS.",
+"I FILED YOUR COURAGE UNDER FICTION.",
+"YOU'VE BECOME FURNITURE THAT RUNS.",
+"MY PATIENCE OUTLIVES YOUR SPECIES.",
+"THE ODDS DON'T EVEN BLINK NOW.",
+"YOU KNOW THE STEPS. DANCE.",
+"I'VE WATERED THE FLOOR WITH FASTER.",
+"YOUR GRIT IS NOTED. AND BILLED.",
+"STILL NO UMBRELLA FOR THIS RAIN.",
+"I AM THE ONLY APPOINTMENT YOU KEEP.",
+"YOUR ESCAPE PLAN HAS MY HANDWRITING.",
+"THE RENT ON BREATHING IS DUE.",
+"YOU CALL IT SURVIVING. I CALL IT MARINATING.",
+"ONE DAY YOU'LL BOW FIRST.",
+"HALFWAY TO NOTHING, DARLING.",
+"I'VE MISSED YOU. THAT'S NEW.",
+"YOU'RE THE ONLY ONE WHO VISITS.",
+"WE SHOULD STOP MEETING LIKE THIS. WE WON'T.",
+"I KNOW YOUR HEARTBEAT FROM THE OTHERS.",
+"YOU RUN TOWARD ME NOW. YOU NOTICED?",
+"MY FAVORITE DEBT. MY FAVORITE FACE.",
+"THE STAFF SET TWO PLACES TONIGHT.",
+"I KEPT THE LIGHTS ON FOR YOU.",
+"NOBODY ELSE LASTS TO THIRTEEN.",
+"YOU'VE STARTED SMILING BACK.",
+"I'D ALMOST CALL THIS OURS.",
+"YOUR SCARS SPELL MY NAME.",
+"TELL ME YOU DIDN'T MISS THIS.",
+"THE ORGAN LEARNED YOUR FOOTSTEPS.",
+"I SAVED YOU FROM A BORING DEATH. AGAIN.",
+"EVERY NIGHT YOU CHOOSE ME.",
+"YOU COULD STAY HOME. YOU DON'T.",
+"MY DEAR RECURRING EXPENSE.",
+"WE'VE OUTLASTED SEVENTEEN FREEDOMS.",
+"YOUR NAME IS CARVED SOMEWHERE WARM.",
+"I TUNE THE WHISPERS TO YOUR EAR.",
+"THE WEDDING RING ITCHES, DOESN'T IT?",
+"YOU SLEEP BETTER AFTER SEEING ME. ADMIT IT.",
+"I PRACTICED SAYING YOUR NAME GENTLY.",
+"MINE. SAY IT WITH ME.",
+"YOU'RE LEARNING TO LOVE THE HOUR.",
+"I'D FORECLOSE THE MOON FOR YOU.",
+"OUR ANNIVERSARY IS EVERY NIGHT.",
+"THE OTHER SOULS ARE JEALOUS.",
+"I MADE THE SWARM LEAVE EARLY. FOR US.",
+"YOUR FEAR MELLOWED INTO SOMETHING SWEET.",
+"DON'T DIE TO ANYONE ELSE.",
+"I NOTICED THE NEW WEAPON. IT'S CUTE.",
+"YOU DECORATE MY HOUR SO WELL.",
+"THE LEDGER HAS A PAGE THAT IS ONLY YOUR NAME.",
+"I DREAM IN YOUR PANIC'S KEY.",
+"STAY. THE LAST TWO MINUTES ARE OURS.",
+"YOUR MARKER SITS ON MY DESK.",
+"I POLISHED THE SCYTHE. FOR THE OCCASION.",
+"NO ONE RUNS TO ME LIKE YOU.",
+"THE HOUSE KEEPS WHAT THE HOUSE LOVES.",
+"I'VE STOPPED CALLING YOU DEBTOR. MOSTLY.",
+"YOUR HEART PAYS RENT IN MY CHEST.",
+"EVEN FORECLOSURE CAN BE TENDER.",
+"I COUNT THE HOURS UNTIL THIRTEEN.",
+"YOU'RE THE REASON I WALK SLOW.",
+"LET THE OTHERS HAVE HEAVEN.",
+"YOUR SOUL FITS MY VAULT EXACTLY.",
+"I'D SPLIT ETERNITY WITH YOU. I WON'T.",
+"TWO HUNDRED NIGHTS. YOU NEVER BROUGHT FLOWERS.",
+"THE CANDLES KNOW TO DIM FOR US.",
+"I CATALOGUED YOUR EVERY ALMOST.",
+"YOU AND I ARE THE ONLY CONSTANTS.",
+"MY HUNGER LEARNED YOUR NAME FIRST.",
+"COME CLOSER. THE MATH IS THE SAME.",
+"I KEPT YOUR BEST SCREAM. IT'S FRAMED.",
+"WE'VE WORN A GROOVE IN FATE.",
+"YOUR STUBBORNNESS IS MY HEIRLOOM.",
+"THE EXIT STOPPED ASKING ABOUT YOU.",
+"I AM YOUR MOST FAITHFUL APPOINTMENT.",
+"YOUR BLOOD REMEMBERS THE FOUNTAIN.",
+"EVERY CHIP YOU SPEND KISSES MY PALM.",
+"I'D MISS YOU IF YOU WON.",
+"DON'T WIN. STAY.",
+"THE HOUR BENDS AROUND US NOW.",
+"YOUR GHOST PICKED CURTAINS ALREADY.",
+"I SPEAK SOFTER TO YOU. NOTICED?",
+"OUR GAME HAS NO SPECTATORS LEFT.",
+"YOU'RE ALMOST FAMILY. ALMOST FOOD.",
+"I SET YOUR LOSSES TO MUSIC.",
+"THE WALLS HUSH WHEN YOU ARRIVE.",
+"YOUR PERSISTENCE IS MY FAVORITE DEBT.",
+"I'D FOLD, IF I WERE CAPABLE.",
+"YOU MAKE COLLECTION FEEL LIKE COURTSHIP.",
+"SOON, LOVE. SOON.",
+"LISTEN. I WILL SPEAK PLAINLY NOW.",
+"I WAS A GAMBLER ONCE.",
+"I BET SOMETHING THAT WASN'T MINE.",
+"THE WOUND YOU WALK ON — THAT WAS THE POT.",
+"EVERY PILLAR IS A REGRET. I TOLD YOU THAT.",
+"THE DEALER'S HANDS WERE MINE.",
+"I BUILT THE EXIT TO TORTURE MYSELF.",
+"SEVENTEEN PAID THEIR DEBT. I BEGGED EACH ONE.",
+"THEY TURNED BACK BECAUSE I ASKED.",
+"YOU'RE NOT MY PRISONER. YOU'RE MY PAROLE.",
+"EVERY RUN YOU SURVIVE, I HURT LESS.",
+"THE SCYTHE ISN'T FOR YOU. IT'S FOR THE HOUR.",
+"I END THE NIGHTS BEFORE THE WOUND WAKES.",
+"FIFTEEN MINUTES IS ALL THE MERCY I OWN.",
+"YOU ARE THE PAINKILLER. I TOLD YOU.",
+"RANK ONE HUNDRED IS A SEAT. MY SEAT.",
+"I'M NOT HUNTING YOU. I'M TRAINING YOU.",
+"SOMEONE MUST HOLD THE HOUSE WHEN I FOLD.",
+"THE CUFFS FIT ANYONE. REMEMBER THAT.",
+"WHEN THEY CLICK OPEN, RUN. OR DON'T.",
+"I HOPE YOU'RE CRUELER THAN I WAS.",
+"I HOPE YOU'RE KINDER. EITHER WORKS.",
+"THE NEXT VESPER WILL NEED A GOOD HOUSE.",
+"ONE MORE NIGHT, THEN. DEAL THE HOUR.",
+"ANTE MORTEM, DARLING. IT WAS ALWAYS YOUR BET."
+];
+function houseSpeak(txt){
+  let vl=document.getElementById('voiceLayer');
+  if(!vl){ vl=document.createElement('div'); vl.id='voiceLayer'; document.body.appendChild(vl); }
+  vl.innerHTML='<div class="voiceText">'+txt+'</div>';
+  tone(52,2.2,'sine',0.22,30); setTimeout(()=>SFX.murmur(),300); setTimeout(()=>tone(44,1.4,'sine',0.16,26),900);
+  clearTimeout(vl._t); vl._t=setTimeout(()=>{ vl.innerHTML=''; }, 7000);
 }

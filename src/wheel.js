@@ -271,6 +271,7 @@ function landWheel(seg){
   setTimeout(finishWheel, wheel.toAscent?1100:(sg.cs==='gold'?2600:1600));
 }
 function tickWheelTok(dt){
+  if(houseActive) return; // no cases on the House's floor
   if(!wheelTok){ wheelTokT-=dt;
     if(wheelTokT<=0){ wheelTokT=(50+Math.random()*20-10)*(1-(P.wheelHaste||0)); // pity window: 40-60s, droughts impossible
       const a=Math.random()*6.283, d=280+Math.random()*320;

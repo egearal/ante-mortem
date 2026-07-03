@@ -415,6 +415,7 @@ function closeCrash(){ crash.jk=false; { const w9=$('jkWrap'); if(w9){ w9.classL
   openCrash=wrap(openCrash); launchCrash=wrap(launchCrash); pushCrash=wrap(pushCrash); cashCrash=wrap(cashCrash); closeCrash=wrap(closeCrash);
 })();
 function tickCrashTok(dt){
+  if(houseActive) return;
   if(!crashTok){ crashTokT-=dt;
     if(crashTokT<=0){ crashTokT=52+Math.random()*20-10; // pity window: 42-62s
       const a=Math.random()*6.283, d=300+Math.random()*300;

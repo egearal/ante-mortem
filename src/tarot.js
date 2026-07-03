@@ -95,6 +95,7 @@ function revealTarot(card){
   else { SFX.bossRoar(); SFX.bust(); }
 }
 function tickTarot(dt){
+  if(houseActive){ tarots.length=0; return; }
   tarotT-=dt;
   if(tarotT<=0 && tarots.length<2){
     tarotT=14+Math.random()*10;
