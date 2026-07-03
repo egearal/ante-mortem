@@ -294,7 +294,7 @@ window.addEventListener('keydown',e=>{
       const mk=markerRef;
       if(mk.p<mk.max){
         mk.presses++;
-        mk.p=Math.min(mk.max, mk.p+0.005+Math.random()*0.01); // +0.5–1.5% a press
+        mk.p=Math.min(mk.max, mk.p+0.0025+Math.random()*0.005); // +0.25–0.75% a press — every decimal earned
         pressFx(mk);
         renderPressMeter();
       }

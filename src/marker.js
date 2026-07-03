@@ -19,6 +19,13 @@ function markerSpin(){
   const mk={p:base, base, max:0.50, presses:0, window:3.2, t0:performance.now(), phase:'press', resolved:false};
   markerRef=mk;
   t.textContent='PRESS FOR YOUR LIFE'; t.className='jackpotText marker'; t.style.color='#e8b64c';
+  // marquee bulbs circle the meter, casino-style
+  let fr=$('fpRing');
+  if(!fr){ fr=document.createElement('div'); fr.id='fpRing'; l.appendChild(fr);
+    for(let i=0;i<26;i++){ const b=document.createElement('div'); b.className='bulb chase';
+      const a=i/26*6.283; b.style.left=(50+Math.cos(a)*48)+'%'; b.style.top=(50+Math.sin(a)*46)+'%';
+      b.style.animationDelay=((i%13)*0.104)+'s'; fr.appendChild(b); } }
+  fr.style.display='';
   const sub=$('jackpotSub'); sub.classList.remove('hidden'); renderPressMeter();
   SFX.riser(); SFX.murmur(); flash(0.4,'#8b1620'); shake=Math.min(16,shake+8);
   mk._iv=setInterval(()=>{
@@ -32,7 +39,7 @@ function renderPressMeter(){
   const mk=markerRef; if(!mk||mk.phase!=='press') return;
   const left=Math.max(0,mk.window-(performance.now()-mk.t0)/1000);
   $('jackpotSub').innerHTML=
-    '<div class="fpPct">'+Math.round(mk.p*100)+'<i>%</i> TO LIVE</div>'
+    '<div class="fpPct">'+(mk.p*100).toFixed(3)+'<i>%</i> TO LIVE</div>'
     +'<div class="fpBar"><i style="width:'+Math.min(100,(mk.p-mk.base)/(mk.max-mk.base)*100)+'%"></i></div>'
     +'<div class="fpTime"><i style="width:'+(left/mk.window*100)+'%"></i></div>'
     +'<div class="fpHint"><span class="keyhint">SPACE</span> PRESS · PRESS · PRESS</div>';
@@ -40,37 +47,46 @@ function renderPressMeter(){
 function pressFx(mk){
   tone(660*Math.pow(1.0595,Math.min(24,mk.presses)),0.07,'sine',0.11);
   tone(1320*Math.pow(1.0595,Math.min(24,mk.presses)),0.05,'sine',0.05);
-  sparkBurst(6); shake=Math.min(10,shake+2);
-  if(mk.p>=mk.max){ SFX.seraph(); SFX.dingBells(); flash(0.5,'#ffd36b'); sparkBurst(30);
+  sparkBurst(8); shake=Math.min(10,shake+2);
+  if(mk.p>=mk.max){ SFX.seraph(); SFX.dingBells(); flash(0.5,'#ffd36b'); sparkBurst(30); domConfetti(18,'jackpotLayer');
     $('jackpotText').textContent='◈ MAX ◈'; $('jackpotText').style.color='#ffd36b'; }
 }
+/* THE DEATH ROLL — a number tumbles 0-100 and lands. Roll ≤ your % and you live. The math is felt. */
 function startFlicker(mk){
   mk.phase='flicker';
   const l=$('jackpotLayer'), t=$('jackpotText');
-  $('jackpotSub').innerHTML='<div class="fpPct big">'+Math.round(mk.p*100)+'<i>%</i> TO LIVE</div>';
-  let n=0, N=14;
+  const pPct=mk.p*100;
+  $('jackpotSub').innerHTML='<div class="fpPct big">'+pPct.toFixed(3)+'<i>%</i> TO LIVE</div><div class="fpHint">THE HOUSE ROLLS 0 – 100…</div>';
+  t.className='jackpotText marker';
+  const roll=Math.random()*100; // the truth, decided now
+  mk.roll=roll; mk.margin=pPct-roll;
+  let n=0, N=16;
   const step=()=>{
     n++;
-    const showLive=n%2===0;
-    t.textContent=showLive?'LIVE':'DIE'; t.className='jackpotText marker'; t.style.color=showLive?'#8bff9a':'#ff5560';
+    const flick = n<N ? Math.random()*100 : roll;
+    const green = flick<=pPct;
+    t.textContent=flick.toFixed(1);
+    t.style.color=green?'#8bff9a':'#ff5560';
     t.classList.remove('tickPop'); void t.offsetWidth; t.classList.add('tickPop');
-    SFX.selectorTick(Math.min(6,Math.floor(n/2)+1)); shake=Math.min(14,shake+2); sparkBurst(6); flash(0.12, showLive?'#1c4a28':'#4a0a10');
-    if(n<N){ setTimeout(step, 60+n*26); }
+    SFX.selectorTick(Math.min(6,Math.floor(n/2)+1)); shake=Math.min(14,shake+2); sparkBurst(6); flash(0.12, green?'#1c4a28':'#4a0a10');
+    if(n<N){ setTimeout(step, 55+n*24); }
     else {
       mk.resolved=true;
-      const win=Math.random()<mk.p;
-      t.textContent=win?'THE HOUSE GRANTS A MARKER':'THE HOUSE COLLECTS';
+      const win=roll<=pPct;
+      $('jackpotSub').innerHTML='<div class="fpPct big" style="color:'+(win?'#8bff9a':'#ff5560')+'">ROLL '+roll.toFixed(1)+' '+(win?'≤':'>')+' '+pPct.toFixed(3)+'</div>'
+        +'<div class="fpHint" style="color:'+(win?'#8bff9a':'#ff5560')+'">'+(win?'THE HOUSE GRANTS A MARKER':'THE HOUSE COLLECTS')+'</div>';
+      t.textContent=roll.toFixed(1);
       t.style.color=win?'#8bff9a':'#ff5560';
-      if(win){ SFX.dingBells(); SFX.cashout(); coinRain(24); flash(0.5,'#8bff9a'); sparkBurst(36);
-        setTimeout(()=>{ l.classList.add('hidden'); t.style.color=''; $('jackpotSub').classList.add('hidden');
+      if(win){ SFX.dingBells(); SFX.cashout(); coinRain(24); flash(0.5,'#8bff9a'); sparkBurst(36); domConfetti(24,'jackpotLayer');
+        setTimeout(()=>{ l.classList.add('hidden'); t.style.color=''; $('jackpotSub').classList.add('hidden'); { const fr9=$('fpRing'); if(fr9) fr9.style.display='none'; }
           LT.markerWins=(LT.markerWins||0)+1; if(LT.markerWins>=2) secret('debtor','DEATH\'S DEBTOR');
           P.hp=Math.max(P.hp,P.maxHp*0.5); P.inv=2.5; state='playing';
           ring(P.x,P.y,260,'#8bff9a'); ring(P.x,P.y,170,'#ffd36b'); shake=Math.min(20,shake+10);
           for(const e of enemies){ const dd=Math.hypot(e.x-P.x,e.y-P.y); if(dd<260 && !e.boss){ const kd=Math.max(1,dd); e.kx+=(e.x-P.x)/kd*520; e.ky+=(e.y-P.y)/kd*520; e.hp-=60; e.flash=0.12; } }
           showStreak('✦ ONE MORE HAND ✦');
-        },1400);
+        },1500);
       } else { SFX.bust(); flash(0.55,'#8b1620');
-        setTimeout(()=>{ l.classList.add('hidden'); t.style.color=''; $('jackpotSub').classList.add('hidden'); actuallyDie(); },1400); }
+        setTimeout(()=>{ l.classList.add('hidden'); t.style.color=''; $('jackpotSub').classList.add('hidden'); { const fr9=$('fpRing'); if(fr9) fr9.style.display='none'; } actuallyDie(); },1500); }
     }
   };
   setTimeout(step, 420);
