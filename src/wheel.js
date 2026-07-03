@@ -2,27 +2,43 @@
 /* ═══ RESTORED ENGINE BLOCK — rage v2, Wheel of Souls, The Ascent, map offerings ═══ */
 let wheelTok=null, wheelTokT=40;
 let wheel={rot:0, vel:0, spinning:false, mult:1, lastSeg:-1, done:false};
+/* CS2 case rarities — blue floods the strip, gold changes your run. 200-card bag: 140/40/13/5/2. */
+const CS_COL={blue:'#4b69ff',purple:'#8847ff',pink:'#d32ce6',red:'#eb4b4b',gold:'#e4ae39'};
+function csCol(sg){ return CS_COL[sg.cs]||sg.c; }
 const WSEGS=[
- {n:'60 COINS', g:'◈', c:'#c8860a', tier:1, f:(m)=>{ const g2=60*m; P.coins+=g2; LT.coins+=g2; coinRain(14*m); SFX.cashout(); announce('◈ +'+g2+' COINS ◈',true); }},
- {n:'CURSE', g:'☠', c:'#640a16', tier:0, f:()=>{ const dl=applyDebuff(DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0]); SFX.bust(); flash(0.45,'#8b1620'); announce('☠ '+dl+' ☠',false); }},
- {n:'HEAL 33%', g:'✚', c:'#0e8a4a', tier:1, f:(m)=>{ const hl=Math.round(P.maxHp*0.33*m); P.hp=Math.min(P.maxHp,P.hp+hl); flash(0.4,'#8bff9a'); SFX.dingBells(); announce('✚ +'+hl+' BLOOD ✚',true); }},
- {n:'DOUBLE', g:'×2', c:'#7a3cff', tier:2, f:null},
- {n:'90 COINS', g:'◈', c:'#e8a112', tier:2, f:(m)=>{ const g2=90*m; P.coins+=g2; LT.coins+=g2; coinRain(24); SFX.cashout(); SFX.dingBells(); announce('◈ +'+g2+' COINS ◈',true); }},
- {n:'GILT +35', g:'◆', c:'#96700e', tier:2, f:(m)=>{ const g3=35*m; gilt+=g3; saveGilt(); SFX.chipStack(); SFX.casinoDing(); announce('◈ +'+g3+' GILT BANKED ◈',true); }},
- {n:'⚔ ARSENAL', g:'⚔', c:'#c22ca0', tier:3, f:()=>{ slotForceWeapon=true; pending.push({}); SFX.levelUp(); announce('⚔ THE ARSENAL WHEEL AWAITS ⚔',true); }},
- {n:'+1 LEVEL', g:'⚜', c:'#e0203a', tier:3, f:(m)=>{ for(let i=0;i<m;i++) pending.push({}); SFX.levelUp(); announce('⚜ +'+m+' LEVEL'+(m>1?'S':'')+' ⚜',true); }},
- {n:'FEVER', g:'⚡', c:'#f2701a', tier:2, f:()=>{ if(!feverOn){ fever=1; startFever(); } else { feverT=Math.min(12+(P.feverDur||0),feverT+5); announce('⚡ FEVER +5s ⚡',true); SFX.dingBells(); } }},
- {n:'DOUBLE', g:'×2', c:'#7a3cff', tier:2, f:null},
- {n:'✦ SKILL', g:'✦', c:'#3c58e8', tier:3, f:(m)=>{ rollAscentPrize(m*1.6); }},
- {n:'▲ ASCENT', g:'▲', c:'#0ac878', tier:3, f:()=>{ wheel.toAscent=true; announce('▲ THE WHEEL OPENS THE ASCENT ▲',true); SFX.riser(); }},
- {n:'⚔ SIDE ARM', g:'⚔', c:'#2a9db8', tier:3, w:3, f:()=>{
+ // ── MIL-SPEC BLUE (140/200 = 70%)
+ {n:'60 COINS', g:'◈', cs:'blue', c:'#c8860a', tier:1, w:46, f:(m)=>{ const g2=60*m; P.coins+=g2; LT.coins+=g2; coinRain(14*m); SFX.cashout(); announce('◈ +'+g2+' COINS ◈',true); }},
+ {n:'HEAL 33%', g:'✚', cs:'blue', c:'#0e8a4a', tier:1, w:36, f:(m)=>{ const hl=Math.round(P.maxHp*0.33*m); P.hp=Math.min(P.maxHp,P.hp+hl); flash(0.4,'#8bff9a'); SFX.dingBells(); announce('✚ +'+hl+' BLOOD ✚',true); }},
+ {n:'↻ FREE SPIN', g:'↻', cs:'blue', c:'#ff5fa2', tier:1, w:32, f:null},
+ {n:'CURSE', g:'☠', cs:'blue', c:'#640a16', tier:0, w:26, f:()=>{ const dl=applyDebuff(DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0]); SFX.bust(); flash(0.45,'#8b1620'); announce('☠ '+dl+' ☠',false); }},
+ // ── RESTRICTED PURPLE (40/200 = 20%)
+ {n:'90 COINS', g:'◈', cs:'purple', c:'#e8a112', tier:2, w:12, f:(m)=>{ const g2=90*m; P.coins+=g2; LT.coins+=g2; coinRain(24); SFX.cashout(); SFX.dingBells(); announce('◈ +'+g2+' COINS ◈',true); }},
+ {n:'GILT +35', g:'◆', cs:'purple', c:'#96700e', tier:2, w:10, f:(m)=>{ const g3=35*m; gilt+=g3; saveGilt(); SFX.chipStack(); SFX.casinoDing(); announce('◈ +'+g3+' GILT BANKED ◈',true); }},
+ {n:'FEVER', g:'⚡', cs:'purple', c:'#f2701a', tier:2, w:9, f:()=>{ if(!feverOn){ fever=1; startFever(); } else { feverT=Math.min(12+(P.feverDur||0),feverT+5); announce('⚡ FEVER +5s ⚡',true); SFX.dingBells(); } }},
+ {n:'DOUBLE', g:'×2', cs:'purple', c:'#7a3cff', tier:2, w:9, f:null},
+ // ── CLASSIFIED PINK (13/200 = 6.5%)
+ {n:'+1 LEVEL', g:'⚜', cs:'pink', c:'#e0203a', tier:3, w:5, f:(m)=>{ for(let i=0;i<m;i++) pending.push({}); SFX.levelUp(); announce('⚜ +'+m+' LEVEL'+(m>1?'S':'')+' ⚜',true); }},
+ {n:'⚔ ARSENAL', g:'⚔', cs:'pink', c:'#c22ca0', tier:3, w:4, f:()=>{ slotForceWeapon=true; pending.push({}); SFX.levelUp(); announce('⚔ THE ARSENAL WHEEL AWAITS ⚔',true); }},
+ {n:'⚔ SIDE ARM', g:'⚔', cs:'pink', c:'#2a9db8', tier:3, w:4, f:()=>{
    const fresh=availableWeapons().filter(w=>!(P.wlv[w.id]>0) && w.rar==='common');
    let def=fresh.length?pick(fresh):null;
    if(!def){ const grown=WEAPONS.filter(w=>(P.wlv[w.id]||0)>0 && (P.wlv[w.id]||0)<w.max); def=grown.length?pick(grown):null; }
    if(def){ grantWeaponLevels(def,1); flash(0.35,'#2a9db8'); }
    else { P.coins+=45; LT.coins+=45; coinRain(14); SFX.cashout(); announce('⚔ ARSENAL FULL — +45 COINS ⚔',true); }
  }},
- {n:'↻ FREE SPIN', g:'↻', c:'#ff5fa2', tier:1, w:3, f:null}
+ // ── COVERT RED (5/200 = 2.5%)
+ {n:'✦ SKILL', g:'✦', cs:'red', c:'#3c58e8', tier:3, w:3, f:(m)=>{ rollAscentPrize(m*1.6); }},
+ {n:'▲ ASCENT', g:'▲', cs:'red', c:'#0ac878', tier:3, w:2, f:()=>{ wheel.toAscent=true; announce('▲ THE WHEEL OPENS THE ASCENT ▲',true); SFX.riser(); }},
+ // ── GOLD (2/200 = 1%) — the knife
+ {n:'★ THE HOUSE BLADE', g:'★', cs:'gold', c:'#e4ae39', tier:4, w:2, f:()=>{
+   const myth=PASSIVES.filter(p=>p.rar==='mythic' && !owned.has(p.id));
+   const pd=myth.length?pick(myth):PASSIVES.find(p=>p.id==='allin');
+   grantSkill(pd,1);
+   gilt+=60; saveGilt(); coinRain(40);
+   setTimeout(()=>announce('★ THE HOUSE BLADE — '+pd.n.toUpperCase()+' ★',true), 500);
+   [0,220,460].forEach(d=>setTimeout(()=>{ flash(0.5,'#ffd700'); SFX.seraph(); },d));
+   SFX.dingBells(); setTimeout(()=>SFX.record(),300); domConfetti(44); shake=Math.min(26,shake+16);
+ }}
 ];
 const TK_STEP=118, TK_CARD=110; // card 110px + 8px gap
 function buildWheelDom(){
@@ -33,17 +49,17 @@ function buildWheelDom(){
   $('wheelLayer').insertBefore(felt, $('wheelLayer').firstChild);
 }
 function buildTickerStrip(){
-  // weighted bag (w||5 copies of each prize), shuffled with no adjacent twins, tiled long enough to roll across
+  // the exact 200-card CS bag (weights sum to 200), shuffled with no adjacent twins
   const bag=[]; WSEGS.forEach((sg,i)=>{ const w=sg.w||5; for(let k=0;k<w;k++) bag.push(i); });
   for(let i=bag.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; [bag[i],bag[j]]=[bag[j],bag[i]]; }
   for(let i=1;i<bag.length;i++){ if(bag[i]===bag[i-1]) { const j=(i+7)%bag.length; [bag[i],bag[j]]=[bag[j],bag[i]]; } }
-  const strip=[]; while(strip.length<96) strip.push(...bag);
+  const strip=bag.slice();
   wheel.strip=strip;
   const el=$('tickerStrip'); el.innerHTML='';
   strip.forEach(si=>{ const sg=WSEGS[si];
-    const c=document.createElement('div'); c.className='tkCard tk'+sg.tier; c.style.setProperty('--tc',sg.c);
+    const c=document.createElement('div'); c.className='tkCard tkcs-'+(sg.cs||'blue')+(sg.tier===0?' tkdud':''); c.style.setProperty('--tc',csCol(sg));
     const dn=(sg.g && sg.n.indexOf(sg.g)===0)? sg.n.slice(sg.g.length).trim() : sg.n;
-    c.innerHTML='<span class="tkG">'+(sg.g||'◈')+'</span><span class="tkN">'+dn+'</span>';
+    c.innerHTML='<span class="tkG">'+(sg.g||'◈')+'</span><span class="tkN">'+dn+'</span><i class="tkBar"></i>';
     el.appendChild(c); });
 }
 function tkX(x){ $('tickerStrip').style.transform='translate3d('+x+'px,0,-0px)'; }
@@ -75,9 +91,10 @@ function launchWheel(){
 }
 function startRoll(){
   const box=$('tickerBox'); wheel.boxW=box.clientWidth||wheel.boxW||660;
-  let tIdx=60+((Math.random()*20)|0);
-  if(wheel.rigSeg){ let k=56; while(k<wheel.strip.length && WSEGS[wheel.strip[k]].n!==wheel.rigSeg) k++;
-    if(k<wheel.strip.length) tIdx=k; wheel.rigSeg=null; }
+  let tIdx=120+((Math.random()*40)|0);
+  if(wheel.rigSeg){ let k=110; while(k<wheel.strip.length && WSEGS[wheel.strip[k]].n!==wheel.rigSeg) k++;
+    if(k<wheel.strip.length) tIdx=k; else { let k2=8; while(k2<wheel.strip.length && WSEGS[wheel.strip[k2]].n!==wheel.rigSeg) k2++; if(k2<wheel.strip.length) tIdx=k2; }
+    wheel.rigSeg=null; }
   // THE FIX IS IN — the CURSE card never holds, the ticker slides one past it
   if(WSEGS[wheel.strip[tIdx]].n==='CURSE' && typeof contractDone==='function' && contractDone('thefix')){
     tIdx++; setTimeout(()=>announce('♠ THE FIX IS IN — THE CURSE NEVER HOLDS ♠',true), 900); }
@@ -110,9 +127,9 @@ function tickWheel(dt){
     if(card!==wheel.lastSeg){ wheel.lastSeg=card;
       SFX.wheelTick(t);
       const sg=WSEGS[wheel.strip[card]];
-      if(sg) $('tickerBox').style.boxShadow='0 0 0 2px #3a0a10,0 0 56px '+sg.c+',inset 0 0 60px rgba(0,0,0,.85)';
+      if(sg) $('tickerBox').style.boxShadow='0 0 0 2px #3a0a10,0 0 56px '+csCol(sg)+',inset 0 0 60px rgba(0,0,0,.85)';
+      const mk=$('tickerMarker'); if(mk){ mk.classList.remove('kick'); void mk.offsetWidth; mk.classList.add('kick'); if(sg) mk.style.setProperty('--mc',csCol(sg)); }
       const cEl=el.children[card]; if(cEl){ cEl.classList.remove('pass'); void cEl.offsetWidth; cEl.classList.add('pass'); }
-      const mk=$('tickerMarker'); if(mk){ mk.classList.remove('kick'); void mk.offsetWidth; mk.classList.add('kick'); }
       if(t>0.82){ wheel.slowTicks++; SFX.dingHit(Math.min(5,wheel.slowTicks)); }
     }
     if(t>0.86){ wheel.hbT-=dt; if(wheel.hbT<=0){ wheel.hbT=0.22+0.3*(1-t); tone(50,0.16,'sine',0.3,38); setTimeout(()=>tone(62,0.1,'sine',0.2,44),120); } }
@@ -151,7 +168,22 @@ function respinTicker(){
   if(state!=='wheel') return;
   const box=$('tickerBox'); box.classList.remove('landed');
   [...$('tickerStrip').children].forEach(c=>c.classList.remove('hit','pass'));
+  wheel._braked=false;
   wheel.phase='wind'; wheel.windT=0; wheel.windFrom=wheel.x; wheel.windK=0;
+}
+// SPACE mid-roll: slam the brake — the strip jumps to its crawl with a heavy clack
+function brakeTicker(){
+  if(wheel.phase!=='roll' || wheel._braked) return; wheel._braked=true;
+  wheel.rollT=Math.max(wheel.rollT, wheel.rollDur*0.86);
+  SFX.reelLock(); tone(120,0.24,'sine',0.26,68); noise(0.16,0.1,900); shake=Math.min(12,shake+6);
+}
+// close the wheel NOW (space after landing) — same exit the auto-timer takes
+function finishWheel(){
+  if(wheel._closed) return; wheel._closed=true;
+  $('wheelLayer').classList.add('hidden'); stopDrone();
+  if(state==='wheel'){ state='playing';
+    if(wheel.toAscent) setTimeout(()=>{ if(state==='playing') openCrash(); },300);
+    else if(pending.length) setTimeout(()=>{ if(state==='playing' && pending.length) openNextSlot(); },450); }
 }
 function landWheel(seg){
   const sg=WSEGS[seg];
@@ -185,18 +217,22 @@ function landWheel(seg){
     }
   }
   wheel.done=true;
+  // CS-tier land ceremony: pink pops, red screams, gold changes the run
+  const csc=csCol(sg);
+  if(sg.cs==='pink'){ domConfetti(26); flash(0.35,csc); }
+  else if(sg.cs==='red'){ domConfetti(32); flash(0.5,csc); setTimeout(()=>flash(0.4,csc),200); setTimeout(()=>SFX.dingBells(),260); }
+  else if(sg.cs==='gold'){ domConfetti(50); }
   const big=sg.tier>=3||(wheel.mult*gm>=2&&sg.f);
   if(big){ bigWin(sg.n,3); domConfetti(18+sg.tier*6); }
   { let ww=$('wheelWin'); if(!ww){ ww=document.createElement('div'); ww.id='wheelWin'; $('wheelLayer').appendChild(ww); }
-    ww.innerHTML='<div class="awT" style="color:'+(sg.tier===0?'#ff7b7b':sg.c)+';filter:brightness(1.6) saturate(1.3)">'+sg.n+((wheel.mult*gm)>1&&sg.f?' ×'+(wheel.mult*gm):'')+'</div>';
+    ww.classList.toggle('mega', sg.cs==='gold');
+    ww.innerHTML='<div class="awT" style="color:'+(sg.tier===0?'#ff7b7b':csc)+';filter:brightness(1.6) saturate(1.3)">'+sg.n+((wheel.mult*gm)>1&&sg.f?' ×'+(wheel.mult*gm):'')+'</div>';
     ww.classList.remove('go'); void ww.offsetWidth; ww.classList.add('go'); }
   if(sg.f) sg.f(wheel.mult*gm);
   if(wheel.golden&&sg.tier>=1) setTimeout(()=>SFX.record(),150);
   LT.wheel=(LT.wheel||0)+1; bump('wheel',LT.wheel);
-  $('wheelMsg').textContent=sg.n+((wheel.mult*gm)>1&&sg.f?'  ×'+(wheel.mult*gm):'');
-  setTimeout(()=>{ $('wheelLayer').classList.add('hidden'); stopDrone();
-    if(state==='wheel'){ state='playing'; if(wheel.toAscent) setTimeout(()=>{ if(state==='playing') openCrash(); },300);
-      else if(pending.length) setTimeout(()=>{ if(state==='playing' && pending.length) openNextSlot(); },450); } }, 1600);
+  $('wheelMsg').innerHTML=sg.n+((wheel.mult*gm)>1&&sg.f?'  ×'+(wheel.mult*gm):'')+' · <span class="keyhint">SPACE</span> continue';
+  setTimeout(finishWheel, sg.cs==='gold'?2600:1600);
 }
 function tickWheelTok(dt){
   if(!wheelTok){ wheelTokT-=dt;

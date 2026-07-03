@@ -355,7 +355,7 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 #crashHist .no{color:#ff5560;border-color:rgba(255,85,96,.5);}
 .stk{font-family:var(--disp);font-size:13px;letter-spacing:.1em;padding:8px 16px;border-radius:9px;border:1px solid rgba(232,182,76,.45);color:#c9b997;background:rgba(20,10,14,.85);}
 .stk.on{border-color:#8bff9a;color:#8bff9a;box-shadow:0 0 14px rgba(139,255,154,.5);animation:bulbPulse 1.1s infinite;}
-#wheelLayer{background:rgba(4,2,5,.88);backdrop-filter:blur(4px);z-index:46;}
+#wheelLayer{background:rgba(4,2,5,.62);backdrop-filter:blur(3px);z-index:46;}
 .wheelShell{text-align:center;}
 .wheelTitle{font-family:var(--disp);font-weight:800;font-size:clamp(24px,4.4vw,38px);letter-spacing:.22em;color:var(--gold-bright);text-shadow:0 0 26px var(--gold);margin-bottom:14px;}
 .wheelMult{font-family:var(--disp);font-weight:800;font-size:34px;color:#8bff9a;text-shadow:0 0 22px rgba(139,255,154,.9);margin-bottom:6px;}
@@ -365,7 +365,7 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 @keyframes wcfFall{from{transform:translate(0,0) rotate(0);opacity:1;}to{transform:translate(var(--dx),46vh) rotate(540deg);opacity:0;}}
 .wheelMsg{margin-top:16px;font-family:var(--disp);font-size:14px;letter-spacing:.14em;color:#d4c5a2;min-height:24px;}
 /* ═══ WHEEL REVAMP ═══ */
-.wheelFelt{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 72% 54% at 50% 58%,rgba(14,110,62,.55),rgba(8,44,26,.28) 55%,transparent 76%);box-shadow:inset 0 0 180px 40px rgba(0,0,0,.8);}
+.wheelFelt{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 72% 54% at 50% 58%,rgba(14,110,62,.33),rgba(8,44,26,.17) 55%,transparent 76%);box-shadow:inset 0 0 180px 40px rgba(0,0,0,.55);}
 .wheelMarq{font-family:var(--disp);font-size:11px;font-weight:700;letter-spacing:.5em;text-transform:uppercase;color:#ffd36b;width:max-content;max-width:94vw;margin:0 auto 8px;padding:5px 20px;border:1px solid rgba(232,182,76,.5);border-radius:20px;background:linear-gradient(115deg,transparent 30%,rgba(255,240,200,.16) 50%,transparent 70%) rgba(20,8,10,.85);background-size:250% 100%;animation:goldSheen 3.4s linear infinite;text-shadow:0 0 12px var(--gold);}
 .wheelMult{font-size:44px;background:linear-gradient(180deg,#fff2c0,#ffd36b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 18px rgba(255,211,107,.9));}
 /* ═══ GOLDEN SPIN ═══ */
@@ -386,8 +386,15 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
   border:2px solid color-mix(in srgb,var(--tc) 65%,#2a1118);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 -8px 18px rgba(0,0,0,.5),0 0 12px color-mix(in srgb,var(--tc) 22%,transparent);}
 .tkCard .tkG{font-size:34px;line-height:1;color:var(--tc);text-shadow:0 0 14px var(--tc);}
 .tkCard .tkN{font-family:var(--disp);font-size:11px;font-weight:800;letter-spacing:.08em;color:#f2e6c8;text-shadow:0 1px 2px #000;text-align:center;padding:0 4px;}
-.tkCard.tk3 .tkN{color:#fff2c0;text-shadow:0 0 10px rgba(255,240,192,.8),0 1px 2px #000;}
-.tkCard.tk0{filter:saturate(.7) brightness(.85);}
+.tkCard .tkBar{position:absolute;left:8px;right:8px;bottom:7px;height:5px;border-radius:3px;background:var(--tc);box-shadow:0 0 10px var(--tc);}
+.tkCard{position:relative;padding-bottom:8px;}
+.tkCard.tkcs-pink .tkN{text-shadow:0 0 10px rgba(211,44,230,.7),0 1px 2px #000;}
+.tkCard.tkcs-red .tkN{color:#ffd7d7;text-shadow:0 0 10px rgba(235,75,75,.8),0 1px 2px #000;}
+.tkCard.tkcs-gold{background:linear-gradient(180deg,rgba(56,40,14,.97),rgba(24,16,6,.98));animation:bulbPulse 1s infinite;}
+.tkCard.tkcs-gold .tkN{color:#fff2c0;text-shadow:0 0 12px rgba(228,174,57,.9),0 1px 2px #000;}
+.tkCard.tkdud{filter:saturate(.5) brightness(.75);}
+#tickerMarker::before{background:linear-gradient(to bottom,var(--mc,#fff2c0),#ffd36b 50%,var(--mc,#fff2c0));box-shadow:0 0 10px var(--mc,#ffd36b),0 0 26px color-mix(in srgb,var(--mc,#ffd36b) 70%,transparent);}
+#wheelWin.mega .awT{font-size:64px !important;text-shadow:0 0 30px currentColor,0 0 80px currentColor;}
 .tkCard.pass{animation:tkPass .22s ease;}
 @keyframes tkPass{30%{transform:scale(1.06);}100%{transform:scale(1);}}
 #tickerBox.landed .tkCard{filter:brightness(.42) saturate(.6);transition:filter .3s;}

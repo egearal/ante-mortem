@@ -317,7 +317,10 @@ window.addEventListener('keydown',e=>{
       }
     }
     return; }
-  if(state==='wheel'){ if(k===' '){ e.preventDefault(); launchWheel(); } return; }
+  if(state==='wheel'){ if(k===' '){ e.preventDefault();
+    if(wheel.phase==='roll') brakeTicker();
+    else if(wheel.done) finishWheel();
+    else launchWheel(); } return; }
   if(state==='slot'){
     if(k===' '){
       if(e.repeat) return;
