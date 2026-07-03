@@ -167,17 +167,24 @@ function openIndexPanel(){
   const seen=idxSeen(), tot=idxTotal();
   $('idxCount').textContent=seen+' / '+tot+' CATALOGUED  ·  '+idxPct()+'%';
   $('idxProg').style.width=(seen/tot*100).toFixed(1)+'%';
-  const tile=(got,g,n,c)=> got? '<div class="idxTile on" style="--ic:'+c+'"><span class="idxG">'+g+'</span>'+n+'</div>'
-                              : '<div class="idxTile"><span class="idxG">?</span>???</div>';
+  const tile=(got,g,n,c)=>{ let tip=''; const bar=n.indexOf('|');
+    if(bar>=0){ tip=n.slice(bar+1); n=n.slice(0,bar); }
+    return got? '<div class="idxTile on"'+(tip?' data-tip="'+tip.replace(/"/g,'&quot;')+'" data-name="'+n.replace(/"/g,'&quot;')+'"':'')+' style="--ic:'+c+'"><span class="idxG">'+g+'</span>'+n+'</div>'
+              : '<div class="idxTile"><span class="idxG">?</span>???</div>'; };
   const sec=(ico,name,col,rows)=>{ const got=rows.filter(r=>r[0]).length;
     return '<div class="idxSec" style="--sc:'+col+'"><div class="idxSecH"><b>'+ico+' '+name+'</b><span>'+got+' / '+rows.length+'</span></div><div class="idxGrid">'
       +rows.map(r=>tile(r[0],r[1],r[2],r[3])).join('')+'</div></div>'; };
+  if(!list._tipWired){ list._tipWired=true;
+    list.addEventListener('mouseover',ev=>{ const el=ev.target.closest('.idxTile[data-tip]'); if(!el) return;
+      const tp=$('relicTip'); tp.innerHTML='<b>'+el.dataset.name+'</b><br>'+el.dataset.tip; tp.classList.remove('hidden');
+      const r9=el.getBoundingClientRect(); tp.style.right=(innerWidth-r9.left+10)+'px'; tp.style.top=(r9.top-6)+'px'; });
+    list.addEventListener('mouseout',ev=>{ if(ev.target.closest('.idxTile')) $('relicTip').classList.add('hidden'); }); }
   list.innerHTML=
     sec('⚔','THE ARSENAL','#ff9a3c', WEAPONS.map(w=>[IDX.w.indexOf(w.id)>=0, w.g, w.n, GLYPH_COL[w.id]||'#ffd36b']))
    +sec('✦','PASSIVES','#8bff9a', PASSIVES.filter(s=>s.rar!=='ascend'&&s.rar!=='mythic').map(s=>[IDX.p.indexOf(s.id)>=0, s.g, s.n, GLYPH_COL[s.id]||'#8bff9a']))
    +sec('▲','ASCENSIONS','#8bffd0', PASSIVES.filter(s=>s.rar==='ascend'||s.rar==='mythic').map(s=>[IDX.p.indexOf(s.id)>=0, s.g, s.n, GLYPH_COL[s.id]||'#8bffd0']))
    +sec('☠','CURSES ENDURED','#ff5560', DEBUFF_POOL.map(d=>[IDX.c.indexOf(d.label)>=0, '☠', d.label, '#ff5560']))
-   +sec('★','THE TAROT','#c98bff', TAROT_FATES.map(f=>[IDX.t.indexOf(f.n)>=0, f.t>0?'★':'☠', f.n, f.c||'#c98bff']))
+   +sec('★','THE TAROT','#c98bff', TAROT_FATES.map(f=>[IDX.t.indexOf(f.n)>=0, f.t>0?'★':'☠', IDX.t.indexOf(f.n)>=0?f.n+'|'+((f.dd||'')+' ['+(f.t>0?'BLESSING':'CURSE')+']'):f.n, f.c||'#c98bff']))
    +sec('♟','THE COURT','#c22ca0', Object.keys(CFG.enemy).filter(k=>!BOSS_DEFS[k]).map(k=>[IDX.e.indexOf(k)>=0, '♟', k.toUpperCase(), CFG.enemy[k].col||'#c98bff']))
    +sec('♛','THE BOSSES','#ffd36b', Object.keys(BOSS_DEFS).map(k=>[IDX.b.indexOf(k)>=0, '♛', BOSS_DEFS[k].name, '#ffd36b']))
    +'<div class="idxSec" style="--sc:#c98bff"><div class="idxSecH"><b>🗝 SECRETS</b><span>'+SEC.size+' / 34</span></div><div class="idxHint">The walls keep the rest. Touch things. Wait in corners. Pry.</div></div>';
