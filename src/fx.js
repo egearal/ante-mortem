@@ -77,6 +77,12 @@ function drawSmites(){
     }
   }
 }
+// universal SPACE dopamine: pop the on-screen button/hint tied to a press
+function pressPulse(el){
+  if(typeof el==='string') el=$(el);
+  if(!el) return;
+  el.classList.remove('sp-pop'); void el.offsetWidth; el.classList.add('sp-pop');
+}
 function bigWin(label,tier){
   const l=$('jackpotLayer'), t=$('jackpotText'); t.textContent=label; t.className='jackpotText t'+tier;
   l.classList.remove('hidden'); t.style.animation='none'; void t.offsetWidth; t.style.animation='';
@@ -107,9 +113,12 @@ function coinRain(n){
   for(let i=0;i<plinks;i++) setTimeout(()=>SFX.coinPling(), i*55 + Math.random()*30);
   if(n>=14) setTimeout(()=>SFX.chipStack(),120);
 }
-function sparkBurst(n){ n=Math.round(n*1.4);
-  const m=$('machine'), host=$('slot'); if(!m||!host) return;
-  const r=m.getBoundingClientRect();
+function sparkBurst(n){ sparkBurstAt('machine','slot',n); }
+// host-aware sparks: rect from boxId, sparks appended to layerId (a fixed
+// inset-0 layer so viewport coords hold). Slot's sparkBurst is the wrapper.
+function sparkBurstAt(boxId,layerId,n){ n=Math.round(n*1.4);
+  const m=$(boxId), host=$(layerId); if(!m||!host) return;
+  const r=m.getBoundingClientRect(); if(r.width===0&&r.height===0) return;
   for(let i=0;i<n;i++){
     const s=document.createElement('div'); s.className='spark';
     const ang=Math.random()*6.283, dist=55+Math.random()*150;

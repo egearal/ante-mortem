@@ -289,6 +289,13 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 .btn.red{color:#ffe1e1;background:linear-gradient(180deg,#c8202c,#7a0f16);box-shadow:0 6px 0 #4a0810,0 10px 24px rgba(200,30,44,.4);}
 .btn.red:active{box-shadow:0 2px 0 #4a0810;}
 .keyhint{display:inline-block;font-family:var(--disp);font-size:10px;letter-spacing:.1em;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.2);border-radius:4px;padding:0 5px;margin-right:3px;vertical-align:middle;}
+/* universal SPACE press pop — the on-screen button answers the physical key */
+.sp-pop{animation:spPop .16s cubic-bezier(.2,1.6,.4,1);}
+@keyframes spPop{
+  0%{transform:scale(1);filter:brightness(1);}
+  40%{transform:scale(1.12);filter:brightness(1.55) saturate(1.2);text-shadow:0 0 14px rgba(255,211,107,.8);}
+  100%{transform:scale(1);filter:brightness(1);}
+}
 .diceRow{display:flex;gap:26px;justify-content:center;align-items:center;padding:22px 0 14px;min-height:120px;}
 .die{width:78px;height:78px;border-radius:15px;background:
   radial-gradient(90% 90% at 28% 22%,#fffdf6 0%,#f4ecd8 34%,#e0d4b8 68%,#c2b494 100%);

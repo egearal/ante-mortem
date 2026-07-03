@@ -253,7 +253,9 @@ window.addEventListener('keydown',e=>{
   if(state==='dead'){
     if(k===' ' && !inInput && !e.repeat){
       if(performance.now()-(window._recapT0||0)<500) return; // FINAL PRESS mashers don't skip-restart
+      SFX.press();
       if(!window._recapDone && window._recapSkip){ window._recapSkip(); SFX.uiDing(); return; } // first space: complete the recap
+      pressPulse('againBtn');
       $('againBtn').click(); // second space: wager again
     }
     return;
@@ -286,8 +288,8 @@ window.addEventListener('keydown',e=>{
   if(state==='crash'){
     if(crash&&crash.jk){ if(k==='1'||k==='2'||k==='3'){ e.preventDefault(); pickJackpot(+k-1); } return; }
     e.preventDefault();
-    if(k===' '){ if(crash.live) pushCrash(); else if(!crash.done) launchCrash(); }
-    else if(k==='enter'){ if(crash.live) cashCrash(); }
+    if(k===' '){ if(crash.live){ SFX.press(); pressPulse('crashMsg'); pushCrash(); } else if(!crash.done){ SFX.press(); pressPulse('crashMsg'); launchCrash(); } }
+    else if(k==='enter'){ if(crash.live){ SFX.press(); pressPulse('crashMsg'); cashCrash(); } }
     return;
   }
   if(state==='marker'){
@@ -297,18 +299,22 @@ window.addEventListener('keydown',e=>{
       if(mk.p<mk.max){
         mk.presses++;
         mk.p=Math.min(mk.max, mk.p+0.0025+Math.random()*0.005); // +0.25–0.75% a press — every decimal earned
+        SFX.press();
         pressFx(mk);
         renderPressMeter();
+        pressPulse(document.querySelector('#jackpotSub .fpHint')); // after render — the div is rebuilt each press
       }
     }
     return; }
   if(state==='wheel'){ if(k===' '){ e.preventDefault();
+    if(!e.repeat){ SFX.press(); pressPulse('wheelMsg'); }
     if(wheel.phase==='roll') brakeTicker();
     else if(wheel.done) finishWheel();
     else launchWheel(); } return; }
   if(state==='slot'){
     if(k===' '){
       if(e.repeat) return;
+      SFX.press(); pressPulse('gambleMsg');
       if(slotStage==='offer'){ spaceHold=true; holdProg=0; holdFired=false; ringShow(true); }
       else slotTap();
     }

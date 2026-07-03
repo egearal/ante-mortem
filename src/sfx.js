@@ -102,6 +102,10 @@ const SFX={
     SFX.dingBells(); if(t>=4) setTimeout(()=>SFX.seraph(),220);
   },
   uiDing(){ tone(2093,0.09,'sine',0.08); tone(2637,0.07,'sine',0.05); },
+  // universal press-click: felt-tick under every interactive SPACE, throttled
+  // so mashers never clip the mix
+  press(){ const n9=performance.now(); if(n9-(SFX._pressT||0)<60) return; SFX._pressT=n9;
+    tone(1800,0.03,'square',0.16); noise(0.03,0.06,5200); },
   secretFound(){ [659,880,1046,1318,880,1568].forEach((f,i)=>setTimeout(()=>tone(f,0.22,'sine',0.13),i*85)); noise(0.5,0.04,5200); },
   vaultBuy(){ tone(110,0.28,'sine',0.24,80); noise(0.2,0.12,700); [1046,1318,1568,2093].forEach((f,i)=>setTimeout(()=>tone(f,0.2,'sine',0.15),120+i*60)); setTimeout(()=>SFX.chipStack&&SFX.chipStack(),80); }
 };
