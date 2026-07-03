@@ -910,3 +910,21 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
 .prArrow.dim{opacity:.22;color:#6a5e50;cursor:default;text-shadow:none;}
 .prArrow.deny{animation:arrowDeny .3s;}
 @keyframes arrowDeny{0%,100%{transform:translateY(-50%) translateX(0);}30%{transform:translateY(-50%) translateX(5px);}60%{transform:translateY(-50%) translateX(-4px);}}
+
+/* ═══ THE SACRIFICE — a skill of yours on the side table ═══ */
+#sacCard{position:absolute;right:calc(100% + 16px);top:50%;transform:translateY(-50%);width:130px;text-align:center;
+  background:linear-gradient(170deg,rgba(40,10,16,.96),rgba(16,4,8,.97));border:1px solid rgba(200,30,44,.6);border-radius:12px;
+  padding:14px 10px;box-shadow:0 10px 40px rgba(0,0,0,.7),0 0 22px rgba(139,22,32,.4);animation:sacIn .5s cubic-bezier(.2,1.5,.4,1);}
+@keyframes sacIn{0%{transform:translateY(-50%) scale(.6) rotate(-4deg);opacity:0;}100%{transform:translateY(-50%) scale(1) rotate(0);opacity:1;}}
+#sacCard.hidden{display:none;}
+#sacCard.gone{animation:sacBurn .7s ease forwards;}
+@keyframes sacBurn{0%{filter:none;opacity:1;}100%{filter:brightness(3) blur(6px);opacity:0;transform:translateY(-50%) scale(1.15);}}
+.sacT{font-family:var(--disp);font-size:10px;letter-spacing:.3em;color:#ff5560;margin-bottom:8px;}
+.sacG{font-size:34px;line-height:1;margin-bottom:6px;text-shadow:0 0 14px rgba(255,85,96,.6);}
+.sacN{font-family:var(--disp);font-size:12px;letter-spacing:.06em;color:#e6d9c2;}
+.sacS{font-size:10px;font-style:italic;color:#8a5a5e;margin-top:5px;}
+@media(max-width:900px){#sacCard{display:none;}}
+/* blood-hour — the screen itself smells it while the lever waits */
+body.bloodhour canvas{filter:saturate(1.5) hue-rotate(-16deg) contrast(1.1);}
+body.bloodhour #machine{animation:bloodTremble 2.2s ease-in-out infinite;}
+@keyframes bloodTremble{0%,100%{transform:translate(0,0);}25%{transform:translate(0.6px,-0.5px);}50%{transform:translate(-0.5px,0.6px);}75%{transform:translate(0.4px,0.4px);}}

@@ -100,20 +100,30 @@ function openNextSlot(){
   if(bloodLow) offerBloodLever();
 }
 function offerBloodLever(){
+  if(!P.passiveList || !P.passiveList.length) return; // nothing to stake — the House shrugs
   slotStage='lever';
+  document.body.classList.add('bloodhour');
   $('machine').classList.add('leverArmed');
   excite=1; SFX.murmur(); flash(0.25,'#8b1620'); startDrone();
   $('slotTag').textContent='☨ THE HOUSE SMELLS BLOOD ☨';
   $('cardName').textContent='THE BLOOD LEVER'; $('cardName').className='bigname'; $('cardName').style.color='#ff5560';
-  $('cardDesc').innerHTML='<div class="ofsub" style="color:#ff7b7b">RICHER REELS · DICE 7+</div>'
-    +'<div class="ofrow"><span class="ofl">50 / 50 — THE TABLE PAYS OR THE TABLE TAKES</span></div>';
+  $('cardDesc').innerHTML='<div class="ofsub" style="color:#ff7b7b">A SKILL OF YOURS GOES ON THE TABLE</div>'
+    +'<div class="ofrow"><span class="ofg">🎲 WINS HEAL YOU</span><span class="ofl">TAKE = A COIN · ONE MISS = ALL</span></div>';
   $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> pull the lever · <span class="keyhint">X</span> refuse';
   showSlotButtons();
 }
 function pullBloodLever(){
   if(slotStage!=='lever') return;
+  document.body.classList.remove('bloodhour');
   lastRites=true;
-  redFlip=Math.random()<0.5; redForgiven=false; // heads the table pays, tails the table takes
+  redForgiven=false;
+  // THE SACRIFICE — one of yours goes on the side table
+  { const en=P.passiveList[(Math.random()*P.passiveList.length)|0];
+    redStake={id:en.id, n:en.n, g:en.g};
+    let sc=$('sacCard');
+    if(!sc){ sc=document.createElement('div'); sc.id='sacCard'; $('machine').appendChild(sc); }
+    sc.innerHTML='<div class="sacT">THE STAKE</div><div class="sacG">'+en.g+'</div><div class="sacN">'+en.n+'</div><div class="sacS">on the table</div>';
+    sc.classList.remove('hidden','gone'); }
   $('machine').classList.remove('leverArmed');
   $('cardName').style.color='';
   elSlot.classList.add('lastrites');
@@ -132,6 +142,7 @@ function pullBloodLever(){
 }
 function refuseBloodLever(){
   if(slotStage!=='lever') return;
+  document.body.classList.remove('bloodhour');
   P._refuses=(P._refuses||0)+1; if(P._refuses>=3) secret('pactbreaker','PACT BREAKER');
   $('machine').classList.remove('leverArmed');
   $('cardName').style.color='';
@@ -200,7 +211,7 @@ function openSlotReady(kind){
 // fresh pool would run ~14% and triples ~0.3% — fate makes both bands exact.
 const MFATE={T:0.008, P:0.09};
 let slotFate=null, rerollCarry=null;
-let redFlip=false, redForgiven=false; // the blood lever's hidden coin
+let redStake=null, redForgiven=false; // THE SACRIFICE — a skill of yours on the side table
 function dealFate(seqs, pool){
   const u=Math.random();
   const n = u<MFATE.T ? 3 : (u<MFATE.T+MFATE.P ? 2 : 0);
@@ -385,16 +396,6 @@ function finalizeReward(bestId, matchN){
   if(slotBank>=7){ slotBank-=7; vouchers++; SFX.dingBells(); SFX.chipStack();
     setTimeout(()=>announce('◈ BANK FULL — HOUSE VOUCHER EARNED ◈', true), 200); }
   const defs=slotKind==='weapon'?WEAPONS:PASSIVES; const def=defs.find(x=>x.id===bestId);
-  // THE COIN — half of red-table pulls end here: the spin lands, the card
-  // flips black, and the House takes one of YOURS instead
-  if(lastRites && redFlip){
-    redFlip=false;
-    if(typeof contractDone==='function' && contractDone('codicil') && !redForgiven){
-      redForgiven=true;
-      setTimeout(()=>announce('☨ THE CODICIL TURNS THE COIN — FORGIVEN ☨', true), 500);
-      SFX.tingle(); flash(0.3,'#9adcff');
-    } else { tableTakes(); return; }
-  }
   const curLv9 = slotKind==='weapon' ? (P.wlv[def.id]||0) : skLevel(def);
   const owned9 = curLv9>0;
   // MATCH LAW v3: single = LEVEL 1 · pair = LEVEL 2 · TRIPLE = INSTANT MAX.
@@ -429,21 +430,28 @@ function showRewardPanel(){
 // THE TABLE TAKES — the tails of the blood lever's coin. One of your own
 // skills is stripped a level and a curse rides home with you.
 function tableTakes(){
+  // v4: THE STAKE burns — the skill on the side table is stripped a level,
+  // the offer evaporates, the night moves on. The CODICIL can forgive once.
+  if(typeof contractDone==='function' && contractDone('codicil') && !redForgiven){
+    redForgiven=true;
+    announce('☨ THE CODICIL SHIELDS THE STAKE — FORGIVEN ☨', true);
+    SFX.tingle(); flash(0.3,'#9adcff');
+    return false; // forgiven — caller proceeds as a win
+  }
   slotStage='resolved'; gamble=null;
   $('machine').classList.remove('win','jackpot'); $('machine').classList.add('bust');
   let lost=null;
-  if(P.passiveList && P.passiveList.length){
-    const en=P.passiveList[(Math.random()*P.passiveList.length)|0];
-    en.count--; lost=en.n;
-    if(en.count<=0) P.passiveList.splice(P.passiveList.indexOf(en),1);
-    renderRelics();
+  if(redStake){
+    const en=P.passiveList.find(x=>x.id===redStake.id);
+    if(en){ en.count--; if(en.count<=0) P.passiveList.splice(P.passiveList.indexOf(en),1); renderRelics(); }
+    lost=redStake.n;
+    const sc=$('sacCard'); if(sc){ sc.classList.add('gone'); setTimeout(()=>sc.classList.add('hidden'),700); }
+    redStake=null;
   }
-  const dl=applyDebuff();
-  if(!lost) applyScar(); // nothing to take? it takes flesh instead
   LT.skillLost=(LT.skillLost||0)+1; bump('skillLost',LT.skillLost);
   $('cardName').textContent='THE TABLE TAKES'; $('cardName').className='r-common bigname'; $('cardName').style.color='#ff5560';
-  $('cardDesc').innerHTML='<div class="ofbig" style="color:#ff5560">'+(lost?('− '+lost.toUpperCase()):'− A POUND OF FLESH')+'</div>'
-    +'<div class="ofrow"><span class="ofl">☠ '+dl+'</span></div>';
+  $('cardDesc').innerHTML='<div class="ofbig" style="color:#ff5560">'+(lost?('− '+lost.toUpperCase()):'− EVERYTHING ON IT')+'</div>'
+    +'<div class="ofrow"><span class="ofl">the offer burns with it</span></div>';
   $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> continue';
   { const l=$('jackpotLayer'), t=$('jackpotText'); t.textContent='TAKEN'; t.className='jackpotText'; t.style.color='#ff5560';
     l.classList.remove('hidden'); t.style.animation='none'; void t.offsetWidth; t.style.animation='';
@@ -451,6 +459,13 @@ function tableTakes(){
   setTimeout(()=>announce('☨ THE TABLE TAKES'+(lost?' — '+lost.toUpperCase():'')+' ☨', false), 300);
   SFX.bust(); flash(0.6,'#8b1620'); shake=Math.min(24,shake+12);
   showSlotButtons();
+  return true;
+}
+function stakeReturns(){
+  if(!redStake) return;
+  announce('✦ THE STAKE RETURNS — '+redStake.n.toUpperCase()+' ✦', true);
+  const sc=$('sacCard'); if(sc) sc.classList.add('hidden');
+  redStake=null; SFX.tingle();
 }
 // the rung script, purified by decree: EVERY dice win = +1 level. Rarity is
 // dealt once by the reels and never changes. (PERFECT 12 still pays a bonus.)
@@ -497,9 +512,10 @@ function rerollReels(){
 // or honest coins when the thing is already maxed
 function winLine(g){
   const curLv=skLevel(g.def);
+  const heal=g.rites?(' · +'+Math.ceil(P.maxHp*0.25)+' ♥'):'';
   const wl=Math.min(g.def.max, curLv+g.reward+1);
-  if(wl<=curLv+g.reward) return '+12 ◈ MAXED';
-  return 'LEVEL '+wl+' · '+projFx(g.def, wl);
+  if(wl<=curLv+g.reward) return '+12 ◈ MAXED'+heal;
+  return 'LEVEL '+wl+' · '+projFx(g.def, wl)+heal;
 }
 function doRisk(){
   if(slotStage!=='offer' || !gamble) return;
@@ -591,6 +607,8 @@ function resolveRisk(){
     // every win = +1 level (PERFECT 12 pays one more) — rarity never moves
     let gain=1; if(perfect) gain+=1;
     g.reward+=gain;
+    if(g.rites){ const hl=Math.ceil(P.maxHp*0.25); P.hp=Math.min(P.maxHp,P.hp+hl);
+      setTimeout(()=>announce('♥ THE TABLE PAYS IN BLOOD — +'+hl+' ♥', true), 250); flash(0.3,'#ff8090'); }
     dice.forEach(d=>d.el.classList.add('crit'));
     const rw=g.reward; SFX.dingBells(); SFX.casinoDing(); if(rw>=4) setTimeout(()=>SFX.cashout(),120); if(rw>=5) setTimeout(()=>SFX.dingBells(),220); coinRain(16+rw*4); flash(0.42,'#8bff9a'); $('machine').classList.add('win'); shake=Math.min(22,shake+7+rw); excite=1; sparkBurst(24+rw*5);
     if(perfect) perfectFlash();
@@ -598,7 +616,7 @@ function resolveRisk(){
     $('cardDesc').innerHTML='<div class="ofbig" style="color:'+(perfect?'#ffe066':'#b8ffbf')+'">'+(perfect?'✦ 12! ✦ ':'')+'WIN — LEVEL '+nowLv+'</div>'
       +'<div class="ofstat">'+projFx(g.def, nowLv)+'</div>';
     if(g.round>=MAXROLL){
-      const fin=()=>{ window._slotFF=null; let nl; if(g.kind==='weapon'){ nl=grantWeaponLevels(g.def,g.reward); } else { grantSkill(g.def,g.reward); nl=skillLevel(g.def.id); }
+      const fin=()=>{ window._slotFF=null; if(g.rites) stakeReturns(); let nl; if(g.kind==='weapon'){ nl=grantWeaponLevels(g.def,g.reward); } else { grantSkill(g.def,g.reward); nl=skillLevel(g.def.id); }
         $('machine').classList.remove('win'); dice.forEach(d=>d.el.classList.remove('crit'));
         $('cardName').textContent=g.def.n; $('cardName').className='r-'+g.def.rar+' bigname';
         $('cardDesc').innerHTML='<div class="ofbig" style="color:#ffe9a8">'+projFx(g.def, nl)+'</div>';
@@ -611,6 +629,15 @@ function resolveRisk(){
       const nxt=()=>{ window._slotFF=null; $('machine').classList.remove('win'); dice.forEach(d=>d.el.classList.remove('crit')); openOffer(); };
       const h=setTimeout(nxt, perfect?1250:850);
       window._slotFF=()=>{ clearTimeout(h); nxt(); };
+    }
+  } else if(g.rites){
+    (g.hist=g.hist||[]).push('l'); updateLadderPips();
+    if(!tableTakes()){
+      // the codicil shielded the stake — the miss is pardoned, the ladder continues
+      dice.forEach(d=>d.el.classList.remove('crit'));
+      $('machine').classList.remove('win','jackpot');
+      g.round++; g.threshold=Math.min(12, g.threshold+1); g.pendingCurse=null;
+      setTimeout(()=>{ openOffer(); }, 900);
     }
   } else {
     const forgive = g.rites && contractDone('codicil') && !g._forgiven;
@@ -666,6 +693,15 @@ function resolveRisk(){
 function takeReward(){
   if(slotStage!=='offer' || !gamble) return;
   const g=gamble;
+  if(g.rites && redStake){
+    if((g.hist||[]).length===0){
+      // THE COIN — taking without facing the dice is a 50/50 for BOTH piles
+      if(Math.random()<0.5){
+        if(tableTakes()) return; // both burned (unless the codicil shielded)
+      }
+    }
+    stakeReturns(); // faced the dice (or won the coin) — the stake comes home
+  }
   if(g.kind==='weapon') grantWeaponLevels(g.def, g.reward); else grantSkill(g.def, g.reward);
   SFX.winDing(); coinRain(8); flash(0.25,'#e8b64c');
   closeSlot();
@@ -833,6 +869,8 @@ function shinyWord(){ return SHINY[(Math.random()*SHINY.length)|0]; }
 function closeSlot(){
   endSeance();
   stopDrone();
+  document.body.classList.remove('bloodhour');
+  redStake=null; { const sc=$('sacCard'); if(sc) sc.classList.add('hidden'); }
   slotStage='idle'; rerollCarry=null;
   spaceHold=false; holdProg=0; holdFired=false; ringShow(false);
   dice.forEach(d=>{ if(d.el) d.el.classList.remove('rolling','settle','crit'); });
