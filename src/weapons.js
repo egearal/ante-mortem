@@ -20,7 +20,17 @@ const WEAPONS=[
   {id:'dice',  n:'Loaded Die',     g:'⚂',rar:'epic',max:5,d:l=>'Throws a cursed die that ricochets between '+(2+l)+' victims.'},
   {id:'phantom',n:'Card Shark',    g:'♤',rar:'epic',max:5,d:l=>'A phantom dealer hurls a wide spectral card-wave that pierces '+(4+l)+' foes.'},
   {id:'coffin',n:'Coffin Nails',   g:'⚰',rar:'rare',max:5,d:l=>'Fires '+(2+l)+' iron nails behind you — the House covers your retreat.'},
-  {id:'moths', n:'Grave Moths',    g:'❋',rar:'legendary',max:5,d:l=>'Breeds hungry moths every '+(1.1-l*0.08).toFixed(1)+'s that hunt flesh on their own.'}
+  {id:'moths', n:'Grave Moths',    g:'❋',rar:'legendary',max:5,d:l=>'Breeds hungry moths every '+(1.1-l*0.08).toFixed(1)+'s that hunt flesh on their own.'},
+  {id:'razor', n:'Razor Deck',     g:'✂',rar:'common',max:5,d:l=>'Hurls '+(1+Math.floor(l/2))+' card-sliver'+(l>=2?'s':'')+' that arc out and RETURN through the crowd.'},
+  {id:'cinders',n:'Cinder Spit',   g:'🔥',rar:'common',max:5,d:l=>'Spits a cone of '+(5+l)+' burning embers every '+(1.6-l*0.1).toFixed(1)+'s. Short reach, cruel heat.'},
+  {id:'pendulum',n:'Pendulum',     g:'⌛',rar:'common',max:5,d:l=>'A metronome blade swings before you, carving a '+Math.round(70+l*14)+'px arc. Tick. Tock.'},
+  {id:'stakes',n:'Iron Stakes',    g:'⚒',rar:'rare',max:5,d:l=>'Fires piercing stakes that PLANT in the marble for 2.2s, wounding all who walk over them.'},
+  {id:'serpent',n:'Brass Serpent', g:'≈',rar:'rare',max:5,d:l=>'A slithering bolt weaves through '+(3+l)+' foes, biting for '+(90+l*18)+'% damage.'},
+  {id:'chalice',n:'Poison Chalice',g:'🍷',rar:'rare',max:5,d:l=>'Lobs a goblet that shatters into a bubbling pool ('+(56+l*9)+'px, '+(2.2+l*0.3).toFixed(1)+'s) — the living rot inside it.'},
+  {id:'gramo', n:'Gramophone',     g:'🎺',rar:'epic',max:5,d:l=>'Blares '+(2+Math.floor(l/2))+' shattering sound-waves in your facing every '+(2.2-l*0.15).toFixed(1)+'s.'},
+  {id:'cylinder',n:'Roulette Cylinder',g:'✪',rar:'epic',max:5,d:l=>'A six-round burst every '+(2.6-l*0.18).toFixed(1)+'s — the sixth chamber is ALWAYS a golden crit.'},
+  {id:'candelabra',n:'Candelabra', g:'🕯',rar:'legendary',max:5,d:l=>'Three living candles orbit you, each sniping fire every '+(1.3-l*0.09).toFixed(1)+'s.'},
+  {id:'guillotine',n:'The Guillotine',g:'🗡',rar:'legendary',max:5,d:l=>'A colossal blade falls on the thickest crowd every '+(4.6-l*0.35).toFixed(1)+'s for '+(300+l*80)+'% damage.'}
 ];
 function nearestFoe(rg){ let t=null,td=(rg||1e9)*(rg||1e9); for(const e of enemies){ const d2=(e.x-P.x)**2+(e.y-P.y)**2; if(d2<td){td=d2;t=e;} } return t; }
 function fireCoil(l){ const t=nearestFoe(240+l*25); if(!t) return;
@@ -63,6 +73,55 @@ function fireCoffin(n){ const back=P.aim+Math.PI;
 function fireMoths(){ const a=Math.random()*6.283;
   bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*P.projSpeed*0.5,vy:Math.sin(a)*P.projSpeed*0.5,r:3,dmg:P.damage*0.45,life:3.5,seek:true,spin:0});
   parts.push({x:P.x,y:P.y,vx:rnd(-30,30),vy:rnd(-40,-10),life:0.4,col:'#d7ffb8',r:2}); }
+/* ── the new arsenal (Batch 7) — each with its own silhouette in flight ── */
+function fireRazor(l){ const t=nearestFoe(420); if(!t) return;
+  const n=1+Math.floor(l/2);
+  for(let i=0;i<n;i++){ const a=Math.atan2(t.y-P.y,t.x-P.x)+(i-(n-1)/2)*0.35;
+    bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*P.projSpeed*0.9,vy:Math.sin(a)*P.projSpeed*0.9,
+      r:6,dmg:P.damage*(1.0+0.22*l),life:1.7,kind:'razor',pierce:9,spin:0,_out:0.8}); }
+  tone(1200,0.07,'square',0.07); noise(0.05,0.04,4200); }
+function fireCinders(l){ const t=nearestFoe(240), a0=t?Math.atan2(t.y-P.y,t.x-P.x):P.aim;
+  for(let i=0;i<5+l;i++){ const a=a0+rnd(-0.5,0.5), sp=P.projSpeed*(0.45+Math.random()*0.3);
+    bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,
+      r:3,dmg:P.damage*0.38,life:0.34+Math.random()*0.12,kind:'ember',spin:0}); }
+  noise(0.12,0.08,1600); tone(220,0.1,'sawtooth',0.06,90); }
+function fireStakes(l){ const t=nearestFoe(460); if(!t) return;
+  const a=Math.atan2(t.y-P.y,t.x-P.x);
+  bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*P.projSpeed*1.25,vy:Math.sin(a)*P.projSpeed*1.25,
+    r:5,dmg:P.damage*(1.1+0.2*l),life:0.55,kind:'stake',pierce:2,spin:0,_plant:l});
+  tone(160,0.09,'square',0.1,80); }
+function fireSerpent(l){ const t=nearestFoe(430); if(!t) return;
+  const a=Math.atan2(t.y-P.y,t.x-P.x);
+  bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*P.projSpeed*0.8,vy:Math.sin(a)*P.projSpeed*0.8,
+    r:5,dmg:P.damage*(0.9+0.18*l),life:1.4,kind:'serpent',pierce:3+l,spin:0,_ph:Math.random()*6.28});
+  tone(740,0.12,'triangle',0.07,520); }
+function fireChalice(l){ const t=nearestFoe(420)||{x:P.x+rnd(-180,180),y:P.y+rnd(-180,180)};
+  const a=Math.atan2(t.y-P.y,t.x-P.x)+rnd(-0.1,0.1);
+  bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*P.projSpeed*0.5,vy:Math.sin(a)*P.projSpeed*0.5,
+    r:6,dmg:P.damage*0.4,life:0.85,kind:'chalice',spin:0,_pool:l});
+  tone(980,0.08,'sine',0.06); noise(0.04,0.03,3000); }
+function fireGramo(l){ const t=nearestFoe(400), a0=t?Math.atan2(t.y-P.y,t.x-P.x):P.aim;
+  const n=2+Math.floor(l/2);
+  for(let i=0;i<n;i++) setTimeout(()=>{ if(state!=='playing')return;
+    waves.push({x:P.x,y:P.y,a:a0,r:26,t:0.55,l,id:++window._waveId}); SFX.dingHit(2+i); },i*140);
+  tone(180,0.3,'sawtooth',0.1,110); }
+function fireCylinder(l){ P._cylN=6; P._cylGap=0; P._cylLvl=l;
+  SFX.diceRattle(); tone(300,0.08,'square',0.09,150); }
+function fireCandles(l){ // three orbiting candles snipe independently
+  for(let i=0;i<3;i++){ const t=nearestFoe(430); if(!t) break;
+    const ca=gt*1.4+i*2.094, cx=P.x+Math.cos(ca)*52, cy=P.y+Math.sin(ca)*52-14;
+    const a=Math.atan2(t.y-cy,t.x-cx)+rnd(-0.05,0.05);
+    bullets.push({x:cx,y:cy,px:cx,py:cy,vx:Math.cos(a)*P.projSpeed*1.1,vy:Math.sin(a)*P.projSpeed*1.1,
+      r:3.5,dmg:P.damage*(0.6+0.1*l),life:0.9,kind:'flamebolt',spin:0}); }
+  tone(1500,0.05,'sine',0.05); }
+function dropGuillotine(l){
+  // find the densest pack within reach
+  let bx=null,by=null,bn=0;
+  for(const e of enemies){ let n=0; for(const o of enemies){ if((o.x-e.x)**2+(o.y-e.y)**2<90*90) n++; }
+    if(n>bn && Math.hypot(e.x-P.x,e.y-P.y)<520){ bn=n; bx=e.x; by=e.y; } }
+  if(bx===null) return;
+  guils.push({x:bx,y:by,t:0.55,l,fell:false});
+  tone(90,0.3,'sine',0.2,55); SFX.murmur(); }
 function weaponReward(w){
   const cur=P.wlv[w.id]||0;
   return { kind:'weapon', id:w.id, g:w.g, n:w.n+(cur>0?' — Lv '+(cur+1):''), rar:w.rar, cur,

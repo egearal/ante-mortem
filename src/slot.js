@@ -661,6 +661,16 @@ function iconSvg(id){ const p=ICONS[id];
   }
   return '<svg viewBox="'+_vbFor(id)+'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>'; }
 const PROJ_FX={
+  razor: l=>(1+Math.floor(l/2))+' returning sliver'+(l>=2?'s':'')+' · '+(100+22*l)+'% dmg',
+  cinders: l=>(5+l)+' embers / '+(1.6-l*0.1).toFixed(1)+'s cone',
+  pendulum: l=>(70+l*14)+'px swing arc · '+(200+70*l)+'%/s',
+  stakes: l=>'stakes plant 2.2s · '+(110+20*l)+'% + ground bite',
+  serpent: l=>'weaves thru '+(3+l)+' · '+(90+18*l)+'% dmg',
+  chalice: l=>(56+l*9)+'px pool · '+(2.2+l*0.3).toFixed(1)+'s rot',
+  gramo: l=>(2+Math.floor(l/2))+' waves / '+(2.2-l*0.15).toFixed(1)+'s',
+  cylinder: l=>'6-round burst · 6th ALWAYS crits',
+  candelabra: l=>'3 candles · shot / '+(1.3-l*0.09).toFixed(1)+'s each',
+  guillotine: l=>(300+80*l)+'% blade / '+(4.6-l*0.35).toFixed(1)+'s',
   coil: l=>'Lash '+(180+l*40)+'% dmg / '+(1.6-l*0.12).toFixed(1)+'s',
   mortar: l=>(90+l*20)+'% blast, '+(70+l*12)+'px',
   lantern: l=>(1+Math.floor(l/2))+' snipe bolt'+(l>=2?'s':'')+' / '+(1.4-l*0.1).toFixed(1)+'s',
