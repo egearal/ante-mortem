@@ -156,7 +156,7 @@ async function actuallyDie(){
       setTimeout(()=>{ lk.innerHTML='LUCK: <b style="color:'+v.col+'">'+v.grade+'</b>'; lk.classList.remove('go'); void lk.offsetWidth; lk.classList.add('go');
         SFX.rarSting(v.tier); }, 1450); } }
   { const mk9=P.kills + wave*12 + P.level*10 + giltEarned*2;
-    const res=awardMarks(mk9);
+    const res=awardMarks(Math.round((mk9)*(window._markMult||1)));
     let rl=$('goRank'); if(!rl){ rl=document.createElement('div'); rl.id='goRank'; $('goLuck').parentNode.insertBefore(rl,$('goLuck').nextSibling); }
     rl.innerHTML='<div class="rkTop">HOUSE RANK '+RANK.rank+' — '+RANKS[RANK.rank-1].n+(res.up?' <span class="rkUp">RANK UP!</span>':'')+'</div>'
       +'<div class="rkBar"><i style="width:'+res.pct+'%"></i></div>'

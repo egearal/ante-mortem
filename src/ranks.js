@@ -133,7 +133,7 @@ function buildAch(){
 }
 /* THE INDEX — persistent catalogue of everything ever encountered (new key, additive) */
 const IDX_KEY='am_index_v1';
-let IDX={w:[],p:[],c:[],t:[],e:[],b:[],st:[]};
+let IDX={w:[],p:[],c:[],t:[],e:[],b:[],st:[],sl:'vesper',fl:'pit',ct:[]};
 let _idxT=null;
 function idxSee(cat,id){ if(!id||typeof IDX==='undefined') return; const a=IDX[cat]; if(!a||a.indexOf(id)>=0) return; a.push(id); idxSaveSoon(); idxBump(); }
 function idxTotal(){ return WEAPONS.length + PASSIVES.length + DEBUFF_POOL.length + TAROT_FATES.length + Object.keys(CFG.enemy).length + WHISPER_TOTAL; } // CFG.enemy already includes the 4 bosses
@@ -142,7 +142,8 @@ function idxPct(){ return Math.min(100,Math.floor(idxSeen()/idxTotal()*100)); }
 function idxBump(){ bump('index', idxPct()); }
 function idxSaveSoon(){ clearTimeout(_idxT); _idxT=setTimeout(idxSave, 800); }
 async function idxSave(){ try{ if(!store)return; await store.set(IDX_KEY,JSON.stringify(IDX),false); }catch(e){} }
-async function idxLoad(){ try{ if(!store)return; const r=await store.get(IDX_KEY,false); if(r&&r.value){ const o=JSON.parse(r.value); for(const k of ['w','p','c','t','e','b','st']) if(Array.isArray(o[k])) IDX[k]=o[k]; } }catch(e){} }
+async function idxLoad(){ try{ if(!store)return; const r=await store.get(IDX_KEY,false); if(r&&r.value){ const o=JSON.parse(r.value); for(const k of ['w','p','c','t','e','b','st','ct']) if(Array.isArray(o[k])) IDX[k]=o[k];
+      if(typeof o.sl==='string') IDX.sl=o.sl; if(typeof o.fl==='string') IDX.fl=o.fl; } }catch(e){} }
 // HOUSE FAVORS — specific feats seal small permanent bonuses, forever
 const ACH_PERKS={
  'minutes_3':   {n:'PIT LEGS',          fx:'+2 MOVE SPEED, FOREVER',  ap:()=>{P.speed+=2;}},

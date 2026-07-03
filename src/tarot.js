@@ -98,7 +98,7 @@ function tickTarot(dt){
   if(houseActive){ tarots.length=0; return; }
   tarotT-=dt;
   if(tarotT<=0 && tarots.length<2){
-    tarotT=14+Math.random()*10;
+    tarotT=(14+Math.random()*10)/((window._fmods&&window._fmods.tarot)||1);
     const a=Math.random()*6.283, dd=260+Math.random()*300;
     tarots.push({x:clamp(P.x+Math.cos(a)*dd,40,CFG.arena-40), y:clamp(P.y+Math.sin(a)*dd,40,CFG.arena-40), ph:Math.random()*6.28, t:24});
     showStreak('☨ A TAROT CARD MANIFESTS ☨'); SFX.tingle();

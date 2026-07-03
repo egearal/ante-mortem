@@ -8,7 +8,7 @@ function csCol(sg){ return CS_COL[sg.cs]||sg.c; }
 const WSEGS=[
  // ── MIL-SPEC BLUE (140/200 = 70%)
  {n:'60 COINS', g:'◈', cs:'blue', c:'#c8860a', tier:1, w:46, f:(m)=>{ const g2=60*m; P.coins+=g2; LT.coins+=g2; coinRain(14*m); SFX.cashout(); announce('◈ +'+g2+' COINS ◈',true); }},
- {n:'HEAL 33%', g:'✚', cs:'blue', c:'#0e8a4a', tier:1, w:36, f:(m)=>{ const hl=Math.round(P.maxHp*0.33*m); P.hp=Math.min(P.maxHp,P.hp+hl); flash(0.4,'#8bff9a'); SFX.dingBells(); announce('✚ +'+hl+' BLOOD ✚',true); }},
+ {n:'HEAL 33%', g:'✚', cs:'blue', c:'#0e8a4a', tier:1, w:36, f:(m)=>{ if(P.drought){ const g5=40*m; P.coins+=g5; LT.coins+=g5; SFX.cashout(); announce('✕ THE DROUGHT — +'+g5+' COINS INSTEAD ✕',true); return; } const hl=Math.round(P.maxHp*0.33*m); P.hp=Math.min(P.maxHp,P.hp+hl); flash(0.4,'#8bff9a'); SFX.dingBells(); announce('✚ +'+hl+' BLOOD ✚',true); }},
  {n:'↻ FREE SPIN', g:'↻', cs:'blue', c:'#ff5fa2', tier:1, w:32, f:null},
  {n:'CURSE', g:'☠', cs:'blue', c:'#640a16', tier:0, w:26, f:()=>{ const dl=applyDebuff(DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0]); SFX.bust(); flash(0.45,'#8b1620'); announce('☠ '+dl+' ☠',false); }},
  // ── RESTRICTED PURPLE (40/200 = 20%)

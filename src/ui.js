@@ -72,6 +72,7 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
     $('resumeBtn').addEventListener('click',()=>{ if(state==='paused'){ state='playing'; document.body.classList.remove('paused'); $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); } });
   } }
 function quitToMenu(){
+  document.body.classList.remove('floor-cellar','floor-chapel','bloodhour','paused');
   const hp=$('howPanel'), pl=$('pauseLayer');
   if(hp) hp.classList.add('hidden'); if(pl) pl.classList.add('hidden');
   elHud.classList.add('hidden'); elGO.classList.add('hidden'); elMenu.classList.remove('hidden');
@@ -421,9 +422,117 @@ function menuMotion(){
     holder.appendChild(su); }
   const aur=document.createElement('div'); aur.id='menuAurora'; m.insertBefore(aur, m.firstChild);
 }
+
+/* ============================================================
+   THE SOULS — six ways to owe the House. Selection lives in
+   IDX.sl (am_index_v1, additive). Applied last in startGame.
+   ============================================================ */
+
+/* THE FLOORS — where tonight happens */
+const FLOORS=[
+ {id:'pit',    n:'THE PIT',    g:'♠', col:'#c9b78e', d:'The casino floor as the House built it.', u:()=>true, uTxt:'', mods:{}},
+ {id:'cellar', n:'THE CELLAR', g:'♣', col:'#8fd977', d:'Below the tables. The swarm owns it — hordes +40%, no shooters, coins +15%.',
+   u:()=>RANK.rank>=20, uTxt:'REACH HOUSE RANK 20', mods:{horde:1.4, noRanged:true, coin:1.15, tint:'cellar'}},
+ {id:'chapel', n:'THE CHAPEL', g:'☨', col:'#fff2c0', d:'Where the House prays to itself. Everything runs 10% faster. XP +10%, tarot twice as often.',
+   u:()=>(LT.houseMet||0)>=3, uTxt:'MEET THE HOUSE 3 TIMES', mods:{spd:1.1, xp:1.1, tarot:2, tint:'chapel'}}
+];
+function curFloor(){ const f=FLOORS.find(x=>x.id===(IDX.fl||'pit')); return (f&&f.u())?f:FLOORS[0]; }
+/* THE CONTRACTS — sign up to two; each pays ×1.25 marks & gilt at the ledger */
+const RUN_CONTRACTS=[
+ {id:'glass',    g:'♡', n:'GLASS SOUL',     d:'Max blood halved. Every touch is a sentence.', ap:()=>{ P.maxHp=Math.max(20,Math.round(P.maxHp*0.5)); P.hp=P.maxHp; }},
+ {id:'drought',  g:'✕', n:'THE DROUGHT',    d:'Fountains run dry. The wheel never heals.', ap:()=>{ P.drought=true; }},
+ {id:'crowd',    g:'♟', n:'CROWDED TABLE',  d:'The pit spawns 30% heavier, all night.', ap:()=>{ P.crowd=true; }},
+ {id:'cold',     g:'❄', n:'COLD DECK',      d:'The reels never match. No pairs. No triples. Ever.', ap:()=>{ P.coldDeck=true; }},
+ {id:'midnight', g:'☾', n:'MIDNIGHT START', d:'The clock opens at 3:00 — ten minutes to matter.', ap:()=>{ gt=180; }}
+];
+const SOULS=[
+ {id:'vesper', n:'VESPER',     g:'♠', col:'#e6d9c2', d:'The staked soul. Balanced hands, every door open.',
+   u:()=>true, uTxt:'', ap:()=>{}},
+ {id:'dealer', n:'THE DEALER', g:'♦', col:'#6fb7ff', d:'Starts with Dealer\'s Hand. Every dice target −1, forever. Thin blood: −20 max.',
+   u:()=>RANK.rank>=12, uTxt:'REACH HOUSE RANK 12', ap:()=>{ P.wlv={cards:1}; P.diceEase=1; P.maxHp=Math.max(40,P.maxHp-20); P.hp=P.maxHp; }},
+ {id:'widow',  n:'THE WIDOW',  g:'☾', col:'#c98bff', d:'She kept her Grave Moths. +15% XP. −15% damage — grief dulls the blade.',
+   u:()=>SEC.size>=12, uTxt:'ANSWER 12 WHISPERS', ap:()=>{ P.wlv={moths:1}; P.xpMult=(P.xpMult||1)*1.15; P.damage*=0.85; }},
+ {id:'debtor', n:'THE DEBTOR', g:'◈', col:'#ffd36b', d:'Starts rich: 60 coins, ×1.35 coin gain. Takes +10% damage — the interest.',
+   u:()=>(LT.deaths||0)>=25, uTxt:'DIE 25 TIMES', ap:()=>{ P.coins+=60; P.coinMult=(P.coinMult||1)*1.35; P.dmgTakenMult=(P.dmgTakenMult||1)+0.10; }},
+ {id:'brute',  n:'THE BRUTE',  g:'⚒', col:'#ff9a3c', d:'Starts with Iron Stakes. +25% damage, +20 blood, −15% speed. Subtlety is for the thin.',
+   u:()=>(LT.kills||0)>=2500, uTxt:'2,500 LIFETIME KILLS', ap:()=>{ P.wlv={stakes:1}; P.damage*=1.25; P.maxHp+=20; P.hp=P.maxHp; P.speed*=0.85; }},
+ {id:'yolk',   n:'THE YOLK',   g:'◌', col:'#fff2c0', d:'Hatched too early. Tiny, quick, 60 blood — and the reels adore it: a second respin every slot.',
+   u:()=>SEC.has('theegg'), uTxt:'FIND THE EGG', ap:()=>{ P.wlv={razor:1}; P.radius*=0.7; P.speed*=1.2; P.maxHp=60; P.hp=60; P.yolk=true; }}
+];
+function curSoul(){ const s=SOULS.find(x=>x.id===(IDX.sl||'vesper')); return (s&&s.u())?s:SOULS[0]; }
+function openAnteRoom(){
+  let p=$('antePanel');
+  if(!p){ p=document.createElement('div'); p.id='antePanel'; p.className='layer hidden';
+    p.innerHTML='<div class="panel" style="max-width:min(880px,94vw);max-height:88vh;display:flex;flex-direction:column;">'
+      +'<h2 style="font-family:var(--disp);color:var(--gold-bright);letter-spacing:.14em;margin:0 0 10px;">♠ THE ANTE ROOM</h2>'
+      +'<div id="anteBody" style="overflow-y:auto;flex:1;text-align:left;padding-right:6px;"></div>'
+      +'<button class="btn" id="anteClose" style="margin-top:12px;">Back</button></div>';
+    document.body.appendChild(p);
+    $('anteClose').addEventListener('click',()=>{ p.classList.add('hidden'); renderChips(); SFX.casinoDing(); });
+    $('anteBody').addEventListener('click',ev=>{
+      const sc=ev.target.closest('.soulCard'); if(sc && !sc.classList.contains('locked')){ IDX.sl=sc.dataset.id; idxSaveSoon(); renderAnteRoom(); SFX.uiDing(); return; }
+      const fc=ev.target.closest('.floorCard'); if(fc && !fc.classList.contains('locked')){ IDX.fl=fc.dataset.id; idxSaveSoon(); renderAnteRoom(); SFX.uiDing(); return; }
+      const cc=ev.target.closest('.ctChip'); if(cc){ const id=cc.dataset.id; IDX.ct=IDX.ct||[];
+        const i=IDX.ct.indexOf(id); if(i>=0) IDX.ct.splice(i,1); else if(IDX.ct.length<2) IDX.ct.push(id); else return;
+        idxSaveSoon(); renderAnteRoom(); SFX.press(); return; }
+    });
+  }
+  renderAnteRoom();
+  p.classList.remove('hidden'); SFX.uiDing();
+}
+function renderAnteRoom(){
+  const b=$('anteBody'); if(!b) return;
+  const cur=curSoul();
+  let html='<div class="anteH">CHOOSE YOUR SOUL</div><div class="soulRow">';
+  SOULS.forEach(s=>{ const un=s.u(), on=cur.id===s.id;
+    html+= un
+      ? '<div class="soulCard'+(on?' on':'')+'" data-id="'+s.id+'" style="--sc:'+s.col+'"><div class="soulG">'+s.g+'</div><div class="soulN">'+s.n+'</div><div class="soulD">'+s.d+'</div>'+(on?'<div class="soulPick">— AT THE TABLE —</div>':'')+'</div>'
+      : '<div class="soulCard locked"><div class="soulG">?</div><div class="soulN">SEALED</div><div class="soulD">🔒 '+s.uTxt+'</div></div>';
+  });
+  html+='</div>';
+  if(typeof FLOORS!=='undefined'){
+    const curF=curFloor();
+    html+='<div class="anteH">CHOOSE YOUR FLOOR</div><div class="soulRow">';
+    FLOORS.forEach(f=>{ const un=f.u(), on=curF.id===f.id;
+      html+= un
+        ? '<div class="floorCard'+(on?' on':'')+'" data-id="'+f.id+'" style="--sc:'+f.col+'"><div class="soulG">'+f.g+'</div><div class="soulN">'+f.n+'</div><div class="soulD">'+f.d+'</div>'+(on?'<div class="soulPick">— TONIGHT —</div>':'')+'</div>'
+        : '<div class="floorCard locked"><div class="soulG">?</div><div class="soulN">SEALED</div><div class="soulD">🔒 '+f.uTxt+'</div></div>';
+    });
+    html+='</div>';
+  }
+  if(typeof RUN_CONTRACTS!=='undefined'){
+    const act=IDX.ct||[];
+    html+='<div class="anteH">SIGN CONTRACTS <span style="opacity:.6;font-size:11px">(up to two · each pays ×1.25 MARKS & GILT)</span></div><div class="ctRow">';
+    RUN_CONTRACTS.forEach(c=>{ html+='<div class="ctChip'+(act.includes(c.id)?' on':'')+'" data-id="'+c.id+'"><b>'+c.g+' '+c.n+'</b><span>'+c.d+'</span></div>'; });
+    html+='</div>';
+  }
+  b.innerHTML=html;
+}
+
+// THE ESTATE — how much of the House is yours yet
+function estatePct(){
+  try{
+    const ranks=Math.min(1, RANK.rank/100);
+    const wsp=Math.min(1, SEC.size/WHISPER_TOTAL);
+    const idx=idxSeen()/Math.max(1,idxTotal());
+    const pages=STORY_PAGES.filter(p=>storyUnlocked(p)).length/STORY_PAGES.length;
+    const feats=unlocked.size/Math.max(1,ACH_TOTAL);
+    const souls=SOULS.filter(s=>s.u()).length/SOULS.length;
+    const floors=FLOORS.filter(f=>f.u()).length/FLOORS.length;
+    return Math.round((ranks*0.30 + wsp*0.15 + idx*0.20 + pages*0.10 + feats*0.15 + (souls+floors)/2*0.10)*100);
+  }catch(e){ return 0; }
+}
 function renderChips(){
   try{ storyPulse(); }catch(e){}
   try{ menuMotion(); }catch(e){}
+  // the loadout line — who, where, and on what terms
+  { let ll=$('loadoutLine');
+    if(!ll){ ll=document.createElement('div'); ll.id='loadoutLine';
+      const sb=$('startBtn'); if(sb) sb.parentNode.insertBefore(ll, sb.nextSibling);
+      ll.addEventListener('click',()=>openAnteRoom()); }
+    if(ll){ const s=curSoul(); const f=(typeof curFloor==='function')?curFloor():null;
+      const cts=(IDX.ct||[]).length;
+      ll.innerHTML='<span style="color:'+s.col+'">'+s.g+' '+s.n+'</span>'+(f?' · <span style="color:'+f.col+'">'+f.g+' '+f.n+'</span>':'')+(cts?' · ✍ '+cts+' CONTRACT'+(cts>1?'S':''):'')+' <i>— change</i>'; } }
   // the road ahead, visible: rank progress under the chips
   { let rb=$('menuRank');
     if(!rb){ rb=document.createElement('div'); rb.id='menuRank';
@@ -438,6 +547,7 @@ function renderChips(){
     best>0?['🏆',best.toLocaleString(),'#ffd36b']:null,
     ['📖',idxPct()+'%','#c98bff'],
     ['✦',SEC.size+'/'+WHISPER_TOTAL,'#8bffd0'],
+    ['🏛',estatePct()+'% OF THE HOUSE','#e8b64c'],
     ...(function(){ const nx=nextArmUnlock(); if(!nx) return []; const wd=WEAPONS.find(x=>x.id===nx.id);
       return wd?[['🗡','NEXT ARM: '+wd.n.toUpperCase()+' · RANK '+nx.thr,'#ff9a3c']]:[]; })(),
     ['⚜','RANK '+RANK.rank+' · '+RANKS[RANK.rank-1].n,'#fff2c0'],

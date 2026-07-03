@@ -123,7 +123,8 @@ function tickMapProps(dt){
       // THE HEAL — it never existed (the gilded redraw shipped as dead draw
       // code in this update path and got painted over every frame). Now:
       // stand within 60px, drink 16 blood/s, the reserve drains, dry = gone.
-      if(it.res>0 && idist<60 && P.hp<P.maxHp){
+      if(P.drought && idist<60){ if(!it._dry){ it._dry=true; announce('✕ THE DROUGHT — THE FOUNTAIN REFUSES ✕', false); SFX.thud(); } }
+      else if(it.res>0 && idist<60 && P.hp<P.maxHp){
         it._on=true;
         const heal=Math.min(16*dt, P.maxHp-P.hp, it.res);
         P.hp+=heal; it.res-=heal;
@@ -245,11 +246,12 @@ resetRun();
 
 /* ---------- entities ---------- */
 function spawnEnemy(type,x,y){
+  const _fspd=(window._fmods&&window._fmods.spd)||1;
   const b=CFG.enemy[type], mins=gt/60, S=CFG.scale;
   idxSee(BOSS_DEFS[type]?'b':'e', type);
   ring(x,y,b.r+26,'#5a1a6a'); for(let sp=0;sp<5;sp++){ const sa=Math.random()*6.283; parts.push({x:x+Math.cos(sa)*b.r,y:y+Math.sin(sa)*b.r,vx:Math.cos(sa)*-40,vy:Math.sin(sa)*-40,life:rnd(.25,.5),col:'#7a3aa8',r:rnd(1.5,3)}); }
   const hpS=1+mins*S.hp, dmgS=1+mins*S.dmg, spdS=Math.min(S.spdCap,1+mins*S.spd)*(P.enemySpeedBoost||1);
-  enemies.push({type,x,y,r:b.r,hp:b.hp*hpS,maxhp:b.hp*hpS,spd:b.spd*spdS,dmg:b.dmg*dmgS,
+  enemies.push({type,x,y,r:b.r,hp:b.hp*hpS,maxhp:b.hp*hpS,spd:b.spd*spdS*_fspd,dmg:b.dmg*dmgS,
     xp:b.xp,coins:b.coins,cd:0,flash:0,kx:0,ky:0,ph:Math.random()*6.28,col:b.col,dark:b.dark,elite:type==='elite',
     ranged:b.ranged||false, shootCd:rnd(0.8,2.6), born:gt, vt:(type==='bomber'?'husk':null)});
 }
@@ -269,7 +271,7 @@ function startWave(){
   // difficulty steps up every 5 waves
   if(wave>1 && wave%5===0){ CFG.scale.hp+=0.10; CFG.scale.dmg+=0.03; CFG.scale.spdCap=Math.min(2.3,CFG.scale.spdCap+0.08); showStreak('THE HOUSE GROWS CRUEL'); SFX.murmur(); flash(0.3,'#8b1620'); }
   const W=CFG.wave;
-  const size=Math.min(W.cap, W.first + (wave-1)*W.grow);
+  const size=Math.min(W.cap, Math.round((W.first + (wave-1)*W.grow)*(P&&P.crowd?1.3:1)));
   const eliteWave = wave % W.eliteEvery === 0;
   for(let i=0;i<size && enemies.length<CFG.spawn.max;i++){
     const a=Math.random()*6.283, d=Math.max(VW,VH)*0.6+rnd(30,220);
@@ -282,6 +284,7 @@ function startWave(){
     if(wave>=4 && roll>=0.51 && roll<0.70) t='wraith';
     if(wave>=6 && roll>=0.70 && roll<0.845) t='stalker';
     if(wave>=9 && roll>=0.845 && roll<0.87) t='hexer';
+    if(window._fmods&&window._fmods.noRanged&&(t==='shooter'||t==='hexer')) t='stalker';
     if(wave>=3 && roll>=0.90 && roll<0.955) t='brute';
     if(wave>=8 && roll>=0.955) t='revenant';
     spawnEnemy(t,x,y);
@@ -290,7 +293,7 @@ function startWave(){
   if(wave>=2 && (wave%2===0 || Math.random()<0.55)){
     const ha=Math.random()*6.283, hd=Math.max(VW,VH)*0.62;
     const hx=clamp(P.x+Math.cos(ha)*hd,40,CFG.arena-40), hy=clamp(P.y+Math.sin(ha)*hd,40,CFG.arena-40);
-    const hn=20+wave*3;
+    const hn=Math.round((20+wave*3)*((window._fmods&&window._fmods.horde)||1)*(P&&P.crowd?1.3:1));
     for(let k=0;k<hn && enemies.length<CFG.spawn.max;k++){ spawnEnemy('swarm', clamp(hx+rnd(-170,170),20,CFG.arena-20), clamp(hy+rnd(-170,170),20,CFG.arena-20)); }
     setTimeout(()=>{ if(state==='playing'){ showStreak('HORDE INCOMING'); SFX.murmur(); } }, 260);
   }
@@ -2473,7 +2476,22 @@ function startGame(){
   owned.clear();
   gt=0; shake=0; hitstop=0; killStreak=0; streakT=0; excite=0; fireAcc=0; pending=[]; LT.runs++; bump('runs',LT.runs); fever=0; feverOn=false; feverT=0; tarots=[]; tarotT=14; decals=[]; wheelTok=null; wheelTokT=40; crashTok=null; crashTokT=50; bounty=null; bountyT=34; slotBank=0; vouchers=0; bountyStk=0; goldenT=0; ovBonusNext=false; slowT=0; prevHp=0; dare=null; dareT=46; ascTime=7; ascPend=0;
   if(!RANK._ld){ RANK._ld=1; loadRank(); }
-  applyRankPerks(); recToasted=new Set(); applyVault(); applyAchPerks(); idxSee('w','bolt');
+  applyRankPerks(); recToasted=new Set(); applyVault(); applyAchPerks();
+  // the soul at the table speaks last — then the floor, then the ink
+  { const sd=(typeof curSoul==='function')?curSoul():null;
+    if(sd){ try{ sd.ap(); }catch(e){} if(sd.id!=='vesper') announce(sd.g+' '+sd.n+' TAKES THE SEAT '+sd.g, true); }
+    for(const wid in P.wlv){ if(P.wlv[wid]>0) idxSee('w',wid); } }
+  document.body.classList.remove('floor-cellar','floor-chapel');
+  window._fmods={}; window._markMult=1;
+  { const fd=(typeof curFloor==='function')?curFloor():null;
+    if(fd){ window._fmods=fd.mods||{};
+      if(fd.mods&&fd.mods.tint) document.body.classList.add('floor-'+fd.mods.tint);
+      if(fd.mods&&fd.mods.coin) P.coinMult=(P.coinMult||1)*fd.mods.coin;
+      if(fd.mods&&fd.mods.xp) P.xpMult=(P.xpMult||1)*fd.mods.xp;
+      if(fd.id!=='pit') setTimeout(()=>announce(fd.g+' TONIGHT: '+fd.n+' '+fd.g, true), 900); } }
+  { const act=(typeof RUN_CONTRACTS!=='undefined')?(IDX.ct||[]):[];
+    act.forEach(id=>{ const ct=RUN_CONTRACTS.find(x=>x.id===id); if(ct){ try{ ct.ap(); }catch(e){} window._markMult*=1.25; } });
+    if(act.length) setTimeout(()=>announce('✍ '+act.length+' CONTRACT'+(act.length>1?'S':'')+' SIGNED — ×'+window._markMult.toFixed(2)+' MARKS & GILT ✍', true), 1600); }
   P._idle=0; P._sigT=0; P._corners=new Set(); P._chestsRun=0; P._roulRun=0; P._pauses=0; P._1313=false;
   resetRun();
   { const now=new Date();

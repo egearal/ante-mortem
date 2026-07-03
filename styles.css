@@ -965,3 +965,31 @@ body.paused #hud{z-index:25;}
 .mrBar{height:9px;border-radius:5px;background:rgba(0,0,0,.6);border:1px solid rgba(232,182,76,.4);overflow:hidden;}
 .mrBar i{display:block;height:100%;background:linear-gradient(90deg,#8a5a10,#ffd36b);box-shadow:0 0 10px rgba(255,211,107,.6);transition:width .5s;}
 .mrSub{font-family:var(--disp);font-size:9.5px;letter-spacing:.14em;color:#8a7c66;margin-top:4px;}
+
+/* ═══ THE ANTE ROOM ═══ */
+#antePanel{z-index:70;}
+.anteH{font-family:var(--disp);font-size:14px;letter-spacing:.24em;color:var(--gold-bright);margin:14px 0 9px;text-shadow:0 0 12px rgba(232,182,76,.4);}
+.soulRow{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;}
+.soulCard,.floorCard{padding:14px 14px 12px;border-radius:12px;border:1px solid color-mix(in srgb,var(--sc,#8a7c66) 40%,transparent);cursor:pointer;
+  background:linear-gradient(170deg,rgba(26,14,20,.85),rgba(12,6,10,.9));transition:all .15s;position:relative;}
+.soulCard:hover,.floorCard:hover{transform:translateY(-3px);border-color:var(--sc);box-shadow:0 8px 26px rgba(0,0,0,.5),0 0 18px color-mix(in srgb,var(--sc) 35%,transparent);}
+.soulCard.on,.floorCard.on{border-color:var(--sc);box-shadow:0 0 22px color-mix(in srgb,var(--sc) 45%,transparent);background:linear-gradient(170deg,rgba(38,22,28,.92),rgba(16,8,12,.95));}
+.soulCard.locked,.floorCard.locked{opacity:.55;cursor:default;border-style:dashed;}
+.soulG{font-size:30px;line-height:1;margin-bottom:6px;color:var(--sc,#8a7c66);text-shadow:0 0 12px color-mix(in srgb,var(--sc,#8a7c66) 55%,transparent);}
+.soulN{font-family:var(--disp);font-size:14px;letter-spacing:.1em;color:#e6d9c2;margin-bottom:5px;}
+.soulD{font-size:12px;line-height:1.55;color:#9a8f7e;}
+.soulPick{margin-top:8px;font-family:var(--disp);font-size:9.5px;letter-spacing:.26em;color:var(--sc);}
+.ctRow{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;}
+.ctChip{padding:10px 13px;border-radius:10px;border:1px solid rgba(200,30,44,.35);cursor:pointer;background:rgba(20,8,12,.7);transition:all .15s;}
+.ctChip b{display:block;font-family:var(--disp);font-size:12px;letter-spacing:.1em;color:#ff9a9a;margin-bottom:3px;}
+.ctChip span{font-size:11.5px;color:#9a8f7e;line-height:1.5;}
+.ctChip:hover{border-color:rgba(255,80,90,.7);}
+.ctChip.on{border-color:#ff5560;background:rgba(48,12,18,.85);box-shadow:0 0 16px rgba(200,30,44,.35);}
+.ctChip.on b{color:#ff5560;}
+#loadoutLine{margin:9px auto 0;font-family:var(--disp);font-size:11.5px;letter-spacing:.12em;color:#c9b78e;cursor:pointer;transition:all .15s;}
+#loadoutLine:hover{color:#fff2c0;text-shadow:0 0 10px rgba(255,211,107,.4);}
+#loadoutLine i{font-style:normal;opacity:.55;font-size:10px;}
+
+/* the floors tint the night */
+body.floor-cellar canvas{filter:hue-rotate(46deg) saturate(0.92) brightness(0.94);}
+body.floor-chapel canvas{filter:sepia(.22) saturate(1.15) brightness(1.07);}

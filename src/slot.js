@@ -214,6 +214,7 @@ const MFATE={T:0.008, P:0.09};
 let slotFate=null, rerollCarry=null;
 let redStake=null, redForgiven=false; // THE SACRIFICE — a skill of yours on the side table
 function dealFate(seqs, pool){
+  if(P&&P.coldDeck){ slotFate={n:0}; return; } // the cold deck never matches
   const u=Math.random();
   const n = u<MFATE.T ? 3 : (u<MFATE.T+MFATE.P ? 2 : 0);
   if(!n){ slotFate={n:0}; return; }
@@ -409,7 +410,7 @@ function finalizeReward(bestId, matchN){
   let usedOv=false, usedVch=false;
   if(ovBonusNext){ ovBonusNext=false; base+=1; usedOv=true; setTimeout(()=>announce('⚡ OVERCHARGED — +1 BONUS LEVEL ⚡', true), 700); }
   if(vouchers>0){ vouchers--; base+=1; usedVch=true; setTimeout(()=>{ announce('◈ HOUSE VOUCHER SPENT — +1 LEVEL ◈', true); flash(0.35,'#ffd36b'); SFX.casinoDing(); }, 1400); }
-  gamble={ _forgiven:redForgiven, def, kind:slotKind, base, reward:base, matchN, round:1, threshold:(lastRites?7:8)-(vlv('dice')?1:0)+(P.hexDice?1:0)+(P.crookedT?1:0), rites:lastRites, seraph, rollT:0, win:false, dL:0, dR:0, hist:[], diceN:0, _voucherUsed:usedVch, _ovUsed:usedOv };
+  gamble={ _forgiven:redForgiven, def, kind:slotKind, base, reward:base, matchN, round:1, threshold:(lastRites?7:8)-(vlv('dice')?1:0)-(P.diceEase||0)+(P.hexDice?1:0)+(P.crookedT?1:0), rites:lastRites, seraph, rollT:0, win:false, dL:0, dR:0, hist:[], diceN:0, _voucherUsed:usedVch, _ovUsed:usedOv };
   if(rerollCarry){ Object.assign(gamble, rerollCarry); rerollCarry=null; } // the re-dealt offer resumes the ladder at rung 4
   if(P.crookedT) P.crookedT=false; // the CROOKED TABLE scar bites once
   if(seraph) seraphCeremony();
@@ -485,7 +486,7 @@ function openOffer(){
     '<div class="ofstat">'+projFx(g.def, takeLv)+'</div>'+
     '<div class="ofrow"><span class="ofg">🎲 '+g.threshold+'+ → '+winLine(g)+'</span>'+
     '<span class="ofl">✕ '+missShort(g)+'</span></div>';
-  $('gambleMsg').innerHTML = (g.round===MAXROLL && !g.rerolled) ? '<span class="keyhint">R</span> respin the reels — once' : '';
+  $('gambleMsg').innerHTML = (g.round===MAXROLL && (g._rerolls||0)<(P.yolk?2:1)) ? '<span class="keyhint">R</span> respin the reels' : '';
   SFX.casinoDing();
   updateLadderPips();
   showSlotButtons();
@@ -495,10 +496,11 @@ function openOffer(){
 // law); one-shot spends it consumed are refunded. The ladder resumes at rung 4.
 function rerollReels(){
   const g=gamble;
-  if(slotStage!=='offer' || !g || g.round!==MAXROLL || g.rerolled) return;
+  const maxR9=P.yolk?2:1;
+  if(slotStage!=='offer' || !g || g.round!==MAXROLL || (g._rerolls||0)>=maxR9) return;
   if(g._voucherUsed) vouchers++;
   if(g._ovUsed) ovBonusNext=true;
-  rerollCarry={round:g.round, threshold:g.threshold, hist:(g.hist||[]).slice(), diceN:g.diceN||0, rerolled:true, _forgiven:g._forgiven, _lastPerfect:g._lastPerfect};
+  rerollCarry={round:g.round, threshold:g.threshold, hist:(g.hist||[]).slice(), diceN:g.diceN||0, rerolled:true, _rerolls:(g._rerolls||0)+1, _forgiven:g._forgiven, _lastPerfect:g._lastPerfect};
   window._slotFF=null; spaceHold=false; holdProg=0; holdFired=false; ringShow(false);
   gamble=null;
   $('diceRow').style.display='none'; $('reelsRow').style.display=''; $('riskWrap').style.display='none';
@@ -752,7 +754,7 @@ function showSlotButtons(){
   else if(slotStage==='offer'){ const g=gamble;
     box.appendChild(makeBtn('◈ TAKE +'+g.reward,'gold','SPACE',()=>takeReward()));
     { const rb=makeBtn('🎲 ROLL','red','HOLD SPACE',()=>doRisk()); rb.id='rollBtn'; box.appendChild(rb); }
-    if(g.round===MAXROLL && !g.rerolled) box.appendChild(makeBtn('↻ RESPIN','','R · once',()=>rerollReels()));
+    if(g.round===MAXROLL && (g._rerolls||0)<(P.yolk?2:1)) box.appendChild(makeBtn('↻ RESPIN','','R'+(P.yolk?' · twice':' · once'),()=>rerollReels()));
   }
   else if(slotStage==='resolved'){ box.appendChild(makeBtn('CONTINUE','gold','press SPACE',()=>slotTap())); }
 }
