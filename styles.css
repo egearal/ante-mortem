@@ -409,7 +409,7 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
 #crashHist .no{color:#ff5560;border-color:rgba(255,85,96,.5);}
 .stk{font-family:var(--disp);font-size:13px;letter-spacing:.1em;padding:8px 16px;border-radius:9px;border:1px solid rgba(232,182,76,.45);color:#c9b997;background:rgba(20,10,14,.85);}
 .stk.on{border-color:#8bff9a;color:#8bff9a;box-shadow:0 0 14px rgba(139,255,154,.5);animation:bulbPulse 1.1s infinite;}
-#wheelLayer{background:rgba(4,2,5,.62);backdrop-filter:blur(3px);z-index:46;}
+#wheelLayer{background:rgba(4,2,5,.42);backdrop-filter:blur(2px);z-index:46;}
 .wheelShell{text-align:center;}
 .wheelTitle{font-family:var(--disp);font-weight:800;font-size:clamp(24px,4.4vw,38px);letter-spacing:.22em;color:var(--gold-bright);text-shadow:0 0 26px var(--gold);margin-bottom:14px;}
 .wheelMult{font-family:var(--disp);font-weight:800;font-size:34px;color:#8bff9a;text-shadow:0 0 22px rgba(139,255,154,.9);margin-bottom:6px;}
@@ -431,7 +431,7 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
   background:linear-gradient(180deg,rgba(16,8,12,.97),rgba(8,4,7,.98));
   border:2px solid var(--gold);box-shadow:0 0 0 2px #3a0a10,0 0 44px rgba(232,182,76,.35),inset 0 0 60px rgba(0,0,0,.85);transition:box-shadow .2s;}
 #tickerBox::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:3;
-  background:linear-gradient(90deg,rgba(4,2,5,.96),transparent 18%,transparent 82%,rgba(4,2,5,.96));}
+  background:linear-gradient(90deg,rgba(4,2,5,.55),transparent 10%,transparent 90%,rgba(4,2,5,.55));}
 #tickerBox::after{content:'';position:absolute;left:50%;top:0;bottom:0;width:150px;transform:translateX(-50%);pointer-events:none;z-index:2;
   background:linear-gradient(to bottom,rgba(255,242,192,.14),transparent 30%,transparent 70%,rgba(255,242,192,.1));mix-blend-mode:screen;}
 #tickerStrip{position:absolute;left:0;top:50%;transform:translate3d(0,-0,0);margin-top:-59px;display:flex;gap:8px;padding-left:0;will-change:transform;}
@@ -476,6 +476,7 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
 /* ═══ ASCENT WIN SLAM ═══ */
 #ascWin,#wheelWin{position:absolute;left:50%;top:32%;transform:translateX(-50%);text-align:center;pointer-events:none;opacity:0;z-index:6;}
 #ascWin.go,#wheelWin.go{animation:ascWinIn 2.4s cubic-bezier(.2,1.4,.4,1);}
+#wheelWin.quick.go{animation-duration:1s;}
 #ascWin .awT,#wheelWin .awT{font-family:var(--disp);font-weight:800;font-size:clamp(34px,6vw,56px);letter-spacing:.1em;white-space:nowrap;text-shadow:0 0 36px currentColor,0 2px 0 #000;}
 #ascWin .awS,#wheelWin .awS{font-family:var(--disp);font-size:16px;letter-spacing:.18em;color:#d7cdbe;margin-top:8px;text-shadow:0 0 12px rgba(255,240,192,.5);}
 #wheelWin{top:14%;}
@@ -614,6 +615,26 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
 @keyframes anticiPulse{0%,100%{box-shadow:inset 0 0 26px rgba(0,0,0,.9),0 0 22px 3px rgba(232,182,76,.5);}50%{box-shadow:inset 0 0 26px rgba(0,0,0,.9),0 0 42px 8px rgba(232,182,76,.9);}}
 .symBig{font-size:53px!important;}
 .reelbox.slam{animation:reelSlam .3s cubic-bezier(.2,1.9,.35,1);}
+#tickerBox.slam{animation:tkSlam .32s cubic-bezier(.2,1.9,.35,1);}
+@keyframes tkSlam{0%{transform:translateY(0);}30%{transform:translateY(5px) scale(1.008);}100%{transform:translateY(0);}}
+/* THE SEALED CASE — chains + wax over the ticker until the House gets its cut */
+#wheelSeal{position:absolute;inset:0;z-index:7;pointer-events:none;display:flex;align-items:center;justify-content:center;
+  background:rgba(6,3,7,.42);border-radius:inherit;backdrop-filter:blur(1.5px);transition:opacity .4s;}
+#wheelSeal.hidden{display:none;}
+.wsChain{position:absolute;left:-6%;right:-6%;height:13px;border-radius:7px;
+  background:repeating-linear-gradient(90deg,#3d3a44 0 14px,#191721 14px 20px,#55515e 20px 26px,#191721 26px 32px);
+  box-shadow:0 2px 8px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.14);}
+.wsChain.a{top:32%;transform:rotate(-4deg);}
+.wsChain.b{bottom:30%;transform:rotate(3deg);}
+.wsWax{position:relative;width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 36% 30%,#c22434,#8b1620 55%,#4a0a12);color:#ffd9b8;font-size:26px;
+  box-shadow:0 0 24px rgba(139,22,32,.8),0 4px 14px rgba(0,0,0,.7),inset 0 2px 4px rgba(255,150,140,.35);
+  animation:waxBeat 1.2s ease-in-out infinite;}
+@keyframes waxBeat{0%,100%{transform:scale(1);}50%{transform:scale(1.06);filter:brightness(1.25);}}
+#wheelSeal.crack{animation:sealCrack .45s ease forwards;}
+@keyframes sealCrack{0%{opacity:1;transform:scale(1);filter:none;}
+  30%{transform:scale(1.05) rotate(1.5deg);filter:brightness(2);}
+  100%{opacity:0;transform:scale(1.22) rotate(-3deg);filter:blur(5px) brightness(1.6);}}
 .reelbox.pick{border-color:#ff5a5a!important;box-shadow:inset 0 0 22px rgba(255,40,40,.4),0 0 0 3px rgba(255,60,60,.9),0 0 30px 8px rgba(255,40,40,.75);animation:pickPulse .26s infinite alternate;z-index:3;}
 @keyframes pickPulse{from{box-shadow:inset 0 0 18px rgba(255,40,40,.35),0 0 0 3px rgba(255,60,60,.85),0 0 22px 5px rgba(255,40,40,.6);}to{box-shadow:inset 0 0 28px rgba(255,70,70,.5),0 0 0 4px rgba(255,100,100,1),0 0 40px 12px rgba(255,60,60,.9);transform:scale(1.05);}}
 .reelbox.locked{border-color:#ffd36b!important;box-shadow:inset 0 0 30px rgba(255,200,80,.55),0 0 0 4px rgba(255,215,110,1),0 0 46px 14px rgba(255,180,60,.95);animation:lockedPulse .5s ease-out;z-index:4;}

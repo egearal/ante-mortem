@@ -47,6 +47,23 @@ function buildWheelDom(){
   box.parentNode.insertBefore(mq, box);
   const felt=document.createElement('div'); felt.className='wheelFelt';
   $('wheelLayer').insertBefore(felt, $('wheelLayer').firstChild);
+  const seal=document.createElement('div'); seal.id='wheelSeal';
+  seal.innerHTML='<div class="wsChain a"></div><div class="wsChain b"></div><div class="wsWax">☨</div>';
+  box.appendChild(seal);
+}
+// the case costs a cut: 25% of your run coins, paid with a SPACE. Broke = comped.
+function unsealWheel(){
+  if(wheel.phase!=='sealed') return;
+  const cost=wheel.cost||0;
+  if(cost>0){ P.coins-=cost; $('coinCount').textContent=P.coins;
+    SFX.cashout(); setTimeout(()=>SFX.leverSlam(),110); coinRain(Math.min(14,4+(cost/8|0)));
+    announce('◈ THE HOUSE TAKES ITS CUT — '+cost+' ◈',true); }
+  else { SFX.casinoDing(); SFX.tingle(); }
+  const seal=$('wheelSeal');
+  if(seal){ seal.classList.add('crack'); setTimeout(()=>{ seal.classList.add('hidden'); seal.classList.remove('crack'); },450); }
+  flash(0.35,'#ffd36b'); shake=Math.min(14,shake+6); sparkBurstAt('tickerBox','wheelLayer',14);
+  wheel.phase='idle';
+  $('wheelMsg').innerHTML=(wheel.golden?'✦ ALL PRIZES DOUBLED ✦ · ':'')+'<span class="keyhint">SPACE</span> — spin the ticker';
 }
 function buildTickerStrip(){
   // the exact 200-card CS bag (weights sum to 200), shuffled with no adjacent twins
@@ -66,21 +83,25 @@ function tkX(x){ $('tickerStrip').style.transform='translate3d('+x+'px,0,-0px)';
 function tkCenter(i){ return i*TK_STEP+TK_CARD/2; }
 function openWheel(){
   buildWheelDom(); state='wheel';
-  wheel={x:0, phase:'idle', mult:1, lastSeg:-1, done:false, windT:0, setT:0, toAscent:false,
+  wheel={x:0, phase:'sealed', mult:1, lastSeg:-1, done:false, windT:0, setT:0, toAscent:false,
     golden:Math.random()<(0.05+(P.goldenBoost||0)), windK:0, slowTicks:0, hbT:0, strip:[], tIdx:0, jit:0, rigSeg:(wheel&&wheel.rigSeg)||null};
+  wheel.cost=Math.ceil((P.coins||0)*0.25);
   buildTickerStrip();
   $('wheelMult').classList.add('hidden');
-  { const ww=$('wheelWin'); if(ww) ww.classList.remove('go'); }
+  { const ww=$('wheelWin'); if(ww) ww.classList.remove('go','quick'); }
   const box=$('tickerBox'); box.classList.remove('landed','rehot'); box.style.boxShadow='';
+  { const seal=$('wheelSeal'); if(seal){ seal.classList.remove('hidden','crack'); } }
   stopDrumroll();
   $('wheelLayer').classList.toggle('golden', wheel.golden);
   const mq=document.querySelector('.wheelMarq'); if(mq) mq.textContent=wheel.golden?'✦ GOLDEN SPIN — ALL PRIZES DOUBLED ✦':'THE HOUSE SPINS FOR YOUR SOUL';
-  $('wheelMsg').innerHTML='<span class="keyhint">SPACE</span> — spin the ticker';
+  $('wheelMsg').innerHTML = wheel.cost>0
+    ? '⛓ THE CASE IS SEALED — PAY <b style="color:#ffd36b">'+wheel.cost+' ◈</b> · <span class="keyhint">SPACE</span> unlock'
+    : '⛓ THE HOUSE COMPS THIS ONE · <span class="keyhint">SPACE</span> crack it open';
   $('wheelLayer').classList.remove('hidden');
   wheel.boxW=box.clientWidth||Math.min(720,window.innerWidth*0.92);
   wheel.x=-(tkCenter(8)-wheel.boxW/2); tkX(wheel.x);
   SFX.vaultOpen(); startDrone();
-  if(wheel.golden) setTimeout(()=>{ if(state==='wheel'){ SFX.achieve(); SFX.tingle(); flash(0.4,'#ffd36b');
+  if(wheel.golden) setTimeout(()=>{ if(state==='wheel' && wheel.phase==='idle'){ SFX.achieve(); SFX.tingle(); flash(0.4,'#ffd36b');
     $('wheelMsg').innerHTML='✦ ALL PRIZES DOUBLED ✦ · <span class="keyhint">SPACE</span> — spin'; } },350);
 }
 function launchWheel(){
@@ -181,11 +202,15 @@ function brakeTicker(){
   if(wheel.phase!=='roll' || wheel._braked) return; wheel._braked=true;
   wheel.rollT=Math.max(wheel.rollT, wheel.rollDur*0.86);
   SFX.reelLock(); tone(120,0.24,'sine',0.26,68); noise(0.16,0.1,900); shake=Math.min(12,shake+6);
+  // brake feels like a reel stop now: flash, sparks, and the box takes the hit
+  flash(0.25,'#fff0c8'); sparkBurstAt('tickerBox','wheelLayer',12);
+  const box=$('tickerBox'); if(box){ box.classList.remove('slam'); void box.offsetWidth; box.classList.add('slam'); }
 }
 // close the wheel NOW (space after landing) — same exit the auto-timer takes
 function finishWheel(){
   if(wheel._closed) return; wheel._closed=true;
   stopWhirr();
+  { const ww=$('wheelWin'); if(ww) ww.classList.remove('go','quick','mega'); }
   $('wheelLayer').classList.add('hidden'); stopDrone();
   if(state==='wheel'){ state='playing';
     if(wheel.toAscent) setTimeout(()=>{ if(state==='playing') openCrash(); },300);
@@ -202,8 +227,8 @@ function landWheel(seg){
   const mk=$('tickerMarker'); if(mk){ mk.classList.remove('slam'); void mk.offsetWidth; mk.classList.add('slam'); setTimeout(()=>mk.classList.remove('slam'),600); }
   if(sg.n==='↻ FREE SPIN'){
     announce('↻ THE HOUSE SPINS AGAIN — FREE ↻',true); SFX.achieve(); SFX.dingBells(); flash(0.35,'#ff5fa2');
-    $('wheelMsg').textContent='↻ FREE SPIN — AGAIN!';
-    setTimeout(respinTicker, 900);
+    wheel.phase='freespin'; // the respin waits for YOUR press
+    $('wheelMsg').innerHTML='↻ FREE SPIN · <span class="keyhint">SPACE</span> — roll it';
     return;
   }
   if(sg.n==='DOUBLE'){
@@ -239,7 +264,10 @@ function landWheel(seg){
   if(wheel.golden&&sg.tier>=1) setTimeout(()=>SFX.record(),150);
   LT.wheel=(LT.wheel||0)+1; bump('wheel',LT.wheel);
   $('wheelMsg').innerHTML=sg.n+((wheel.mult*gm)>1&&sg.f?'  ×'+(wheel.mult*gm):'')+' · <span class="keyhint">SPACE</span> continue';
-  setTimeout(finishWheel, sg.cs==='gold'?2600:1600);
+  // ASCENT prize: shorten the win slam and close the wheel BEFORE the crash
+  // lobby opens — the two ceremonies used to overlap for ~500ms
+  if(wheel.toAscent){ const ww=$('wheelWin'); if(ww) ww.classList.add('quick'); }
+  setTimeout(finishWheel, wheel.toAscent?1100:(sg.cs==='gold'?2600:1600));
 }
 function tickWheelTok(dt){
   if(!wheelTok){ wheelTokT-=dt;
@@ -256,14 +284,30 @@ function tickWheelTok(dt){
   }
 }
 function drawWheelTok(){
+  // a gilded reliquary case now — you pay to crack it open
   if(!wheelTok) return; const w=wheelTok, fl=w.t<4?(Math.floor(gt*8)%2?0.4:1):1;
   ctx.save(); ctx.translate(w.x,w.y+Math.sin(gt*2.6+w.ph)*3); ctx.globalAlpha=fl;
   ctx.save(); ctx.globalCompositeOperation='lighter';
   const g2=ctx.createRadialGradient(0,0,0,0,0,36); g2.addColorStop(0,'rgba(201,139,255,0.4)'); g2.addColorStop(1,'rgba(201,139,255,0)');
   ctx.fillStyle=g2; ctx.beginPath(); ctx.arc(0,0,36,0,6.28); ctx.fill(); ctx.restore();
-  ctx.rotate(gt*2);
-  for(let i=0;i<8;i++){ ctx.fillStyle=i%2?'#8a1520':'#14090c'; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,13,i*0.785,(i+1)*0.785); ctx.closePath(); ctx.fill(); }
-  ctx.strokeStyle='#ffd36b'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(0,0,13,0,6.28); ctx.stroke();
-  ctx.fillStyle='#ffd36b'; ctx.beginPath(); ctx.arc(0,0,3.4,0,6.28); ctx.fill();
+  // body — dark lacquer chest with a raised lid
+  ctx.fillStyle='#1c0f14';
+  ctx.beginPath(); ctx.roundRect(-14,-9,28,19,3.5); ctx.fill();
+  ctx.fillStyle='#2c161e';
+  ctx.beginPath(); ctx.roundRect(-14,-9,28,8,3.5); ctx.fill();
+  // gold trim: rim, lid seam, corner studs
+  ctx.strokeStyle='#e8b64c'; ctx.lineWidth=1.6;
+  ctx.beginPath(); ctx.roundRect(-14,-9,28,19,3.5); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-14,-1); ctx.lineTo(14,-1); ctx.stroke();
+  ctx.fillStyle='#ffd36b';
+  [[-11,-6],[11,-6],[-11,7],[11,7]].forEach(p=>{ ctx.beginPath(); ctx.arc(p[0],p[1],1.2,0,6.28); ctx.fill(); });
+  // the latch — violet gem in a gold clasp
+  ctx.fillStyle='#e8b64c'; ctx.beginPath(); ctx.roundRect(-3,-3.4,6,7,1.6); ctx.fill();
+  ctx.fillStyle='#c98bff'; ctx.beginPath(); ctx.arc(0,0,1.9,0,6.28); ctx.fill();
+  // glint sweep across the lid
+  { const gx=((gt*1.4+w.ph)%2.2)*14-14;
+    if(gx>-13&&gx<13){ ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.55*fl;
+      ctx.strokeStyle='#fff2c0'; ctx.lineWidth=2.2;
+      ctx.beginPath(); ctx.moveTo(gx-2,-8.4); ctx.lineTo(gx+2,-1.6); ctx.stroke(); ctx.restore(); ctx.globalAlpha=fl; } }
   ctx.restore(); ctx.globalAlpha=1;
 }

@@ -308,7 +308,9 @@ window.addEventListener('keydown',e=>{
     return; }
   if(state==='wheel'){ if(k===' '){ e.preventDefault();
     if(!e.repeat){ SFX.press(); pressPulse('wheelMsg'); }
-    if(wheel.phase==='roll') brakeTicker();
+    if(wheel.phase==='sealed') unsealWheel();
+    else if(wheel.phase==='roll') brakeTicker();
+    else if(wheel.phase==='freespin'){ SFX.leverWind(); SFX.tingle(); respinTicker(); }
     else if(wheel.done) finishWheel();
     else launchWheel(); } return; }
   if(state==='slot'){
