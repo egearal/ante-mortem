@@ -340,16 +340,6 @@ function finalizeReward(bestId, matchN){
   ceremony(matchN, def);
   openOffer();
 }
-// what a rung win would upgrade the prize into: {tier,pool} one rarity up (or higher if that tier is empty), or null
-function nextUpgrade(g){
-  if(g.def.rar==='ascend'||g.def.rar==='mythic') return null;
-  const avail=g.kind==='weapon'?availableWeapons():availableSkills();
-  for(let t=(RAR_TIER[g.def.rar]||0)+1; t<=3; t++){
-    const pool=avail.filter(d=>RAR_TIER[d.rar]===t && d.id!==g.def.id);
-    if(pool.length) return {tier:t, pool};
-  }
-  return null;
-}
 function showRewardPanel(){
   const g=gamble, def=g.def;
   $('cardName').textContent=def.n; $('cardName').className='r-'+def.rar+' bigname';
@@ -365,8 +355,8 @@ function showRewardPanel(){
       if(!RUN.bestPull || (RAR_TIER[def.rar]||0)>(RAR_TIER[RUN.bestPull]||0)) RUN.bestPull=def.rar; }
     if((RAR_TIER[def.rar]||0)>=3){ flash(0.3,RARC[def.rar]); domConfetti(14,'machine'); } }
 }
-// the rung script: rung 1 win = +1 level · rung 2 win = THE UPGRADE · rung 3 win = +2 levels · rung 4 = GOD LEVEL
-function rungGain(r){ return r===1?1 : r===2?0 : 2; }
+// the rung script, purified by decree: EVERY dice win = +1 level. Rarity is
+// dealt once by the reels and never changes. (PERFECT 12 still pays a bonus.)
 function missShort(g){ if(g.rites) return 'BUST + SCAR'; return g.round>=3 ? 'LOSE SKILL + SCAR' : (g.round===2 ? 'SCAR' : 'CURSE'); }
 function openOffer(){
   slotStage='offer'; endSeance(); const g=gamble; showRewardPanel();
@@ -387,21 +377,13 @@ function openOffer(){
   updateLadderPips();
   showSlotButtons();
 }
-// the promise on the dice button — what THIS rung's win actually delivers (short, numbers first)
-const TIER_KEY=['common','rare','epic','legendary'];
+// the promise on the dice button — the NEXT level in real numbers ("10 → 20"),
+// or honest coins when the thing is already maxed
 function winLine(g){
   const curLv=skLevel(g.def);
-  const takeLv=Math.min(g.def.max, curLv+g.reward);
-  const gain=rungGain(g.round);
-  if(g.round===2 && g.round<MAXROLL){
-    if(g.def.rar==='ascend'||g.def.rar==='mythic') return '▲ +1 LEVEL';
-    const up=nextUpgrade(g);
-    if(up){ const rk=TIER_KEY[up.tier]; return '⬆ <b style="color:'+RARC[rk]+'">'+SLOT_RAR[rk]+'</b>'; }
-    return '+1 LEVEL';
-  }
-  const wl=Math.min(g.def.max, curLv+g.reward+gain);
-  if(wl<=takeLv) return '+'+((curLv+g.reward+gain-wl)*12)+' ◈';
-  return 'LEVEL '+wl;
+  const wl=Math.min(g.def.max, curLv+g.reward+1);
+  if(wl<=curLv+g.reward) return '+12 ◈ MAXED';
+  return 'LEVEL '+wl+' · '+projFx(g.def, wl);
 }
 function doRisk(){
   if(slotStage!=='offer' || !gamble) return;
@@ -490,27 +472,15 @@ function resolveRisk(){
     LT.diceWins++; bump('diceWins',LT.diceWins);
     if(perfect){ LT.perfects++; bump('perfects',LT.perfects); }
     if(g.round>=MAXROLL){ LT.ladders++; bump('ladders',LT.ladders); }
-    // the rung script: 1 = +1 lv · 2 = THE UPGRADE · 3 = +2 lv · 4 = GOD LEVEL (perfect 12 always +1)
-    let gain=g.round>=MAXROLL?2:rungGain(g.round); if(perfect) gain+=1;
+    // every win = +1 level (PERFECT 12 pays one more) — rarity never moves
+    let gain=1; if(perfect) gain+=1;
     g.reward+=gain;
-    let upTxt='';
-    if(g.round===2 && g.round<MAXROLL){
-      if(g.def.rar==='ascend'||g.def.rar==='mythic'){ g.reward+=1; upTxt='▲ DEEPENS +1 LV'; }
-      else { const up=nextUpgrade(g);
-        if(up){ const from=g.def.rar; g.def=pick(up.pool); g._stung=false;
-          $('cardName').textContent=g.def.n; $('cardName').className='r-'+g.def.rar+' bigname';
-          upTxt='⬆ '+SLOT_RAR[from]+' → <b style="color:'+RARC[g.def.rar]+'">'+SLOT_RAR[g.def.rar]+'</b>';
-          setTimeout(()=>{ announce('⬆ '+SLOT_RAR[from]+' → '+SLOT_RAR[g.def.rar]+' — '+g.def.n.toUpperCase()+' ⬆', true); SFX.rarSting(RAR_TIER[g.def.rar]||0); }, 420);
-        } else { g.reward+=1; upTxt='+1 LV'; }
-      }
-    }
     dice.forEach(d=>d.el.classList.add('crit'));
     const rw=g.reward; SFX.dingBells(); SFX.casinoDing(); if(rw>=4) setTimeout(()=>SFX.cashout(),120); if(rw>=5) setTimeout(()=>SFX.dingBells(),220); coinRain(16+rw*4); flash(0.42,'#8bff9a'); $('machine').classList.add('win'); shake=Math.min(22,shake+7+rw); excite=1; sparkBurst(24+rw*5);
     if(perfect) perfectFlash();
     const nowLv=Math.min(g.def.max, skLevel(g.def)+g.reward);
     $('cardDesc').innerHTML='<div class="ofbig" style="color:'+(perfect?'#ffe066':'#b8ffbf')+'">'+(perfect?'✦ 12! ✦ ':'')+'WIN — LEVEL '+nowLv+'</div>'
-      +'<div class="ofstat">'+projFx(g.def, nowLv)+'</div>'
-      +(upTxt?'<div class="ofsub" style="color:#ffd36b;font-weight:700">'+upTxt+'</div>':'');
+      +'<div class="ofstat">'+projFx(g.def, nowLv)+'</div>';
     if(g.round>=MAXROLL){
       const fin=()=>{ window._slotFF=null; let nl; if(g.kind==='weapon'){ nl=grantWeaponLevels(g.def,g.reward); } else { grantSkill(g.def,g.reward); nl=skillLevel(g.def.id); }
         $('machine').classList.remove('win'); dice.forEach(d=>d.el.classList.remove('crit'));
