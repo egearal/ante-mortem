@@ -133,16 +133,16 @@ function buildAch(){
 }
 /* THE INDEX — persistent catalogue of everything ever encountered (new key, additive) */
 const IDX_KEY='am_index_v1';
-let IDX={w:[],p:[],c:[],t:[],e:[],b:[]};
+let IDX={w:[],p:[],c:[],t:[],e:[],b:[],st:[]};
 let _idxT=null;
 function idxSee(cat,id){ if(!id||typeof IDX==='undefined') return; const a=IDX[cat]; if(!a||a.indexOf(id)>=0) return; a.push(id); idxSaveSoon(); idxBump(); }
-function idxTotal(){ return WEAPONS.length + PASSIVES.length + DEBUFF_POOL.length + TAROT_FATES.length + Object.keys(CFG.enemy).length + 34; } // CFG.enemy already includes the 4 bosses
+function idxTotal(){ return WEAPONS.length + PASSIVES.length + DEBUFF_POOL.length + TAROT_FATES.length + Object.keys(CFG.enemy).length + WHISPER_TOTAL; } // CFG.enemy already includes the 4 bosses
 function idxSeen(){ return IDX.w.length+IDX.p.length+IDX.c.length+IDX.t.length+IDX.e.length+IDX.b.length+SEC.size; }
 function idxPct(){ return Math.min(100,Math.floor(idxSeen()/idxTotal()*100)); }
 function idxBump(){ bump('index', idxPct()); }
 function idxSaveSoon(){ clearTimeout(_idxT); _idxT=setTimeout(idxSave, 800); }
 async function idxSave(){ try{ if(!store)return; await store.set(IDX_KEY,JSON.stringify(IDX),false); }catch(e){} }
-async function idxLoad(){ try{ if(!store)return; const r=await store.get(IDX_KEY,false); if(r&&r.value){ const o=JSON.parse(r.value); for(const k of ['w','p','c','t','e','b']) if(Array.isArray(o[k])) IDX[k]=o[k]; } }catch(e){} }
+async function idxLoad(){ try{ if(!store)return; const r=await store.get(IDX_KEY,false); if(r&&r.value){ const o=JSON.parse(r.value); for(const k of ['w','p','c','t','e','b','st']) if(Array.isArray(o[k])) IDX[k]=o[k]; } }catch(e){} }
 // HOUSE FAVORS — specific feats seal small permanent bonuses, forever
 const ACH_PERKS={
  'minutes_3':   {n:'PIT LEGS',          fx:'+2 MOVE SPEED, FOREVER',  ap:()=>{P.speed+=2;}},
@@ -240,6 +240,69 @@ function openIndexPanel(){
   p.classList.remove('hidden');
 }
 
+
+/* ============================================================
+   THE LEDGER PAGES — the House writes what it ate. 16 pages;
+   13 unlock by HOUSE RANK, 3 by whispers answered. Read state
+   lives in IDX.st (am_index_v1, additive field).
+   ============================================================ */
+const STORY_PAGES=[
+ {id:'p1', r:1,  t:'THE ARRIVAL', tx:'You died owing. Not money — money the House has. You died owing YOURSELF, the only coin it cannot mint. So it sent the carriage. The horses had no eyes and did not need them; they had made the trip nine thousand times, and the road only goes one way.'},
+ {id:'p2', r:2,  t:'THE TERMS', tx:'The Dealer read them aloud while your blood was still deciding whether to stay: ONE SOUL, STAKED. Interest compounds nightly. Winnings pay the principal. And should you clear the debt entire — the front door opens. The Dealer smiled when it said that. It has no face. It smiled anyway.'},
+ {id:'p3', r:3,  t:'THE CHIPS', tx:'Turn one over. Feel it hum. Every chip in the House is pressed from a patron who stopped playing — ground fine, mixed with candle-wax, pressed in the cellar mill. When you spend one it screams, too high to hear. The pit refills the racks nightly. The mill is never idle.'},
+ {id:'p4', r:5,  t:'THE PATRONS', tx:'The ones in the pit — the shamblers, the swarm, the whole rotting court — do not hate you. Understand: they are CHEERING. Every soul you cut down is one hand closer to your seat at the last table, and your seat is the only exit any of them has ever seen. They die hoping you make it. They die jealous.'},
+ {id:'p5', r:7,  t:'THE DEALER\'S HANDS', tx:'Below the wrists, the Dealer is beautiful. Long pale fingers, a shuffle like water. The wrists themselves end in iron cuffs, bolted through the table. The rest of the Dealer was paid out long ago, to a player better than you. The hands keep dealing. They have no choice, and neither, now, do you.'},
+ {id:'p6', r:9,  t:'THE FOUNTAIN', tx:'You have drunk from it. You noticed it was warm. You chose not to think about that, which the House appreciates — squeamish players bet small. Drink, darling. It is freely given. Whose it was matters so much less than whose it is now.'},
+ {id:'p7', r:12, t:'THE WEDDING', tx:'Every soul the House claims, it MARRIES. There was a ceremony for you: the candles leaned in, the ravens stood witness, the organ played itself in a key that has no name. You slept through it. The ring is under your skin. That is what the marker is — a dowry, payable on death.'},
+ {id:'p8', r:15, t:'THE KITCHEN', tx:'There is a door behind the vault that the maps deny. Steam under it, always. What the House serves upstairs is not meat and is not bread, but the patrons weep when they taste it, because it tastes like the year they were happiest. The chef borrows your face on Sundays.'},
+ {id:'p9', r:20, t:'THE VAULT', tx:'Gilt is not gold. Look closer: every coin is a tooth, capped and polished. The House pulls one from every jackpot winner — the House\'s cut, it laughs, and the winners laugh too, bleeding at the mouth, because at last they have WON something. You have been spending smiles.'},
+ {id:'p10',r:25, t:'THE ONE BEFORE YOU', tx:'Your name is Vesper. So was hers. So was the one before her — the House files its players under one name to save ink. She reached rank NINETY-NINE. She stood before the last table with the debt nearly paid, and she asked for one more spin. Not to win. Just to feel it. The House keeps her seat warm. It is your seat.'},
+ {id:'p11',r:30, t:'THE ARCHITECT', tx:'No one built the House. The House grew, like scar tissue, around a wound in the world — a gambler once bet something that was not his to bet, and lost, and the loss kept COMPOUNDING. The pillars are its regret. The chandeliers are its eyes. You have been walking on its tongue since the door.'},
+ {id:'p12',r:40, t:'THE EXIT', tx:'Here is the cruelty you have earned the right to read: the front door DOES open. The debt CAN be paid. Seventeen players have cleared it. All seventeen stood in the open doorway with the morning on their faces, free — and all seventeen turned around. Ask yourself why you are still reading. The House already knows.'},
+ {id:'p13',r:50, t:'THE HOUSE ITSELF', tx:'Rank one hundred is not a title. It is a SEAT, and the seat empties, and the game does not stop for grief. One night — soon, as the House measures soon — the Dealer\'s cuffs will click open, and yours will click shut, and some new soul will push through the velvet doors owing themselves. You will smile at them. You will have no face. You will smile anyway. ANTE MORTEM, darling: the bet was always placed before the death.'},
+ {id:'w1', w:5,  t:'WHAT THE WALLS ARE', tx:'You have started listening. Good. The walls are not stone — stone does not flinch. The House skins its bankrupts and stretches them thin and hangs them as wallpaper, and they are GRATEFUL, because even a wall still gets to watch the game.'},
+ {id:'w2', w:15, t:'THE WHISPERERS', tx:'The riddles you keep answering are not tests. They are MESSAGES — pressed into the plaster by players who hid them faster than the House could eat the evidence. Every whisper you solve, somewhere in the walls a mouth that has held its breath for a century finally gets to exhale.'},
+ {id:'w3', w:30, t:'THE LAST WHISPER', tx:'This page is not from a player. It is from the House, and it is the only true thing it will ever give you for free: it does not want your debt paid. It does not even want you dead. It wants you SEATED, forever, mid-spin, in the moment before the reels stop — because that is the only moment the wound stops hurting. You were never the gambler, darling. You are the painkiller.'}
+];
+function storyUnlocked(pg){ return pg.r ? RANK.rank>=pg.r : SEC.size>=pg.w; }
+function storyUnreadCount(){ const rd=new Set(IDX.st||[]); return STORY_PAGES.filter(p=>storyUnlocked(p)&&!rd.has(p.id)).length; }
+function nextStoryGate(){ const pg=STORY_PAGES.filter(p=>p.r&&RANK.rank<p.r).sort((a,b)=>a.r-b.r)[0]; return pg?pg.r:null; }
+function openStoryPanel(){
+  const p=$('storyPanel'), list=$('storyList'); if(!p) return;
+  const rd=new Set(IDX.st||[]);
+  const unlocked=STORY_PAGES.filter(pg=>storyUnlocked(pg)).length;
+  $('storyCount').textContent=unlocked+' / '+STORY_PAGES.length+' PAGES RECOVERED';
+  list.innerHTML=STORY_PAGES.map((pg,i)=>{
+    const un=storyUnlocked(pg), isNew=un&&!rd.has(pg.id);
+    if(!un) return '<div class="lpg locked"><span class="lpgN">'+(i+1)+'</span><b>🔒 '+(pg.r?('HOUSE RANK '+pg.r):(pg.w+' WHISPERS ANSWERED'))+'</b></div>';
+    return '<div class="lpg on'+(isNew?' new':'')+'" data-pg="'+pg.id+'"><span class="lpgN">'+(i+1)+'</span><b>'+pg.t+'</b>'+(isNew?'<i class="lpgNew">UNREAD</i>':'')+'</div>';
+  }).join('');
+  if(!list._wired){ list._wired=true;
+    list.addEventListener('click',ev=>{ const el=ev.target.closest('.lpg.on'); if(!el) return; readStoryPage(el.dataset.pg); });
+  }
+  p.classList.remove('hidden'); SFX.uiDing();
+}
+function readStoryPage(id){
+  const pg=STORY_PAGES.find(x=>x.id===id); if(!pg||!storyUnlocked(pg)) return;
+  if((IDX.st||[]).indexOf(id)<0){ (IDX.st=IDX.st||[]).push(id); idxSaveSoon(); }
+  let rv=$('pageReveal');
+  if(!rv){ rv=document.createElement('div'); rv.id='pageReveal';
+    rv.innerHTML='<div class="prVeil"></div><div class="prPage"><div class="prTitle"></div><div class="prBody"></div><div class="prFoot">— from the House\'s own ledger</div></div>';
+    document.body.appendChild(rv);
+    rv.querySelector('.prVeil').addEventListener('click',()=>rv.classList.add('hidden'));
+  }
+  rv.querySelector('.prTitle').textContent=pg.t;
+  rv.querySelector('.prBody').textContent=pg.tx;
+  const card=rv.querySelector('.prPage');
+  card.style.animation='none'; void card.offsetWidth; card.style.animation='';
+  rv.classList.remove('hidden');
+  noise(0.28,0.1,900); tone(96,0.4,'sine',0.14,60); setTimeout(()=>SFX.murmur(),200); // the page turns, the walls murmur
+  clearTimeout(rv._t); rv._t=setTimeout(()=>rv.classList.add('hidden'), 14000);
+  openStoryPanel(); // refresh badges
+  try{ storyPulse(); }catch(e){}
+}
+function storyPulse(){ const b=$('storyBtn'); if(b) b.classList.toggle('pulse', storyUnreadCount()>0); }
+
 /* HOUSE RANK — 100 planned levels. Every rank pays something; every 5th pays forever; every 10th changes the game. */
 const RANK_KEY='am_rank_v1';
 let RANK={marks:0, rank:1, _ld:0};
@@ -293,6 +356,7 @@ function awardMarks(m){
     const cur=RANKS[RANK.rank-1], nx=RANKS[RANK.rank];
     setTimeout(()=>{ announce('⚜ RANK '+RANK.rank+' — '+cur.n+' · UNLOCKED: '+(cur.r||'THE TITLE')+' ⚜', true); SFX.seraph(); }, 500);
     if(nx) setTimeout(()=>{ announce('▲ NEXT: '+nx.n+' — '+(nx.r||'')+' ▲', true); }, 2600);
+    if(STORY_PAGES.some(pg=>pg.r===RANK.rank)) setTimeout(()=>{ announce('📜 A LEDGER PAGE BURNS INTO MEMORY 📜', true); SFX.murmur(); SFX.tingle(); try{ storyPulse(); }catch(e){} }, 4400);
   }
   const base=rkCum(RANK.rank), next=RANK.rank<RANKS.length?rkCum(RANK.rank+1):base+1;
   return { up, reward, have:RANK.marks-base, need:next-base, pct:Math.min(100,Math.round((RANK.marks-base)/(next-base)*100)) };

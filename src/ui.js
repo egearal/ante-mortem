@@ -3,6 +3,8 @@
 $('achBtn').addEventListener('click',()=>{ openAchPanel(); });
 $('indexBtn').addEventListener('click',()=>{ openIndexPanel(); SFX.uiDing(); });
 $('gfxBtn').addEventListener('click',openGfx);
+$('storyBtn').addEventListener('click', ()=>{ openStoryPanel(); });
+$('storyClose').addEventListener('click', ()=>{ $('storyPanel').classList.add('hidden'); SFX.casinoDing(); });
 $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.uiDing(); });
 { const pl=$('pauseLayer');
   if(pl){
@@ -369,6 +371,7 @@ window.addEventListener('error',ev=>{ if(!window._amErr){ window._amErr=1; conso
 $('againBtn').addEventListener('click',()=>{ startGame(); });
 
 function renderChips(){
+  try{ storyPulse(); }catch(e){}
   const chips=[
     best>0?['🏆',best.toLocaleString(),'#ffd36b']:null,
     ['◈',gilt+' GILT','#e8b64c'],

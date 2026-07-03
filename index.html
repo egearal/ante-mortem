@@ -52,6 +52,7 @@
         <button class="btn msm" id="indexBtn">📖 INDEX</button>
         <button class="btn msm" id="achBtn">🏆 FEATS</button>
         <button class="btn msm" id="vaultBtn">🗝 VAULT</button>
+        <button class="btn msm" id="storyBtn">📜 STORY</button>
         <button class="btn msm" id="gfxBtn">⚙ GRAPHICS</button>
       </div>
       <div class="controls"><b>WASD</b> / <b>Arrows</b> to move &nbsp;·&nbsp; on phone, <b>drag</b> to move &nbsp;·&nbsp; your weapon fires itself</div>
@@ -165,6 +166,16 @@
       <div style="height:10px;border-radius:5px;background:rgba(0,0,0,.6);border:1px solid rgba(232,182,76,.4);overflow:hidden;margin-bottom:12px;"><div id="achProg" style="height:100%;width:0%;background:linear-gradient(90deg,#8a5a10,#ffd36b);box-shadow:0 0 12px rgba(255,211,107,.6);transition:width .4s;"></div></div>
       <div id="achList" style="overflow-y:auto;flex:1;text-align:left;padding-right:6px;"></div>
       <button class="btn" id="achClose" style="margin-top:12px;">Back</button>
+    </div>
+  </div>
+
+  <!-- THE LEDGER PAGES -->
+  <div id="storyPanel" class="layer hidden">
+    <div class="panel" style="max-width:min(700px,94vw);max-height:86vh;display:flex;flex-direction:column;">
+      <h2 style="font-family:var(--disp);color:var(--gold-bright);letter-spacing:.14em;margin:0 0 4px;">📜 THE HOUSE LEDGER</h2>
+      <div id="storyCount" style="color:#c9b78e;font-family:var(--disp);letter-spacing:.1em;margin-bottom:10px;"></div>
+      <div id="storyList" style="overflow-y:auto;flex:1;text-align:left;padding-right:6px;"></div>
+      <button class="btn" id="storyClose" style="margin-top:12px;">Back</button>
     </div>
   </div>
 
