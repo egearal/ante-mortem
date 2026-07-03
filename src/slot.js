@@ -126,7 +126,7 @@ function ensureBulbs(){
     m.appendChild(b); }
 }
 function openSlotReady(kind){
-  ensureBulbs(); window._slotFF=null;
+  ensureBulbs(); window._slotFF=null; rerollCarry=null;
   slotKind=kind; gamble=null; diceShown=false; const isW=kind==='weapon';
   $('slotTag').textContent = (lastRites?'☨ THE RED TABLE — RICHER, CRUELER ☨':(isW?'⚔ THE ARSENAL WHEEL ⚔':'THE WHEELS OF FATE'))+(slotBank>0?' · BANK '+slotBank+'/7':'');
   $('reelsRow').style.display=''; $('diceRow').style.display='none'; $('riskWrap').style.display='none';
@@ -150,7 +150,7 @@ function openSlotReady(kind){
 // nudged a row or two at stop time to land the dealt fate. Natural pairs on a
 // fresh pool would run ~14% and triples ~0.3% — fate makes both bands exact.
 const MFATE={T:0.008, P:0.09};
-let slotFate=null;
+let slotFate=null, rerollCarry=null;
 function dealFate(seqs, pool){
   const u=Math.random();
   const n = u<MFATE.T ? 3 : (u<MFATE.T+MFATE.P ? 2 : 0);
@@ -335,6 +335,7 @@ function finalizeReward(bestId, matchN){
   if(ovBonusNext){ ovBonusNext=false; base+=1; usedOv=true; setTimeout(()=>announce('⚡ OVERCHARGED — +1 BONUS LEVEL ⚡', true), 700); }
   if(vouchers>0){ vouchers--; base+=1; usedVch=true; setTimeout(()=>{ announce('◈ HOUSE VOUCHER SPENT — +1 LEVEL ◈', true); flash(0.35,'#ffd36b'); SFX.casinoDing(); }, 1400); }
   gamble={ def, kind:slotKind, base, reward:base, matchN, round:1, threshold:(lastRites?7:8)-(vlv('dice')?1:0)+(P.hexDice?1:0)+(P.crookedT?1:0), rites:lastRites, seraph, rollT:0, win:false, dL:0, dR:0, hist:[], diceN:0, _voucherUsed:usedVch, _ovUsed:usedOv };
+  if(rerollCarry){ Object.assign(gamble, rerollCarry); rerollCarry=null; } // the re-dealt offer resumes the ladder at rung 4
   if(P.crookedT) P.crookedT=false; // the CROOKED TABLE scar bites once
   if(seraph) seraphCeremony();
   ceremony(matchN, def);
@@ -372,10 +373,29 @@ function openOffer(){
     '<div class="ofstat">'+projFx(g.def, takeLv)+'</div>'+
     '<div class="ofrow"><span class="ofg">🎲 '+g.threshold+'+ → '+winLine(g)+'</span>'+
     '<span class="ofl">✕ '+missShort(g)+'</span></div>';
-  $('gambleMsg').innerHTML='';
+  $('gambleMsg').innerHTML = (g.round===MAXROLL && !g.rerolled) ? '<span class="keyhint">R</span> respin the reels — once' : '';
   SFX.casinoDing();
   updateLadderPips();
   showSlotButtons();
+}
+// THE REROLL — beat the third dice and R re-spins the reels, once per visit.
+// The abandoned offer and every level diced onto it are FORFEIT (director's
+// law); one-shot spends it consumed are refunded. The ladder resumes at rung 4.
+function rerollReels(){
+  const g=gamble;
+  if(slotStage!=='offer' || !g || g.round!==MAXROLL || g.rerolled) return;
+  if(g._voucherUsed) vouchers++;
+  if(g._ovUsed) ovBonusNext=true;
+  rerollCarry={round:g.round, threshold:g.threshold, hist:(g.hist||[]).slice(), diceN:g.diceN||0, rerolled:true, _forgiven:g._forgiven, _lastPerfect:g._lastPerfect};
+  window._slotFF=null; spaceHold=false; holdProg=0; holdFired=false; ringShow(false);
+  gamble=null;
+  $('diceRow').style.display='none'; $('reelsRow').style.display=''; $('riskWrap').style.display='none';
+  $('machine').classList.remove('dicing','win','jackpot','bust');
+  $('cardName').textContent='—'; $('cardName').className='r-common'; $('cardDesc').textContent='';
+  announce('↻ THE HOUSE DEALS AGAIN ↻', true);
+  SFX.lever(); flash(0.3,'#c98bff'); sparkBurst(16);
+  slotStage='ready';
+  spinReels();
 }
 // the promise on the dice button — the NEXT level in real numbers ("10 → 20"),
 // or honest coins when the thing is already maxed
@@ -594,6 +614,7 @@ function showSlotButtons(){
   else if(slotStage==='offer'){ const g=gamble;
     box.appendChild(makeBtn('◈ TAKE +'+g.reward,'gold','SPACE',()=>takeReward()));
     box.appendChild(makeBtn('🎲 ROLL','red','HOLD SPACE',()=>doRisk()));
+    if(g.round===MAXROLL && !g.rerolled) box.appendChild(makeBtn('↻ RESPIN','','R · once',()=>rerollReels()));
   }
   else if(slotStage==='resolved'){ box.appendChild(makeBtn('CONTINUE','gold','press SPACE',()=>slotTap())); }
 }
@@ -712,7 +733,7 @@ function shinyWord(){ return SHINY[(Math.random()*SHINY.length)|0]; }
 function closeSlot(){
   endSeance();
   stopDrone();
-  slotStage='idle';
+  slotStage='idle'; rerollCarry=null;
   spaceHold=false; holdProg=0; holdFired=false; ringShow(false);
   dice.forEach(d=>{ if(d.el) d.el.classList.remove('rolling','settle','crit'); });
   $('machine').classList.remove('win','jackpot','bust','pulling','dicing');

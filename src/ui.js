@@ -312,6 +312,7 @@ window.addEventListener('keydown',e=>{
     else if(wheel.done) finishWheel();
     else launchWheel(); } return; }
   if(state==='slot'){
+    if(k==='r' && !e.repeat){ SFX.press(); pressPulse('gambleMsg'); rerollReels(); return; }
     if(k===' '){
       if(e.repeat) return;
       SFX.press(); pressPulse('gambleMsg');
