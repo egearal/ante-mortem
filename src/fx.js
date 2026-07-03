@@ -107,7 +107,7 @@ function coinRain(n){
   for(let i=0;i<plinks;i++) setTimeout(()=>SFX.coinPling(), i*55 + Math.random()*30);
   if(n>=14) setTimeout(()=>SFX.chipStack(),120);
 }
-function sparkBurst(n){
+function sparkBurst(n){ n=Math.round(n*1.4);
   const m=$('machine'), host=$('slot'); if(!m||!host) return;
   const r=m.getBoundingClientRect();
   for(let i=0;i<n;i++){
