@@ -256,7 +256,7 @@ function pushCrash(){
     $('crashRocket').className='dead'; $('crashStrobe').style.opacity=0;
     $('crashLayer').classList.add('rip'); setTimeout(()=>$('crashLayer').classList.remove('rip'),200);
     noise(0.5,0.3,320); tone(320,0.55,'sawtooth',0.22,80); tone(90,0.6,'sine',0.2,40);
-    crashHist.push({v:crash.cp,ok:false});
+    crashHist.push({v:crash.cp,ok:false}); RUN.crashPts.push(crash.cp);
     const fell=theFall();
     $('crashMsg').innerHTML='<b style="color:#ff6b6b">☄ THE FALL — '+fell+' ☄</b>';
     SFX.bust(); SFX.thud(); flash(0.5,'#8b1620'); shake=Math.min(22,shake+14);
@@ -352,7 +352,7 @@ function pickJackpot(i){
 function cashCrash(){
   if(!crash.live) return;
   crash.live=false; crash.done=true;
-  crashHist.push({v:crash.mult,ok:true});
+  crashHist.push({v:crash.mult,ok:true}); RUN.crashPts.push(crash.cp);
   const t=ascTier(crash.mult);
   const rk=$('crashRocket'); rk.classList.add('blast');
   $('crashStrobe').style.opacity=0.95; $('crashStrobe').style.filter='hue-rotate(40deg) saturate(1.5)';

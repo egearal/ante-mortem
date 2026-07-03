@@ -59,7 +59,7 @@ function startFlicker(mk){
   $('jackpotSub').innerHTML='<div class="fpPct big">'+pPct.toFixed(3)+'<i>%</i> TO LIVE</div><div class="fpHint">THE HOUSE ROLLS 0 – 100…</div>';
   t.className='jackpotText marker';
   const roll=Math.random()*100; // the truth, decided now
-  mk.roll=roll; mk.margin=pPct-roll;
+  mk.roll=roll; mk.margin=pPct-roll; RUN.rollMargin=mk.margin;
   let n=0, N=16;
   const step=()=>{
     n++;
@@ -132,22 +132,49 @@ async function actuallyDie(){
     tick(); };
   countUp($('goScore'), score, 1200);
   countUp($('goGilt'), giltEarned, 900); $('goGiltTotal').textContent=gilt;
-  $('goPctl').textContent='Tallying the ledger…';
+  // THE LEDGER — the whole run at a glance: wave, arsenal, skills, wounds, the dice record, the best pull
+  { const gl=$('goLedger');
+    if(gl){
+      const wchips=WEAPONS.filter(w=>(P.wlv[w.id]||0)>0).map(w=>'<span class="glChip" style="color:'+(GLYPH_COL[w.id]||'#e8d9b0')+'">'+w.g+'<i>'+(P.wlv[w.id]||0)+'</i></span>').join('');
+      const schips=(P.passiveList||[]).map(r=>'<span class="glChip" style="color:'+(GLYPH_COL[r.id]||'#8bff9a')+'">'+r.g+'<i>'+r.count+'</i></span>').join('');
+      const bp=RUN.bestPull;
+      gl.innerHTML=
+        '<div class="glRow"><span>WAVE</span><b>'+wave+'</b><span>CURSES</span><b>'+(RUN.curses||0)+'</b><span>SCARS</span><b>'+((P.scars||[]).length)+'</b><span>DICE</span><b>'+RUN.diceWins+'/'+RUN.diceTries+'</b>'
+        +(bp?'<span>BEST PULL</span><b style="color:'+RARC[bp]+'">'+SLOT_RAR[bp]+'</b>':'')+'</div>'
+        +(wchips?'<div class="glRow glChips">'+wchips+'</div>':'')
+        +(schips?'<div class="glRow glChips">'+schips+'</div>':'');
+    } }
+  // LUCK — the verdict of the night, in seven grades
+  { const lk=$('goLuck');
+    if(lk){ const v=luckVerdict();
+      setTimeout(()=>{ lk.innerHTML='LUCK: <b style="color:'+v.col+'">'+v.grade+'</b>'; lk.classList.remove('go'); void lk.offsetWidth; lk.classList.add('go');
+        SFX.rarSting(v.tier); }, 1450); } }
   { const mk9=P.kills + wave*12 + P.level*10 + giltEarned*2;
     const res=awardMarks(mk9);
-    let rl=$('goRank'); if(!rl){ rl=document.createElement('div'); rl.id='goRank'; $('goPctl').parentNode.insertBefore(rl,$('goPctl')); }
+    let rl=$('goRank'); if(!rl){ rl=document.createElement('div'); rl.id='goRank'; $('goLuck').parentNode.insertBefore(rl,$('goLuck').nextSibling); }
     rl.innerHTML='<div class="rkTop">HOUSE RANK '+RANK.rank+' — '+RANKS[RANK.rank-1].n+(res.up?' <span class="rkUp">RANK UP!</span>':'')+'</div>'
       +'<div class="rkBar"><i style="width:'+res.pct+'%"></i></div>'
       +'<div class="rkSub">+'+mk9+' MARKS · '+res.have+' / '+res.need+' TO '+(RANKS[RANK.rank]?RANKS[RANK.rank].n:'THE SUMMIT')+(res.up&&res.reward?' · <span class="rkUn">UNLOCKED: '+res.reward+'</span>':'')+'</div>'
       +(RANKS[RANK.rank]&&RANKS[RANK.rank].r?'<div class="rkNext">NEXT: '+RANKS[RANK.rank].r+' — '+(res.need-res.have)+' MARKS AWAY</div>':'');
     if(res.up){ SFX.seraph(); SFX.dingBells(); flash(0.5,'#ffd36b'); coinRain(22); }
   }
-  $('board').innerHTML='';
   elGO.classList.remove('hidden');
-  const nameEl=$('nameInput'); nameEl.value = (localStorage_name())||'';
-  // submit
-  const entry={n:(nameEl.value||'VESPER').toUpperCase().slice(0,12),s:score,t:Math.floor(gt),k:P.kills,d:new Date().toISOString()};
-  pendingEntry=entry;
-  const res=await submitScore(entry);
-  renderBoard(res.board,res,entry);
+}
+/* the LUCK math: how the night's RNG treated you, normalized across dice, pulls, wheel, ascent, and the death roll */
+function luckVerdict(){
+  let score=0, events=0;
+  if(RUN.diceTries>0){ score+=(RUN.diceWins-RUN.diceP)/Math.sqrt(Math.max(1,RUN.diceTries))*1.6; events+=RUN.diceTries; }
+  { const tv={common:0,rare:1,epic:2.4,legendary:4}; let n=0,s=0;
+    for(const k in RUN.pulls){ n+=RUN.pulls[k]; s+=RUN.pulls[k]*tv[k]; }
+    if(n>0){ score+=(s/n-0.458)*Math.min(2,Math.sqrt(n))*0.9; events+=n; } }
+  { const wv={blue:0,purple:1,pink:2.5,red:4,gold:6}; let s=0;
+    RUN.wheelCs.forEach(c=>s+=(wv[c]||0)-0.485);
+    if(RUN.wheelCs.length) { score+=s/Math.sqrt(RUN.wheelCs.length)*0.7; events+=RUN.wheelCs.length; } }
+  { let s=0; RUN.crashPts.forEach(cp=>s+=(cp-2.11)/2);
+    if(RUN.crashPts.length){ score+=s/Math.sqrt(RUN.crashPts.length)*0.8; events+=RUN.crashPts.length; } }
+  if(RUN.rollMargin!==null){ score+=RUN.rollMargin>0?0.5:-0.5; events+=1; }
+  if(events<3) return {grade:'EVEN', col:'#bfae8c', tier:1};
+  const G=[[-2,'EXTREMELY UNLUCKY','#ff3040',0],[-1.2,'UNLUCKY','#ff5560',0],[-0.4,'A LITTLE UNLUCKY','#c98b7e',0],[0.4,'EVEN','#bfae8c',1],[1.2,'LUCKY','#8bff9a',2],[2,'VERY LUCKY','#ffd36b',3],[Infinity,'EXTREMELY LUCKY','#fff2c0',4]];
+  for(const [th,grade,col,tier] of G){ if(score<th || th===Infinity) return {grade,col,tier}; }
+  return {grade:'EVEN', col:'#bfae8c', tier:1};
 }

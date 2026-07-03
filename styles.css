@@ -196,6 +196,18 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 .gsRow span{font-family:var(--disp);font-size:11px;letter-spacing:.18em;color:#bfae8c;flex:1;text-align:left;}
 .gsRow i{font-style:normal;font-family:var(--disp);font-weight:800;font-size:21px;color:#ffe9a8;text-shadow:0 0 12px rgba(255,211,107,.5);}
 @keyframes gsIn{0%{transform:scale(1.5) translateY(-6px);opacity:0;}60%{transform:scale(.96);opacity:1;}100%{transform:scale(1);}}
+/* THE LEDGER — the run at a glance */
+#goLedger{max-width:420px;margin:8px auto 4px;}
+.glRow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:4px 0;font-family:var(--disp);}
+.glRow span{font-size:10px;letter-spacing:.16em;color:#8a7c66;}
+.glRow b{font-size:15px;color:#ffe9a8;margin-right:6px;}
+.glChip{display:inline-flex;align-items:baseline;gap:2px;font-size:16px;padding:2px 7px;border-radius:7px;background:rgba(20,10,14,.85);border:1px solid rgba(232,182,76,.25);text-shadow:0 0 8px currentColor;}
+.glChip i{font-style:normal;font-size:10px;color:#bfae8c;}
+#goLuck{font-family:var(--disp);font-weight:800;font-size:19px;letter-spacing:.2em;color:#bfae8c;margin:8px 0 4px;min-height:24px;}
+#goLuck b{text-shadow:0 0 16px currentColor;}
+#goLuck.go{animation:rbIn .5s cubic-bezier(.2,1.6,.4,1);}
+/* death screen sees the arena */
+#gameover{background:rgba(6,3,7,.60);backdrop-filter:blur(3px);}
 .relic.curse{border-color:#c98bff;color:#c98bff;box-shadow:0 0 12px rgba(201,139,255,.5);animation:cursePulse 1s infinite;}
 #debuffs{position:fixed;left:16px;top:158px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;z-index:24;pointer-events:none;}
 .debuff{font-family:var(--disp);font-size:15px;letter-spacing:.04em;color:#ff6b6b;border:1px solid rgba(255,80,80,.5);background:rgba(60,10,14,.55);border-radius:5px;padding:2px 6px;box-shadow:0 0 10px rgba(255,60,60,.35);animation:cursePulse 1.1s infinite;}
@@ -678,13 +690,7 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 .subline{font-size:15px;color:var(--ash);letter-spacing:.1em;margin-bottom:10px;}
 .pctl{font-family:var(--disp);font-size:19px;color:var(--seraph);letter-spacing:.08em;margin:10px 0;text-shadow:0 0 14px rgba(168,200,255,.4);}
 .pctl b{color:var(--gold-bright);}
-#board{list-style:none;padding:0;margin:12px auto;max-width:340px;font-size:14px;letter-spacing:.06em;text-align:left;max-height:150px;overflow-y:auto;}
-#board li{display:flex;justify-content:space-between;padding:4px 8px;border-bottom:1px solid rgba(139,22,32,.25);color:#cabfb0;}
-#board li.you{background:linear-gradient(90deg,rgba(232,182,76,.18),transparent);color:var(--gold-bright);border-radius:3px;}
-#board li .rank{color:var(--ash);width:34px;} #board li .sc{color:var(--gold);font-weight:600;}
-#nameInput{font-family:var(--disp);letter-spacing:.14em;text-transform:uppercase;text-align:center;background:rgba(0,0,0,.5);
   border:1px solid var(--blood);color:var(--gold-bright);border-radius:5px;padding:10px 14px;font-size:16px;width:200px;margin:6px 0 12px;}
-#nameInput:focus{outline:none;border-color:var(--gold);}
 .gilt{font-size:15px;color:var(--gold);letter-spacing:.1em;margin:8px 0;} .gilt b{color:var(--gold-bright);font-weight:700;}
 .soon{font-size:12px;color:var(--ash);font-style:italic;margin-top:6px;}
 

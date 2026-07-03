@@ -1,40 +1,6 @@
 "use strict";
-let localBoard=[];
-const LB_KEY='antemortem_board_v1', GILT_KEY='antemortem_gilt_v1';
-let pendingEntry=null;
-function localStorage_name(){ try{ return sessionName; }catch(e){ return ''; } }
-let sessionName='';
-async function submitScore(entry){
-  try{
-    if(!store){ localBoard.push(entry); localBoard.sort((a,b)=>b.s-a.s); localBoard=localBoard.slice(0,100); return {board:localBoard, ...pctl(localBoard,entry)}; }
-    let board=[];
-    try{ const r=await store.get(LB_KEY,true); if(r&&r.value) board=JSON.parse(r.value); }catch(e){ board=[]; }
-    if(!Array.isArray(board)) board=[];
-    board.push(entry); board.sort((a,b)=>b.s-a.s); board=board.slice(0,100);
-    try{ await store.set(LB_KEY,JSON.stringify(board),true); }catch(e){}
-    return {board, ...pctl(board,entry)};
-  }catch(e){ localBoard.push(entry); localBoard.sort((a,b)=>b.s-a.s); return {board:localBoard, ...pctl(localBoard,entry)}; }
-}
-function pctl(board,entry){
-  const total=board.length;
-  const below=board.filter(x=>x.s<entry.s).length;
-  const others=Math.max(1,total-1);
-  const betterThan = total<=1?100:Math.round(below/others*100);
-  const rank = board.findIndex(x=>x===entry)+1;
-  return {betterThan,rank,total};
-}
-function renderBoard(board,res,entry){
-  const p=$('goPctl');
-  if(res.total<=1) p.innerHTML='First name in the ledger. <b>The court awaits challengers.</b>';
-  else p.innerHTML=`You bled better than <b>${res.betterThan}%</b> of souls — rank <b>#${res.rank}</b> of ${res.total}.`;
-  const ol=$('board'); ol.innerHTML='';
-  board.slice(0,10).forEach((e,i)=>{
-    const li=document.createElement('li'); if(e===entry) li.className='you';
-    li.innerHTML=`<span class="rank">#${i+1}</span><span>${escapeHtml(e.n)}</span><span class="sc">${e.s.toLocaleString()}</span>`;
-    ol.appendChild(li);
-  });
-}
-function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+// Leaderboard retired 2026-07 (director's call). Stored data under 'antemortem_board_v1' is preserved, just unread.
+const GILT_KEY='antemortem_gilt_v1';
 /* ============================================================
    ACHIEVEMENTS — 1000+ procedurally generated, toasts, records
    ============================================================ */

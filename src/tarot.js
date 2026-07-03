@@ -20,7 +20,7 @@ function applyDebuff(d){
   d = d || DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0];
   const revert=d.ap();
   { const dd=Math.max(2,Math.round(d.dur*Math.max(0.5,P.curseCut||1))); debuffs.push({label:d.label, t:dd, dur:dd, revert, dot:d.dot||0, poison:!!d.dot}); }
-  idxSee('c',d.label);
+  idxSee('c',d.label); if(typeof RUN!=='undefined') RUN.curses=(RUN.curses||0)+1;
   flash(0.3,'#8b1620'); SFX.thud();
   return d.label+' · '+d.dur+'s';
 }

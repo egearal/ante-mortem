@@ -201,6 +201,10 @@ const store = (typeof window!=='undefined' && window.storage) ? window.storage :
   };
 })();
 const owned = new Set();
+// per-run fortune ledger — feeds THE LEDGER and the LUCK verdict at death
+let RUN={};
+function resetRun(){ RUN={diceTries:0,diceWins:0,diceP:0,pulls:{common:0,rare:0,epic:0,legendary:0},wheelCs:[],crashPts:[],rollMargin:null,bestPull:null,curses:0}; }
+resetRun();
 
 /* ---------- entities ---------- */
 function spawnEnemy(type,x,y){
@@ -2162,6 +2166,7 @@ function startGame(){
   if(!RANK._ld){ RANK._ld=1; loadRank(); }
   applyRankPerks(); recToasted=new Set(); applyVault(); applyAchPerks(); idxSee('w','bolt');
   P._idle=0; P._sigT=0; P._corners=new Set(); P._chestsRun=0; P._roulRun=0; P._pauses=0; P._1313=false;
+  resetRun();
   { const now=new Date();
     if(now.getHours()===0) secret('midnight','THE WITCHING HOUR');
     if(now.getDay()===5 && now.getDate()===13) secret('friday13','UNLUCKIEST NIGHT'); }

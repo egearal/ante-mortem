@@ -354,8 +354,7 @@ $('startBtn').addEventListener('click',startGame);
 }
 window.addEventListener('blur',()=>{ keys.clear(); touch.active=false; tabHold=false; hideTab(); if(state==='playing'){ state='paused'; $('pauseLayer').classList.remove('hidden'); } });
 window.addEventListener('error',ev=>{ if(!window._amErr){ window._amErr=1; console.error('[ANTE MORTEM]',ev.error||ev.message); } });
-$('againBtn').addEventListener('click',()=>{ const nm=$('nameInput').value.trim().toUpperCase(); if(nm){ sessionName=nm; if(pendingEntry)pendingEntry.n=nm.slice(0,12); } startGame(); });
-$('nameInput').addEventListener('change',e=>{ sessionName=e.target.value.trim().toUpperCase(); });
+$('againBtn').addEventListener('click',()=>{ startGame(); });
 
 function renderChips(){
   const chips=[

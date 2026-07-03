@@ -328,6 +328,8 @@ function showRewardPanel(){
   }
   flarePayRow(def.rar);
   if(!g._stung){ g._stung=true; SFX.rarSting(RAR_TIER[def.rar]||0);
+    if(RUN.pulls[def.rar]!==undefined){ RUN.pulls[def.rar]++;
+      if(!RUN.bestPull || (RAR_TIER[def.rar]||0)>(RAR_TIER[RUN.bestPull]||0)) RUN.bestPull=def.rar; }
     if((RAR_TIER[def.rar]||0)>=3){ flash(0.3,RARC[def.rar]); domConfetti(14,'machine'); } }
 }
 // the rung script: rung 1 win = +1 level · rung 2 win = THE UPGRADE · rung 3 win = +2 levels · rung 4 = GOD LEVEL
@@ -440,8 +442,10 @@ function perfectFlash(){
   cols.forEach((c,i)=>setTimeout(()=>{ flash(0.42,c); sparkBurst(22); },i*80));
   setTimeout(()=>l.classList.add('hidden'), 1150);
 }
+const DICE_P={7:0.583,8:0.417,9:0.278,10:0.167,11:0.083,12:0.028};
 function resolveRisk(){
   const g=gamble; const sum=g.dL+g.dR;
+  RUN.diceTries++; RUN.diceP+=DICE_P[Math.min(12,Math.max(7,g.threshold))]||0.417; if(g.win) RUN.diceWins++;
   $('gambleMsg').innerHTML='';
   if(g.dL===1&&g.dR===1) secret('snakeeyes','SNAKE EYES');
   if(g.win){

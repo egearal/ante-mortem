@@ -188,6 +188,7 @@ function finishWheel(){
 function landWheel(seg){
   const sg=WSEGS[seg];
   stopDrumroll();
+  RUN.wheelCs.push(sg.cs||'blue');
   const gm=wheel.golden?2:1;
   shake=Math.min(18,shake+8+sg.tier*3); landChime(sg.tier);
   const box=$('tickerBox');
