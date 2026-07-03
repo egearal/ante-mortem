@@ -17,7 +17,13 @@ Weights now **{common:73, rare:17, epic:7, legendary:3}**; the paytable shows PI
 `rar` field: common / rare / epic (shown "ULTRA RARE") / legendary / **mythic** (wheel-chain only) / **ascend** (Ascent-only until owned). **Reels are weighted by CFG.weights {common:54, rare:28, epic:13, legendary:5}** via weightedByRarity (before 2026-07 the weights were decorative and reels were uniform). A #payTable strip beside the machine shows the odds live and flares the landed row; every offer card slams a #rarBanner (label + RARC color + tiered SFX.rarSting — legendary/ascend pulse and confetti). Unowned ascensions are EXCLUDED from availableSkills (they leaked before); owned ones appear to level up.
 RARC colors: common #c9c1b4, rare #6db4ff, epic #c98bff, legendary #f8e2a0, ascend #8bffd0, mythic #fff2c0.
 
-## THE SLOT — the LEVEL-1 LAW (Batch 7)
+## THE SLOT — MATCH LAW v3 + THE BLOOD LEVER (Batch 8)
+**Single = LEVEL 1 · pair = LEVEL 2 · TRIPLE = INSTANT MAX** (owned: +1/+2/fill-to-max; red table owned +1 keeps). Match coins/softDice are gone. **Fate is dealt at the lever** (`dealFate`/`MFATE {T:0.008,P:0.09}`): 0.8% of spins are born triples, 9% born pairs, the rest born loose — the fated symbol (drawn by the same rarity law) is seeded 3× per strip and the reels NUDGE ≤4 rows at stop time (`stopNextReel`) to land the deal; nudge-aways one row off the pair ARE the near-miss. 4000-spin harness: skills 9.00/0.75, weapons 8.63/0.85, red 9.18/0.73 (pair%/triple%).
+**Dice are pure**: every rung win = **+1 level** (PERFECT 12 +1 more), rarity NEVER changes post-pull (nextUpgrade deleted), promises show real numbers via projFx ('LEVEL 2 · +40 Move Speed'), maxed → honest '+12 ◈'. **THE REROLL**: win rung 3 → `R` re-spins the reels ONCE per visit (`rerollReels`/`rerollCarry`) — the abandoned offer + its diced levels are FORFEIT (director's law), consumed vouchers/overcharge refunded, `_forgiven` carries (codicil once per table), ladder resumes at rung 4.
+**THE BLOOD LEVER**: ≤40% blood no longer auto-reds — slotStage `'lever'` offers it (terms on card, ball beats red): SPACE pulls (leverWind/Slam, RED_W restrips, dice 7+, LT.rites), X refuses to the common table.
+**Presentation**: no rarity words on the card (banner deleted) — the paytable row flares (222px, saturated) and `rarityLandFX` washes the whole arena by tier (body rw-* canvas filters, GFX.lite skips); 'spin for a skill' header deleted.
+
+## (legacy) THE SLOT — the LEVEL-1 LAW (Batch 7)
 **A new thing always enters at LEVEL 1.** Matches pay coins instead of levels for unowned items: pair = +20 ◈, triple = +50 ◈ + threshold −1 this visit + jackpot fanfare. Owned items still stage 1/2/3 by match. The `.ofmini` curse-detail line is gone — misses are surprises. All legacy notes below still hold (rung script, scars, red table):
 
 ### (economy v3 notes)
@@ -37,7 +43,11 @@ Same red dressing (class 'lastrites', drone, whispers, court), new deal: **no bl
 ## RAGE (Overcharge)
 XP-full → bar 100, +50% dmg & fire rate; at ≥90% also +50% damage TAKEN. Drains at accelerating rate; coins feed +2.5×ovFeed; XP gains feed the bar during rage. SPACE = cash rage into the level. **Hold ≥90% for ascTime (5s, +2.5 per success, cap 10) → THE ASCENT manifests in 10s** → blessed gate token spawns 260-480px away (30s life, white embers, gold guide-arrow). Slipping below 90: all ground coins swept + XP halved.
 
-## ▲ THE ASCENT (crash game)
+## ▲ THE ASCENT — ladder truth + JACKPOT v2 (Batch 8)
+**Ladder bug fixed** (two real defects, diagnosed live): rungs were checked per-press against the RAW multiplier while the display rounds — at true 2.768 the screen says 2.77× but rung II stayed dark; AND the ☆7.77 rung carried an inline color that beat `.lit` forever. Now `tickCrash` checks **the rounded display value per frame**, rungs clear every ride, gateFx is try/caught, and the star rung lights white-gold.
+**JACKPOT v2** (`jackpotOffer` two-phase): 0-1.05s drumroll + #jkMarq J·A·C·K·P·O·T letters slam at 120ms stagger (keys INERT — crash.jk set in phase B); then the marquee lifts (.up) and the armory cards descend over a rotating godray (conic ::before). pickJackpot: rarSting(3)+seraph, gold gatePing, coinRain 40, confetti 50 (GFX.lite halves). Ascent prize sparks route to crashLayer (sparkBurstAt).
+
+## (legacy) THE ASCENT (crash game)
 Entry: green token (48-82s spawns) or rage-earned gate. **FREE to ride — no stake.**
 SPACE = launch, then each SPACE = one push: mult += (0.01+rnd*0.19)*(1+m*0.08). ENTER = cash.
 Crash point: anchor-table inverse sampler pinned to reach odds — P(cp≥1.77)=75%, P(≥2.77)=40%, P(≥3.69)=15%, P(≥7.77)=4% (geometric interpolation between anchors, min 1.01, cap 40; no instant-bust tier). Retuned 2026-07 per director.
@@ -47,7 +57,10 @@ Crash point: anchor-table inverse sampler pinned to reach odds — P(cp≥1.77)=
 **Crash = THE FALL:** ONE random curse from DEBUFF_POOL, random duration 5-15s + ceremony naming the drawn curse (retuned 2026-07 from a fixed 30s composite). Rank XI / WARDING SALT seal shorten all curses. Prize wins slam center-screen IN the crash layer (#ascWin — announce() alone renders under it).
 Vibe stack: accelerating starfield, rising ember orbs, aurora ≥2.5×, altitude zone texts, band colors (cream→green 1.5→cyan 2→violet 3→whitegold 5), milestone slams (CR_MS), ghost afterimages, tier ladder (1.5/2.5/5/☆10), frenzy combo (4+ fast presses), band-change chords, twin shockwaves ≥3×, saturation ramp, harp-gliss cash, gift-card slam, tumbling rocket + screen rip on death. All entry fns wrapped in try/catch logging [ANTE ASCENT].
 
-## ☸ THE WHEEL — THE TICKER, CS2 edition (2026-07)
+## ☸ THE WHEEL — THE SEALED CASE (Batch 8)
+The token is a **gilded reliquary case** (drawWheelTok: lacquer chest, gold studs, violet gem latch, glint sweep). Touching it opens the ticker **sealed** (`wheel.phase='sealed'`, #wheelSeal chains + beating wax): **cost = ceil(25% of run coins)** — SPACE pays (ka-ching, coin deduct, seal cracks), 0 coins = comped. Then SPACE spins — two presses minimum, every one clicks. **FREE SPIN is SPACE-gated** (`phase='freespin'`, no auto-respin; DOUBLE still auto). **Brake parity**: brakeTicker adds flash + sparks + #tickerBox slam. **ASCENT hand-off fixed**: the prize plays a `quick` 1s win slam and finishWheel fires at 1100ms, so the crash lobby never opens over wheel text. Backdrop rgba(4,2,5,.42) + side gradients .55 / 10-90%. ui.js SPACE order: sealed→unseal · roll→brake · freespin→respin · done→finish · else launch.
+
+## (legacy) THE TICKER, CS2 edition (2026-07)
 **CS2 rarities rule the strip** (CS_COL in wheel.js: blue #4b69ff / purple #8847ff / pink #d32ce6 / red #eb4b4b / gold #e4ae39; each card wears a bottom rarity bar): exact 200-card bag = BLUE 140 (60 COINS 46, HEAL 36, FREE SPIN 32, CURSE 26) · PURPLE 40 (90 COINS 12, GILT 10, FEVER 9, DOUBLE 9) · PINK 13 (+1 LEVEL 5, ARSENAL 4, SIDE ARM 4) · RED 5 (SKILL 3, ASCENT 2) · **GOLD 2 — ★ THE HOUSE BLADE**: an unowned MYTHIC passive on the spot + 60 gilt + coin shower + triple gold flash + mega slam. Compressed CS odds (70/20/6.5/2.5/1) per director. Land index 120+rand(40).
 **Controls**: SPACE mid-roll = THE BRAKE (`brakeTicker` — jumps to the crawl with a heavy clack); SPACE after landing = instant close (`finishWheel`, idempotent, still fires toAscent/pending). Land ceremonies escalate by cs tier (pink confetti → red double-flash → gold run-changer). Backdrop at .62 alpha — the arena shows through. Legacy notes below still apply (DOUBLE chain, golden spin, THE FIX):
 
@@ -59,7 +72,10 @@ DOUBLE: instant +15×mult coins, ×2 all prizes (cap ×4 MAX FORTUNE 60×mult), 
 ## ☨ TAROT (24 cards)
 Ground cards, weighted flip, fate-arrow when idle. 2 blessed (SUN, WORLD) / 10 good / 10 cursed / 2 damned (DEATH REVERSED, TOWER REVERSED). THE DEVIL sweeps all ground coins. Reveal: top-screen faint card, roman numerals, tier SFX.
 
-## 💀 THE FINAL PRESS + THE DEATH ROLL (Batch 7 form)
+## 💀 THE DEATH ROLL v2 (Batch 8 form)
+The tumble AND the verdict read in **3 decimals** ('ROLL 79.745 > 40.423'). Every press **grows the number** (42→64px, fpPop spring), blooms an `.fpWave` shockwave ring, and speeds the 26-bulb chase (`--chase` 1.35s→0.45s by progress). Press sparks are host-aware (sparkBurstAt over #jackpotLayer).
+
+### (Batch 7 notes)
 Odds display to **three decimals** (35.000%…50.000%); each press buys **+0.25–0.75%**; MARKER'S FAVOR seals +3% base, rank milestones add press base/cap. The resolve is **THE DEATH ROLL**: a number tumbles 0–100 (green when the flicker would save you, red when not) and lands on the truth — **roll ≤ your % lives** ('ROLL 47.3 ≤ 48.250 — LIVE'). markerRef gains {roll, margin}; margin feeds LUCK. 26 marquee bulbs ring the meter; backdrop is glass (arena visible). Legacy notes:
 
 ### (final press v1 notes)
@@ -121,3 +137,10 @@ CFG: spawn{startInt:0.75, minInt:0.26, baseBatch:4}, wave{first:26, grow:6, cap:
 
 ## Perf round 5 + sound (Batch 7)
 Floor tiles bake once per variant (≤48 sprites, `tileSprite`) — per-frame floor path work is zero; watch the unsigned-shift lesson (`(vh>>>3)%4`, signed shift stamped 'undefined' into the marble). 13 drawEnemy shadowBlur sites gated by qLow/lite (toaster 120→27 shadows/frame). sparkBurst counts ×1.4 globally. Ticker rolls under a real whirr (startWhirr/whirrSpeed/stopWhirr — bandpass noise loop, MUST stop on brake/respin/finish), card-flutter at speed, SHINK+felt-thump settle; reels hum awake; crits ping (throttled 160ms). Tokens on pity clocks (wheel 40-60s, ascent 42-62s). Blood fountain redrawn (gilded twin basins + falling arcs). HP bar 22px glass (no LIFEBLOOD label), lowhp shimmer <30%. GLYPH_NUDGE map centers glyph-fallback reel icons. TAROT_FATES carry `dd` one-liners; INDEX tarot tiles show them via one delegated listener on #idxList.
+
+## Batch 8 conventions
+- **pressPulse(el) + SFX.press()**: EVERY interactive SPACE anywhere pops its on-screen button (.sp-pop) and clicks (throttled 60ms). Wired in ui.js keydown per state; new flows must wire their own.
+- **sparkBurstAt(boxId, layerId, n)**: sparks positioned by any box, appended to any fixed inset-0 layer. Plain `sparkBurst` is slot-bound (0×0 rect skip protects the rest). ALL non-slot spark calls use the At form.
+- **Passive rebalance**: `proj` Extra Ante is LEGENDARY (the first legendary skill bucket — shifts strip odds) and stepped (+1 shard at Lv1/Lv3; `ap()` checks pre-increment skillLevel, `sc` deleted so ascent prizes can't bypass); `a_swrm` steps at Lv1/3/5; `pierce` is epic.
+- **Global-scope trap**: `FATE` was taken (tarot.js) — the slot's fate constants are `MFATE`. Grep before naming globals.
+- CS2 colors confirmed exact (#4b69ff/#8847ff/#d32ce6/#eb4b4b/#e4ae39) — director asked; no change was needed.
