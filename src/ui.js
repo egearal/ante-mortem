@@ -42,13 +42,32 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
     const hp=document.createElement('div'); hp.id='howPanel'; hp.className='hidden';
     const sec=s=>'<div class="howSec" style="--hc:'+s.col+'"><div class="howSecH"><span class="howIco">'+s.ico+'</span>'+s.name+'</div>'
       +s.items.map(h=>'<div class="howItem"><div><div class="howName">'+h[0]+'</div><div class="howDesc">'+h[1]+'</div></div></div>').join('')+'</div>';
-    hp.innerHTML='<div id="howTitle">♠ HOUSE RULES ♠</div><div class="howCols"><div class="howCol">'
-      +sec(H4[0])+sec(H4[1])+'</div><div class="howCol">'+sec(H4[2])+sec(H4[3])+'</div></div>'
+    const RULES_TAB={ico:'▣', name:'HOUSE RULES', col:'#e8b64c', items:[
+      ['THE BET','You are Vesper, staked against the House. Survive, level, gamble — every run ends by 15:00, one way or another.'],
+      ['THE REELS','One of a kind = LEVEL 1 · pair = LEVEL 2 · triple = MAX. The rarity you pull is forever.'],
+      ['THE DICE','Climb 8·9·10·11 — every win is +1 level, shown in real numbers. Misses curse, scar, then bust.'],
+      ['THE HOUR','At 13:00 THE HOUSE walks the floor. Nothing else spawns. Nothing kills him. At 15:00 he forecloses.'],
+      ['THE LAW','The House always bleeds — but it never loses. Play accordingly.']
+    ]};
+    const TABS=[RULES_TAB, H4[0], H4[1], H4[2], H4[3]];
+    window._howTabs=TABS; window._howTab=0;
+    const tabBtn=(s,i)=>'<button class="howTab'+(i===0?' on':'')+'" data-t="'+i+'" style="--hc:'+s.col+'">'+s.ico+' '+s.name+'</button>';
+    hp.innerHTML='<div id="howTitle">♠ HOW TO PLAY ♠</div>'
+      +'<div id="howTabs">'+TABS.map(tabBtn).join('')+'</div>'
+      +'<div id="howBody"></div>'
+      +'<div class="howNav"><span class="keyhint">D</span> / <span class="keyhint">→</span> next · <span class="keyhint">A</span> / <span class="keyhint">←</span> back</div>'
       +'<button class="gxBtn gxClose" id="howClose">CLOSE</button>';
+    window._howShow=(i)=>{ window._howTab=((i%TABS.length)+TABS.length)%TABS.length;
+      const s=TABS[window._howTab];
+      hp.querySelectorAll('.howTab').forEach((b,bi)=>b.classList.toggle('on',bi===window._howTab));
+      $('howBody').innerHTML=sec(s);
+      SFX.uiDing(); };
+    setTimeout(()=>window._howShow(0),0);
     pl.appendChild(hp);
     row.addEventListener('click',e=>e.stopPropagation());
     hp.addEventListener('click',e=>e.stopPropagation());
-    $('howBtn').addEventListener('click',()=>{ hp.classList.remove('hidden'); SFX.uiDing(); });
+    $('howBtn').addEventListener('click',()=>{ hp.classList.remove('hidden'); window._howShow(window._howTab||0); });
+    hp.addEventListener('click',e=>{ const b=e.target.closest('.howTab'); if(b) window._howShow(+b.dataset.t); });
     $('howClose').addEventListener('click',()=>{ hp.classList.add('hidden'); SFX.casinoDing(); });
     $('quitBtn').addEventListener('click',()=>quitToMenu());
   } }
@@ -251,6 +270,14 @@ window.addEventListener('keyup',e=>{ if(e.key==='Tab'){ e.preventDefault(); tabH
 window.addEventListener('keydown',e=>{
   const k=e.key.toLowerCase();
   feedSecretKeys(k);
+  { const hp9=$('howPanel');
+    if(hp9 && !hp9.classList.contains('hidden') && window._howShow){
+      if(k==='d'||k==='arrowright'){ e.preventDefault(); window._howShow((window._howTab||0)+1); return; }
+      if(k==='a'||k==='arrowleft'){ e.preventDefault(); window._howShow((window._howTab||0)-1); return; } } }
+  { const pr9=document.getElementById('pageReveal');
+    if(pr9 && !pr9.classList.contains('hidden') && typeof stepStoryPage==='function'){
+      if(k==='d'||k==='arrowright'){ e.preventDefault(); stepStoryPage(1); return; }
+      if(k==='a'||k==='arrowleft'){ e.preventDefault(); stepStoryPage(-1); return; } } }
   if(k==='tab'){ e.preventDefault(); if(!e.repeat && state==='playing'){ tabHold=true; showTab(); SFX.uiDing(); } return; }
   const inInput = document.activeElement && document.activeElement.tagName==='INPUT';
   if(!inInput && ['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
@@ -372,8 +399,24 @@ window.addEventListener('blur',()=>{ keys.clear(); touch.active=false; tabHold=f
 window.addEventListener('error',ev=>{ if(!window._amErr){ window._amErr=1; console.error('[ANTE MORTEM]',ev.error||ev.message); } });
 $('againBtn').addEventListener('click',()=>{ startGame(); });
 
+function menuMotion(){
+  const m=$('menu'); if(!m || m._motion) return; m._motion=true;
+  const holder=document.createElement('div'); holder.id='menuMotion'; m.insertBefore(holder, m.firstChild);
+  for(let i=0;i<12;i++){ const em=document.createElement('span'); em.className='mEmber';
+    em.style.left=(Math.random()*100)+'%'; em.style.animationDelay=(Math.random()*9)+'s';
+    em.style.animationDuration=(7+Math.random()*7)+'s'; em.style.width=em.style.height=(2+Math.random()*3.5)+'px';
+    holder.appendChild(em); }
+  const suits=['♠','♥','♦','♣'];
+  for(let i=0;i<6;i++){ const su=document.createElement('span'); su.className='mSuit';
+    su.textContent=suits[i%4]; su.style.left=(6+Math.random()*88)+'%';
+    su.style.animationDelay=(Math.random()*14)+'s'; su.style.animationDuration=(12+Math.random()*8)+'s';
+    su.style.fontSize=(13+Math.random()*14)+'px';
+    holder.appendChild(su); }
+  const aur=document.createElement('div'); aur.id='menuAurora'; m.insertBefore(aur, m.firstChild);
+}
 function renderChips(){
   try{ storyPulse(); }catch(e){}
+  try{ menuMotion(); }catch(e){}
   const chips=[
     best>0?['🏆',best.toLocaleString(),'#ffd36b']:null,
     ['📖',idxPct()+'%','#c98bff'],

@@ -166,7 +166,7 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
 #pauseStats .ps b{display:block;font-size:24px;color:var(--gold-bright);text-shadow:0 0 12px var(--gold);}
 #pauseStats .ps i{font-style:normal;font-size:9px;letter-spacing:.2em;color:#9a8f7e;}
 #pauseLayer .pzsub{font-size:12px;color:#b3a288;letter-spacing:.14em;margin-top:10px;text-align:center;}
-.pauseRules{pointer-events:auto;position:absolute;right:24px;top:50%;transform:translateY(-50%);width:min(390px,42vw);
+.pauseRules{pointer-events:auto;position:absolute;left:24px;top:50%;transform:translateY(-50%);width:min(390px,42vw);
   background:radial-gradient(130% 40% at 50% -4%,rgba(139,22,32,.4),transparent 60%),linear-gradient(180deg,rgba(30,14,18,.97),rgba(9,4,6,.98));
   border:2px solid var(--gold);border-radius:14px;padding:22px 24px 16px;text-align:left;
   box-shadow:0 0 0 1px #3a0a10,0 0 0 3px rgba(232,182,76,.28),0 0 34px rgba(232,182,76,.35),0 20px 54px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,230,170,.3);}
@@ -872,3 +872,28 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
 /* fallback glyphs sit in the same box as SVG icons — no more giant emoji chips */
 .relic .gfall{display:inline-block;font-size:19px;line-height:1;width:26px;height:26px;text-align:center;overflow:hidden;}
 .relic.weapon .gfall{font-size:18px;}
+
+/* ═══ HOW TO PLAY — five tabs ═══ */
+#howTabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0 14px;}
+.howTab{font-family:var(--disp);font-size:12px;letter-spacing:.1em;padding:7px 13px;border-radius:9px;cursor:pointer;
+  color:#9a8f7e;background:rgba(12,6,10,.7);border:1px solid rgba(232,182,76,.25);transition:all .15s;}
+.howTab:hover{color:var(--hc);border-color:var(--hc);}
+.howTab.on{color:var(--hc);border-color:var(--hc);box-shadow:0 0 14px color-mix(in srgb,var(--hc) 40%,transparent);background:rgba(24,12,18,.85);transform:translateY(-2px);}
+#howBody{max-width:640px;max-height:56vh;overflow-y:auto;margin:0 auto;text-align:left;padding:0 6px;}
+.howNav{margin-top:10px;font-family:var(--disp);font-size:11px;letter-spacing:.14em;color:#8a7c66;}
+/* ═══ MENU MOTION — the House breathes ═══ */
+#menuMotion{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1;}
+#menuAurora{position:absolute;inset:-20%;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 60% 34% at 50% 34%,rgba(139,22,32,.24),transparent 70%);
+  animation:menuAur 11s ease-in-out infinite;}
+@keyframes menuAur{0%,100%{opacity:.5;transform:translateX(-4%) scale(1);}50%{opacity:1;transform:translateX(4%) scale(1.08);}}
+.mEmber{position:absolute;bottom:-12px;border-radius:50%;background:#ff9a3c;box-shadow:0 0 8px #ff9a3c;opacity:0;
+  animation:emberUp linear infinite;}
+@keyframes emberUp{0%{transform:translateY(0) translateX(0);opacity:0;}8%{opacity:.85;}
+  60%{opacity:.5;}100%{transform:translateY(-108vh) translateX(26px);opacity:0;}}
+.mSuit{position:absolute;top:-30px;color:rgba(200,30,44,.32);text-shadow:0 0 10px rgba(139,22,32,.4);opacity:0;
+  animation:suitFall linear infinite;pointer-events:none;font-family:serif;}
+@keyframes suitFall{0%{transform:translateY(0) rotate(0);opacity:0;}6%{opacity:1;}
+  100%{transform:translateY(112vh) rotate(300deg);opacity:0;}}
+#menu .panel{position:relative;z-index:2;animation:panelBreath 4.5s ease-in-out infinite;}
+@keyframes panelBreath{0%,100%{box-shadow:0 24px 90px rgba(0,0,0,.75),0 0 40px rgba(232,182,76,.12);}50%{box-shadow:0 24px 90px rgba(0,0,0,.75),0 0 64px rgba(232,182,76,.26);}}
