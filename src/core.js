@@ -1457,7 +1457,7 @@ function render(){
     ctx.beginPath(); ctx.arc(0,0,be.r*1.4+10,-1.5708,-1.5708+(bounty.t/12)*6.283); ctx.stroke();
     ctx.restore(); }
   // horde LOD: beyond the nearest N enemies, draw cheap silhouettes (toaster keeps only 24 in full art)
-  { const LODN=GFX.lite?24:60;
+  { const LODN=GFX.lite?20:44;
   if(enemies.length>LODN){
     const ds=enemies.map(e=>{ const dx=e.x-P.x, dy=e.y-P.y; return e._d2=dx*dx+dy*dy; }).sort((a,b)=>a-b);
     const cut=ds[LODN-1];
@@ -2435,7 +2435,7 @@ function loop(now){
   requestAnimationFrame(loop);
   try{
   const dt=Math.min(Math.max((now-last)/1000,0),0.05); last=now;
-  if(loopPrev){ frameAvg=frameAvg*0.93+(now-loopPrev)*0.07; } loopPrev=now; qLow = GFX.q==='low' ? true : GFX.q==='high' ? false : (qLow ? (frameAvg>18) : (frameAvg>22));
+  if(loopPrev){ frameAvg=frameAvg*0.93+(now-loopPrev)*0.07; } loopPrev=now; qLow = GFX.q==='low' ? true : GFX.q==='high' ? false : (qLow ? (frameAvg>15.5) : (frameAvg>19));
   if(qLow!==window._qPrev){ window._qPrev=qLow; resize(); }
   if(GFX.shake===0) shake=0; else if(GFX.shake<1) shake*=0.8;
   document.body.classList.toggle('gamble', state==='slot'||state==='wheel'||state==='crash'||state==='marker');

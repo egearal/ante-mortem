@@ -107,14 +107,14 @@ function showTab(){
   tp.classList.add('show');
 }
 function hideTab(){ const tp=$('tabPanel'); if(tp) tp.classList.remove('show'); }
-const GFX={ q:'auto', shafts:true, ghosts:true, shake:1, flash:1, grade:true, sat:true, pcap:260, fps:false, lite:false, preset:'medium' };
+const GFX={ q:'auto', shafts:true, ghosts:true, shake:1, flash:1, grade:true, sat:true, pcap:220, fps:false, lite:false, preset:'medium' };
 const GFX_KEY='antemortem_gfx_v1';
 // one-click presets — MEDIUM matches the classic defaults so old saves label correctly
 const GFX_PRESETS={
   toaster:{ q:'low',  lite:true,  shafts:false, ghosts:false, grade:false, shake:0.5, flash:0.5, pcap:70 },
   low:    { q:'low',  lite:false, shafts:false, ghosts:false, grade:true,  shake:1,   flash:1,   pcap:140 },
-  medium: { q:'auto', lite:false, shafts:true,  ghosts:true,  grade:true,  shake:1,   flash:1,   pcap:260 },
-  high:   { q:'high', lite:false, shafts:true,  ghosts:true,  grade:true,  shake:1,   flash:1,   pcap:260 }
+  medium: { q:'auto', lite:false, shafts:true,  ghosts:true,  grade:true,  shake:1,   flash:1,   pcap:220 },
+  high:   { q:'high', lite:false, shafts:true,  ghosts:true,  grade:true,  shake:1,   flash:1,   pcap:220 }
 };
 function gfxDerivePreset(){
   for(const name in GFX_PRESETS){ const p=GFX_PRESETS[name];

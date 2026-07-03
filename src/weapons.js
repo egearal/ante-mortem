@@ -103,8 +103,9 @@ function fireChalice(l){ const t=nearestFoe(420)||{x:P.x+rnd(-180,180),y:P.y+rnd
 function fireGramo(l){ const t=nearestFoe(400), a0=t?Math.atan2(t.y-P.y,t.x-P.x):P.aim;
   const n=2+Math.floor(l/2);
   for(let i=0;i<n;i++) setTimeout(()=>{ if(state!=='playing')return;
-    waves.push({x:P.x,y:P.y,a:a0,r:26,t:0.55,l,id:++window._waveId}); SFX.dingHit(2+i); },i*140);
-  tone(180,0.3,'sawtooth',0.1,110); }
+    waves.push({x:P.x,y:P.y,a:a0,r:26,t:0.55,l,id:++window._waveId});
+    tone(196,0.14,'triangle',0.055,150); },i*140); // a muted felt horn, not a bee
+  tone(98,0.22,'sine',0.07,70); }
 function fireCylinder(l){ P._cylN=6; P._cylGap=0; P._cylLvl=l;
   SFX.diceRattle(); tone(300,0.08,'square',0.09,150); }
 function fireCandles(l){ // three orbiting candles snipe independently
