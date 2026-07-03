@@ -156,7 +156,7 @@ function ensurePayTable(){
   pt.classList.toggle('red', !!lastRites);
   pt.innerHTML='<div class="ptHead">'+(lastRites?'☨ RICHER ODDS ☨':'THE ODDS')+'</div>'
     +row('common')+row('uncommon')+row('rare')+row('epic')+row('legendary')
-    +(hasAsc?'<div class="ptRow" data-rar="ascend" style="--pc:'+RARC.ascend+'"><span class="ptN">ASCENSION</span><span class="ptPips">▲</span></div>':'')
+    +(hasAsc?'<div class="ptRow" data-rar="ascend" style="--pc:'+RARC.ascend+'"><span class="ptN">ASCENSION</span><span class="ptPips">▲▲▲▲▲▲</span></div>':'')
     +'<div class="ptFoot">'+(lastRites?'<b style="color:#ff7b7b">50/50 — PAYS OR TAKES</b><br>THE COIN IS ALREADY CAST':'<b>PAIR = LEVEL 2 · TRIPLE = MAX</b><br>EVERY DICE WIN = +1 LEVEL')+'</div>';
 }
 function flarePayRow(rar){
@@ -305,7 +305,7 @@ function stopNextReel(){
 }
 function ceremony(matchN, def){
   if(matchN>=3){ bigWin(shinyWord()+' — MAX LEVEL',4); flash(0.55,RARC[def.rar]||'#e8b64c'); SFX.dingBells(); SFX.seraph(); coinRain(20); sparkBurst(36); }
-  else if(matchN===2){ $('machine').classList.add('win'); SFX.dingBells(); coinRain(14); flash(0.3,'#e8b64c'); sparkBurst(18); }
+  else if(matchN===2){ $('machine').classList.add('win'); SFX.dingBells(); coinRain(14); flash(0.3,RARC[def.rar]||'#e8b64c'); sparkBurst(18); }
   else { SFX.coinPling(); SFX.dingHit(1); coinRain(4); sparkBurst(8); }
 }
 function startSelector(){
@@ -317,8 +317,10 @@ function startSelector(){
   if(pairN>=2){
     // 2+ of a kind — base levels (2 or 5), and you can STILL dice for more
     slotStage='locking';
-    landed.forEach((s,i)=>{ if(s===pairId) boxOf(i).classList.add('locked'); });
-    SFX.reelLock(); SFX.dingHit(3+pairN); shake=Math.min(20,shake+9); flash(0.5,'#ffd36b'); sparkBurst(28+pairN*10);
+    { const defs9=slotKind==='weapon'?WEAPONS:PASSIVES, pdef=defs9.find(x=>x.id===pairId);
+      const pcol=(pdef&&RARC[pdef.rar])||'#ffd36b';
+      landed.forEach((s,i)=>{ if(s===pairId){ const bx=boxOf(i); bx.style.setProperty('--pkc', pcol); bx.classList.add('locked'); } });
+      SFX.reelLock(); SFX.dingHit(3+pairN); shake=Math.min(20,shake+9); flash(0.5,pcol); sparkBurst(28+pairN*10); }
     setTimeout(()=>finalizeReward(pairId, pairN), pairN>=3?820:540);
     return;
   }
@@ -340,9 +342,9 @@ function boxOf(i){ return $('reelBox'+i) || (slotReels[i]&&slotReels[i].el.paren
 function stopSelector(){
   if(slotStage!=='select' || selStopping) return;
   selStopping=true;
-  const loops = 1 + ((Math.random()*2)|0);
+  const loops = 2 + ((Math.random()*2)|0);
   let h = loops*3 + ((((selWinner - selPos)%3)+3)%3);
-  if(h < 4) h += 3;
+  if(h < 6) h += 3;
   selHopsLeft = h;
   SFX.tingle();
 }
@@ -358,11 +360,13 @@ function lockSelector(){
   slotStage='locking';
   $('reelsRow').classList.remove('sweeping');
   document.querySelectorAll('.reelbox').forEach(b=>b.classList.remove('pick'));
-  const bx=boxOf(selPos); if(bx) bx.classList.add('locked');
   const landed=slotReels.map(r=>r.landedSym);
   const bestId=landed[selPos];
   const matchN=landed.filter(s=>s===bestId).length;
-  SFX.reelLock(); SFX.dingHit(3+matchN); shake=Math.min(18,shake+8); flash(0.42,matchN>=2?'#ffd36b':'#fff0c8'); sparkBurst(22+matchN*8);
+  const defs9=slotKind==='weapon'?WEAPONS:PASSIVES, ldef=defs9.find(x=>x.id===bestId);
+  const lcol=(ldef&&RARC[ldef.rar])||'#ffd36b';
+  const bx=boxOf(selPos); if(bx){ bx.style.setProperty('--pkc', lcol); bx.classList.add('locked'); }
+  SFX.reelLock(); SFX.dingHit(3+matchN); shake=Math.min(18,shake+8); flash(0.42,lcol); sparkBurst(22+matchN*8);
   setTimeout(()=>finalizeReward(bestId, matchN), 240);
 }
 { const _pf=projFx;
