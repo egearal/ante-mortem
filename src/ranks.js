@@ -184,25 +184,47 @@ function openIndexPanel(){
   p.classList.remove('hidden');
 }
 
+/* HOUSE RANK — 100 planned levels. Every rank pays something; every 5th pays forever; every 10th changes the game. */
 const RANK_KEY='am_rank_v1';
 let RANK={marks:0, rank:1, _ld:0};
-const RANKS=[
- {n:'FRESH MEAT'},
- {n:'PATRON',        r:'+25 GILT',            g:25},
- {n:'GAMBLER',       r:'START WITH 15 COINS'},
- {n:'HIGH ROLLER',   r:'+40 GILT',            g:40},
- {n:'DEBTOR',        r:'+10 STARTING HP'},
- {n:'MARKED SOUL',   r:'+50 GILT',            g:50},
- {n:'HOUSE FAVORITE',r:'START AT LEVEL 2'},
- {n:'PIT FIEND',     r:'+75 GILT',            g:75},
- {n:'CROUPIER OF BONES', r:'XP +5% FOREVER'},
- {n:'VAULT KIN',     r:'RAGE FEED +10%'},
- {n:'HOUSE SHADOW',  r:'CURSES 25% SHORTER'},
- {n:'THE HOUSE ITSELF', r:'ALL COINS +10%'}
+const RANK_TITLES=['FRESH MEAT','PATRON','GAMBLER','HIGH ROLLER','DEBTOR','MARKED SOUL','HOUSE FAVORITE','PIT FIEND','CROUPIER OF BONES','VAULT KIN','HOUSE SHADOW','CARD BARON','BONE MARQUIS','GILT SOVEREIGN',"DEATH'S CONSORT",'WHEEL WARDEN','ASH ROYAL','THE CROWNED DEBT','MIDNIGHT MAGNATE','THE HOUSE ITSELF'];
+const RANK_MILESTONES={
+ 10:{r:'START AT LEVEL 2',            ap:()=>{ pending.push({}); }},
+ 20:{r:'+10 STARTING BLOOD',          ap:()=>{ P.maxHp+=10; P.hp+=10; }},
+ 30:{r:'START WITH 20 COINS',         ap:()=>{ P.coins+=20; }},
+ 40:{r:'GOLDEN SPIN +2%',             ap:()=>{ P.goldenBoost=(P.goldenBoost||0)+0.02; }},
+ 50:{r:'FINAL PRESS STARTS +2%',      ap:()=>{ P.pressBase=(P.pressBase||0)+0.02; }},
+ 60:{r:'CURSES 15% SHORTER',          ap:()=>{ P.curseCut=Math.min(P.curseCut||1,0.85); }},
+ 70:{r:'VAULT PRICES −8%',            ap:()=>{ P.vaultDisc=(P.vaultDisc||0)+0.08; }},
+ 80:{r:'RAGE FEED +15%',              ap:()=>{ P.ovFeed=(P.ovFeed||1)*1.15; }},
+ 90:{r:'FINAL PRESS CAP 55%',         ap:()=>{ P.pressCap=(P.pressCap||0)+0.05; }},
+ 100:{r:'ALL COINS +15% — THE HOUSE IS YOURS', ap:()=>{ P.coinMult=(P.coinMult||1)*1.15; }}
+};
+const RANK_FIVES=[
+ {r:'+2% COINS FOREVER', ap:()=>{ P.coinMult=(P.coinMult||1)+0.02; }},
+ {r:'+2% XP FOREVER',    ap:()=>{ P.xpMult=(P.xpMult||1)*1.02; }},
+ {r:'+4 SPEED FOREVER',  ap:()=>{ P.speed+=4; }},
+ {r:'+5 BLOOD FOREVER',  ap:()=>{ P.maxHp+=5; P.hp+=5; }},
+ {r:'+1% CRIT FOREVER',  ap:()=>{ P.crit=Math.min(0.9,(P.crit||0)+0.01); }}
 ];
-function rkStep(k){ return Math.round(140*Math.pow(k,1.6)); }
+function buildRanks(){
+  const roman=['I','II','III','IV','V'], out=[];
+  for(let r=1;r<=100;r++){
+    const e={n:RANK_TITLES[Math.floor((r-1)/5)]+' '+roman[(r-1)%5]};
+    if(RANK_MILESTONES[r]){ e.r=RANK_MILESTONES[r].r; e.ap=RANK_MILESTONES[r].ap; }
+    else if(r%5===0){ const f=RANK_FIVES[(r/5)%5]; e.r=f.r; e.ap=f.ap; }
+    else if(r>1){ e.g=12+r*2; e.r='+'+e.g+' GILT'; }
+    out.push(e);
+  }
+  return out;
+}
+const RANKS=buildRanks();
+function rkStep(k){ return Math.round(135*Math.pow(k,0.875)); }
 function rkCum(n){ let t=0; for(let k=1;k<n;k++) t+=rkStep(k); return t; }
-async function loadRank(){ try{ if(!store)return; const v=await store.get(RANK_KEY); if(v&&v.value){ const o=JSON.parse(v.value); RANK.marks=o.marks||0; RANK.rank=o.rank||1; } }catch(e){} }
+function rankFromMarks(m){ let r=1; while(r<RANKS.length && m>=rkCum(r+1)) r++; return r; }
+async function loadRank(){ try{ if(!store)return; const v=await store.get(RANK_KEY); if(v&&v.value){ const o=JSON.parse(v.value); RANK.marks=o.marks||0; RANK.rank=o.rank||1; } }catch(e){}
+  // new curve, never a demotion: old saves land at whichever is HIGHER
+  RANK.rank=Math.min(RANKS.length, Math.max(RANK.rank, rankFromMarks(RANK.marks))); }
 async function saveRank(){ try{ if(!store)return; await store.set(RANK_KEY,JSON.stringify({marks:RANK.marks,rank:RANK.rank}),false); }catch(e){} }
 function awardMarks(m){
   RANK.marks+=m; let up=false, reward='';
@@ -211,16 +233,14 @@ function awardMarks(m){
     if(rk.g){ gilt+=rk.g; saveGilt(); }
   }
   saveRank();
+  if(up){ // the two-beat ceremony: what you unlocked, then what's next
+    const cur=RANKS[RANK.rank-1], nx=RANKS[RANK.rank];
+    setTimeout(()=>{ announce('⚜ RANK '+RANK.rank+' — '+cur.n+' · UNLOCKED: '+(cur.r||'THE TITLE')+' ⚜', true); SFX.seraph(); }, 500);
+    if(nx) setTimeout(()=>{ announce('▲ NEXT: '+nx.n+' — '+(nx.r||'')+' ▲', true); }, 2600);
+  }
   const base=rkCum(RANK.rank), next=RANK.rank<RANKS.length?rkCum(RANK.rank+1):base+1;
   return { up, reward, have:RANK.marks-base, need:next-base, pct:Math.min(100,Math.round((RANK.marks-base)/(next-base)*100)) };
 }
 function applyRankPerks(){
-  const r=RANK.rank;
-  if(r>=3) P.coins+=15;
-  if(r>=5){ P.maxHp+=10; P.hp+=10; }
-  if(r>=7) pending.push({});
-  if(r>=9) P.xpMult=(P.xpMult||1)*1.05;
-  if(r>=10) P.ovFeed=(P.ovFeed||1)*1.10;
-  if(r>=11) P.curseCut=0.75;
-  if(r>=12) P.coinMult=(P.coinMult||1)*1.10;
+  for(let r=2;r<=RANK.rank;r++){ const e=RANKS[r-1]; if(e&&e.ap){ try{ e.ap(); }catch(x){} } }
 }

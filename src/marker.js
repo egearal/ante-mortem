@@ -15,8 +15,8 @@ function markerSpin(){
   state='marker'; stopDrone();
   const l=$('jackpotLayer'), t=$('jackpotText');
   l.classList.remove('hidden');
-  const base=Math.min(0.44, 0.35+0.03*vlv('marker'));
-  const mk={p:base, base, max:0.50, presses:0, window:3.2, t0:performance.now(), phase:'press', resolved:false};
+  const base=Math.min(0.46, 0.35+0.03*vlv('marker')+(P.pressBase||0));
+  const mk={p:base, base, max:0.50+(P.pressCap||0), presses:0, window:3.2, t0:performance.now(), phase:'press', resolved:false};
   markerRef=mk;
   t.textContent='PRESS FOR YOUR LIFE'; t.className='jackpotText marker'; t.style.color='#e8b64c';
   // marquee bulbs circle the meter, casino-style

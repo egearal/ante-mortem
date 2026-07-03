@@ -35,7 +35,7 @@ const CONTRACTS=[
 ];
 function contractDone(id){ const c=CONTRACTS.find(x=>x.id===id); return c && c.cur()>=c.goal; }
 function vlv(id){ return (VAULT.lv[id]|0); }
-function vaultCost(def){ return Math.round(def.base*Math.pow(1.6, vlv(def.id))); }
+function vaultCost(def){ return Math.round(def.base*Math.pow(1.6, vlv(def.id))*(1-((P&&P.vaultDisc)||0))); }
 function vaultUnlocked(def){ return !def.req || def.req(); }
 function applyVault(){
   P.maxHp=Math.round(P.maxHp*(1+0.06*vlv('hp'))); P.hp=P.maxHp;

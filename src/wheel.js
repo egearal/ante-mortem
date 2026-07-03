@@ -67,7 +67,7 @@ function tkCenter(i){ return i*TK_STEP+TK_CARD/2; }
 function openWheel(){
   buildWheelDom(); state='wheel';
   wheel={x:0, phase:'idle', mult:1, lastSeg:-1, done:false, windT:0, setT:0, toAscent:false,
-    golden:Math.random()<0.05, windK:0, slowTicks:0, hbT:0, strip:[], tIdx:0, jit:0, rigSeg:(wheel&&wheel.rigSeg)||null};
+    golden:Math.random()<(0.05+(P.goldenBoost||0)), windK:0, slowTicks:0, hbT:0, strip:[], tIdx:0, jit:0, rigSeg:(wheel&&wheel.rigSeg)||null};
   buildTickerStrip();
   $('wheelMult').classList.add('hidden');
   { const ww=$('wheelWin'); if(ww) ww.classList.remove('go'); }
