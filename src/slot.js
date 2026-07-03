@@ -111,7 +111,7 @@ function ensurePayTable(){
   pt.innerHTML='<div class="ptHead">'+(lastRites?'☨ RICHER ODDS ☨':'THE ODDS')+'</div>'
     +row('common')+row('rare')+row('epic')+row('legendary')
     +(hasAsc?'<div class="ptRow" data-rar="ascend" style="--pc:'+RARC.ascend+'"><span class="ptN">ASCENSION</span><span class="ptPips">▲</span></div>':'')
-    +'<div class="ptFoot">'+(lastRites?'<b style="color:#ff7b7b">ONE MISS = SCAR & BUST</b><br>THE TABLE FORGIVES NOTHING':'<b>MATCHES PAY COINS</b><br>RUNG 2 OF THE DICE UPGRADES')+'</div>';
+    +'<div class="ptFoot">'+(lastRites?'<b style="color:#ff7b7b">ONE MISS = SCAR & BUST</b><br>THE TABLE FORGIVES NOTHING':'<b>PAIR = LEVEL 2 · TRIPLE = MAX</b><br>EVERY DICE WIN = +1 LEVEL')+'</div>';
 }
 function flarePayRow(rar){
   const pt=$('payTable'); if(!pt) return;
@@ -143,16 +143,35 @@ function openSlotReady(kind){
   $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> spin the reels';
   showSlotButtons();
 }
+// MATCH FATE — the spin's outcome is dealt when the lever drops: 0.8% of spins
+// are born TRIPLES, 9% born PAIRS, the rest born loose. The fated symbol is
+// drawn by the same rarity law as everything else, seeded 3x into each strip
+// (7 apart, so one always sits within 4 rows of any stop), and the reels are
+// nudged a row or two at stop time to land the dealt fate. Natural pairs on a
+// fresh pool would run ~14% and triples ~0.3% — fate makes both bands exact.
+const MFATE={T:0.008, P:0.09};
+let slotFate=null;
+function dealFate(seqs, pool){
+  const u=Math.random();
+  const n = u<MFATE.T ? 3 : (u<MFATE.T+MFATE.P ? 2 : 0);
+  if(!n){ slotFate={n:0}; return; }
+  const s=weightedByRarity(pool, lastRites?RED_W:null).id;
+  const p0=(Math.random()*seqs[0].length)|0;
+  seqs.forEach(sq=>{ for(let j=0;j<3;j++) sq[(p0+j*7)%sq.length]=s; });
+  slotFate={n, s};
+}
 function spinReels(){
   if(slotStage!=='ready') return;
   const isW=slotKind==='weapon'; const defs=isW?WEAPONS:PASSIVES;
   const avail=isW?availableWeapons():availableSkills(); const pool=avail.length?avail:defs;
   const strips=[$('strip0'),$('strip1'),$('strip2')];
   document.querySelectorAll('.reelbox').forEach(b=>b.classList.remove('antici','slam','pick','locked')); $('reelsRow').classList.remove('sweeping');
+  const N=22;
+  const seqs=[0,1,2].map(()=>{ const s=[]; for(let k=0;k<N;k++) s.push(weightedByRarity(pool, lastRites?RED_W:null).id); return s; });
+  dealFate(seqs, pool);
   slotReels = strips.map((el,i)=>{
-    const N=22, seq=[]; for(let k=0;k<N;k++) seq.push(weightedByRarity(pool, lastRites?RED_W:null).id);
-    buildStrip(el,seq,defs); el.style.transition='none';
-    return {el,seq,N,offset:Math.random()*N,speed:19+i*1.8,stopped:false,landedSym:null,symH:63,boxH:189};
+    buildStrip(el,seqs[i],defs); el.style.transition='none';
+    return {el,seq:seqs[i],N,offset:Math.random()*N,speed:19+i*1.8,stopped:false,landedSym:null,symH:63,boxH:189};
   });
   LT.spins++; bump('spins',LT.spins);
   slotStage='spinning'; reelsStopped=0; stopLock=performance.now()+150;
@@ -183,8 +202,24 @@ function stopNextReel(){
   stopLock=performance.now()+180;
   r.stopped=true; r.el.classList.remove('blur');
   const centerBias=(r.boxH/2 - r.symH/2)/r.symH;
-  const target=Math.round((r.offset % r.N)+centerBias);
-  const idx=((target % r.N)+r.N)%r.N;
+  let target=Math.round((r.offset % r.N)+centerBias);
+  let idx=((target % r.N)+r.N)%r.N;
+  // land the dealt fate: force-match reels nudge onto the fated symbol, the
+  // rest nudge OFF accidental matches (a nudge-away one row from the pair IS
+  // the near-miss). Search stays within ±4 rows so the settle looks natural.
+  { const f=slotFate||{n:0};
+    const prev=slotReels.filter(x=>x.stopped&&x!==r).map(x=>x.landedSym);
+    let pred=null;
+    if(f.n===3) pred=sy=>sy===f.s;
+    else if(f.n===2) pred= prev.length<2 ? (sy=>sy===f.s) : (sy=>sy!==f.s);
+    else if(prev.length) pred=sy=>!prev.includes(sy);
+    if(pred && !pred(r.seq[idx])){
+      for(let d=1; d<=4; d++){
+        if(pred(r.seq[(idx+d)%r.N])){ target+=d; break; }
+        if(pred(r.seq[((idx-d)+r.N)%r.N])){ target-=d; break; }
+      }
+      idx=((target % r.N)+r.N)%r.N;
+    } }
   r.landedSym=r.seq[idx]; r.landedIdx=idx;
   const tyFinal=-((target-centerBias)*r.symH);
   r.el.style.transition='transform .16s cubic-bezier(.34,1.7,.5,1)';
@@ -218,7 +253,7 @@ function stopNextReel(){
   else showSlotButtons();
 }
 function ceremony(matchN, def){
-  if(matchN>=3){ bigWin(shinyWord()+'  +'+matchN+' LV',4); flash(0.5,RARC[def.rar]||'#e8b64c'); SFX.dingBells(); sparkBurst(30); }
+  if(matchN>=3){ bigWin(shinyWord()+' — MAX LEVEL',4); flash(0.55,RARC[def.rar]||'#e8b64c'); SFX.dingBells(); SFX.seraph(); coinRain(20); sparkBurst(36); }
   else if(matchN===2){ $('machine').classList.add('win'); SFX.dingBells(); coinRain(14); flash(0.3,'#e8b64c'); sparkBurst(18); }
   else { SFX.coinPling(); SFX.dingHit(1); coinRain(4); sparkBurst(8); }
 }
@@ -287,22 +322,19 @@ function finalizeReward(bestId, matchN){
   if(slotBank>=7){ slotBank-=7; vouchers++; SFX.dingBells(); SFX.chipStack();
     setTimeout(()=>announce('◈ BANK FULL — HOUSE VOUCHER EARNED ◈', true), 200); }
   const defs=slotKind==='weapon'?WEAPONS:PASSIVES; const def=defs.find(x=>x.id===bestId);
-  const owned9 = slotKind==='weapon' ? (P.wlv[def.id]||0)>0 : skLevel(def)>0;
-  // THE LEVEL-1 LAW: a new thing always enters at level one. Matches pay coins (and a softer table on triples) instead.
-  let base, matchPay=0, softDice=false;
-  if(!owned9){
-    base=1;
-    if(matchN===2){ matchPay=20; }
-    else if(matchN>=3){ matchPay=50; softDice=true; }
-  } else {
-    base = matchN>=3 ? 3 : (matchN===2 ? 2 : 1);
-  }
-  if(matchPay){ P.coins+=matchPay; LT.coins+=matchPay; coinRain(Math.min(20,matchPay/3|0));
-    setTimeout(()=>announce('◈ MATCH BONUS +'+matchPay+' COINS ◈', true), 600); SFX.cashout(); }
-  if(lastRites && owned9) base+=1;
-  if(ovBonusNext){ ovBonusNext=false; base+=1; setTimeout(()=>announce('⚡ OVERCHARGED — +1 BONUS LEVEL ⚡', true), 700); }
-  if(vouchers>0){ vouchers--; base+=1; setTimeout(()=>{ announce('◈ HOUSE VOUCHER SPENT — +1 LEVEL ◈', true); flash(0.35,'#ffd36b'); SFX.casinoDing(); }, 1400); }
-  gamble={ def, kind:slotKind, base, reward:base, matchN, round:1, threshold:(lastRites?7:8)-(softDice?1:0)-(vlv('dice')?1:0)+(P.hexDice?1:0)+(P.crookedT?1:0), rites:lastRites, seraph, rollT:0, win:false, dL:0, dR:0, hist:[], diceN:0 };
+  const curLv9 = slotKind==='weapon' ? (P.wlv[def.id]||0) : skLevel(def);
+  const owned9 = curLv9>0;
+  // MATCH LAW v3: single = LEVEL 1 · pair = LEVEL 2 · TRIPLE = INSTANT MAX.
+  // Owned: single +1 · pair +2 · triple fills to max. Rarity never changes after the pull.
+  let base;
+  if(matchN>=3) base = Math.max(1, def.max-curLv9);
+  else if(matchN===2) base = 2;
+  else base = 1;
+  if(lastRites && owned9 && matchN<3) base+=1;
+  let usedOv=false, usedVch=false;
+  if(ovBonusNext){ ovBonusNext=false; base+=1; usedOv=true; setTimeout(()=>announce('⚡ OVERCHARGED — +1 BONUS LEVEL ⚡', true), 700); }
+  if(vouchers>0){ vouchers--; base+=1; usedVch=true; setTimeout(()=>{ announce('◈ HOUSE VOUCHER SPENT — +1 LEVEL ◈', true); flash(0.35,'#ffd36b'); SFX.casinoDing(); }, 1400); }
+  gamble={ def, kind:slotKind, base, reward:base, matchN, round:1, threshold:(lastRites?7:8)-(vlv('dice')?1:0)+(P.hexDice?1:0)+(P.crookedT?1:0), rites:lastRites, seraph, rollT:0, win:false, dL:0, dR:0, hist:[], diceN:0, _voucherUsed:usedVch, _ovUsed:usedOv };
   if(P.crookedT) P.crookedT=false; // the CROOKED TABLE scar bites once
   if(seraph) seraphCeremony();
   ceremony(matchN, def);
@@ -604,7 +636,7 @@ function makeBtn(label,cls,sub,fn){
 const SHINY=['JACKPOT','DIVINE','GILDED','RADIANT','ASCENDANT','BLESSED','MYTHIC','GOLDEN','SUBLIME','EXALTED','CELESTIAL','ANOINTED','HALLOWED'];
 const SHORT_FX={
   dmg:'+5 Attack / lvl', fire:'+0.25 Fire Rate / lvl', spd:'+20 Move Speed / lvl', hp:'+30 Max HP / lvl',
-  luck:'+6% Crit · +18% Coins', proj:'+1 Projectile / lvl', pierce:'+1 Pierce / lvl', mag:'+40 Pickup / lvl',
+  luck:'+6% Crit · +18% Coins', proj:'+1 Projectile at Lv1 · Lv3', pierce:'+1 Pierce / lvl', mag:'+40 Pickup / lvl',
   regen:'+1 HP per sec', exec:'+40% Crit Damage / lvl',
   bolt:'Auto-fires bolts', cards:'Piercing card fan', orbit:'Orbiting chips', scythe:'Sweeping scythe arc',
   spark:'Chain lightning', chand:'Chandelier smite', knives:'Radial spinning knives', aura:'Damage aura cloud',
@@ -687,7 +719,7 @@ const PROJ_FX={
   spd:  l=>'+'+(20*l)+' Move Speed',
   hp:   l=>'+'+(30*l)+' Max HP',
   luck: l=>'+'+(6*l)+'% Crit · +'+(18*l)+'% Coins',
-  proj: l=>'+'+l+' Projectile'+(l>1?'s':''),
+  proj: l=>{const c=(l>=1)+(l>=3);return '+'+c+' Projectile'+(c>1?'s':'');},
   pierce: l=>'Pierces +'+l+' foes',
   mag:  l=>'+'+(40*l)+' Pickup',
   regen: l=>'+'+l+' HP / sec',

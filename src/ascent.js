@@ -287,9 +287,9 @@ function rollAscentPrize(m){
   setTimeout(()=>{
     announce('✦ PRIZE — '+lbl+': '+pd.n+(pd.sc?' ×'+m.toFixed(1):'')+' ✦', true);
     if(tier==='mythic'){ bigWin('MYTHIC — '+pd.n,4); SFX.seraph(); SFX.dingBells(); flash(0.6,'#fff2c0'); coinRain(30); }
-    else if(tier==='epic'){ SFX.hotSix(); SFX.dingBells(); flash(0.4,'#c98bff'); sparkBurst(24); }
-    else if(tier==='rare'){ SFX.dingBells(); flash(0.3,'#6fb7ff'); sparkBurst(16); }
-    else { SFX.casinoDing(); sparkBurst(10); }
+    else if(tier==='epic'){ SFX.hotSix(); SFX.dingBells(); flash(0.4,'#c98bff'); sparkBurstAt('crashMult','crashLayer',24); }
+    else if(tier==='rare'){ SFX.dingBells(); flash(0.3,'#6fb7ff'); sparkBurstAt('crashMult','crashLayer',16); }
+    else { SFX.casinoDing(); sparkBurstAt('crashMult','crashLayer',10); }
   }, 500);
 }
 function theFall(){
