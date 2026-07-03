@@ -10,7 +10,7 @@ const VAULT_DEFS=[
  {id:'gold',  n:'GOLDEN TOUCH',   d:'+6% coin gain per seal',                    max:5, base:50,  icon:'luck'},
  {id:'pocket',n:'POCKET CHANGE',  d:'begin each run with +15 coins per seal',    max:4, base:30,  icon:'mag',   req:()=>(LT.chests||0)>=5,    reqTxt:'Open 5 of the House\'s gifts'},
  {id:'fever', n:'FEVER PITCH',    d:'fever charges +8% faster per seal',         max:5, base:60,  icon:'nova',  req:()=>(LT.fevers||0)>=3,    reqTxt:'Enter Fever Mode 3 times'},
- {id:'marker',n:"MARKER'S FAVOR", d:'+5% Marker revival odds per seal',          max:3, base:120, icon:'regen', req:()=>(LT.markers||0)>=1,   reqTxt:'Face the House Marker once'},
+ {id:'marker',n:"MARKER'S FAVOR", d:'THE FINAL PRESS starts +3% higher per seal', max:3, base:120, icon:'regen', req:()=>(LT.markers||0)>=1,   reqTxt:'Face the House Marker once'},
  {id:'credit',n:'HOUSE CREDIT',   d:'begin each run with a free slot spin per seal', max:3, base:150, icon:'cards', req:()=>(LT.bossKills||0)>=1, reqTxt:'Slay your first boss'},
  {id:'dice',  n:'LOADED DICE',    d:'every dice target lowered by 1, always',    max:1, base:420, icon:'proj',  req:()=>(LT.gods||0)>=1,      reqTxt:'Reach GOD LEVEL once'},
  {id:'wheel', n:'COURTESY SUMMONS',d:'the Wheel of Souls calls 8% sooner per seal', max:3, base:90, icon:'orbit', req:()=>(LT.wheel||0)>=3,   reqTxt:'Spin the Wheel of Souls 3 times'},

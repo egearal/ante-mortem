@@ -10,14 +10,45 @@ async function die(){
   if(!P.markerUsed){ P.markerUsed=true; LT.markers=(LT.markers||0)+1; bump('markers',LT.markers); markerSpin(); return; }
   actuallyDie();
 }
+/* THE FINAL PRESS — no gold at the door. 35% to live; mash SPACE for 3.2 seconds, every press buys +0.5-1.5%, cap 50%. */
 function markerSpin(){
   state='marker'; stopDrone();
   const l=$('jackpotLayer'), t=$('jackpotText');
   l.classList.remove('hidden');
+  const base=Math.min(0.44, 0.35+0.03*vlv('marker'));
+  const mk={p:base, base, max:0.50, presses:0, window:3.2, t0:performance.now(), phase:'press', resolved:false};
+  markerRef=mk;
+  t.textContent='PRESS FOR YOUR LIFE'; t.className='jackpotText marker'; t.style.color='#e8b64c';
+  const sub=$('jackpotSub'); sub.classList.remove('hidden'); renderPressMeter();
+  SFX.riser(); SFX.murmur(); flash(0.4,'#8b1620'); shake=Math.min(16,shake+8);
+  mk._iv=setInterval(()=>{
+    if(mk.phase!=='press'){ clearInterval(mk._iv); return; }
+    const left=mk.window-(performance.now()-mk.t0)/1000;
+    if(left<=0 || mk.p>=mk.max){ clearInterval(mk._iv); startFlicker(mk); }
+    else renderPressMeter();
+  }, 50);
+}
+function renderPressMeter(){
+  const mk=markerRef; if(!mk||mk.phase!=='press') return;
+  const left=Math.max(0,mk.window-(performance.now()-mk.t0)/1000);
+  $('jackpotSub').innerHTML=
+    '<div class="fpPct">'+Math.round(mk.p*100)+'<i>%</i> TO LIVE</div>'
+    +'<div class="fpBar"><i style="width:'+Math.min(100,(mk.p-mk.base)/(mk.max-mk.base)*100)+'%"></i></div>'
+    +'<div class="fpTime"><i style="width:'+(left/mk.window*100)+'%"></i></div>'
+    +'<div class="fpHint"><span class="keyhint">SPACE</span> PRESS · PRESS · PRESS</div>';
+}
+function pressFx(mk){
+  tone(660*Math.pow(1.0595,Math.min(24,mk.presses)),0.07,'sine',0.11);
+  tone(1320*Math.pow(1.0595,Math.min(24,mk.presses)),0.05,'sine',0.05);
+  sparkBurst(6); shake=Math.min(10,shake+2);
+  if(mk.p>=mk.max){ SFX.seraph(); SFX.dingBells(); flash(0.5,'#ffd36b'); sparkBurst(30);
+    $('jackpotText').textContent='◈ MAX ◈'; $('jackpotText').style.color='#ffd36b'; }
+}
+function startFlicker(mk){
+  mk.phase='flicker';
+  const l=$('jackpotLayer'), t=$('jackpotText');
+  $('jackpotSub').innerHTML='<div class="fpPct big">'+Math.round(mk.p*100)+'<i>%</i> TO LIVE</div>';
   let n=0, N=14;
-  const g0=gilt, c1=Math.ceil(g0*0.30), c2=Math.ceil(g0*0.30);
-  const mk={p:0.30+0.05*vlv('marker'), tier:0, resolved:false, g0:g0,
-    costs:[g0>0?Math.max(1,c1):0, g0>0?Math.max(1,c2):0, Math.max(0,g0-c1-c2)]}; markerRef=mk;
   const step=()=>{
     n++;
     const showLive=n%2===0;
@@ -42,10 +73,7 @@ function markerSpin(){
         setTimeout(()=>{ l.classList.add('hidden'); t.style.color=''; $('jackpotSub').classList.add('hidden'); actuallyDie(); },1400); }
     }
   };
-  SFX.riser(); SFX.murmur(); t.textContent='THE HOUSE CONSIDERS…'; t.className='jackpotText marker'; t.style.color='#e8b64c';
-  const sub=$('jackpotSub'); sub.innerHTML=mkBribeLine(mk.p,0); sub.classList.remove('hidden');
-  flash(0.4,'#8b1620'); shake=Math.min(16,shake+8);
-  setTimeout(step, 750);
+  setTimeout(step, 420);
 }
 async function actuallyDie(){
   if(state==='dead') return;

@@ -27,7 +27,7 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
         ['WHEEL OF SOULS','Grab the violet token — SPACE rolls a strip of prizes past the gold needle, tick by tick, until one lands. DOUBLE respins everything at ×2 then ×4. FREE SPIN rolls again for nothing. SIDE ARM hands you a weapon on the spot. One spin in 20 comes up GOLDEN — all prizes doubled.'],
         ['THE ASCENT','The green gate. Free to ride: SPACE pushes the number up, ENTER cashes out. Prizes at 1.77× / 2.77× / 3.69× — and 7.77× is the JACKPOT: your pick of 3 weapons. Crash = a random curse, 5-15 seconds.'],
         ['TAROT','Ghost cards flip on the marble — half bless, half curse. The violet arrow points to them.'],
-        ['THE MARKER','On death the House flips LIVE or DIE — 30% to live. SPACE bribes with your gilt: 30% of it (+5-10%), 30% more (+5-10%), then the rest (+5%). Cap 75%.']
+        ['THE FINAL PRESS','Die once and the House considers. You start at 35% to live — MASH SPACE for 3 seconds, every press buys +0.5-1.5%, up to 50%. Then LIVE or DIE flickers. Your gilt is never touched.']
       ]},
       {ico:'◈', name:'THE LONG GAME', col:'#ff9a9a', items:[
         ['COINS','This run\'s gold. They feed RAGE, and a 27+ kill streak can be CASHED with SPACE.'],
@@ -168,25 +168,6 @@ function buildGfxPanel(){
   syncPresetRow();
 }
 function openGfx(){ buildGfxPanel(); $('gfxPanel').classList.remove('hidden'); SFX.vaultOpen(); }
-function mkBribeLine(p,tier){
-  const pct=Math.min(75,Math.round(p*100)), mk=markerRef||{};
-  const paid=mk.lastPaid?('PAID <b style="color:#ff7b7b">−'+mk.lastPaid+' ◈</b> (+'+Math.round((mk.lastGain||0)*100)+'%) · '):'';
-  if(tier>=3||p>=0.75) return paid+'THE HOUSE IS BOUGHT — <b style="color:#8bff9a">'+pct+'% TO LIVE</b> · <b style="color:#ffd36b">'+gilt+' ◈</b> REMAIN';
-  const cost=mk.costs?mk.costs[tier]:0;
-  if(!cost||gilt<cost) return paid+'ODDS <b style="color:#8bff9a">'+pct+'%</b> TO LIVE · YOU HOLD <b style="color:#ffd36b">'+gilt+' ◈</b> — NOTHING LEFT TO OFFER';
-  return paid+'ODDS <b style="color:#8bff9a">'+pct+'%</b> TO LIVE · YOU HOLD <b style="color:#ffd36b">'+gilt+' ◈</b> · SPACE — BRIBE <b style="color:#ff7b7b">−'+cost+' ◈</b> ('+(tier<2?'+5-10%':'+5%')+')';
-}
-function bribeFx(tier,p){
-  const jt=$('jackpotText'); if(jt){ jt.classList.remove('bribePop'); void jt.offsetWidth; jt.classList.add('bribePop'); }
-  { const sb=$('jackpotSub'); sb.innerHTML=mkBribeLine(p,tier); sb.classList.remove('subPop'); void sb.offsetWidth; sb.classList.add('subPop'); }
-  SFX.chipStack(); SFX.casinoDing();
-  [660,880,1046].slice(0,tier).forEach((f9,i9)=>setTimeout(()=>tone(f9*(1+tier*0.12),0.16,'sine',0.12),i9*70));
-  coinRain(6+tier*7);
-  setTimeout(()=>flash(0.18+tier*0.08,'#fff2c0'),110);
-  if(tier>=2){ SFX.dingBells(); ring(P.x,P.y,150,'#ffd36b'); }
-  if(tier>=3){ SFX.hotSix(); SFX.cashout(); ring(P.x,P.y,230,'#fff2c0'); coinRain(18); }
-  flash(0.25+tier*0.13,'#ffd36b'); sparkBurst(10+tier*10); shake=Math.min(20,shake+5+tier*3);
-}
 let annT=null;
 function announce(txt, good){
   const a=$('announce'); if(!a) return;
@@ -304,16 +285,14 @@ window.addEventListener('keydown',e=>{
     return;
   }
   if(state==='marker'){
-    if(k===' ' && markerRef && !markerRef.resolved){
-      const t9=markerRef.tier, cost=markerRef.costs?markerRef.costs[t9]:0;
-      if(t9<3 && markerRef.p<0.75 && cost>0 && gilt>=cost){
-        gilt-=cost; saveGilt();
-        const gain = t9<2 ? (0.05+Math.random()*0.05) : 0.05;
-        markerRef.p=Math.min(0.75, markerRef.p+gain); markerRef.tier++;
-        markerRef.lastPaid=cost; markerRef.lastGain=gain;
-        bribeFx(markerRef.tier, markerRef.p);
-      } else if(t9<3 && markerRef.p<0.75){
-        SFX.thud(); $('jackpotSub').innerHTML=markerRef.g0>0?'THE HOUSE REJECTS EMPTY HANDS — <b style="color:#ff7b7b">'+cost+' ◈</b> NEEDED':'EMPTY HANDS — THE HOUSE PITIES NO BEGGAR';
+    if(k===' ' && !e.repeat && markerRef && markerRef.phase==='press' && !markerRef.resolved){
+      e.preventDefault();
+      const mk=markerRef;
+      if(mk.p<mk.max){
+        mk.presses++;
+        mk.p=Math.min(mk.max, mk.p+0.005+Math.random()*0.01); // +0.5–1.5% a press
+        pressFx(mk);
+        renderPressMeter();
       }
     }
     return; }
