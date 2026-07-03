@@ -8,12 +8,12 @@ const CFG = {
     damage:11, fireRate:2.0, projectiles:1, pierce:0,
     projSpeed:440, projLife:1.15, projRadius:6,
     crit:0.05, critMult:2.0, instakill:0, regen:0, coinMult:1, lifesteal:0 },
-  spawn:{ startInt:1.0, minInt:0.28, ramp:300, baseBatch:3, max:340 },
-  wave:{ first:18, grow:5, cap:88, nextAt:0.4, gap:1.15, eliteEvery:4 },
+  spawn:{ startInt:0.75, minInt:0.26, ramp:300, baseBatch:4, max:340 },
+  wave:{ first:26, grow:6, cap:96, nextAt:0.4, gap:1.15, eliteEvery:4 },
   slot:{ respinBase:14, respinStep:8, critPct:0.40, winSum:7, up:1.6, down:0.85, floor:0.5 },
   weights:{ common:73, rare:17, epic:7, legendary:3 },
   elite:{ every:40, firstAt:38 },
-  scale:{ hp:0.52, dmg:0.17, spd:0.10, spdCap:1.85 },
+  scale:{ hp:0.62, dmg:0.22, spd:0.10, spdCap:1.95 },
   enemy:{
     shambler:{ hp:26, spd:90, dmg:8, r:13, xp:1, coins:1, col:'#5c6e50', dark:'#2c3a26' },
     husk:    { hp:15, spd:152,dmg:7, r:10, xp:1, coins:1, col:'#b9b2a0', dark:'#5a5347' },
@@ -230,7 +230,7 @@ function startWave(){
   // expire curses
   if(P.curses){ for(let i=P.curses.length-1;i>=0;i--){ if(--P.curses[i].waves<=0){ try{P.curses[i].revert();}catch(e){} P.curses.splice(i,1); } } renderRelics(); }
   // difficulty steps up every 5 waves
-  if(wave>1 && wave%5===0){ CFG.scale.hp+=0.08; CFG.scale.dmg+=0.02; CFG.scale.spdCap=Math.min(2.3,CFG.scale.spdCap+0.08); showStreak('THE HOUSE GROWS CRUEL'); SFX.murmur(); flash(0.3,'#8b1620'); }
+  if(wave>1 && wave%5===0){ CFG.scale.hp+=0.10; CFG.scale.dmg+=0.03; CFG.scale.spdCap=Math.min(2.3,CFG.scale.spdCap+0.08); showStreak('THE HOUSE GROWS CRUEL'); SFX.murmur(); flash(0.3,'#8b1620'); }
   const W=CFG.wave;
   const size=Math.min(W.cap, W.first + (wave-1)*W.grow);
   const eliteWave = wave % W.eliteEvery === 0;
