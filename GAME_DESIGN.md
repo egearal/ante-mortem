@@ -14,11 +14,19 @@ Top-down survivor: WASD/touch move, auto-fire at nearest, waves escalate, 4 boss
 `rar` field: common / rare / epic (shown "ULTRA RARE") / legendary / **mythic** (wheel-chain only) / **ascend** (Ascent-only until owned). **Reels are weighted by CFG.weights {common:54, rare:28, epic:13, legendary:5}** via weightedByRarity (before 2026-07 the weights were decorative and reels were uniform). A #payTable strip beside the machine shows the odds live and flares the landed row; every offer card slams a #rarBanner (label + RARC color + tiered SFX.rarSting — legendary/ascend pulse and confetti). Unowned ascensions are EXCLUDED from availableSkills (they leaked before); owned ones appear to level up.
 RARC colors: common #c9c1b4, rare #6db4ff, epic #c98bff, legendary #f8e2a0, ascend #8bffd0, mythic #fff2c0.
 
-## THE SLOT (level-up)
-Reels spin on level-up; pairs stage 2 / triples 5 base levels. Dice ladder: roll threshold 7 (LAST RITES −1, LOADED DICE seal −1, CROOKED DICE curse +1); up to 4 wins = GOD LEVEL; PERFECT 12 +1. BANK n/7 → HOUSE VOUCHER (+1 base next slot). LAST RITES at ≤40% HP: blood-cost gambling.
-**THE CLIMB (2026-07 — the "dice pay nothing" fix):** every interim dice win UPGRADES the prize one rarity tier — reroll from same-kind available* pool at the next tier (`nextUpgrade`/`TIER_KEY` in slot.js), staged levels carry to the new item; ascend/mythic prizes instead gain +1 staged level ("THE ASCENSION DEEPENS"); nothing rarer available → +1 level fallback. **A win always pays.**
-**Overflow law:** levels that don't fit a maxed item convert to +12 coins each inside grantSkill/grantWeaponLevels ('MAXED — THE HOUSE PAYS OVERFLOW'), and every grant announces 'NAME Lv a → b'. Offer cards show DELTAS ('TAKE Lv 2 → 4 · +36 ◈') via winLine(), never a capped number that lies.
+## THE SLOT (level-up) — economy v3 (2026-07, "director found it too easy")
+Reels stage **1 / 2 / 3** levels (single / pair / triple — level one is the floor). Dice threshold starts **8** and climbs 9/10/11 per round (RED TABLE −1, LOADED DICE seal −1, hexDice/CROOKED TABLE scar +1); up to 4 wins = GOD LEVEL (~0.5% — a legend); PERFECT 12 +1. BANK n/7 → HOUSE VOUCHER.
+**The rung script** (`rungGain` in slot.js): rung 1 win = **+1 level** · rung 2 win = **⬆ THE UPGRADE** (one rarity tier via nextUpgrade, staged levels carry; ascend/mythic → +1 lv 'DEEPENS') · rung 3 win = **+2 levels** · rung 4 = GOD LEVEL. One upgrade per ladder, max.
+**The miss script**: round 1 miss = temp curse (ladder continues) · round 2 miss = **SCAR** (continues) · round 3+ miss = LOSE SKILL **+ SCAR**.
+**SCARS** (core.js SCARS/applyScar): ~10 run-permanent wounds (−8 max blood, −4 speed, −3% dmg/fire, −6% coins, +3% dmg taken, CROOKED TABLE next-dice +1…), ☒ chips in the relic bar, LT.scars achievements. dmgTakenMult consumed in hurtPlayer.
+**Overflow law** (unchanged): clamped levels pay +12 ◈ each inside grantSkill/grantWeaponLevels; every grant announces.
+**Card language** (compact by decree): 'LEVEL 3' for new items (never 'Lv 0 → 3'), 'LEVEL 2 → 4' for owned, one stat line, dice promise + miss in ≤3 words, curse label on a tiny sub-line. THE ODDS paytable is big (14px sheen head, 13.5px rows) and flares the landed row; the RED TABLE re-renders it hot.
+**Tingle ladder**: every stopped die rings one semitone-ish step higher across the visit (gamble.diceN); a miss drops the scale.
+**Skip law**: SPACE during any post-roll ceremony wait (win pause, god grant, curse pause) fast-forwards it (`window._slotFF`).
 Caps: WEAPON_CAP=5 owned weapons, SKILL_CAP=7 distinct passives.
+
+## ☨ THE RED TABLE (≤40% blood — replaced LAST RITES 2026-07)
+Same red dressing (class 'lastrites', drone, whispers, court), new deal: **no blood costs, no heals** — reels run RICHER (weights 30/40/22/8, hot in THE ODDS), dice soften to 7+, but **ANY miss = instant bust + SCAR** ('THE TABLE TAKES'). BLOOD CODICIL contract = first miss forgiven, once per table. LT.rites/achievements/'edge' secret intact. The `lastRites` flag name survives for CSS/stat continuity; only semantics changed.
 
 ## RAGE (Overcharge)
 XP-full → bar 100, +50% dmg & fire rate; at ≥90% also +50% damage TAKEN. Drains at accelerating rate; coins feed +2.5×ovFeed; XP gains feed the bar during rage. SPACE = cash rage into the level. **Hold ≥90% for ascTime (5s, +2.5 per success, cap 10) → THE ASCENT manifests in 10s** → blessed gate token spawns 260-480px away (30s life, white embers, gold guide-arrow). Slipping below 90: all ground coins swept + XP halved.
@@ -33,7 +41,11 @@ Crash point: anchor-table inverse sampler pinned to reach odds — P(cp≥1.77)=
 **Crash = THE FALL:** ONE random curse from DEBUFF_POOL, random duration 5-15s + ceremony naming the drawn curse (retuned 2026-07 from a fixed 30s composite). Rank XI / WARDING SALT seal shorten all curses. Prize wins slam center-screen IN the crash layer (#ascWin — announce() alone renders under it).
 Vibe stack: accelerating starfield, rising ember orbs, aurora ≥2.5×, altitude zone texts, band colors (cream→green 1.5→cyan 2→violet 3→whitegold 5), milestone slams (CR_MS), ghost afterimages, tier ladder (1.5/2.5/5/☆10), frenzy combo (4+ fast presses), band-change chords, twin shockwaves ≥3×, saturation ramp, harp-gliss cash, gift-card slam, tumbling rocket + screen rip on death. All entry fns wrapped in try/catch logging [ANTE ASCENT].
 
-## ☸ THE WHEEL — THE TICKER (case-opening strip, 2026-07)
+## ☸ THE WHEEL — THE TICKER, CS2 edition (2026-07)
+**CS2 rarities rule the strip** (CS_COL in wheel.js: blue #4b69ff / purple #8847ff / pink #d32ce6 / red #eb4b4b / gold #e4ae39; each card wears a bottom rarity bar): exact 200-card bag = BLUE 140 (60 COINS 46, HEAL 36, FREE SPIN 32, CURSE 26) · PURPLE 40 (90 COINS 12, GILT 10, FEVER 9, DOUBLE 9) · PINK 13 (+1 LEVEL 5, ARSENAL 4, SIDE ARM 4) · RED 5 (SKILL 3, ASCENT 2) · **GOLD 2 — ★ THE HOUSE BLADE**: an unowned MYTHIC passive on the spot + 60 gilt + coin shower + triple gold flash + mega slam. Compressed CS odds (70/20/6.5/2.5/1) per director. Land index 120+rand(40).
+**Controls**: SPACE mid-roll = THE BRAKE (`brakeTicker` — jumps to the crawl with a heavy clack); SPACE after landing = instant close (`finishWheel`, idempotent, still fires toAscent/pending). Land ceremonies escalate by cs tier (pink confetti → red double-flash → gold run-changer). Backdrop at .62 alpha — the arena shows through. Legacy notes below still apply (DOUBLE chain, golden spin, THE FIX):
+
+### (previous ticker notes)
 Violet token. The round dial is GONE: a horizontal strip of neon prize cards (#tickerBox/#tickerStrip, 110px cards) rolls past a center gold needle with per-card ticks rising in pitch, crawls on the last cards with a heartbeat, lands off-center by a biased jitter and settles back with a bounce (visible near-miss). Winning card pops white-hot (.hit), rest dim (.landed). Frame glows in the passing card's color. Pure translate3d — no canvas.
 14 prizes (WSEGS, weight w||5; strip = shuffled weighted bag ×~66 no-adjacent-dupes, land index 60+rand20): 60 COINS / CURSE (only dud) / HEAL 33% / DOUBLE ×2 / 90 COINS / GILT+35 / **⚔ ARSENAL** (slotForceWeapon+pending) / +1 LEVEL / FEVER / DOUBLE / **✦ SKILL** (rollAscentPrize ×mult·1.6, the ONLY mythic source) / **▲ ASCENT** (free ride after close) / **⚔ SIDE ARM** (#2a9db8, w:3 — instant NEW common weapon Lv1, else +1 level to an owned one, else +45 coins) / **↻ FREE SPIN** (#ff5fa2, w:3 — immediate respin, multiplier untouched, handled BEFORE wheel.done).
 DOUBLE: instant +15×mult coins, ×2 all prizes (cap ×4 MAX FORTUNE 60×mult), red-hot reroll flash, auto respin via respinTicker(). Golden spin 5% ×2 all. **THE FIX IS IN contract works now**: a CURSE landing slides one card past (`startRoll`). Dev hook: `wheel.rigSeg='NAME'` before launch. COURTESY SUMMONS hastens tokens; token spawn plays a 3-note beckon + rings.
@@ -41,8 +53,11 @@ DOUBLE: instant +15×mult coins, ×2 all prizes (cap ×4 MAX FORTUNE 60×mult), 
 ## ☨ TAROT (24 cards)
 Ground cards, weighted flip, fate-arrow when idle. 2 blessed (SUN, WORLD) / 10 good / 10 cursed / 2 damned (DEATH REVERSED, TOWER REVERSED). THE DEVIL sweeps all ground coins. Reveal: top-screen faint card, roman numerals, tier SFX.
 
-## 💀 THE MARKER (death)
-First death → LIVE/DIE spin, base odds 30% (+5%/MARKER'S FAVOR seal lvl), cap 75%. SPACE bribes GILT as percentage wagers of the gilt you held at death (g0): tier 1 = 30% of g0 → +5-10% (rolled), tier 2 = 30% more → +5-10%, tier 3 = the rest (~40%) → flat +5%. The sub-line always shows current gilt, cost of the next bribe, and what was just paid. Zero gilt = EMPTY HANDS. Lose = actual death → score, gilt payout, RANK marks, leaderboard. (Percentage bribes 2026-07; before that flat costs.)
+## 💀 THE FINAL PRESS (death — replaced gilt bribes 2026-07)
+First death → **PRESS FOR YOUR LIFE**: odds start **35%** (+3%/MARKER'S FAVOR seal, capped base 44%), a **3.2s window** with a draining red time bar; every SPACE press (non-repeat) buys **+0.5–1.5%** up to the **50% cap**, each press one tingle higher; hitting max slams ◈ MAX ◈ with seraph. Then the 14-step green/red LIVE/DIE flicker (kept verbatim — director loves it) resolves at final odds. **Gilt is never charged at death.** LIVE = 50% hp revive + knockback nova. DIE → THE RECKONING. markerRef={p,base,max,presses,window,t0,phase}. LT.markers/markerWins + DEATH'S DEBTOR intact.
+
+## ⚰ THE RECKONING (death screen, 2026-07)
+Run tracks `P.dmgDealt` (all damage sites instrumented via trackDmg) and `P.bestStreak`. Death slams stat rows in at ~170ms intervals with rising dings (SLAIN / DAMAGE / BEST STREAK / LEVEL / TIME in #goStats), then score+gilt count up. **Skip law**: first SPACE completes the recap instantly (500ms dead-zone after death so FINAL PRESS mashing can't skip), second SPACE = Wager Again. Target: new run inside ~5s.
 
 ## ⚜ HOUSE RANKS (meta)
 MARKS = kills + wave·12 + level·10 + giltEarned·2 per run. Curve: step(k)=140·k^1.6 cumulative; Rank 12 ≈ 31k marks.

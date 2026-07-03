@@ -126,7 +126,7 @@ function ensureBulbs(){
     m.appendChild(b); }
 }
 function openSlotReady(kind){
-  ensureBulbs();
+  ensureBulbs(); window._slotFF=null;
   slotKind=kind; gamble=null; diceShown=false; const isW=kind==='weapon';
   $('slotTag').textContent = (lastRites?'☨ THE RED TABLE — RICHER, CRUELER ☨':(isW?'⚔ THE ARSENAL WHEEL ⚔':'THE WHEELS OF FATE'))+(slotBank>0?' · BANK '+slotBank+'/7':'');
   $('reelsRow').style.display=''; $('diceRow').style.display='none'; $('riskWrap').style.display='none';
@@ -168,6 +168,7 @@ function slotTap(){
   else if(slotStage==='dicing') stopDie();
   else if(slotStage==='offer') takeReward();
   else if(slotStage==='resolved') closeSlot();
+  else if(slotStage==='locking' && window._slotFF){ window._slotFF(); tone(900,0.05,'sine',0.06); } // skip the ceremony wait
 }
 function ringShow(on){ const r=$('holdRing'); if(!r)return; r.classList.toggle('show',on); if(on) window._hq=0;
   if(!on){ r.querySelectorAll('.hrRect,.hrGlow').forEach(rc=>rc.style.strokeDashoffset=1000); } }
@@ -466,15 +467,19 @@ function resolveRisk(){
       +'<div class="ofstat">'+projFx(g.def, nowLv)+'</div>'
       +(upTxt?'<div class="ofsub" style="color:#ffd36b;font-weight:700">'+upTxt+'</div>':'');
     if(g.round>=MAXROLL){
-      setTimeout(()=>{ let nl; if(g.kind==='weapon'){ nl=grantWeaponLevels(g.def,g.reward); } else { grantSkill(g.def,g.reward); nl=skillLevel(g.def.id); }
+      const fin=()=>{ window._slotFF=null; let nl; if(g.kind==='weapon'){ nl=grantWeaponLevels(g.def,g.reward); } else { grantSkill(g.def,g.reward); nl=skillLevel(g.def.id); }
         $('machine').classList.remove('win'); dice.forEach(d=>d.el.classList.remove('crit'));
         $('cardName').textContent=g.def.n; $('cardName').className='r-'+g.def.rar+' bigname';
         $('cardDesc').innerHTML='<div class="ofbig" style="color:#ffe9a8">'+projFx(g.def, nl)+'</div>';
         godLevel(); flash(0.5,RARC[g.def.rar]||'#e8b64c');
-        slotStage='resolved'; showSlotButtons(); }, perfect?1150:850);
+        slotStage='resolved'; showSlotButtons(); };
+      const h=setTimeout(fin, perfect?1150:850);
+      window._slotFF=()=>{ clearTimeout(h); fin(); };
     } else {
       g.round++; g.threshold=Math.min(12, g.threshold+1); g.pendingCurse=null;
-      setTimeout(()=>{ $('machine').classList.remove('win'); dice.forEach(d=>d.el.classList.remove('crit')); openOffer(); }, perfect?1250:850);
+      const nxt=()=>{ window._slotFF=null; $('machine').classList.remove('win'); dice.forEach(d=>d.el.classList.remove('crit')); openOffer(); };
+      const h=setTimeout(nxt, perfect?1250:850);
+      window._slotFF=()=>{ clearTimeout(h); nxt(); };
     }
   } else {
     const forgive = g.rites && contractDone('codicil') && !g._forgiven;
@@ -521,7 +526,9 @@ function resolveRisk(){
       $('cardDesc').innerHTML=(near1?'<div class="ofbig" style="color:#ffb066">SO CLOSE…</div>':'')+'<div class="ofrow"><span class="ofl">✕ '+sum+' &lt; '+g.threshold+' — '+(scarred?'☒ SCARRED: ':'CURSED: ')+dl+'</span></div>';
       shake=Math.min(16,shake+7);
       g.round++; g.threshold=Math.min(12, g.threshold+1); g.pendingCurse=null;
-      setTimeout(()=>{ openOffer(); }, 1000);
+      const nxt2=()=>{ window._slotFF=null; openOffer(); };
+      const h2=setTimeout(nxt2, 1000);
+      window._slotFF=()=>{ clearTimeout(h2); nxt2(); };
     }
   }
 }
