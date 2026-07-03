@@ -160,6 +160,14 @@ function tickMapProps(dt){
     }
     if(it.life<=0){ burst(it.x,it.y,8,'#5a4a3a'); despawnInter(); return; }
   }
+  // the egg waits
+  if(eggProp && Math.hypot(P.x-eggProp.x,P.y-eggProp.y)<24){
+    secret('theegg','THE EGG');
+    const mp=grantMiniPower(); P.hp=Math.min(P.maxHp,P.hp+20);
+    announce('◌ THE EGG — '+mp.toUpperCase()+' · +20 BLOOD ◌', true);
+    SFX.tingle(); goldFlood(eggProp.x,eggProp.y); flash(0.3,'#ffd36b');
+    eggProp=null;
+  }
   // ghost patrons wander
   for(const g of ghostPatrons){
     const gdx=g.tx-g.x, gdy=g.ty-g.y, gd=Math.hypot(gdx,gdy);
@@ -220,7 +228,11 @@ const store = (typeof window!=='undefined' && window.storage) ? window.storage :
 const owned = new Set();
 // per-run fortune ledger — feeds THE LEDGER and the LUCK verdict at death
 let RUN={};
-function resetRun(){ RUN={diceTries:0,diceWins:0,diceP:0,pulls:{common:0,uncommon:0,rare:0,epic:0,legendary:0},wheelCs:[],crashPts:[],rollMargin:null,bestPull:null,curses:0}; }
+let eggProp=null;
+function resetRun(){ RUN={diceTries:0,diceWins:0,diceP:0,pulls:{common:0,uncommon:0,rare:0,epic:0,legendary:0},wheelCs:[],crashPts:[],rollMargin:null,bestPull:null,curses:0};
+  // THE EGG — one night in three, something small and golden hides far from the lights
+  eggProp = Math.random()<0.34 ? {x:200+Math.random()*(CFG.arena-400), y:200+Math.random()*(CFG.arena-400)} : null;
+}
 resetRun();
 
 /* ---------- entities ---------- */
@@ -1385,7 +1397,7 @@ function render(){
     ctx.strokeStyle='rgba(255,255,255,0.7)'; ctx.lineWidth=1.6;
     ctx.beginPath(); ctx.arc(0,0,pr9-3,-0.36,0.36); ctx.stroke();
     ctx.restore(); }
-  drawSmites(); drawTarots(); drawWheelTok(); drawCrashTok();
+  drawSmites(); drawTarots(); drawWheelTok(); drawCrashTok(); drawEgg();
   if(bounty && enemies.includes(bounty.e)){ const be=bounty.e;
     ctx.save(); ctx.translate(be.x,be.y);
     ctx.rotate(gt*2); ctx.strokeStyle='rgba(255,211,107,'+(0.6+Math.sin(gt*6)*0.3)+')'; ctx.lineWidth=2.4; ctx.setLineDash([7,6]);
@@ -2100,6 +2112,17 @@ function drawEnemy(e){
   ctx.restore();
 }
 
+function drawEgg(){
+  if(!eggProp) return; const e9=eggProp;
+  if(e9.x<camX-40||e9.x>camX+VW+40||e9.y<camY-40||e9.y>camY+VH+40) return;
+  ctx.save(); ctx.translate(e9.x, e9.y+Math.sin(gt*2.2)*1.5);
+  ctx.save(); ctx.globalCompositeOperation='lighter';
+  ctx.drawImage(glowSprite('rgba(255,211,107,0.22)','rgba(255,211,107,0)',20),-20,-20,40,40); ctx.restore();
+  ctx.fillStyle='rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.ellipse(0,7,6,2.2,0,0,6.28); ctx.fill();
+  ctx.fillStyle='#e8b64c'; ctx.beginPath(); ctx.ellipse(0,0,5,6.6,0,0,6.28); ctx.fill();
+  ctx.fillStyle='#fff2c0'; ctx.beginPath(); ctx.ellipse(-1.5,-2,1.7,2.4,-0.4,0,6.28); ctx.fill();
+  ctx.restore();
+}
 function drawPlayer(){
   const t=gt*6, mv=P.moving?1:0, brt=Math.sin(gt*2.2)*0.5+0.5;
   const gh=!!P._rites; // near-death ghoul form

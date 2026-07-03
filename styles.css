@@ -807,6 +807,13 @@ body.rw-legendary canvas{filter:saturate(2.0) contrast(1.16) brightness(1.22) se
 .idxTile.on{border-color:color-mix(in srgb,var(--ic,#ffd36b) 55%,transparent);color:#eadfc2;background:rgba(30,17,22,.95);box-shadow:0 0 10px color-mix(in srgb,var(--ic,#ffd36b) 26%,transparent);}
 .idxTile.on .idxG{color:var(--ic,#ffd36b);text-shadow:0 0 9px var(--ic,#ffd36b);}
 .idxHint{color:#8a7c66;font-size:12px;font-style:italic;letter-spacing:.04em;}
+/* THE WHISPERS — riddles until solved */
+.wspGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:7px;margin:8px 0;}
+.wsp{padding:7px 10px;border:1px solid rgba(201,139,255,.18);border-radius:9px;font-size:12.5px;letter-spacing:.03em;
+  color:#8a7c8e;background:rgba(20,10,24,.5);line-height:1.45;}
+.wsp i{opacity:.85;}
+.wsp.on{color:#e6d9c2;border-color:rgba(201,139,255,.55);background:rgba(40,20,50,.55);box-shadow:0 0 12px rgba(201,139,255,.18);}
+.wsp.on b{color:#c98bff;letter-spacing:.06em;}
 #menu,#pauseLayer,#vaultPanel,#achPanel,#indexPanel,#gameover,#gfxPanel,#howPanel{cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22'><path d='M11 1C8 6 3 8.5 3 12.5a4.2 4.2 0 0 0 7 3c0 2.2-1 3.4-2.2 4.5h6.4C13 18.9 12 17.7 12 15.5a4.2 4.2 0 0 0 7-3C19 8.5 14 6 11 1Z' fill='%23ffd36b' stroke='%232a0708' stroke-width='1.2'/></svg>") 11 4, auto;}
 #c{cursor:crosshair;}
 #fadeVeil{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:400;transition:opacity .12s ease;}

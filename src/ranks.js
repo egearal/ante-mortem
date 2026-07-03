@@ -11,10 +11,53 @@ let unlocked=new Set(), achQ=[], achShowing=0, achSaveT=null;
 const ACH_BY_STAT={}; let ACH_TOTAL=0;
 const STAT_LABEL={level:'Ascension',wave:'Waves',minutes:'Endurance',runKills:'Slaughter (run)',ltKills:'Slaughter (lifetime)',runCoins:'Riches (run)',ltCoins:'Riches (lifetime)',score:'Score',streak:'Kill Streaks',diceWins:'Dice Wins',perfects:'Perfect Twelves',curses:'Curses Endured',skillLost:'Souls Forfeit',triples:'Triple Jackpots',pairs:'Pairs',ladders:'Full Ladders',spins:'Spins',deaths:'Deaths',runs:'Runs',gilt:'Gilt Hoard',bossKills:'Bosses Slain',gilded:'Gilded Souls'};
 const SEC=new Set();
+// THE WHISPERS — every secret taunts you as a riddle until you solve it.
+// [name, riddle-while-locked, plain truth once found]
+const WHISPERS={
+  statue:['STATUE OF THE DAMNED','Be still a full minute among the hungry.','Stood motionless for 60 seconds mid-run.'],
+  heart:['HEART OF THE HOUSE','Stand on the House\'s heart and count to six.','Held the arena\'s center sigil for 6 seconds.'],
+  surveyor:['SURVEYOR OF HELL','Walk every corner of the pit in one night.','Visited all four arena corners in one run.'],
+  knock:['KNOCKING ON THE VAULT','Come knocking where the gilt sleeps.','Approached the sealed vault door.'],
+  touched:['TOUCHED BY THE PAST','Walk through one who is no longer there.','Passed through a ghost patron.'],
+  thirteen:['THIRTEEN THIRTEEN','Endure until the clock reads its cursed twin.','Survived to 13:13 on the run clock.'],
+  murder:['MURDER DISPERSED','Startle every raven from its roost.','Scared off the whole unkindness of ravens.'],
+  glutton:['GIFT GLUTTON','Take three gifts in one sitting.','Opened 3 chests in a single run.'],
+  wheeladdict:['WHEEL ADDICT','Bet the floor three times in one night.','Played 3 floor roulettes in one run.'],
+  goldongold:['GOLD ON GOLD','Fell a gilded soul while burning.','Killed a gilded soul during Fever.'],
+  godslayer:['GODSLAYER','Slay a king while you cannot be slain.','Killed a boss while untouchable.'],
+  streak500:['THE FIVE HUNDRED','Five hundred souls without letting the count die.','Reached a 500 kill streak.'],
+  sevens:['TRIPLE SEVENS','Carry the jackpot number in coin.','Held exactly 777 coins.'],
+  midnight:['THE WITCHING HOUR','Die when the living world strikes twelve.','Died at real-world midnight.'],
+  friday13:['UNLUCKIEST NIGHT','Die on the unluckiest night there is.','Died on a Friday the 13th.'],
+  edge:['DANCING ON THE EDGE','Catch fire with two drops of blood left.','Started Fever at 2% blood or less.'],
+  cursed13:['CURSED POCKET','Bring the cursed number to the reels.','Entered the slot holding exactly 13 coins.'],
+  snakeeyes:['SNAKE EYES','Roll the serpent\'s stare.','Rolled double ones.'],
+  bornlucky:['BORN LUCKY','Perfection on your very first bones.','Rolled a perfect 12 on the first rung.'],
+  dblperfect:['DOUBLE PERFECTION','Perfection, twice, without breathing.','Rolled perfect 12s back to back.'],
+  longfall:['THE LONG FALL','Fall three times and keep your seat.','Lost three dice rolls in one ladder.'],
+  konami:['THE OLD CODE','The oldest code the old world knows.','Entered the ancient code.'],
+  ante:['HOUSE PASSWORD','Type the price of admission.','Typed the word ante.'],
+  beast:['THE BEAST\'S NUMBER','Spell the beast in digits.','Typed 666.'],
+  greedy:['GREEDY WORDS','Say the word every gambler prays.','Typed the word jackpot.'],
+  vesper:['KNOW THYSELF','Type the name the House gave you.','Typed vesper.'],
+  house:['SPEAK ITS NAME','Name the thing that owns you.','Typed house.'],
+  checking:['JUST CHECKING','Doubt the silence twice, quickly.','Double-tapped the mute bell.'],
+  namehouse:['NAME OF THE HOUSE','Knock seven times upon the title.','Clicked the title seven times.'],
+  debtor:['DEATH\'S DEBTOR','Talk death out of it twice in one lifetime.','Won the final press twice, ever.'],
+  broke:['BROKE AT THE END','Die without a coin to your name.','Died holding exactly 0 coins.'],
+  icarus:['ICARUS ASCENDANT','Ride the climb past the seventh heaven.','Passed 7.77x in the Ascent.'],
+  coldfeet:['COLD FEET','Hesitate thirteen times in one night.','Paused 13 times in one run.'],
+  theegg:['THE EGG','Something small and golden hides far from the lights.','Found and ate the golden egg.'],
+  pactbreaker:['PACT BREAKER','Refuse the red lever thrice in one night.','Refused the blood lever 3 times in one run.'],
+  highroller:['HIGH ROLLER','Pay a three-figure cut for one case.','Paid 100+ coins to unseal the wheel.'],
+};
+const WHISPER_TOTAL=Object.keys(WHISPERS).length;
+let secPaid=false;
 function secret(id,name){
   if(SEC.has(id)) return; SEC.add(id); achSaveSoon();
-  announce('🗝 SECRET — '+name+' 🗝', true);
-  SFX.secretFound(); sparkBurst(26); flash(0.3,'#c98bff');
+  gilt+=25; saveGilt(); // every whisper answered pays
+  announce('🗝 SECRET — '+name+' · +25 GILT 🗝', true);
+  SFX.secretFound(); sparkBurst(26); flash(0.3,'#c98bff'); coinRain(8);
   LT.secrets=SEC.size; bump('secrets',SEC.size);
   try{ idxBump(); }catch(e){}
 }
@@ -148,11 +191,13 @@ function recCheck(key,value,label){
   }
 }
 function achSaveSoon(){ clearTimeout(achSaveT); achSaveT=setTimeout(saveAch, 1500); }
-async function saveAch(){ try{ if(!store)return; await store.set(ACH_KEY,JSON.stringify({u:[...unlocked],LT,REC,V:VAULT.lv,S:[...SEC]}),false); }catch(e){} }
-async function loadAch(){ try{ if(!store)return; const r=await store.get(ACH_KEY,false); if(r&&r.value){ const o=JSON.parse(r.value); unlocked=new Set(o.u||[]); Object.assign(LT,o.LT||{}); Object.assign(REC,o.REC||{}); VAULT.lv=o.V||{}; (o.S||[]).forEach(x=>SEC.add(x)); } }catch(e){} }
+async function saveAch(){ try{ if(!store)return; await store.set(ACH_KEY,JSON.stringify({u:[...unlocked],LT,REC,V:VAULT.lv,S:[...SEC],SP:secPaid}),false); }catch(e){} }
+async function loadAch(){ try{ if(!store)return; const r=await store.get(ACH_KEY,false); if(r&&r.value){ const o=JSON.parse(r.value); unlocked=new Set(o.u||[]); Object.assign(LT,o.LT||{}); Object.assign(REC,o.REC||{}); VAULT.lv=o.V||{}; (o.S||[]).forEach(x=>SEC.add(x)); secPaid=!!o.SP;
+  if(!secPaid && SEC.size){ gilt+=25*SEC.size; saveGilt(); secPaid=true; achSaveSoon(); } // one-time bounty sweep for whispers already answered
+  else if(!secPaid){ secPaid=true; achSaveSoon(); } } }catch(e){} }
 function openAchPanel(){
   const p=$('achPanel'), list=$('achList'); if(!p) return;
-  $('achCount').textContent=unlocked.size+' / '+ACH_TOTAL+'  ·  SECRETS '+SEC.size+' / 34';
+  $('achCount').textContent=unlocked.size+' / '+ACH_TOTAL+'  ·  SECRETS '+SEC.size+' / '+WHISPER_TOTAL;
   $('achProg').style.width=(unlocked.size/ACH_TOTAL*100).toFixed(1)+'%';
   let html='';
   for(const stat in ACH_BY_STAT){ const arr=ACH_BY_STAT[stat]; const got=arr.filter(a=>unlocked.has(a.id)).length;
@@ -187,7 +232,11 @@ function openIndexPanel(){
    +sec('★','THE TAROT','#c98bff', TAROT_FATES.map(f=>[IDX.t.indexOf(f.n)>=0, f.t>0?'★':'☠', IDX.t.indexOf(f.n)>=0?f.n+'|'+((f.dd||'')+' ['+(f.t>0?'BLESSING':'CURSE')+']'):f.n, f.c||'#c98bff']))
    +sec('♟','THE COURT','#c22ca0', Object.keys(CFG.enemy).filter(k=>!BOSS_DEFS[k]).map(k=>[IDX.e.indexOf(k)>=0, '♟', k.toUpperCase(), CFG.enemy[k].col||'#c98bff']))
    +sec('♛','THE BOSSES','#ffd36b', Object.keys(BOSS_DEFS).map(k=>[IDX.b.indexOf(k)>=0, '♛', BOSS_DEFS[k].name, '#ffd36b']))
-   +'<div class="idxSec" style="--sc:#c98bff"><div class="idxSecH"><b>🗝 SECRETS</b><span>'+SEC.size+' / 34</span></div><div class="idxHint">The walls keep the rest. Touch things. Wait in corners. Pry.</div></div>';
+   +'<div class="idxSec" style="--sc:#c98bff"><div class="idxSecH"><b>🗝 THE WHISPERS</b><span>'+SEC.size+' / '+WHISPER_TOTAL+'</span></div><div class="wspGrid">'
+     +Object.keys(WHISPERS).map(id=>{ const w=WHISPERS[id], got=SEC.has(id);
+        return got? '<div class="wsp on" data-name="'+w[0].replace(/"/g,'&quot;')+'" data-tip="'+w[2].replace(/"/g,'&quot;')+'">🗝 <b>'+w[0]+'</b></div>'
+                  : '<div class="wsp"><i>“'+w[1]+'”</i></div>'; }).join('')
+     +'</div><div class="idxHint">Each whisper answered pays 25 GILT. The riddles are the walls talking.</div></div>';
   p.classList.remove('hidden');
 }
 

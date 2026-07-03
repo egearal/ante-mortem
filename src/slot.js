@@ -131,6 +131,7 @@ function pullBloodLever(){
 }
 function refuseBloodLever(){
   if(slotStage!=='lever') return;
+  P._refuses=(P._refuses||0)+1; if(P._refuses>=3) secret('pactbreaker','PACT BREAKER');
   $('machine').classList.remove('leverArmed');
   $('cardName').style.color='';
   stopDrone(); SFX.thud();

@@ -96,7 +96,7 @@ function showTab(){
     +'<div class="tpi">KILLS '+P.kills+' · STREAK ×'+killStreak+'</div>'
     +'<div class="tpi">ASCENT HOLD NEEDED: '+ascTime.toFixed(1)+'s ABOVE 90%</div>'
     +'<div class="tpi">XP BONUS +'+Math.round(((P.xpMult||1)-1)*100)+'% · BAR FEED +'+Math.round(((P.ovFeed||1)-1)*100)+'%</div>'
-    +'<div class="tpi">SECRETS '+SEC.size+' / 34 · SEALS '+Object.values(VAULT.lv).reduce((a,b)=>a+b,0)+'</div>'
+    +'<div class="tpi">SECRETS '+SEC.size+' / '+WHISPER_TOTAL+' · SEALS '+Object.values(VAULT.lv).reduce((a,b)=>a+b,0)+'</div>'
     +'<div class="tpi" style="color:#ffd36b">HOUSE RANK '+RANK.rank+' — '+RANKS[RANK.rank-1].n+' · '+RANK.marks+' MARKS</div>'
     +'<div class="tpH" style="margin-top:10px">RARITIES</div>'
     +'<div class="tpi"><span style="color:#cfc2a6">COMMON</span> · <span style="color:#8fd977">UNCOMMON</span> · <span style="color:#6fb7ff">RARE</span> · <span style="color:#c98bff">ULTRA</span> · <span style="color:#f8e2a0">LEGENDARY</span> · <span style="color:#8bffd0">ASCENSION</span></div>'
@@ -373,7 +373,7 @@ function renderChips(){
     best>0?['🏆',best.toLocaleString(),'#ffd36b']:null,
     ['◈',gilt+' GILT','#e8b64c'],
     ['📖',idxPct()+'%','#c98bff'],
-    ['✦',SEC.size+'/34','#8bffd0'],
+    ['✦',SEC.size+'/'+WHISPER_TOTAL,'#8bffd0'],
     ['⚜','RANK '+RANK.rank+' · '+RANKS[RANK.rank-1].n,'#fff2c0'],
     window._daily?['☀',window._daily,'#8bff9a']:null
   ].filter(Boolean);

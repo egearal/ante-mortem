@@ -57,6 +57,7 @@ function unsealWheel(){
   const cost=wheel.cost||0;
   if(cost>0){ P.coins-=cost; $('coinCount').textContent=P.coins;
     SFX.cashout(); setTimeout(()=>SFX.leverSlam(),110); coinRain(Math.min(14,4+(cost/8|0)));
+    if(cost>=100) secret('highroller','HIGH ROLLER');
     announce('◈ THE HOUSE TAKES ITS CUT — '+cost+' ◈',true); }
   else { SFX.casinoDing(); SFX.tingle(); }
   const seal=$('wheelSeal');
