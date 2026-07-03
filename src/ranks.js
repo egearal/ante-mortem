@@ -104,6 +104,8 @@ function buildAch(){
   [1,5,10,25,50,100].forEach(v=>achAdd('crash',v,'Ascendant Gambler ×'+v,'Ride the Ascent '+v+' times'));
   [1,5,10,25,50,100].forEach(v=>achAdd('bounty',v,'Headhunter ×'+v,'Claim '+v+' bounties'));
   [10,20,30,40,50,100,150,200,250,300,350,400,450,500].forEach(v=>achAdd('milestone',v,'Streak Mark '+v,'Hit a '+v+' kill streak'));
+  [1,5,10,25,50].forEach(v=>achAdd('scars',v,'Scarred ×'+v,'Take '+v+' permanent wounds from the dice'));
+  STAT_LABEL.scars='Scars';
   achAdd('index',25,'The First Folio','Catalogue 25% of the Index');
   achAdd('index',50,'Half the Library','Catalogue 50% of the Index');
   achAdd('index',75,'The Deep Stacks','Catalogue 75% of the Index');

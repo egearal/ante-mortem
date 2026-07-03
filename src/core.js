@@ -272,9 +272,32 @@ function enemyShoot(e){
   }
   burst(e.x,e.y,3,'#ffce5a'); SFX.eshoot();
 }
+/* SCARS — permanent-for-the-run wounds the dice can leave. No mercy, no timer. */
+const SCARS=[
+ {label:'−8 MAX BLOOD',      ap:()=>{ P.maxHp=Math.max(20,P.maxHp-8); P.hp=Math.min(P.hp,P.maxHp); }},
+ {label:'−4 MOVE SPEED',     ap:()=>{ P.speed=Math.max(60,P.speed-4); }},
+ {label:'−3% DAMAGE',        ap:()=>{ P.damage*=0.97; }},
+ {label:'−3% FIRE RATE',     ap:()=>{ P.fireRate*=0.97; }},
+ {label:'−6% COINS',         ap:()=>{ P.coinMult=Math.max(0.2,(P.coinMult||1)-0.06); }},
+ {label:'−20 PICKUP RANGE',  ap:()=>{ P.pickup=Math.max(30,P.pickup-20); }},
+ {label:'−2% XP',            ap:()=>{ P.xpMult=Math.max(0.4,(P.xpMult||1)*0.98); }},
+ {label:'+3% DAMAGE TAKEN',  ap:()=>{ P.dmgTakenMult=(P.dmgTakenMult||1)+0.03; }},
+ {label:'−0.1s INVULN',      ap:()=>{ P.invBonus=(P.invBonus||0)-0.1; }},
+ {label:'CROOKED TABLE — NEXT DICE +1', ap:()=>{ P.crookedT=true; }}
+];
+function applyScar(){
+  const s=SCARS[(Math.random()*SCARS.length)|0];
+  s.ap(); (P.scars=P.scars||[]).push(s.label);
+  LT.scars=(LT.scars||0)+1; bump('scars',LT.scars);
+  setTimeout(()=>announce('☒ SCARRED — '+s.label+', THIS RUN ☒', false), 250);
+  SFX.bust(); SFX.thud(); flash(0.5,'#8b1620'); shake=Math.min(20,shake+10);
+  try{ renderRelics(); }catch(e){}
+  return s.label;
+}
 function hurtPlayer(dmg){
   if(P.ovT>=90) dmg=Math.round(dmg*1.5);
   if(P.frail) dmg=Math.round(dmg*1.25);
+  if(P.dmgTakenMult) dmg=Math.round(dmg*P.dmgTakenMult);
   if(P.armor) dmg=Math.max(1,dmg-P.armor);
   if(P.inv<=0) P.noDmgStreak=0;
   if(P.inv>0) return;

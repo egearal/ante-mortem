@@ -251,6 +251,8 @@ function renderRelics(){
   const box=bs;
   // active curses
   if(P.curses){ P.curses.forEach(c=>{ const d=document.createElement('div'); d.className='relic curse'; d.textContent='☠'; d.title='CURSE '+c.short+' · '+c.waves+' waves left'; box.appendChild(d); }); }
+  // scars — permanent wounds from the dice
+  if(P.scars){ P.scars.forEach(sl=>{ const d=document.createElement('div'); d.className='relic scar'; d.textContent='☒'; relicTip(d,'SCAR',1,sl+' — this run'); box.appendChild(d); }); }
 }
 
 /* ============================================================

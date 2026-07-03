@@ -318,7 +318,7 @@ function showRewardPanel(){
 }
 // the rung script: rung 1 win = +1 level · rung 2 win = THE UPGRADE · rung 3 win = +2 levels · rung 4 = GOD LEVEL
 function rungGain(r){ return r===1?1 : r===2?0 : 2; }
-function missShort(g){ return g.round>=3 ? 'LOSE SKILL' : 'CURSE'; }
+function missShort(g){ return g.round>=3 ? 'LOSE SKILL + SCAR' : (g.round===2 ? 'SCAR' : 'CURSE'); }
 function openOffer(){
   slotStage='offer'; endSeance(); const g=gamble; showRewardPanel();
   const deadly = g.round>=3;
@@ -333,7 +333,8 @@ function openOffer(){
     '<div class="ofstat">'+projFx(g.def, takeLv)+'</div>'+
     '<div class="ofrow"><span class="ofg">🎲 '+g.threshold+'+ → '+winLine(g)+'</span>'+
     '<span class="ofl">✕ '+missShort(g)+'</span></div>'+
-    (!deadly?'<div class="ofmini">✕ = '+curseLabel(g.pendingCurse)+'</div>':'');
+    (g.round===1?'<div class="ofmini">✕ = '+curseLabel(g.pendingCurse)+'</div>':
+     g.round===2?'<div class="ofmini">✕ = a permanent wound, this run</div>':'');
   $('gambleMsg').innerHTML='';
   SFX.casinoDing();
   updateLadderPips();
@@ -480,27 +481,30 @@ function resolveRisk(){
       (g.hist=g.hist||[]).push('l'); updateLadderPips();
       if(g.hist.length>=3 && g.hist.every(h=>h==='l')) secret('longfall','THE LONG FALL');
       LT.skillLost++; bump('skillLost',LT.skillLost);
+      const scarL=applyScar(); // the deep rungs wound you on the way down
       const near2 = sum===g.threshold-1;
       if(near2) SFX.nearMiss();
       $('machine').classList.remove('win','jackpot'); $('machine').classList.add('bust');
       $('cardName').textContent='SKILL LOST'; $('cardName').className='r-common bigname';
-      $('cardDesc').innerHTML=(near2?'<div class="ofbig" style="color:#ffb066">SO CLOSE…</div>':'')+'<div class="ofrow"><span class="ofl">✕ '+sum+' &lt; '+g.threshold+' — BUST</span></div>';
+      $('cardDesc').innerHTML=(near2?'<div class="ofbig" style="color:#ffb066">SO CLOSE…</div>':'')+'<div class="ofrow"><span class="ofl">✕ '+sum+' &lt; '+g.threshold+' — BUST · ☒ '+scarL+'</span></div>';
       const l=$('jackpotLayer'), t=$('jackpotText'); t.textContent='BUST'; t.className='jackpotText'; t.style.color='#ff5560';
       l.classList.remove('hidden'); t.style.animation='none'; void t.offsetWidth; t.style.animation='';
       SFX.bust(); shake=Math.min(24,shake+12); flash(0.55,'#8b1620');
       setTimeout(()=>{ l.classList.add('hidden'); t.style.color=''; },1200);
       slotStage='resolved'; showSlotButtons();
     } else {
-      const dl=applyDebuff(g.pendingCurse);
+      // round 1 miss = a curse that passes · round 2 miss = a SCAR that doesn't
+      const dl = g.round===2 ? applyScar() : applyDebuff(g.pendingCurse);
+      const scarred = g.round===2;
+      if(!scarred) LT.curses++, bump('curses',LT.curses);
       tone(520,0.3,'sine',0.14,170); // the tingle ladder falls back down
       (g.hist=g.hist||[]).push('l'); updateLadderPips();
-      LT.curses++; bump('curses',LT.curses);
       const near1 = sum===g.threshold-1;
       if(near1) SFX.nearMiss();
       dice.forEach(d=>d.el.classList.remove('crit'));
       $('machine').classList.remove('win','jackpot');
       $('cardName').textContent=g.def.n; $('cardName').className='r-'+g.def.rar+' bigname';
-      $('cardDesc').innerHTML=(near1?'<div class="ofbig" style="color:#ffb066">SO CLOSE…</div>':'')+'<div class="ofrow"><span class="ofl">✕ '+sum+' &lt; '+g.threshold+' — CURSED: '+dl+'</span></div>';
+      $('cardDesc').innerHTML=(near1?'<div class="ofbig" style="color:#ffb066">SO CLOSE…</div>':'')+'<div class="ofrow"><span class="ofl">✕ '+sum+' &lt; '+g.threshold+' — '+(scarred?'☒ SCARRED: ':'CURSED: ')+dl+'</span></div>';
       shake=Math.min(16,shake+7);
       g.round++; g.threshold=Math.min(12, g.threshold+1); g.pendingCurse=null;
       setTimeout(()=>{ openOffer(); }, 1000);
