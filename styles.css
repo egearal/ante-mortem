@@ -54,7 +54,10 @@ h1{font-family:var(--disp);font-weight:800;letter-spacing:.28em;margin:0 0 2px;f
 .hudBottom{position:absolute;bottom:14px;left:0;right:0;display:flex;align-items:flex-end;justify-content:space-between;padding:0 18px;}
 #hpwrap{width:min(340px,52vw);}
 #hplabel{font-size:11px;letter-spacing:.3em;color:var(--ash);margin-bottom:4px;}
-#hpbar{height:30px;background:rgba(0,0,0,.65);border:1px solid #6a1a22;border-radius:4px;overflow:hidden;position:relative;box-shadow:0 0 14px rgba(139,22,32,.4);}
+#hpbar{height:22px;background:rgba(0,0,0,.7);border:1px solid rgba(232,182,76,.35);border-radius:11px;overflow:hidden;position:relative;box-shadow:0 0 16px rgba(139,22,32,.45),inset 0 2px 5px rgba(0,0,0,.8);}
+#hpbar::after{content:'';position:absolute;left:2px;right:2px;top:2px;height:7px;border-radius:6px;background:linear-gradient(180deg,rgba(255,255,255,.22),transparent);pointer-events:none;}
+#hpbar.lowhp #hpfill{height:100%;background:linear-gradient(90deg,#6e0f18,#c81e2c 60%,#ff4050);transition:width .18s ease;border-radius:10px;}
+@keyframes hpShimmer{0%,100%{filter:brightness(1);}50%{filter:brightness(1.5) saturate(1.4);}}
 #hpfill{height:100%;width:100%;background:linear-gradient(180deg,var(--blood-bright),#6e0f18);transition:width .18s ease;}
 #hptext{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:.15em;color:#fff;text-shadow:0 1px 2px #000;}
 .relicRow{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:46vw;margin-bottom:4px;pointer-events:auto;}

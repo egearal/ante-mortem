@@ -18,8 +18,8 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
         ['BOUNTY & DARES','Marked souls with gold rings pay big if killed fast. Kill-quota dares pay +40 coins.']
       ]},
       {ico:'🎰', name:'THE MACHINE', col:'#ffd36b', items:[
-        ['THE SLOTS','Every level-up opens the reels. SPACE stops them one by one. A pair = +1 level, a triple = +2.'],
-        ['THE DICE','After the reels: TAKE the sure thing, or HOLD SPACE to roll the bones. Every win UPGRADES your prize one rarity — common to RARE to ULTRA RARE to LEGENDARY — plus levels. If it can\'t go higher, the House pays coins instead. A win ALWAYS pays. Miss = a curse. Four wins in one visit = ⚜ GOD LEVEL.'],
+        ['THE SLOTS','Every level-up opens the reels. SPACE stops them one by one. New things always start at LEVEL 1 — a pair pays +20 coins, a triple +50 and softens the dice.'],
+        ['THE DICE','After the reels: TAKE the sure thing, or HOLD SPACE to roll the bones at 8+. Rung 1 win pays a level, rung 2 UPGRADES the rarity, rung 3 pays two — a win ALWAYS pays. Misses curse you, then SCAR you, then take the skill. Four wins = ⚜ GOD LEVEL.'],
         ['THE RED TABLE','Under 40% blood the slot deals richer reels and softer dice (7+) — but ONE miss busts the ladder and leaves a permanent SCAR. The BLOOD CODICIL contract forgives your first miss.'],
         ['FEVER','Kills charge the fever meter. Full = a golden killing rush. Every 3rd minute is GOLDEN HOUR: double coins.']
       ]},
@@ -27,13 +27,13 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
         ['WHEEL OF SOULS','Grab the violet token — SPACE rolls a strip of prizes past the gold needle, tick by tick, until one lands. DOUBLE respins everything at ×2 then ×4. FREE SPIN rolls again for nothing. SIDE ARM hands you a weapon on the spot. One spin in 20 comes up GOLDEN — all prizes doubled.'],
         ['THE ASCENT','The green gate. Free to ride: SPACE pushes the number up, ENTER cashes out. Prizes at 1.77× / 2.77× / 3.69× — and 7.77× is the JACKPOT: your pick of 3 weapons. Crash = a random curse, 5-15 seconds.'],
         ['TAROT','Ghost cards flip on the marble — half bless, half curse. The violet arrow points to them.'],
-        ['THE FINAL PRESS','Die once and the House considers. You start at 35% to live — MASH SPACE for 3 seconds, every press buys +0.5-1.5%, up to 50%. Then LIVE or DIE flickers. Your gilt is never touched.']
+        ['THE FINAL PRESS','Die once and the House considers. 35.000% to live — MASH SPACE for 3 seconds, every press buys +0.25-0.75%, cap 50.000%. Then the House ROLLS 0-100: land at or under your number and you live. Gilt never touched.']
       ]},
       {ico:'◈', name:'THE LONG GAME', col:'#ff9a9a', items:[
         ['COINS','This run\'s gold. They feed RAGE, and a 27+ kill streak can be CASHED with SPACE.'],
         ['GILT','Forever-money: bosses, the wheel, your final score. It survives death.'],
         ['THE VAULT','The great door MANIFESTS every 5 minutes. One seal per visit — choose well. Contracts grant forever-perks.'],
-        ['RANKS & FAVORS','Marks raise your House Rank (12 rewards). Certain feats seal permanent FAVORS — small bonuses forever.'],
+        ['RANKS & FAVORS','Marks raise your House Rank — 100 planned levels, every one pays, milestones every 10th change the game. Certain feats also seal permanent FAVORS.'],
         ['THE INDEX & SECRETS','Everything you meet — weapons, curses, enemies, fates — is pinned in THE INDEX on the menu. 34 secrets hide in the walls.']
       ]}
     ];

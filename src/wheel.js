@@ -243,7 +243,7 @@ function landWheel(seg){
 }
 function tickWheelTok(dt){
   if(!wheelTok){ wheelTokT-=dt;
-    if(wheelTokT<=0){ wheelTokT=(44+Math.random()*26)*(1-(P.wheelHaste||0));
+    if(wheelTokT<=0){ wheelTokT=(50+Math.random()*20-10)*(1-(P.wheelHaste||0)); // pity window: 40-60s, droughts impossible
       const a=Math.random()*6.283, d=280+Math.random()*320;
       wheelTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:20, ph:Math.random()*6.28};
       announce('☸ THE WHEEL OF SOULS MANIFESTS ☸', true); SFX.dingBells();

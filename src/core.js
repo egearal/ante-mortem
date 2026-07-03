@@ -115,12 +115,41 @@ function tickMapProps(dt){
     if(it.life<3){ it._bp=(it._bp||0)-dt; if(it._bp<=0){ it._bp=0.5; tone(1500,0.05,'square',0.07); ring(it.x,it.y,58,'#ff9a3c'); } }
     const idist=Math.hypot(P.x-it.x,P.y-it.y);
     if(it.kind==='fountain'){
-      if(idist<62 && it.res>0 && P.hp<P.maxHp){
-        const drink=Math.min(it.res, 16*dt*(contractDone('bloodpact')?1.25:1));
-        it.res-=drink; P.hp=Math.min(P.maxHp, P.hp+drink*0.95);
-        if(Math.random()<0.25) parts.push({x:P.x+rnd(-8,8),y:P.y+rnd(-6,6),vx:0,vy:-40,life:0.5,col:'#ff5566',r:2});
-      }
-      if(it.res<=0){ if(idist<62) secret('drankdry','DRANK IT DRY'); burst(it.x,it.y,10,'#6e0f18'); despawnInter(); return; }
+      it.ph=(it.ph||0)+0.016; const alive=it.res>0;
+      ctx.save(); ctx.translate(it.x,it.y);
+      // shadow + gilded twin basins
+      ctx.fillStyle='rgba(0,0,0,0.42)'; ctx.beginPath(); ctx.ellipse(0,10,56,19,0,0,6.28); ctx.fill();
+      ctx.fillStyle='#241a26'; ctx.beginPath(); ctx.ellipse(0,2,52,24,0,0,6.28); ctx.fill();
+      ctx.strokeStyle='rgba(232,182,76,0.55)'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.ellipse(0,2,52,24,0,0,6.28); ctx.stroke();
+      ctx.fillStyle=alive?'#7a1019':'#241014'; ctx.beginPath(); ctx.ellipse(0,0,42,18,0,0,6.28); ctx.fill();
+      if(alive){ // the pool shimmers
+        ctx.save(); ctx.globalCompositeOperation='lighter';
+        ctx.drawImage(glowSprite('rgba(200,30,44,0.3)','rgba(200,30,44,0)',64),-64,-64,128,128);
+        ctx.fillStyle='rgba(255,110,120,'+(0.25+Math.sin(it.ph*3)*0.12)+')';
+        ctx.beginPath(); ctx.ellipse(-8,-3,20,7,0.3,0,6.28); ctx.fill(); ctx.restore(); }
+      // pedestal + upper basin
+      ctx.fillStyle='#3a2f40'; ctx.fillRect(-5,-32,10,26);
+      ctx.strokeStyle='rgba(232,182,76,0.5)'; ctx.lineWidth=1.5; ctx.strokeRect(-5,-32,10,26);
+      ctx.fillStyle='#241a26'; ctx.beginPath(); ctx.ellipse(0,-32,20,7,0,0,6.28); ctx.fill();
+      ctx.strokeStyle='rgba(232,182,76,0.55)'; ctx.beginPath(); ctx.ellipse(0,-32,20,7,0,0,6.28); ctx.stroke();
+      ctx.fillStyle=alive?'#a3121f':'#2a1218'; ctx.beginPath(); ctx.ellipse(0,-33,15,4.5,0,0,6.28); ctx.fill();
+      if(alive){ // twin arcs of blood falling from the upper basin
+        ctx.strokeStyle='rgba(220,50,64,0.75)'; ctx.lineWidth=2.4;
+        for(const sgn of [-1,1]){ ctx.beginPath(); ctx.moveTo(sgn*13,-31);
+          ctx.quadraticCurveTo(sgn*26,-18,sgn*18,-2); ctx.stroke(); }
+        for(let d2=0;d2<4;d2++){ const f2=((it.ph*1.3+d2*0.25)%1);
+          ctx.fillStyle='rgba(255,90,100,'+(0.9-f2*0.6)+')';
+          ctx.beginPath(); ctx.arc(13+f2*6-((d2%2)*26+f2*12*(d2%2?1:-1))*0, -31+f2*29, 2.1-f2*0.8,0,6.28); ctx.fill();
+          ctx.beginPath(); ctx.arc(-13-f2*6, -31+f2*29, 2.1-f2*0.8,0,6.28); ctx.fill(); } }
+      // gothic finial
+      ctx.fillStyle=alive?'#e04050':'#3a1a20'; ctx.beginPath(); ctx.moveTo(0,-42); ctx.lineTo(5,-33); ctx.lineTo(-5,-33); ctx.closePath(); ctx.fill();
+      if(alive){ ctx.save(); ctx.globalCompositeOperation='lighter';
+        ctx.drawImage(glowSprite('rgba(255,120,130,0.65)','rgba(255,80,90,0)',10),-10,-52,20,20); ctx.restore(); }
+      // reserve gauge, gilt-framed
+      ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(-26,28,52,5);
+      ctx.fillStyle='#c81e2c'; ctx.fillRect(-26,28,52*(Math.max(0,it.res)/100),5);
+      ctx.strokeStyle='rgba(232,182,76,0.4)'; ctx.lineWidth=1; ctx.strokeRect(-26,28,52,5);
+      ctx.restore();
     } else if(it.kind==='roulette'){
       if(idist<52){ it.stand+=dt;
         if(it.stand>=1.6){ rouletteBet(it); despawnInter(); return; } }

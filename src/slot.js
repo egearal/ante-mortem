@@ -653,12 +653,13 @@ function _vbFor(id){
   }catch(e){}
   _iconVB[id]=vb; return vb;
 }
+const GLYPH_NUDGE={coil:-3, chalice:-2, guillotine:-2, pendulum:-1, gramo:-1};
 function iconSvg(id){ const p=ICONS[id];
   if(!p){
     const src=(typeof PASSIVES!=='undefined'&&PASSIVES.find(x=>x.id===id))||(typeof WEAPONS!=='undefined'&&WEAPONS.find(x=>x.id===id));
     const g=src?src.g:'✦';
     const c=(typeof GLYPH_COL!=='undefined'&&GLYPH_COL[id])||'currentColor';
-    return '<span style="font-size:inherit;line-height:1;color:'+c+';text-shadow:0 0 8px '+c+'">'+g+'</span>';
+    return '<span style="position:relative;top:'+((GLYPH_NUDGE[id]||0))+'px;font-size:inherit;line-height:1;color:'+c+';text-shadow:0 0 8px '+c+'">'+g+'</span>';
   }
   return '<svg viewBox="'+_vbFor(id)+'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>'; }
 const PROJ_FX={

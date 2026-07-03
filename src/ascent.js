@@ -391,7 +391,7 @@ function closeCrash(){ crash.jk=false; { const w9=$('jkWrap'); if(w9){ w9.classL
 })();
 function tickCrashTok(dt){
   if(!crashTok){ crashTokT-=dt;
-    if(crashTokT<=0){ crashTokT=48+Math.random()*34;
+    if(crashTokT<=0){ crashTokT=52+Math.random()*20-10; // pity window: 42-62s
       const a=Math.random()*6.283, d=300+Math.random()*300;
       crashTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:20, ph:Math.random()*6.28};
       announce('▲ THE ASCENT BECKONS ▲', true); SFX.dingBells();
