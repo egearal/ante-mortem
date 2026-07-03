@@ -109,7 +109,7 @@ function ensurePayTable(){
     +row('common',Math.round(w.common/tot*100))+row('rare',Math.round(w.rare/tot*100))
     +row('epic',Math.round(w.epic/tot*100))+row('legendary',Math.round(w.legendary/tot*100))
     +(hasAsc?'<div class="ptRow" data-rar="ascend" style="--pc:'+RARC.ascend+'"><span class="ptG">▲</span><span class="ptN">ASCENSION</span><span class="ptP">YOURS</span></div>':'')
-    +'<div class="ptFoot">PAIR +2 LV · TRIPLE +5 LV<br>DICE RAISE THE RARITY</div>';
+    +'<div class="ptFoot"><b>PAIR = 2 · TRIPLE = 3 LEVELS</b><br>RUNG 2 OF THE DICE UPGRADES</div>';
 }
 function flarePayRow(rar){
   const pt=$('payTable'); if(!pt) return;
@@ -282,12 +282,13 @@ function finalizeReward(bestId, matchN){
     slotBank+=add9; }
   if(slotBank>=7){ slotBank-=7; vouchers++; SFX.dingBells(); SFX.chipStack();
     setTimeout(()=>announce('◈ BANK FULL — HOUSE VOUCHER EARNED ◈', true), 200); }
-  let base = matchN>=3 ? 5 : (matchN===2 ? 2 : 1);
+  let base = matchN>=3 ? 3 : (matchN===2 ? 2 : 1); // everything starts at level one — pairs 2, triples 3
   if(lastRites) base+=1;
   if(ovBonusNext){ ovBonusNext=false; base+=1; setTimeout(()=>announce('⚡ OVERCHARGED — +1 BONUS LEVEL ⚡', true), 700); }
   if(vouchers>0){ vouchers--; base+=1; setTimeout(()=>{ announce('◈ HOUSE VOUCHER SPENT — +1 LEVEL ◈', true); flash(0.35,'#ffd36b'); SFX.casinoDing(); }, 1400); }
   const defs=slotKind==='weapon'?WEAPONS:PASSIVES; const def=defs.find(x=>x.id===bestId);
-  gamble={ def, kind:slotKind, base, reward:base, matchN, round:1, threshold:(lastRites?6:7)-(vlv('dice')?1:0)+(P.hexDice?1:0), rites:lastRites, seraph, rollT:0, win:false, dL:0, dR:0, hist:[] };
+  gamble={ def, kind:slotKind, base, reward:base, matchN, round:1, threshold:(lastRites?7:8)-(vlv('dice')?1:0)+(P.hexDice?1:0)+(P.crookedT?1:0), rites:lastRites, seraph, rollT:0, win:false, dL:0, dR:0, hist:[], diceN:0 };
+  if(P.crookedT) P.crookedT=false; // the CROOKED TABLE scar bites once
   if(seraph) seraphCeremony();
   ceremony(matchN, def);
   openOffer();
@@ -315,41 +316,44 @@ function showRewardPanel(){
   if(!g._stung){ g._stung=true; SFX.rarSting(RAR_TIER[def.rar]||0);
     if((RAR_TIER[def.rar]||0)>=3){ flash(0.3,RARC[def.rar]); domConfetti(14,'machine'); } }
 }
+// the rung script: rung 1 win = +1 level · rung 2 win = THE UPGRADE · rung 3 win = +2 levels · rung 4 = GOD LEVEL
+function rungGain(r){ return r===1?1 : r===2?0 : 2; }
+function missShort(g){ return g.round>=3 ? 'LOSE SKILL' : 'CURSE'; }
 function openOffer(){
   slotStage='offer'; endSeance(); const g=gamble; showRewardPanel();
   const deadly = g.round>=3;
   if(!deadly && !g.pendingCurse) g.pendingCurse=DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0];
-  const gain=rollGain(g.round);
   const curLv=skLevel(g.def);
   const takeLv=Math.min(g.def.max, curLv+g.reward);
   const takeOv=(curLv+g.reward)-takeLv;
-  const lossTxt = deadly ? 'LOSE THE SKILL' : curseLabel(g.pendingCurse);
+  const big = curLv===0 ? 'LEVEL '+takeLv : 'LEVEL '+curLv+' → '+takeLv;
   $('cardDesc').innerHTML =
-    (g.rites?'<div class="ofsub" style="color:#ff7b7b">☨ roll −6% blood · win +22% blood</div>':'')+
-    '<div class="ofbig">TAKE Lv '+curLv+' → '+takeLv+(takeOv>0?' <span style="color:#ffd36b">+'+(takeOv*12)+' ◈</span>':'')+' — '+projFx(g.def, takeLv)+'</div>'+
-    '<div class="ofrow"><span class="ofg">✦ Roll '+g.threshold+'+ → '+winLine(g,gain)+'</span>'+
-    '<span class="ofl">✕ Miss → '+lossTxt+'</span></div>';
+    (g.rites?'<div class="ofsub" style="color:#ff7b7b">☨ THE RED TABLE ☨</div>':'')+
+    '<div class="ofbig">'+big+(takeOv>0?' <span class="ovchip">+'+(takeOv*12)+' ◈</span>':'')+'</div>'+
+    '<div class="ofstat">'+projFx(g.def, takeLv)+'</div>'+
+    '<div class="ofrow"><span class="ofg">🎲 '+g.threshold+'+ → '+winLine(g)+'</span>'+
+    '<span class="ofl">✕ '+missShort(g)+'</span></div>'+
+    (!deadly?'<div class="ofmini">✕ = '+curseLabel(g.pendingCurse)+'</div>':'');
   $('gambleMsg').innerHTML='';
   SFX.casinoDing();
   updateLadderPips();
   showSlotButtons();
 }
-// the promise on the dice button — what THIS rung's win actually delivers
+// the promise on the dice button — what THIS rung's win actually delivers (short, numbers first)
 const TIER_KEY=['common','rare','epic','legendary'];
-function winLine(g, gain){
+function winLine(g){
   const curLv=skLevel(g.def);
   const takeLv=Math.min(g.def.max, curLv+g.reward);
-  if(g.def.rar==='ascend'||g.def.rar==='mythic'){
-    const wl=Math.min(g.def.max, curLv+g.reward+gain+1);
-    const ov=(curLv+g.reward+gain+1)-wl;
-    return '▲ DEEPENS — Lv '+wl+(ov>0?' +'+(ov*12)+' ◈':'')+' — '+projFx(g.def, wl);
+  const gain=rungGain(g.round);
+  if(g.round===2 && g.round<MAXROLL){
+    if(g.def.rar==='ascend'||g.def.rar==='mythic') return '▲ +1 LEVEL';
+    const up=nextUpgrade(g);
+    if(up){ const rk=TIER_KEY[up.tier]; return '⬆ <b style="color:'+RARC[rk]+'">'+SLOT_RAR[rk]+'</b>'; }
+    return '+1 LEVEL';
   }
-  const up=nextUpgrade(g);
-  if(up){ const rk=TIER_KEY[up.tier];
-    return '⬆ UPGRADE TO <b style="color:'+RARC[rk]+'">'+SLOT_RAR[rk]+'</b> + LEVELS'; }
-  const wl=Math.min(g.def.max, curLv+g.reward+gain+1);
-  if(wl<=takeLv) return '+'+((curLv+g.reward+gain+1-wl)*12)+' ◈ — THE HOUSE PAYS CASH';
-  return 'Lv '+wl+' — '+projFx(g.def, wl);
+  const wl=Math.min(g.def.max, curLv+g.reward+gain);
+  if(wl<=takeLv) return '+'+((curLv+g.reward+gain-wl)*12)+' ◈';
+  return 'LEVEL '+wl;
 }
 function doRisk(){
   if(slotStage!=='offer' || !gamble) return;
@@ -361,10 +365,9 @@ function doRisk(){
   slotStage='dicing'; stopLock=performance.now()+150;
   if(g.rites){ P.hp=Math.max(1, P.hp-P.maxHp*(contractDone('codicil')?0.03:0.06)); flash(0.35,'#8b1620'); SFX.thud(); shake=Math.min(14,shake+5); }
   SFX.diceRattle(); SFX.riser(); sparkBurst(12);
-  const gain=rollGain(g.round);
   $('cardName').textContent=g.def.n; $('cardName').className='r-'+g.def.rar+' bigname';
-  $('cardDesc').innerHTML='<div class="ofbig">Need '+g.threshold+'+</div>'+
-    '<div class="ofrow"><span class="ofg">✦ Win → '+winLine(g,gain)+'</span><span class="ofl">✕ Miss → '+(g.round>=3?'LOSE SKILL':curseLabel(g.pendingCurse))+'</span></div>';
+  $('cardDesc').innerHTML='<div class="ofbig">NEED '+g.threshold+'+</div>'+
+    '<div class="ofrow"><span class="ofg">🎲 → '+winLine(g)+'</span><span class="ofl">✕ '+missShort(g)+'</span></div>';
   $('gambleMsg').innerHTML='';
   updateLadderPips();
   showSlotButtons();
@@ -378,7 +381,11 @@ function stopDie(){
   d.el.classList.remove('rolling'); d.el.classList.add('settle'); setTimeout(()=>{ if(d.el)d.el.classList.remove('settle'); },340);
   stopLock=performance.now()+200;
   const mag = gamble? gamble.round : 1;
-  SFX.reelHit(idx+1); SFX.dingHit(idx+mag); shake=Math.min(17,shake+5+mag); flash(0.26+mag*0.04,'#fff0c8'); sparkBurst(14+mag*7);
+  // the tingle ladder — every die across the visit rings one step higher; a miss resets the scale
+  if(gamble){ gamble.diceN=(gamble.diceN||0)+1; const tn=gamble.diceN-1;
+    tone(620*Math.pow(1.122,tn),0.11,'sine',0.12); tone(1240*Math.pow(1.122,tn),0.07,'sine',0.05);
+    if(tn>=4) setTimeout(()=>SFX.tingle(),60); }
+  SFX.reelHit(idx+1); shake=Math.min(17,shake+5+mag); flash(0.26+mag*0.04,'#fff0c8'); sparkBurst(14+mag*7);
   const g=gamble;
   if(idx===0){
     if(d.val===6){ d.el.classList.add('hot'); SFX.hotSix(); flash(0.4,'#ffcc33'); sparkBurst(30); shake=Math.min(16,shake+7); excite=1;
@@ -435,27 +442,27 @@ function resolveRisk(){
     LT.diceWins++; bump('diceWins',LT.diceWins);
     if(perfect){ LT.perfects++; bump('perfects',LT.perfects); }
     if(g.round>=MAXROLL){ LT.ladders++; bump('ladders',LT.ladders); }
-    let gain=rollGain(g.round); if(perfect) gain+=1;
+    // the rung script: 1 = +1 lv · 2 = THE UPGRADE · 3 = +2 lv · 4 = GOD LEVEL (perfect 12 always +1)
+    let gain=g.round>=MAXROLL?2:rungGain(g.round); if(perfect) gain+=1;
     g.reward+=gain;
-    // THE CLIMB — an interim win raises the prize's RARITY (or deepens an ascension); a win must always pay
     let upTxt='';
-    if(g.round<MAXROLL){
-      if(g.def.rar==='ascend'||g.def.rar==='mythic'){ g.reward+=1; upTxt='▲ THE ASCENSION DEEPENS — +1 LV'; }
+    if(g.round===2 && g.round<MAXROLL){
+      if(g.def.rar==='ascend'||g.def.rar==='mythic'){ g.reward+=1; upTxt='▲ DEEPENS +1 LV'; }
       else { const up=nextUpgrade(g);
         if(up){ const from=g.def.rar; g.def=pick(up.pool); g._stung=false;
           $('cardName').textContent=g.def.n; $('cardName').className='r-'+g.def.rar+' bigname';
-          upTxt='⬆ UPGRADED — '+SLOT_RAR[from]+' → <b style="color:'+RARC[g.def.rar]+'">'+SLOT_RAR[g.def.rar]+'</b>';
+          upTxt='⬆ '+SLOT_RAR[from]+' → <b style="color:'+RARC[g.def.rar]+'">'+SLOT_RAR[g.def.rar]+'</b>';
           setTimeout(()=>{ announce('⬆ '+SLOT_RAR[from]+' → '+SLOT_RAR[g.def.rar]+' — '+g.def.n.toUpperCase()+' ⬆', true); SFX.rarSting(RAR_TIER[g.def.rar]||0); }, 420);
-        } else { g.reward+=1; upTxt='◈ NOTHING RARER LEFT — +1 LV INSTEAD'; }
+        } else { g.reward+=1; upTxt='+1 LV'; }
       }
     }
     dice.forEach(d=>d.el.classList.add('crit'));
     const rw=g.reward; SFX.dingBells(); SFX.casinoDing(); if(rw>=4) setTimeout(()=>SFX.cashout(),120); if(rw>=5) setTimeout(()=>SFX.dingBells(),220); coinRain(16+rw*4); flash(0.42,'#8bff9a'); $('machine').classList.add('win'); shake=Math.min(22,shake+7+rw); excite=1; sparkBurst(24+rw*5);
     if(perfect) perfectFlash();
     const nowLv=Math.min(g.def.max, skLevel(g.def)+g.reward);
-    $('cardDesc').innerHTML='<div class="ofbig" style="color:'+(perfect?'#ffe066':'#b8ffbf')+'">'+(perfect?'✦ PERFECT 12! ✦ ':'')+projFx(g.def, nowLv)+'</div>'
-      +(upTxt?'<div class="ofsub" style="color:#ffd36b;font-weight:700">'+upTxt+'</div>':'')
-      +'<div class="ofrow"><span class="ofg">✦ '+sum+' ≥ '+g.threshold+' — WIN!'+(perfect?' +1 bonus':'')+'</span></div>';
+    $('cardDesc').innerHTML='<div class="ofbig" style="color:'+(perfect?'#ffe066':'#b8ffbf')+'">'+(perfect?'✦ 12! ✦ ':'')+'WIN — LEVEL '+nowLv+'</div>'
+      +'<div class="ofstat">'+projFx(g.def, nowLv)+'</div>'
+      +(upTxt?'<div class="ofsub" style="color:#ffd36b;font-weight:700">'+upTxt+'</div>':'');
     if(g.round>=MAXROLL){
       setTimeout(()=>{ let nl; if(g.kind==='weapon'){ nl=grantWeaponLevels(g.def,g.reward); } else { grantSkill(g.def,g.reward); nl=skillLevel(g.def.id); }
         $('machine').classList.remove('win'); dice.forEach(d=>d.el.classList.remove('crit'));
@@ -485,6 +492,7 @@ function resolveRisk(){
       slotStage='resolved'; showSlotButtons();
     } else {
       const dl=applyDebuff(g.pendingCurse);
+      tone(520,0.3,'sine',0.14,170); // the tingle ladder falls back down
       (g.hist=g.hist||[]).push('l'); updateLadderPips();
       LT.curses++; bump('curses',LT.curses);
       const near1 = sum===g.threshold-1;
@@ -648,7 +656,6 @@ const PROJ_FX={
 };
 function skLevel(def){ return WEAPONS.some(w=>w.id===def.id) ? (P.wlv[def.id]||0) : skillLevel(def.id); }
 function projFx(def, level){ const f=PROJ_FX[def.id]; const lv=Math.max(1, Math.min(def.max, level)); return f? f(lv) : shortFx(def); }
-function rollGain(r){ return r>=3 ? 2 : 1; }
 const MAXROLL=4;
 function shinyWord(){ return SHINY[(Math.random()*SHINY.length)|0]; }
 function closeSlot(){
