@@ -39,13 +39,16 @@ const BASE_SCALE = Object.assign({}, CFG.scale);
 
 /* ---------- canvas ---------- */
 const cv = document.getElementById('c');
-const ctx = cv.getContext('2d');
+const ctx = cv.getContext('2d',{alpha:false}); // opaque canvas — the compositor stops blending the page behind every frame
 let VW=0, VH=0, DPR=1;
 function resize(){
   DPR = Math.min(window.devicePixelRatio||1, window._qPrev===true?1:2);
   VW = window.innerWidth; VH = window.innerHeight;
   cv.width = VW*DPR; cv.height = VH*DPR;
   ctx.setTransform(DPR,0,0,DPR,0,0);
+  // opaque canvas boots black — paint the house dark immediately so the menu
+  // never sits on a void (render() only runs once a run exists)
+  ctx.fillStyle='#0a0507'; ctx.fillRect(0,0,VW,VH);
 }
 window.addEventListener('resize', ()=>{ resize(); if(embers&&embers.length) resetEmbers(); }); resize();
 
@@ -763,9 +766,10 @@ function drawWallsAndCarpet(){
     for(const wy2 of [30, A-30]){
       if(!inView(bx2,wy2,180)) continue;
       const swb=Math.sin(gt*1.1+bi*1.7+wy2)*3, dn=wy2<A/2?1:-1;
-      const bg2=ctx.createLinearGradient(bx2,wy2,bx2,wy2+dn*86);
-      bg2.addColorStop(0,'#6e0f18'); bg2.addColorStop(1,'#2a050a');
-      ctx.fillStyle=bg2;
+      { const bk='bnr'+bx2+'|'+wy2+'|'+dn; let bg2=_lgCache[bk];
+        if(!bg2){ bg2=ctx.createLinearGradient(bx2,wy2,bx2,wy2+dn*86);
+          bg2.addColorStop(0,'#6e0f18'); bg2.addColorStop(1,'#2a050a'); _lgCache[bk]=bg2; }
+        ctx.fillStyle=bg2; }
       ctx.beginPath();
       ctx.moveTo(bx2-20,wy2); ctx.lineTo(bx2+20,wy2);
       ctx.lineTo(bx2+16+swb,wy2+dn*72);
@@ -1130,8 +1134,10 @@ function bakeVign(danger,db){
     g.addColorStop(0,'rgba(255,214,150,0.11)'); g.addColorStop(1,'rgba(12,7,22,0.18)');
     x.fillStyle=g; x.fillRect(0,0,w,h); }
   { B.shaft=mk2(190,Math.max(2,VH>>1)); const x=B.shaft.getContext('2d');
-    const g=x.createLinearGradient(0,0,45,B.shaft.height); g.addColorStop(0,'rgba(168,200,255,0.06)'); g.addColorStop(1,'rgba(168,200,255,0)');
-    x.fillStyle=g; x.beginPath(); x.moveTo(10,0); x.lineTo(45,0); x.lineTo(85,B.shaft.height); x.lineTo(0,B.shaft.height); x.closePath(); x.fill(); }
+    const g=x.createLinearGradient(0,0,45,B.shaft.height); g.addColorStop(0,'rgba(168,200,255,0.075)'); g.addColorStop(1,'rgba(168,200,255,0)');
+    x.fillStyle=g; x.beginPath(); x.moveTo(10,0); x.lineTo(45,0); x.lineTo(85,B.shaft.height); x.lineTo(0,B.shaft.height); x.closePath(); x.fill();
+    const g2=x.createLinearGradient(0,0,45,B.shaft.height*0.8); g2.addColorStop(0,'rgba(255,226,170,0.05)'); g2.addColorStop(1,'rgba(255,226,170,0)');
+    x.fillStyle=g2; x.beginPath(); x.moveTo(20,0); x.lineTo(36,0); x.lineTo(58,B.shaft.height*0.85); x.lineTo(14,B.shaft.height*0.85); x.closePath(); x.fill(); }
   vignB=B;
   function mk2(w2,h2){ const c=document.createElement('canvas'); c.width=w2; c.height=h2; return c; }
 }
@@ -1397,7 +1403,10 @@ function render(){
     const cut=ds[LODN-1];
     for(const e of enemies) e._lod = e._d2>cut && !e.boss && !e.elite;
   } else for(const e of enemies) e._lod=false; }
-  for(const e of enemies) drawEnemy(e);
+  for(const e of enemies){
+    if(!e.boss && (e.x<camX-100||e.x>camX+VW+100||e.y<camY-100||e.y>camY+VH+100)) continue; // offscreen court stays unpainted
+    drawEnemy(e);
+  }
 
   // chain lightning — jagged bolts, white core + halo
   ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.lineCap='round';
@@ -1649,13 +1658,15 @@ function render(){
     ctx.strokeStyle='rgba(90,20,30,0.9)'; ctx.lineWidth=1; roundRect(xx-2,xy-2,xw+4,bh+4,5); ctx.stroke();
     ctx.fillStyle='rgba(232,182,76,0.2)';
     for(let ti=1;ti<10;ti++) ctx.fillRect(xx+xw*ti/10-0.5,xy+2,1,bh-4);
-    let g9=ctx.createLinearGradient(xx,0,xx+xw,0);
-    if(rage){ const above=P.ovT>=90;
-      if(above){ g9.addColorStop(0,'#8a5a10'); g9.addColorStop(0.88,'#ffd36b'); g9.addColorStop(1,'#8bff9a'); }
-      else if(P.ovT<25){ g9.addColorStop(0,'#5a0a12'); g9.addColorStop(1,'#ff3344'); }
-      else { g9.addColorStop(0,'#7a3608'); g9.addColorStop(1,'#ff9a3c'); }
-    } else { g9.addColorStop(0,'#5a1420'); g9.addColorStop(1,'#c81e2c'); }
-    ctx.fillStyle=g9; roundRect(xx,xy,Math.max(2,xw*f),bh,4); ctx.fill();
+    { const mode=rage?(P.ovT>=90?'a':(P.ovT<25?'l':'m')):'n';
+      const gk='xpb'+mode+'|'+xx+'|'+xw; let g9=_lgCache[gk];
+      if(!g9){ g9=ctx.createLinearGradient(xx,0,xx+xw,0);
+        if(mode==='a'){ g9.addColorStop(0,'#8a5a10'); g9.addColorStop(0.88,'#ffd36b'); g9.addColorStop(1,'#8bff9a'); }
+        else if(mode==='l'){ g9.addColorStop(0,'#5a0a12'); g9.addColorStop(1,'#ff3344'); }
+        else if(mode==='m'){ g9.addColorStop(0,'#7a3608'); g9.addColorStop(1,'#ff9a3c'); }
+        else { g9.addColorStop(0,'#5a1420'); g9.addColorStop(1,'#c81e2c'); }
+        _lgCache[gk]=g9; }
+      ctx.fillStyle=g9; } roundRect(xx,xy,Math.max(2,xw*f),bh,4); ctx.fill();
     ctx.save(); ctx.globalCompositeOperation='lighter';
     const shx=xx+((gt*70)%(xw+90))-45;
     const sg9=ctx.createLinearGradient(shx-26,0,shx+26,0);
@@ -2097,8 +2108,9 @@ function drawPlayer(){
   ctx.save(); ctx.translate(P.x,P.y);
   // warm candle-glow pool around the gambler
   ctx.save(); ctx.globalCompositeOperation='lighter';
-  const pg=ctx.createRadialGradient(0,4,0,0,4,46); pg.addColorStop(0,'rgba(255,170,80,'+(0.10+brt*0.05)+')'); pg.addColorStop(1,'rgba(255,150,60,0)');
-  ctx.fillStyle=pg; ctx.beginPath(); ctx.arc(0,4,46,0,6.28); ctx.fill(); ctx.restore();
+  ctx.globalAlpha=(0.10+brt*0.05)/0.15;
+  ctx.drawImage(glowSprite('rgba(255,170,80,0.15)','rgba(255,150,60,0)',46),-46,4-46,92,92);
+  ctx.globalAlpha=1; ctx.restore();
   ctx.save(); ctx.globalAlpha=0.3; ctx.fillStyle='#000';
   ctx.beginPath(); ctx.ellipse(0,16,13,4.4,0,0,6.28); ctx.fill(); ctx.restore();
   if(killStreak>=50 && state==='playing'){ ctx.save(); ctx.globalCompositeOperation='lighter';
@@ -2136,9 +2148,11 @@ function drawPlayer(){
     ctx.globalAlpha=1; ctx.restore(); }
   const bil=Math.sin(t*0.9)*mv*3.5;
   // flowing outer coat — layered, top-lit gradient
-  { const cgd=ctx.createLinearGradient(0,-9,0,16);
-    if(gh){ cgd.addColorStop(0,'#151016'); cgd.addColorStop(1,'#060305'); }
-    else { cgd.addColorStop(0,'#6a1220'); cgd.addColorStop(0.5,'#4d0a12'); cgd.addColorStop(1,'#2a050a'); }
+  { const ck='plc'+(gh?1:0); let cgd=_lgCache[ck];
+    if(!cgd){ cgd=ctx.createLinearGradient(0,-9,0,16);
+      if(gh){ cgd.addColorStop(0,'#151016'); cgd.addColorStop(1,'#060305'); }
+      else { cgd.addColorStop(0,'#6a1220'); cgd.addColorStop(0.5,'#4d0a12'); cgd.addColorStop(1,'#2a050a'); }
+      _lgCache[ck]=cgd; }
     ctx.fillStyle=cgd; }
   ctx.beginPath();
   ctx.moveTo(-9+lean,-7);
@@ -2319,7 +2333,7 @@ function loop(now){
   document.body.classList.toggle('gamble', state==='slot'||state==='wheel'||state==='crash'||state==='marker');
   if(state==='playing'){
     if(hitstop>0){ hitstop-=dt; }
-    else if(!tabHold){ update(dt*1.63*(slowT>0?0.35:1)); }
+    else if(!tabHold){ update(dt*1.71*(slowT>0?0.35:1)); }
     updateHUD();
   }
   else if(state==='wheel'){ tickWheel(dt); }
