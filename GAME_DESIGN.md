@@ -10,11 +10,17 @@ Top-down survivor: WASD/touch move, auto-fire at nearest, waves escalate, 4 boss
 - **GILT** — eternal. From boss bounties, wheel, daily blessing, Index milestones, score at death (score/40). Spent on VAULT seals/contracts and death-bribes. Persists via storage.
 - **MARKS** — eternal rank XP (see HOUSE RANKS).
 
-## Rarity taxonomy (THE ODDS, loud since 2026-07)
+## Rarity taxonomy (THE ODDS — numbers hidden since Batch 7)
+Weights now **{common:73, rare:17, epic:7, legendary:3}**; the paytable shows PIPS (◆…◆◆◆◆, flames ☨ at the red table), never percentages. Legacy notes:
+
+### (previous odds notes)
 `rar` field: common / rare / epic (shown "ULTRA RARE") / legendary / **mythic** (wheel-chain only) / **ascend** (Ascent-only until owned). **Reels are weighted by CFG.weights {common:54, rare:28, epic:13, legendary:5}** via weightedByRarity (before 2026-07 the weights were decorative and reels were uniform). A #payTable strip beside the machine shows the odds live and flares the landed row; every offer card slams a #rarBanner (label + RARC color + tiered SFX.rarSting — legendary/ascend pulse and confetti). Unowned ascensions are EXCLUDED from availableSkills (they leaked before); owned ones appear to level up.
 RARC colors: common #c9c1b4, rare #6db4ff, epic #c98bff, legendary #f8e2a0, ascend #8bffd0, mythic #fff2c0.
 
-## THE SLOT (level-up) — economy v3 (2026-07, "director found it too easy")
+## THE SLOT — the LEVEL-1 LAW (Batch 7)
+**A new thing always enters at LEVEL 1.** Matches pay coins instead of levels for unowned items: pair = +20 ◈, triple = +50 ◈ + threshold −1 this visit + jackpot fanfare. Owned items still stage 1/2/3 by match. The `.ofmini` curse-detail line is gone — misses are surprises. All legacy notes below still hold (rung script, scars, red table):
+
+### (economy v3 notes)
 Reels stage **1 / 2 / 3** levels (single / pair / triple — level one is the floor). Dice threshold starts **8** and climbs 9/10/11 per round (RED TABLE −1, LOADED DICE seal −1, hexDice/CROOKED TABLE scar +1); up to 4 wins = GOD LEVEL (~0.5% — a legend); PERFECT 12 +1. BANK n/7 → HOUSE VOUCHER.
 **The rung script** (`rungGain` in slot.js): rung 1 win = **+1 level** · rung 2 win = **⬆ THE UPGRADE** (one rarity tier via nextUpgrade, staged levels carry; ascend/mythic → +1 lv 'DEEPENS') · rung 3 win = **+2 levels** · rung 4 = GOD LEVEL. One upgrade per ladder, max.
 **The miss script**: round 1 miss = temp curse (ladder continues) · round 2 miss = **SCAR** (continues) · round 3+ miss = LOSE SKILL **+ SCAR**.
@@ -53,13 +59,22 @@ DOUBLE: instant +15×mult coins, ×2 all prizes (cap ×4 MAX FORTUNE 60×mult), 
 ## ☨ TAROT (24 cards)
 Ground cards, weighted flip, fate-arrow when idle. 2 blessed (SUN, WORLD) / 10 good / 10 cursed / 2 damned (DEATH REVERSED, TOWER REVERSED). THE DEVIL sweeps all ground coins. Reveal: top-screen faint card, roman numerals, tier SFX.
 
-## 💀 THE FINAL PRESS (death — replaced gilt bribes 2026-07)
+## 💀 THE FINAL PRESS + THE DEATH ROLL (Batch 7 form)
+Odds display to **three decimals** (35.000%…50.000%); each press buys **+0.25–0.75%**; MARKER'S FAVOR seals +3% base, rank milestones add press base/cap. The resolve is **THE DEATH ROLL**: a number tumbles 0–100 (green when the flicker would save you, red when not) and lands on the truth — **roll ≤ your % lives** ('ROLL 47.3 ≤ 48.250 — LIVE'). markerRef gains {roll, margin}; margin feeds LUCK. 26 marquee bulbs ring the meter; backdrop is glass (arena visible). Legacy notes:
+
+### (final press v1 notes)
 First death → **PRESS FOR YOUR LIFE**: odds start **35%** (+3%/MARKER'S FAVOR seal, capped base 44%), a **3.2s window** with a draining red time bar; every SPACE press (non-repeat) buys **+0.5–1.5%** up to the **50% cap**, each press one tingle higher; hitting max slams ◈ MAX ◈ with seraph. Then the 14-step green/red LIVE/DIE flicker (kept verbatim — director loves it) resolves at final odds. **Gilt is never charged at death.** LIVE = 50% hp revive + knockback nova. DIE → THE RECKONING. markerRef={p,base,max,presses,window,t0,phase}. LT.markers/markerWins + DEATH'S DEBTOR intact.
 
-## ⚰ THE RECKONING (death screen, 2026-07)
+## ⚰ THE RECKONING + THE LEDGER + LUCK (Batch 7 form)
+Leaderboard/name input/percentile REMOVED (board key preserved, unread). After the slam rows: **THE LEDGER** (#goLedger — wave, weapon chips with levels, skill chips, CURSES/SCARS counts, DICE w/t, BEST PULL in rarity color) and the **LUCK verdict** — seven grades (EXTREMELY UNLUCKY → EXTREMELY LUCKY) computed by `luckVerdict()` from the run's `RUN` trackers (dice vs expected P(2d6≥thr), pull tiers vs 73/17/7/3, wheel cs tiers, crash points vs 2.11 mean, death-roll margin; <3 events = EVEN). `RUN` resets in startGame and is bumped at resolveRisk / showRewardPanel / landWheel / crash cash+bust / the death roll.
+
+### (reckoning v1 notes)
 Run tracks `P.dmgDealt` (all damage sites instrumented via trackDmg) and `P.bestStreak`. Death slams stat rows in at ~170ms intervals with rising dings (SLAIN / DAMAGE / BEST STREAK / LEVEL / TIME in #goStats), then score+gilt count up. **Skip law**: first SPACE completes the recap instantly (500ms dead-zone after death so FINAL PRESS mashing can't skip), second SPACE = Wager Again. Target: new run inside ~5s.
 
-## ⚜ HOUSE RANKS (meta)
+## ⚜ HOUSE RANKS — 100 LEVELS (Batch 7)
+`RANKS=buildRanks()`: 20 titles × 5 roman tiers (FRESH MEAT I → THE HOUSE ITSELF V). Curve `rkStep(k)=135·k^0.875` — rank 5 ≈ 1 run, 10 ≈ 5, 30 ≈ 46, 100 ≈ 446 runs (~900 marks/run). Every rank pays: +GILT (12+2r) by default, RANK_FIVES forever-perks each 5th, RANK_MILESTONES each 10th (start Lv2 · +10 blood · +20 coins · golden spin +2% · press base +2% · curses −15% · vault −8% · rage feed +15% · press cap 55% · rank 100: all coins +15%). `applyRankPerks` iterates ALL reached ranks (idempotent per run). **Migration**: on load `rank=max(saved, rankFromMarks(marks))` — never down; old rank-12 (31k marks) lands ~25. Rank-up = two-beat ceremony (UNLOCKED → NEXT). Key `am_rank_v1` unchanged.
+
+### (old 12-rank notes)
 MARKS = kills + wave·12 + level·10 + giltEarned·2 per run. Curve: step(k)=140·k^1.6 cumulative; Rank 12 ≈ 31k marks.
 Rewards: II +25 GILT · III start +15 coins · IV +40 GILT · V +10 start HP · VI +50 GILT · VII start Lv2 · VIII +75 GILT · IX XP+5% · X rage feed +10% · XI curses 25% shorter · XII coins +10%. Death screen shows plaque + animated bar + RANK UP ceremony. Persist key `am_rank_v1`.
 
@@ -85,8 +100,12 @@ Gold-sheen gradient title (keep the h1 NODE — 'namehouse' secret binds to it),
 ## Persistence
 `store` (core.js) prefers the artifact-env `window.storage`; otherwise a localStorage shim with the SAME keys (added 2026-07 — before that, local play silently saved nothing). Keys — never rename: `antemortem_ach_v2` (u/LT/REC/V/S), `antemortem_gilt_v1`, `am_rank_v1`, `antemortem_board_v1`, `antemortem_gfx_v1`, `am_index_v1`.
 
+## Difficulty (Batch 7 — 'you won't survive the first minute')
+CFG: spawn{startInt:0.75, minInt:0.26, baseBatch:4}, wave{first:26, grow:6, cap:96}, scale{hp:0.62, dmg:0.22, spdCap:1.95}, 5-wave spikes hp+0.10/dmg+0.03. Measured: no-input death ~8s; kiting-never-leveling death ~50s.
+
 ## Content inventory
-- **19 weapons** (bolt, cards, orbit, scythe, spark, chand, knives, aura, nova, seeker + coil lash, mortar blast, lantern turret, fangs swarm, bell knockback-toll, dice ricochet, phantom pierce-wave, coffin rear-nails, moths homing-stream). New-weapon mechanics use: timer blocks in update, helper fire fns, bullet flags (seek, pierce, blast, bounce, spin).
+- **29 weapons** (+Batch 7: ✂ Razor Deck returning slivers · 🔥 Cinder Spit ember cones · ⌛ Pendulum metronome arc · ⚒ Iron Stakes planted ground spikes · ≈ Brass Serpent sine bolt · 🍷 Poison Chalice rot pools (gpools) · 🎺 Gramophone wave arcs (waves) · ✪ Roulette Cylinder 6-burst with golden crit tracer · 🕯 Candelabra triple candle familiars · 🗡 The Guillotine telegraphed blade slam (guils)). New bullet kinds: razor/ember/stake/serpent/chalice/flamebolt/tracer; ground arrays waves/guils/gpools/gstakes reset in startGame.
+- (legacy) **19 weapons** (bolt, cards, orbit, scythe, spark, chand, knives, aura, nova, seeker + coil lash, mortar blast, lantern turret, fangs swarm, bell knockback-toll, dice ricochet, phantom pierce-wave, coffin rear-nails, moths homing-stream). New-weapon mechanics use: timer blocks in update, helper fire fns, bullet flags (seek, pierce, blast, bounce, spin).
 - **~21 slot passives** incl thorns, lifesteal, armor (flat reduction in hurtPlayer), on-kill heal, knockback mult, inv-bonus.
 - **19 ascensions** (ASC_POOLS tiers 6/7/6) with fx labels — **max 5 since 2026-07** (all ap() pure additive/multiplicative, safe to reapply; FANGS ×5 = +76% dmg).
 - **3 mythics**: PHOENIX MARKER (death-detonate save, outranks Second Chance), THE HOUSE'S CUT, ALL IN.
@@ -99,3 +118,6 @@ Gold-sheen gradient title (keep the h1 NODE — 'namehouse' secret binds to it),
 - Loan/debt system was REMOVED (Ascent is free now); `P.debt` siphon in gainXP is dormant-safe.
 - iconSvg falls back to colored glyph span for ids without SVG entries — this is the norm for new items.
 - TAB (hold) freezes update and shows the codex; z-index 340.
+
+## Perf round 5 + sound (Batch 7)
+Floor tiles bake once per variant (≤48 sprites, `tileSprite`) — per-frame floor path work is zero; watch the unsigned-shift lesson (`(vh>>>3)%4`, signed shift stamped 'undefined' into the marble). 13 drawEnemy shadowBlur sites gated by qLow/lite (toaster 120→27 shadows/frame). sparkBurst counts ×1.4 globally. Ticker rolls under a real whirr (startWhirr/whirrSpeed/stopWhirr — bandpass noise loop, MUST stop on brake/respin/finish), card-flutter at speed, SHINK+felt-thump settle; reels hum awake; crits ping (throttled 160ms). Tokens on pity clocks (wheel 40-60s, ascent 42-62s). Blood fountain redrawn (gilded twin basins + falling arcs). HP bar 22px glass (no LIFEBLOOD label), lowhp shimmer <30%. GLYPH_NUDGE map centers glyph-fallback reel icons. TAROT_FATES carry `dd` one-liners; INDEX tarot tiles show them via one delegated listener on #idxList.
