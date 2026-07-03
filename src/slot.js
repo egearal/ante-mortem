@@ -103,15 +103,15 @@ function buildStrip(strip, seq, defs){
 function ensurePayTable(){
   let pt=$('payTable');
   if(!pt){ pt=document.createElement('div'); pt.id='payTable'; $('machine').appendChild(pt); }
-  const w=lastRites?RED_W:CFG.weights, tot=w.common+w.rare+w.epic+w.legendary;
-  const row=(rar,pc)=>'<div class="ptRow" data-rar="'+rar+'" style="--pc:'+RARC[rar]+'"><span class="ptG">◆</span><span class="ptN">'+SLOT_RAR[rar]+'</span><span class="ptP">'+pc+'%</span></div>';
+  // the House never shows its numbers — rarity reads in pips, hotter tables read in flames
+  const pips=lastRites?{common:'☨',rare:'☨☨',epic:'☨☨☨',legendary:'☨☨☨☨'}:{common:'◆',rare:'◆◆',epic:'◆◆◆',legendary:'◆◆◆◆'};
+  const row=(rar)=>'<div class="ptRow" data-rar="'+rar+'" style="--pc:'+RARC[rar]+'"><span class="ptN">'+SLOT_RAR[rar]+'</span><span class="ptPips">'+pips[rar]+'</span></div>';
   const hasAsc=P.passiveList && P.passiveList.some(x=>x.rar==='ascend');
   pt.classList.toggle('red', !!lastRites);
   pt.innerHTML='<div class="ptHead">'+(lastRites?'☨ RICHER ODDS ☨':'THE ODDS')+'</div>'
-    +row('common',Math.round(w.common/tot*100))+row('rare',Math.round(w.rare/tot*100))
-    +row('epic',Math.round(w.epic/tot*100))+row('legendary',Math.round(w.legendary/tot*100))
-    +(hasAsc?'<div class="ptRow" data-rar="ascend" style="--pc:'+RARC.ascend+'"><span class="ptG">▲</span><span class="ptN">ASCENSION</span><span class="ptP">YOURS</span></div>':'')
-    +'<div class="ptFoot">'+(lastRites?'<b style="color:#ff7b7b">ONE MISS = SCAR & BUST</b><br>THE TABLE FORGIVES NOTHING':'<b>PAIR = 2 · TRIPLE = 3 LEVELS</b><br>RUNG 2 OF THE DICE UPGRADES')+'</div>';
+    +row('common')+row('rare')+row('epic')+row('legendary')
+    +(hasAsc?'<div class="ptRow" data-rar="ascend" style="--pc:'+RARC.ascend+'"><span class="ptN">ASCENSION</span><span class="ptPips">▲</span></div>':'')
+    +'<div class="ptFoot">'+(lastRites?'<b style="color:#ff7b7b">ONE MISS = SCAR & BUST</b><br>THE TABLE FORGIVES NOTHING':'<b>MATCHES PAY COINS</b><br>RUNG 2 OF THE DICE UPGRADES')+'</div>';
 }
 function flarePayRow(rar){
   const pt=$('payTable'); if(!pt) return;
@@ -285,12 +285,23 @@ function finalizeReward(bestId, matchN){
     slotBank+=add9; }
   if(slotBank>=7){ slotBank-=7; vouchers++; SFX.dingBells(); SFX.chipStack();
     setTimeout(()=>announce('◈ BANK FULL — HOUSE VOUCHER EARNED ◈', true), 200); }
-  let base = matchN>=3 ? 3 : (matchN===2 ? 2 : 1); // everything starts at level one — pairs 2, triples 3
-  if(lastRites) base+=1;
+  const defs=slotKind==='weapon'?WEAPONS:PASSIVES; const def=defs.find(x=>x.id===bestId);
+  const owned9 = slotKind==='weapon' ? (P.wlv[def.id]||0)>0 : skLevel(def)>0;
+  // THE LEVEL-1 LAW: a new thing always enters at level one. Matches pay coins (and a softer table on triples) instead.
+  let base, matchPay=0, softDice=false;
+  if(!owned9){
+    base=1;
+    if(matchN===2){ matchPay=20; }
+    else if(matchN>=3){ matchPay=50; softDice=true; }
+  } else {
+    base = matchN>=3 ? 3 : (matchN===2 ? 2 : 1);
+  }
+  if(matchPay){ P.coins+=matchPay; LT.coins+=matchPay; coinRain(Math.min(20,matchPay/3|0));
+    setTimeout(()=>announce('◈ MATCH BONUS +'+matchPay+' COINS ◈', true), 600); SFX.cashout(); }
+  if(lastRites && owned9) base+=1;
   if(ovBonusNext){ ovBonusNext=false; base+=1; setTimeout(()=>announce('⚡ OVERCHARGED — +1 BONUS LEVEL ⚡', true), 700); }
   if(vouchers>0){ vouchers--; base+=1; setTimeout(()=>{ announce('◈ HOUSE VOUCHER SPENT — +1 LEVEL ◈', true); flash(0.35,'#ffd36b'); SFX.casinoDing(); }, 1400); }
-  const defs=slotKind==='weapon'?WEAPONS:PASSIVES; const def=defs.find(x=>x.id===bestId);
-  gamble={ def, kind:slotKind, base, reward:base, matchN, round:1, threshold:(lastRites?7:8)-(vlv('dice')?1:0)+(P.hexDice?1:0)+(P.crookedT?1:0), rites:lastRites, seraph, rollT:0, win:false, dL:0, dR:0, hist:[], diceN:0 };
+  gamble={ def, kind:slotKind, base, reward:base, matchN, round:1, threshold:(lastRites?7:8)-(softDice?1:0)-(vlv('dice')?1:0)+(P.hexDice?1:0)+(P.crookedT?1:0), rites:lastRites, seraph, rollT:0, win:false, dL:0, dR:0, hist:[], diceN:0 };
   if(P.crookedT) P.crookedT=false; // the CROOKED TABLE scar bites once
   if(seraph) seraphCeremony();
   ceremony(matchN, def);
@@ -335,10 +346,7 @@ function openOffer(){
     '<div class="ofbig">'+big+(takeOv>0?' <span class="ovchip">+'+(takeOv*12)+' ◈</span>':'')+'</div>'+
     '<div class="ofstat">'+projFx(g.def, takeLv)+'</div>'+
     '<div class="ofrow"><span class="ofg">🎲 '+g.threshold+'+ → '+winLine(g)+'</span>'+
-    '<span class="ofl">✕ '+missShort(g)+'</span></div>'+
-    (g.rites?'<div class="ofmini">✕ = the ladder ends, wounded'+(contractDone('codicil')&&!g._forgiven?' · CODICIL: first miss forgiven':'')+'</div>':
-     g.round===1?'<div class="ofmini">✕ = '+curseLabel(g.pendingCurse)+'</div>':
-     g.round===2?'<div class="ofmini">✕ = a permanent wound, this run</div>':'');
+    '<span class="ofl">✕ '+missShort(g)+'</span></div>';
   $('gambleMsg').innerHTML='';
   SFX.casinoDing();
   updateLadderPips();

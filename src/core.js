@@ -11,7 +11,7 @@ const CFG = {
   spawn:{ startInt:1.0, minInt:0.28, ramp:300, baseBatch:3, max:340 },
   wave:{ first:18, grow:5, cap:88, nextAt:0.4, gap:1.15, eliteEvery:4 },
   slot:{ respinBase:14, respinStep:8, critPct:0.40, winSum:7, up:1.6, down:0.85, floor:0.5 },
-  weights:{ common:54, rare:28, epic:13, legendary:5 },
+  weights:{ common:73, rare:17, epic:7, legendary:3 },
   elite:{ every:40, firstAt:38 },
   scale:{ hp:0.52, dmg:0.17, spd:0.10, spdCap:1.85 },
   enemy:{

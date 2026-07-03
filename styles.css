@@ -619,6 +619,8 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
   background:linear-gradient(100deg,#e8b64c 30%,#fff2c0 50%,#e8b64c 70%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:titleSheen 3.2s linear infinite;}
 .ptRow{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:8px;font-size:13.5px;letter-spacing:.06em;color:var(--pc);transition:background .15s, box-shadow .15s;}
 .ptRow .ptG{font-size:12px;} .ptRow .ptN{flex:1;font-weight:800;} .ptRow .ptP{color:#9a8f7e;font-size:12px;font-weight:700;}
+.ptRow .ptPips{font-size:12px;letter-spacing:2px;color:var(--pc);text-shadow:0 0 8px var(--pc);}
+#payTable.red .ptPips{animation:bulbPulse 1.3s infinite;}
 .ptRow.on{background:color-mix(in srgb,var(--pc) 18%,transparent);box-shadow:0 0 16px color-mix(in srgb,var(--pc) 55%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--pc) 50%,transparent);animation:ptFlare .5s ease, bulbPulse 1.2s .5s infinite;}
 .ptRow.on .ptP{color:var(--pc);}
 @keyframes ptFlare{0%{transform:scale(1.14);}100%{transform:scale(1);}}
