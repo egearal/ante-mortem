@@ -24,7 +24,7 @@ const WEAPONS=[
 ];
 function nearestFoe(rg){ let t=null,td=(rg||1e9)*(rg||1e9); for(const e of enemies){ const d2=(e.x-P.x)**2+(e.y-P.y)**2; if(d2<td){td=d2;t=e;} } return t; }
 function fireCoil(l){ const t=nearestFoe(240+l*25); if(!t) return;
-  const dmg=P.damage*(1.8+0.4*l); t.hp-=dmg; t.flash=0.15; ftext(t.x,t.y-t.r,Math.round(dmg),'#ff7edb');
+  const dmg=P.damage*(1.8+0.4*l); t.hp-=dmg; trackDmg(dmg); t.flash=0.15; ftext(t.x,t.y-t.r,Math.round(dmg),'#ff7edb');
   const a=Math.atan2(P.y-t.y,P.x-t.x); t.kx+=Math.cos(a)*260; t.ky+=Math.sin(a)*260;
   for(let i=0;i<7;i++){ const f=i/6; spark(P.x+(t.x-P.x)*f-3,P.y+(t.y-P.y)*f,P.x+(t.x-P.x)*f+3,P.y+(t.y-P.y)*f,'#ff7edb'); }
   tone(180,0.1,'sawtooth',0.1,90); SFX.hit(); if(t.hp<=0){ const ix=enemies.indexOf(t); if(ix>=0) killEnemy(t,ix); } }
@@ -46,7 +46,7 @@ function funeralBell(l){ const R=130+l*20;
   ring(P.x,P.y,R,'#ffd36b'); ring(P.x,P.y,R*0.6,'#fff2c0'); shake=Math.min(14,shake+6);
   SFX.dingBells(); tone(220,0.5,'sine',0.16,110);
   for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i], d=Math.hypot(e.x-P.x,e.y-P.y);
-    if(d<R){ const dmg=P.damage*(0.8+0.25*l); e.hp-=dmg; e.flash=0.12;
+    if(d<R){ const dmg=P.damage*(0.8+0.25*l); e.hp-=dmg; trackDmg(dmg); e.flash=0.12;
       const a=Math.atan2(e.y-P.y,e.x-P.x); e.kx+=Math.cos(a)*420; e.ky+=Math.sin(a)*420;
       ftext(e.x,e.y-e.r,Math.round(dmg),'#ffd36b'); if(e.hp<=0) killEnemy(e,i); } } }
 function fireDie(l){ const t=nearestFoe(460); if(!t) return;
@@ -117,7 +117,7 @@ function bloodNova(level){
   ring(P.x,P.y,R,'#ff3344'); ring(P.x,P.y,R*0.72,'#ffd36b');
   setTimeout(()=>{ if(state==='playing') ring(P.x,P.y,R*1.12,'#8b1620'); },70);
   SFX.nova(); shake=Math.min(14,shake+5); flash(0.18,'#ff3344');
-  for(const e of enemies){ const d=Math.hypot(e.x-P.x,e.y-P.y); if(d<R){ const dm=P.damage*(2.2+level*0.7); e.hp-=dm; e.flash=0.12; const kd=Math.max(1,d); e.kx+=(e.x-P.x)/kd*260; e.ky+=(e.y-P.y)/kd*260; ftext(e.x,e.y-e.r,Math.round(dm),'#ff8a9a'); if(e.hp<=0){ const idx=enemies.indexOf(e); if(idx>=0)killEnemy(e,idx); } } }
+  for(const e of enemies){ const d=Math.hypot(e.x-P.x,e.y-P.y); if(d<R){ const dm=P.damage*(2.2+level*0.7); e.hp-=dm; trackDmg(dm); e.flash=0.12; const kd=Math.max(1,d); e.kx+=(e.x-P.x)/kd*260; e.ky+=(e.y-P.y)/kd*260; ftext(e.x,e.y-e.r,Math.round(dm),'#ff8a9a'); if(e.hp<=0){ const idx=enemies.indexOf(e); if(idx>=0)killEnemy(e,idx); } } }
   for(let i=0;i<26;i++){ const a=(i/26)*6.28+rnd(-0.1,0.1), s=rnd(160,330);
     parts.push({x:P.x+Math.cos(a)*14,y:P.y+Math.sin(a)*14,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:rnd(.28,.5),col:i%3?'#ff5566':'#ffd36b',r:rnd(1.8,3.6)}); }
 }

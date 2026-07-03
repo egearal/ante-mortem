@@ -249,7 +249,11 @@ window.addEventListener('keydown',e=>{
   const inInput = document.activeElement && document.activeElement.tagName==='INPUT';
   if(!inInput && ['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
   if(state==='dead'){
-    if(k===' ' && !inInput && !e.repeat){ $('againBtn').click(); }
+    if(k===' ' && !inInput && !e.repeat){
+      if(performance.now()-(window._recapT0||0)<500) return; // FINAL PRESS mashers don't skip-restart
+      if(!window._recapDone && window._recapSkip){ window._recapSkip(); SFX.uiDing(); return; } // first space: complete the recap
+      $('againBtn').click(); // second space: wager again
+    }
     return;
   }
   if(k==='escape'){

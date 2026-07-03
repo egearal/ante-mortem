@@ -88,15 +88,33 @@ async function actuallyDie(){
   const newBest = score>best; if(newBest) best=score;
   $('goResult').textContent = newBest? 'A RECORD IN BLOOD' : 'YOU BLINKED OUT';
   $('goSub').textContent = newBest? 'The court will remember this run.' : 'The house collects its due.';
+  // THE RECKONING — stat rows slam in with rising dings, everything skippable, back in the pit in seconds
+  const abbrev=v=>v>=10000?(v/1000).toFixed(1)+'k':Math.round(v).toLocaleString();
+  const stats=[
+    ['☠','SLAIN',P.kills],
+    ['⚔','DAMAGE',abbrev(P.dmgDealt||0)],
+    ['🔥','BEST STREAK',P.bestStreak||0],
+    ['⚜','LEVEL',P.level],
+    ['⏱','TIME',fmt(gt)]
+  ];
+  const gs=$('goStats'); if(gs) gs.innerHTML='';
+  window._recapT0=performance.now(); window._recapDone=false; window._recapFast=false;
+  const addRow=(s,i,instant)=>{ if(!gs) return; const d=document.createElement('div'); d.className='gsRow'+(instant?' now':'');
+    d.innerHTML='<b>'+s[0]+'</b><span>'+s[1]+'</span><i>'+s[2]+'</i>'; gs.appendChild(d);
+    if(!instant){ SFX.dingHit(Math.min(6,i+1)); sparkBurst(6); } };
+  const tms=stats.map((s,i)=>setTimeout(()=>addRow(s,i,false), 250+i*170));
+  tms.push(setTimeout(()=>{ window._recapDone=true; }, 250+stats.length*170+150));
+  window._recapSkip=()=>{ tms.forEach(clearTimeout); if(gs) gs.innerHTML=''; stats.forEach((s,i)=>addRow(s,i,true)); window._recapFast=true; window._recapDone=true;
+    $('goScore').textContent=score.toLocaleString(); $('goGilt').textContent=giltEarned.toLocaleString(); SFX.coinPling(); };
   // the tally ticks up like a payout counter
   const countUp=(el,target,dur)=>{ const t0=performance.now(); let lastTick=0;
-    const tick=()=>{ const f=Math.min(1,(performance.now()-t0)/dur), e=1-Math.pow(1-f,3);
+    const tick=()=>{ if(window._recapFast){ el.textContent=target.toLocaleString(); return; }
+      const f=Math.min(1,(performance.now()-t0)/dur), e=1-Math.pow(1-f,3);
       const v=Math.round(target*e); el.textContent=v.toLocaleString();
       if(performance.now()-lastTick>45 && f<1){ lastTick=performance.now(); tone(600+e*900,0.025,'square',0.045); }
       if(f<1) setTimeout(tick,16); else { el.textContent=target.toLocaleString(); SFX.coinPling(); } };
     tick(); };
   countUp($('goScore'), score, 1200);
-  $('goTime').textContent=fmt(gt); $('goKills').textContent=P.kills; $('goLevel').textContent=P.level;
   countUp($('goGilt'), giltEarned, 900); $('goGiltTotal').textContent=gilt;
   $('goPctl').textContent='Tallying the ledger…';
   { const mk9=P.kills + wave*12 + P.level*10 + giltEarned*2;

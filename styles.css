@@ -188,6 +188,14 @@ body.gamble #machine,body.gamble #wheelLayer,body.gamble #crashLayer,body.gamble
 .fpTime{width:min(360px,72vw);height:5px;margin:0 auto 8px;border-radius:4px;background:rgba(0,0,0,.6);overflow:hidden;}
 .fpTime i{display:block;height:100%;background:linear-gradient(90deg,#8b1620,#ff5560);transition:width .05s linear;}
 .fpHint{font-family:var(--disp);font-size:13px;letter-spacing:.22em;color:#ffd36b;animation:bulbPulse .5s infinite;}
+/* THE RECKONING — death recap rows */
+#goStats{display:flex;flex-direction:column;gap:4px;max-width:340px;margin:6px auto 10px;min-height:150px;}
+.gsRow{display:flex;align-items:baseline;gap:10px;padding:4px 14px;border-radius:9px;background:rgba(20,10,14,.85);border:1px solid rgba(232,182,76,.28);animation:gsIn .3s cubic-bezier(.2,1.8,.4,1);}
+.gsRow.now{animation:none;}
+.gsRow b{font-size:15px;width:22px;text-align:center;}
+.gsRow span{font-family:var(--disp);font-size:11px;letter-spacing:.18em;color:#bfae8c;flex:1;text-align:left;}
+.gsRow i{font-style:normal;font-family:var(--disp);font-weight:800;font-size:21px;color:#ffe9a8;text-shadow:0 0 12px rgba(255,211,107,.5);}
+@keyframes gsIn{0%{transform:scale(1.5) translateY(-6px);opacity:0;}60%{transform:scale(.96);opacity:1;}100%{transform:scale(1);}}
 .relic.curse{border-color:#c98bff;color:#c98bff;box-shadow:0 0 12px rgba(201,139,255,.5);animation:cursePulse 1s infinite;}
 #debuffs{position:fixed;left:16px;top:158px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;z-index:24;pointer-events:none;}
 .debuff{font-family:var(--disp);font-size:15px;letter-spacing:.04em;color:#ff6b6b;border:1px solid rgba(255,80,80,.5);background:rgba(60,10,14,.55);border-radius:5px;padding:2px 6px;box-shadow:0 0 10px rgba(255,60,60,.35);animation:cursePulse 1.1s infinite;}

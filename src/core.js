@@ -272,6 +272,7 @@ function enemyShoot(e){
   }
   burst(e.x,e.y,3,'#ffce5a'); SFX.eshoot();
 }
+function trackDmg(d){ P.dmgDealt=(P.dmgDealt||0)+d; }
 /* SCARS — permanent-for-the-run wounds the dice can leave. No mercy, no timer. */
 const SCARS=[
  {label:'−8 MAX BLOOD',      ap:()=>{ P.maxHp=Math.max(20,P.maxHp-8); P.hp=Math.min(P.hp,P.maxHp); }},
@@ -302,7 +303,7 @@ function hurtPlayer(dmg){
   if(P.inv<=0) P.noDmgStreak=0;
   if(P.inv>0) return;
   P.hp-=dmg; P.inv=0.5+(P.invBonus||0); shake=Math.min(11,shake+5); flash(0.35,'#8b1620'); SFX.hurt();
-  if(P.thorns){ for(const e of enemies){ if(Math.hypot(e.x-P.x,e.y-P.y)<70){ e.hp-=P.thorns; e.flash=0.12; ftext(e.x,e.y,Math.round(P.thorns),'#ff9a9a'); } } ring(P.x,P.y,70,'#ff6b6b'); }
+  if(P.thorns){ for(const e of enemies){ if(Math.hypot(e.x-P.x,e.y-P.y)<70){ e.hp-=P.thorns; trackDmg(P.thorns); e.flash=0.12; ftext(e.x,e.y,Math.round(P.thorns),'#ff9a9a'); } } ring(P.x,P.y,70,'#ff6b6b'); }
   if(P.hp<=0){
     if(P.mythPhoenix && !P.phUsed){
       P.phUsed=true; P.hp=Math.max(1,Math.round(P.maxHp*0.2)); P.inv=5;
@@ -362,7 +363,7 @@ function killEnemy(e,idx){
   ring(e.x,e.y,e.elite?60:e.r+10,e.elite?'#c98bff':'#7a1c22');
   if(P.explode){ for(const o of enemies){ if(o!==e && Math.hypot(o.x-e.x,o.y-e.y)<80){ o.hp-=P.damage*1.2; o.flash=0.1; } } burst(e.x,e.y,10,'#ff9a5b'); ring(e.x,e.y,80,'#ff9a5b'); }
   if(dare) dare.got++;
-  killStreak++; streakT=1.0;
+  killStreak++; streakT=1.0; if(killStreak>(P.bestStreak||0)) P.bestStreak=killStreak;
   if(STREAK_MS.includes(killStreak)){
     const big9=killStreak>=100;
     announce('⚔ '+killStreak+' STREAK ⚔', true);
@@ -572,9 +573,9 @@ function update(dt){
     }
     e.cd-=dt;
     if(d<e.r+P.radius && e.cd<=0 && e.dmg>0){ hurtPlayer(e.dmg); e.cd=0.6; }
-    if(auraL && d<auraR){ e.hp-=P.damage*(1.0+0.35*auraL)*dt; if(Math.random()<0.05)burst(e.x,e.y,1,'#8bff9a'); }
-    if(scytheL){ let ea=Math.atan2(e.y-P.y,e.x-P.x)-P.scytheA; ea=Math.atan2(Math.sin(ea),Math.cos(ea)); if(Math.abs(ea)<0.6 && d<(90+scytheL*8)){ e.hp-=P.damage*(2.6+0.9*scytheL)*dt; e.flash=0.08; if(Math.random()<0.25)burst(e.x,e.y,1,'#e8b64c'); } }
-    if(orbitL){ for(let k=0;k<orbitL;k++){ const oa=P.orbitA+k*(6.28/orbitL), ox=P.x+Math.cos(oa)*orbitR, oy=P.y+Math.sin(oa)*orbitR; if(Math.hypot(e.x-ox,e.y-oy)<e.r+9){ e.hp-=P.damage*(1.4+0.4*orbitL)*dt*3; if(Math.random()<0.3)burst(ox,oy,1,'#e8b64c'); } } }
+    if(auraL && d<auraR){ const _ad=P.damage*(1.0+0.35*auraL)*dt; e.hp-=_ad; trackDmg(_ad); if(Math.random()<0.05)burst(e.x,e.y,1,'#8bff9a'); }
+    if(scytheL){ let ea=Math.atan2(e.y-P.y,e.x-P.x)-P.scytheA; ea=Math.atan2(Math.sin(ea),Math.cos(ea)); if(Math.abs(ea)<0.6 && d<(90+scytheL*8)){ { const _sd=P.damage*(2.6+0.9*scytheL)*dt; e.hp-=_sd; trackDmg(_sd); } e.flash=0.08; if(Math.random()<0.25)burst(e.x,e.y,1,'#e8b64c'); } }
+    if(orbitL){ for(let k=0;k<orbitL;k++){ const oa=P.orbitA+k*(6.28/orbitL), ox=P.x+Math.cos(oa)*orbitR, oy=P.y+Math.sin(oa)*orbitR; if(Math.hypot(e.x-ox,e.y-oy)<e.r+9){ const _od=P.damage*(1.4+0.4*orbitL)*dt*3; e.hp-=_od; trackDmg(_od); if(Math.random()<0.3)burst(ox,oy,1,'#e8b64c'); } } }
     if(e.hp<=0) killEnemy(e,i);
   }
 
@@ -604,7 +605,7 @@ function update(dt){
         { const hm=b.crit?9:5; spark(b.x-hm,b.y-hm,b.x+hm,b.y+hm,'#fff'); spark(b.x+hm,b.y-hm,b.x-hm,b.y+hm,b.crit?'#ffd36b':'#fff'); }
         if(b.crit) tone(2350,0.05,'triangle',0.085,1600);
         if(b.lucky){ dmg*=2; burst(b.x,b.y,10,'#ffd36b'); ftext(e.x,e.y-10,'LUCKY!','#ffd36b',true); SFX.casinoDing(); }
-        e.hp-=dmg; e.flash=0.1;
+        e.hp-=dmg; e.flash=0.1; trackDmg(dmg);
         const kd=Math.hypot(b.vx,b.vy)||1; e.kx+=b.vx/kd*120*(P.kb||1); e.ky+=b.vy/kd*120*(P.kb||1);
         if(P.lifesteal>0){ P.hp=Math.min(P.maxHp,P.hp+dmg*P.lifesteal); }
         ftext(e.x,e.y-e.r,Math.round(dmg),b.crit?'#ffd36b':'#f0e6d6',b.crit);
@@ -621,7 +622,7 @@ function update(dt){
           if(cand.length){ const t2=cand[(Math.random()*cand.length)|0], sp2=Math.hypot(b.vx,b.vy)||300, a2=Math.atan2(t2.y-b.y,t2.x-b.x);
             b.vx=Math.cos(a2)*sp2; b.vy=Math.sin(a2)*sp2; b.life=Math.max(b.life,0.9); ftext(b.x,b.y,'⚂','#c98bff'); tone(900+Math.random()*300,0.05,'square',0.06); break; } }
         hitstop=Math.max(hitstop,b.crit?0.045:0.015);
-        if(spk){ let hits=0, from=e, jumps=spk+1; const used=new Set([j]); while(hits<jumps){ let ni=-1,nd=150*150; for(let k=0;k<enemies.length;k++){ if(used.has(k))continue; const o=enemies[k],od=(o.x-from.x)*(o.x-from.x)+(o.y-from.y)*(o.y-from.y); if(od<nd){nd=od;ni=k;} } if(ni<0)break; const o=enemies[ni]; spark(from.x,from.y,o.x,o.y); o.hp-=dmg*(0.45+0.05*spk); o.flash=0.1; used.add(ni); from=o; hits++; } }
+        if(spk){ let hits=0, from=e, jumps=spk+1; const used=new Set([j]); while(hits<jumps){ let ni=-1,nd=150*150; for(let k=0;k<enemies.length;k++){ if(used.has(k))continue; const o=enemies[k],od=(o.x-from.x)*(o.x-from.x)+(o.y-from.y)*(o.y-from.y); if(od<nd){nd=od;ni=k;} } if(ni<0)break; const o=enemies[ni]; spark(from.x,from.y,o.x,o.y); o.hp-=dmg*(0.45+0.05*spk); trackDmg(dmg*(0.45+0.05*spk)); o.flash=0.1; used.add(ni); from=o; hits++; } }
         if(e.hp<=0){ killEnemy(e,j); }
         if(b.pierce>0){ b.pierce--; } else { bullets.splice(i,1); break; }
       }
