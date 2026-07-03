@@ -118,6 +118,28 @@ function stopDrone(){
   try{ droneGain.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+0.4); drone.stop(AC.currentTime+0.45);}catch(e){}
   drone=null; droneGain=null;
 }
+/* the ticker's mechanical whirr — a filtered noise loop that spins down with the strip */
+let _whirSrc=null, _whirGain=null, _whirFilt=null;
+function startWhirr(){
+  if(!AC||muted||_whirSrc) return;
+  const len=AC.sampleRate*1.2, buf=AC.createBuffer(1,len,AC.sampleRate), d=buf.getChannelData(0);
+  for(let i=0;i<len;i++) d[i]=Math.random()*2-1;
+  _whirSrc=AC.createBufferSource(); _whirSrc.buffer=buf; _whirSrc.loop=true;
+  _whirFilt=AC.createBiquadFilter(); _whirFilt.type='bandpass'; _whirFilt.frequency.value=1400; _whirFilt.Q.value=1.6;
+  _whirGain=AC.createGain(); _whirGain.gain.setValueAtTime(0.0001,AC.currentTime);
+  _whirGain.gain.exponentialRampToValueAtTime(0.09,AC.currentTime+0.15);
+  _whirSrc.connect(_whirFilt); _whirFilt.connect(_whirGain); _whirGain.connect(master); _whirSrc.start();
+}
+function whirrSpeed(t){ // t: roll progress 0→1; the whirr sinks as the strip slows
+  if(!_whirFilt||!AC) return;
+  try{ _whirFilt.frequency.setTargetAtTime(1400-1100*t, AC.currentTime, 0.08);
+    if(_whirGain) _whirGain.gain.setTargetAtTime(0.09*(1-t*0.75), AC.currentTime, 0.1); }catch(e){}
+}
+function stopWhirr(){
+  if(!_whirSrc) return;
+  try{ _whirGain.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+0.2); _whirSrc.stop(AC.currentTime+0.25);}catch(e){}
+  _whirSrc=null; _whirGain=null; _whirFilt=null;
+}
 let _drumSrc=null, _drumGain=null;
 function startDrumroll(){
   if(!AC||muted||_drumSrc) return;

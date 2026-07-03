@@ -661,6 +661,7 @@ function update(dt){
         if(b.crit) tone(2350,0.05,'triangle',0.085,1600);
         if(b.lucky){ dmg*=2; burst(b.x,b.y,10,'#ffd36b'); ftext(e.x,e.y-10,'LUCKY!','#ffd36b',true); SFX.casinoDing(); }
         e.hp-=dmg; e.flash=0.1; trackDmg(dmg);
+        if(b.crit){ const n9=performance.now(); if(n9-(window._critT||0)>160){ window._critT=n9; tone(2350,0.05,'sine',0.06); tone(3520,0.03,'sine',0.03); } }
         const kd=Math.hypot(b.vx,b.vy)||1; e.kx+=b.vx/kd*120*(P.kb||1); e.ky+=b.vy/kd*120*(P.kb||1);
         if(P.lifesteal>0){ P.hp=Math.min(P.maxHp,P.hp+dmg*P.lifesteal); }
         ftext(e.x,e.y-e.r,Math.round(dmg),b.crit?'#ffd36b':'#f0e6d6',b.crit);

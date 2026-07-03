@@ -36,7 +36,7 @@ const WSEGS=[
    grantSkill(pd,1);
    gilt+=60; saveGilt(); coinRain(40);
    setTimeout(()=>announce('★ THE HOUSE BLADE — '+pd.n.toUpperCase()+' ★',true), 500);
-   [0,220,460].forEach(d=>setTimeout(()=>{ flash(0.5,'#ffd700'); SFX.seraph(); },d));
+   [0,220,460,700].forEach(d=>setTimeout(()=>{ flash(0.5,'#ffd700'); SFX.seraph(); },d)); setTimeout(()=>SFX.dingBells(),550);
    SFX.dingBells(); setTimeout(()=>SFX.record(),300); domConfetti(44); shake=Math.min(26,shake+16);
  }}
 ];
@@ -106,6 +106,7 @@ function startRoll(){
   wheel.rx0=wheel.x; wheel.rx1=wheel.xClean-jit;
   wheel.rollT=0; wheel.rollDur=3.9+Math.random()*0.6; wheel.slowTicks=0; wheel.hbT=0; wheel.lastSeg=-1;
   wheel.phase='roll';
+  startWhirr();
   SFX.riser(); noise(0.3,0.22,2600); tone(150,0.5,'sawtooth',0.1,900);
   setTimeout(()=>SFX.chipStack(),60); setTimeout(()=>SFX.coinPling(),130); setTimeout(()=>SFX.tingle(),220);
   if(wheel.golden) startDrumroll();
@@ -124,8 +125,10 @@ function tickWheel(dt){
     const e=1-Math.pow(1-t,3);
     wheel.x=wheel.rx0+(wheel.rx1-wheel.rx0)*e; tkX(wheel.x);
     const card=Math.round((wheel.boxW/2-wheel.x-TK_CARD/2)/TK_STEP);
+    whirrSpeed(t);
     if(card!==wheel.lastSeg){ wheel.lastSeg=card;
       SFX.wheelTick(t);
+      if(t<0.5) noise(0.02,0.03,5200); // card flutter while fast
       const sg=WSEGS[wheel.strip[card]];
       if(sg) $('tickerBox').style.boxShadow='0 0 0 2px #3a0a10,0 0 56px '+csCol(sg)+',inset 0 0 60px rgba(0,0,0,.85)';
       const mk=$('tickerMarker'); if(mk){ mk.classList.remove('kick'); void mk.offsetWidth; mk.classList.add('kick'); if(sg) mk.style.setProperty('--mc',csCol(sg)); }
@@ -133,8 +136,9 @@ function tickWheel(dt){
       if(t>0.82){ wheel.slowTicks++; SFX.dingHit(Math.min(5,wheel.slowTicks)); }
     }
     if(t>0.86){ wheel.hbT-=dt; if(wheel.hbT<=0){ wheel.hbT=0.22+0.3*(1-t); tone(50,0.16,'sine',0.3,38); setTimeout(()=>tone(62,0.1,'sine',0.2,44),120); } }
-    if(t>=1){ wheel.phase='settle'; wheel.setT=0;
-      tone(170,0.2,'sine',0.2,330); setTimeout(()=>tone(330,0.15,'sine',0.12,180),100); }
+    if(t>=1){ wheel.phase='settle'; wheel.setT=0; stopWhirr();
+      noise(0.09,0.16,3800); tone(1180,0.12,'square',0.1); tone(64,0.3,'sine',0.26,42); // SHINK + felt thump
+      setTimeout(()=>tone(330,0.15,'sine',0.12,180),100); }
     return;
   }
   if(wheel.phase==='settle'){
@@ -166,6 +170,7 @@ function landChime(t){
 }
 function respinTicker(){
   if(state!=='wheel') return;
+  stopWhirr();
   const box=$('tickerBox'); box.classList.remove('landed');
   [...$('tickerStrip').children].forEach(c=>c.classList.remove('hit','pass'));
   wheel._braked=false;
@@ -180,6 +185,7 @@ function brakeTicker(){
 // close the wheel NOW (space after landing) — same exit the auto-timer takes
 function finishWheel(){
   if(wheel._closed) return; wheel._closed=true;
+  stopWhirr();
   $('wheelLayer').classList.add('hidden'); stopDrone();
   if(state==='wheel'){ state='playing';
     if(wheel.toAscent) setTimeout(()=>{ if(state==='playing') openCrash(); },300);

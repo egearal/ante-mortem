@@ -156,6 +156,7 @@ function spinReels(){
   });
   LT.spins++; bump('spins',LT.spins);
   slotStage='spinning'; reelsStopped=0; stopLock=performance.now()+150;
+  tone(90,0.5,'sine',0.1,140); noise(0.35,0.05,700); // the reels hum awake
   requestAnimationFrame(()=>{ slotReels.forEach(r=>{ r.symH=(r.el.children[0]&&r.el.children[0].offsetHeight)||63; r.boxH=r.el.parentElement.clientHeight||189; r.el.classList.add('blur'); }); });
   $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> stop each reel — match for more';
   SFX.lever();
@@ -400,7 +401,7 @@ function stopDie(){
   if(gamble){ gamble.diceN=(gamble.diceN||0)+1; const tn=gamble.diceN-1;
     tone(620*Math.pow(1.122,tn),0.11,'sine',0.12); tone(1240*Math.pow(1.122,tn),0.07,'sine',0.05);
     if(tn>=4) setTimeout(()=>SFX.tingle(),60); }
-  SFX.reelHit(idx+1); shake=Math.min(17,shake+5+mag); flash(0.26+mag*0.04,'#fff0c8'); sparkBurst(14+mag*7);
+  SFX.reelHit(idx+1); tone(70,0.14,'sine',0.16,48); shake=Math.min(17,shake+5+mag); flash(0.26+mag*0.04,'#fff0c8'); sparkBurst(14+mag*7);
   const g=gamble;
   if(idx===0){
     if(d.val===6){ d.el.classList.add('hot'); SFX.hotSix(); flash(0.4,'#ffcc33'); sparkBurst(30); shake=Math.min(16,shake+7); excite=1;
