@@ -91,7 +91,7 @@ function openCrash(){
   { const ct=$('crashTimer'); if(ct) ct.remove(); }
   $('crashMult').textContent='1.00×'; $('crashMult').className='';
   prerollAsc();
-  $('crashStake').innerHTML='<span class="stk on">I at 1.77×: '+przLabel(1)+'</span><span class="stk">II at 2.77×: '+przLabel(2)+'</span><span class="stk">III at 3.69×: '+przLabel(3)+'</span><span class="stk" style="color:#fff2c0;border-color:#fff2c0">7.77× JACKPOT: PICK OF 3 WEAPONS</span>';
+  $('crashStake').innerHTML='<span class="stk" data-x="1.77">I at 1.77×: '+przLabel(1)+'</span><span class="stk" data-x="2.77">II at 2.77×: '+przLabel(2)+'</span><span class="stk" data-x="3.69">III at 3.69×: '+przLabel(3)+'</span><span class="stk" data-x="7.77">7.77× JACKPOT: PICK OF 3 WEAPONS</span>';
   $('crashHist').innerHTML=crashHist.slice(-6).map(h=>'<span class="'+(h.ok?'ok':'no')+'">'+h.v.toFixed(2)+'×</span>').join('');
   $('crashMsg').innerHTML='THE HOUSE ASKS NOTHING — ONLY NERVE · WIN: A <b style="color:#8bffd0">PASSIVE</b> (II AT 2.77×, III AT 3.69×) · CRASH: <b style="color:#ff6b6b">THE FALL — A RANDOM CURSE, 5-15s</b> · <span class="keyhint">SPACE</span> PUSH';
   $('crashLayer').classList.remove('hidden'); SFX.vaultOpen(); startDrone();
@@ -127,6 +127,9 @@ function tickCrash(dt){
         n.classList.add('lit','pop');
         try{ gateFx(+n.dataset.x); }catch(e){ console.error('[ANTE ASCENT] gateFx',e); }
       }
+    });
+    document.querySelectorAll('#crashStake .stk[data-x]').forEach(n=>{
+      if(md>=+n.dataset.x) n.classList.add('on');
     }); }
   { const fr=$('crashFrenzy'); if(fr && performance.now()-crash.lastP>520) fr.classList.remove('on'); }
   crash.hb-=dt; if(crash.hb<=0){ crash.hb=0.5/Math.min(3,crash.mult); tone(58,0.12,'sine',0.14,44);
@@ -190,6 +193,13 @@ function pushCrash(){
   if(!crash.live) return;
   const inc=(0.01+Math.random()*0.19)*(1+crash.mult*0.08);
   crash.mult+=inc;
+  // 7.77 is the ceiling of heaven — touch it and the jackpot claims you
+  if(crash.mult>=7.77){
+    crash.mult=7.77; $('crashMult').textContent='7.77×';
+    document.querySelectorAll('#tierLadder .tln, #crashStake .stk[data-x]').forEach(n=>{ if(+n.dataset.x<=7.77) n.classList.add(n.classList.contains('tln')?'lit':'on'); });
+    cashCrash();
+    return;
+  }
   const big=inc>(0.13*(1+crash.mult*0.08));
   { const bf=200*Math.pow(crash.mult,0.85);
     tone(bf,0.06,'square',0.09+Math.min(0.08,inc*0.5));
