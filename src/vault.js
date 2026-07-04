@@ -44,7 +44,7 @@ function applyVault(){
   P.speed*=(1+0.03*vlv('spd'));
   P.coinMult*=(1+0.04*vlv('gold'));
   if(vlv('pocket')){ P.coins+=15*vlv('pocket'); }
-  for(let i=0;i<vlv('credit');i++) pending.push({});
+  P._credit=vlv('credit'); // staged in update as ON THE HOUSE ceremonies, not silent pendings
   P.wheelHaste=0.08*vlv('wheel');
   P.ascStart=vlv('rung');
   P.tarotLuck=0.15*vlv('marked');
@@ -53,7 +53,7 @@ function applyVault(){
   if(vlv('salt')) P.curseCut=(P.curseCut||1)*Math.pow(0.92,vlv('salt'));
   if(vlv('oldbone')) P.wlv.bolt=Math.max(P.wlv.bolt||1,2);
   P.slowEdge=0.25*vlv('borrow');
-  if(contractDone('highroller')) pending.push({});
+  if(contractDone('highroller')) P._credit++;
   if(contractDone('deadhand')) P.dmhArmed=true;
 }
 // mid-run purchases apply their single-level delta immediately

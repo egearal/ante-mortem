@@ -271,8 +271,10 @@ function startWave(){
   // difficulty steps up every 5 waves
   if(wave>1 && wave%5===0){ CFG.scale.hp+=0.10; CFG.scale.dmg+=0.03; CFG.scale.spdCap=Math.min(2.3,CFG.scale.spdCap+0.08); showStreak('THE HOUSE GROWS CRUEL'); SFX.murmur(); flash(0.3,'#8b1620'); }
   const W=CFG.wave;
-  const size=Math.min(W.cap, Math.round((W.first + (wave-1)*W.grow)*(P&&P.crowd?1.3:1)));
+  // every wave rolls a little differently — the dealer shuffles, never repeats
+  const size=Math.min(W.cap, Math.round((W.first + (wave-1)*W.grow)*(P&&P.crowd?1.3:1)*rnd(0.85,1.2)));
   const eliteWave = wave % W.eliteEvery === 0;
+  const wflav = (wave>=4 && Math.random()<0.15) ? ['husk','wraith','stalker','swarm','brute'][(Math.random()*5)|0] : null;
   for(let i=0;i<size && enemies.length<CFG.spawn.max;i++){
     const a=Math.random()*6.283, d=Math.max(VW,VH)*0.6+rnd(30,220);
     const x=clamp(P.x+Math.cos(a)*d,20,CFG.arena-20), y=clamp(P.y+Math.sin(a)*d,20,CFG.arena-20);
@@ -287,13 +289,14 @@ function startWave(){
     if(window._fmods&&window._fmods.noRanged&&(t==='shooter'||t==='hexer')) t='stalker';
     if(wave>=3 && roll>=0.90 && roll<0.955) t='brute';
     if(wave>=8 && roll>=0.955) t='revenant';
+    if(wflav && Math.random()<0.22) t=wflav;
     spawnEnemy(t,x,y);
   }
   // HORDE: a fast swarm pours in from one flank
   if(wave>=2 && (wave%2===0 || Math.random()<0.55)){
     const ha=Math.random()*6.283, hd=Math.max(VW,VH)*0.62;
     const hx=clamp(P.x+Math.cos(ha)*hd,40,CFG.arena-40), hy=clamp(P.y+Math.sin(ha)*hd,40,CFG.arena-40);
-    const hn=Math.round((20+wave*3)*((window._fmods&&window._fmods.horde)||1)*(P&&P.crowd?1.3:1));
+    const hn=Math.round((20+wave*3)*((window._fmods&&window._fmods.horde)||1)*(P&&P.crowd?1.3:1)*rnd(0.85,1.2));
     for(let k=0;k<hn && enemies.length<CFG.spawn.max;k++){ spawnEnemy('swarm', clamp(hx+rnd(-170,170),20,CFG.arena-20), clamp(hy+rnd(-170,170),20,CFG.arena-20)); }
     setTimeout(()=>{ if(state==='playing'){ showStreak('HORDE INCOMING'); SFX.murmur(); } }, 260);
   }
@@ -305,7 +308,7 @@ function startWave(){
     showStreak('WAVE '+wave);
   }
   waveClearTarget=Math.ceil(size*W.nextAt);
-  waveGap=W.gap;
+  waveGap=W.gap*rnd(0.9,1.15);
 }
 function enemyShoot(e){
   const base=Math.atan2(P.y-e.y,P.x-e.x), sp=200;
@@ -553,6 +556,14 @@ function update(dt){
       goldenT=20;
       announce('✨ GOLDEN HOUR — DOUBLE COINS 20s ✨', true);
       SFX.dingBells(); SFX.casinoDing(); flash(0.4,'#ffd36b'); coinRain(12); } }
+  // HOUSE CREDIT — comp spins arrive with ceremony, one at a time, never silent
+  if(P._credit>0 && state==='playing' && !houseActive && gt>=2.5 && !pending.length){
+    if(!P._creditA){ P._creditA=true; P._creditT=gt+1.1;
+      announce('◈ HOUSE CREDIT — ON THE HOUSE ◈', true); SFX.dingBells(); coinRain(10); }
+    else if(gt>=P._creditT){ P._creditA=false; P._credit--; pending.push({credit:true}); openNextSlot(); }
+  }
+  // queued slots never wait for an XP pickup
+  if(pending.length && state==='playing' && !houseActive) openNextSlot();
   // level-up anticipation: accelerating ticks in the last 10% of the XP bar
   const _xr = P.xpNext>0 ? P.xp/P.xpNext : 0;
   if(_xr>=0.85 && state==='playing' && !pending.length){ xpTick-=dt; if(xpTick<=0){ SFX.xpCharge(_xr); xpTick=0.16+(1-Math.min(1,_xr))*1.25; } }
@@ -1046,7 +1057,7 @@ function gainXP(n){
     tone(520*Math.pow(1.0595,P._xpCombo),0.05,'triangle',0.07+P._xpCombo*0.003);
     if(P._xpCombo===14 && !P._xpPeak){ P._xpPeak=true; SFX.tingle(); setTimeout(()=>P._xpPeak=false,3000); } }
   while(P.xp>=P.xpNext){ if(!P._ovPass && state==='playing'){ startOvercharge(); break; } P._ovPass=false;
-    P.xp-=P.xpNext; P.level++; P.xpNext=Math.floor(14+P.level*5.5+P.level*P.level*1.1); pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); { const lv9=$('level'); if(lv9){ lv9.classList.remove('pop'); void lv9.offsetWidth; lv9.classList.add('pop'); } } ring(P.x,P.y,120,'#c81e2c'); ring(P.x,P.y,70,'#ffd36b'); burst(P.x,P.y,16,'#e8b64c'); for(let i=0;i<16;i++){ parts.push({x:P.x+rnd(-10,10),y:P.y+rnd(-4,4),vx:rnd(-14,14),vy:-rnd(90,220),life:rnd(.4,.8),col:i%3?'#ffd36b':'#fff2c0',r:rnd(1.6,3.2)}); } flash(0.25,'#c81e2c'); }
+    P.xp-=P.xpNext; P.level++; P.xpNext=Math.floor(18+P.level*6.5+P.level*P.level*1.35); pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); { const lv9=$('level'); if(lv9){ lv9.classList.remove('pop'); void lv9.offsetWidth; lv9.classList.add('pop'); } } ring(P.x,P.y,120,'#c81e2c'); ring(P.x,P.y,70,'#ffd36b'); burst(P.x,P.y,16,'#e8b64c'); for(let i=0;i<16;i++){ parts.push({x:P.x+rnd(-10,10),y:P.y+rnd(-4,4),vx:rnd(-14,14),vy:-rnd(90,220),life:rnd(.4,.8),col:i%3?'#ffd36b':'#fff2c0',r:rnd(1.6,3.2)}); } flash(0.25,'#c81e2c'); }
   if(pending.length && state==='playing') openNextSlot();
 }
 
@@ -2469,7 +2480,7 @@ function startGame(){
     projSpeed:CFG.player.projSpeed, projLife:CFG.player.projLife, projRadius:CFG.player.projRadius,
     crit:CFG.player.crit, critMult:CFG.player.critMult, instakill:CFG.player.instakill, regen:CFG.player.regen,
     coinMult:CFG.player.coinMult, lifesteal:CFG.player.lifesteal,
-    xp:0, xpNext:21, level:1, midasStacks:0, mercy:0, comboMult:1, surgeT:0,
+    xp:0, xpNext:25, level:1, midasStacks:0, mercy:0, comboMult:1, surgeT:0,
     wlv:{bolt:1,cards:0,orbit:0,scythe:0,spark:0,chand:0,knives:0,aura:0,nova:0,seeker:0}, passiveList:[], curses:[] };
   enemies=[]; bullets=[]; ebullets=[]; orbs=[]; coins=[]; parts=[]; texts=[]; rings=[]; sparks=[]; sideBoons=[]; smites=[];
   waves=[]; guils=[]; gpools=[]; gstakes=[];

@@ -936,6 +936,10 @@ body.bloodhour #machine{animation:bloodTremble 2.2s ease-in-out infinite;}
 #slot.arsenal .cabinet::after{content:'⚔';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-8deg);
   font-size:150px;color:rgba(255,154,60,.05);pointer-events:none;z-index:0;}
 
+/* ON THE HOUSE — a comped spin wears gold */
+#slot.comped .marquee{color:#fff2c0;text-shadow:0 0 20px rgba(255,211,107,.75);}
+#slot.comped .machine{box-shadow:0 30px 90px rgba(0,0,0,.8),0 0 46px rgba(255,211,107,.3),inset 0 0 70px rgba(35,26,8,.55);}
+
 /* pause: the HUD stays lit above the veil */
 body.paused #hud{z-index:25;}
 /* hp v3 fill smoothness */

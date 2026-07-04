@@ -73,7 +73,7 @@ const MINIPOWERS=[
   {t:'+1% Crit', ap:()=>{P.crit=Math.min(0.9,P.crit+0.01);}}
 ];
 function grantMiniPower(){ const m=MINIPOWERS[(Math.random()*MINIPOWERS.length)|0]; m.ap(); return m.t; }
-let slotForceWeapon=false, _seanceOn=false;
+let slotForceWeapon=false, _seanceOn=false, slotCredit=false;
 function endSeance(){
   if(_seanceOn){ _seanceOn=false; elSlot.classList.remove('seance'); if(!lastRites) stopDrone(); }
   const m9=$('machine'); if(m9) m9.classList.remove('selecting','hopShake');
@@ -82,6 +82,7 @@ function openNextSlot(){
   if(!pending.length) return;
   const p=pending.shift();
   slotFloor=p.floor||null;
+  slotCredit=!!p.credit;
   state='slot';
   // THE BLOOD LEVER: low blood no longer forces the red table — the House
   // OFFERS it. The slot opens common; the lever stage asks first.
@@ -191,7 +192,8 @@ function openSlotReady(kind){
   ensureBulbs(); window._slotFF=null; rerollCarry=null;
   slotKind=kind; gamble=null; diceShown=false; const isW=kind==='weapon';
   elSlot.classList.toggle('arsenal', isW);
-  $('slotTag').textContent = (lastRites?'☨ THE RED TABLE — RICHER, CRUELER ☨':(isW?'⚔ THE ARSENAL WHEEL ⚔':'THE WHEELS OF FATE'))+(slotBank>0?' · BANK '+slotBank+'/7':'');
+  $('slotTag').textContent = (lastRites?'☨ THE RED TABLE — RICHER, CRUELER ☨':(isW?'⚔ THE ARSENAL WHEEL ⚔':'THE WHEELS OF FATE'))+(slotCredit?' · ✦ ON THE HOUSE ✦':'')+(slotBank>0?' · BANK '+slotBank+'/7':'');
+  elSlot.classList.toggle('comped', slotCredit);
   $('reelsRow').style.display=''; $('diceRow').style.display='none'; $('riskWrap').style.display='none';
   $('prizeTag').textContent = isW?'YOUR WEAPON':'YOUR SKILL';
   $('cardName').textContent='—'; $('cardName').className='r-common'; $('cardName').style.color=''; $('cardDesc').textContent='';
