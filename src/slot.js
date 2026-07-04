@@ -154,6 +154,7 @@ function openSlotReady(kind){
   elSlot.classList.toggle('arsenal', isW);
   $('slotTag').textContent = (lastRites?'☨ THE RED TABLE — YOUR SKILL RIDES ☨':(isW?'⚔ THE ARSENAL WHEEL ⚔':'THE WHEELS OF FATE'))+(slotCredit?' · ✦ ON THE HOUSE ✦':'')+((P&&P.hotSlots>0)?' · ⚜ HOT DECK':'')+(slotBank>0?' · BANK '+slotBank+'/7':'');
   elSlot.classList.toggle('comped', slotCredit);
+  $('slotTag').title = slotBank>0 ? 'THE BANK — every PAIR banks a chip · 7 chips = a HOUSE VOUCHER (+1 level, spent on your next offer)' : '';
   $('reelsRow').style.display=''; $('diceRow').style.display='none'; $('riskWrap').style.display='none';
   $('prizeTag').textContent = isW?'YOUR WEAPON':'YOUR SKILL';
   $('cardName').textContent='—'; $('cardName').className='r-common'; $('cardName').style.color=''; $('cardDesc').textContent='';
@@ -205,7 +206,7 @@ function spinReels(){
   slotStage='spinning'; reelsStopped=0; stopLock=performance.now()+40;
   tone(90,0.5,'sine',0.1,140); noise(0.35,0.05,700); // the reels hum awake
   requestAnimationFrame(()=>{ slotReels.forEach(r=>{ r.symH=(r.el.children[0]&&r.el.children[0].offsetHeight)||63; r.boxH=r.el.parentElement.clientHeight||189; r.el.classList.add('blur'); }); });
-  $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> stop each reel — match for more';
+  $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> stop each reel — match for more <span id="reelDots">●○○</span>';
   SFX.lever();
   showSlotButtons();
 }
@@ -256,6 +257,7 @@ function stopNextReel(){
   setTimeout(()=>{ if(r.el){ r.el.style.transform='translateY('+tyFinal+'px)'; setTimeout(()=>{ if(r.el)r.el.style.transition='none'; },170); } },90);
   reelsStopped++;
   const box=r.el.parentElement; box.classList.remove('slam'); void box.offsetWidth; box.classList.add('slam');
+  { const rd=$('reelDots'); if(rd) rd.textContent='●'.repeat(Math.min(3,reelsStopped))+'○'.repeat(Math.max(0,3-reelsStopped)); }
   SFX.reelHit(reelsStopped); SFX.dingHit(reelsStopped); setTimeout(()=>SFX.casinoDing(),60); shake=Math.min(12,shake+5); flash(0.25,'#fff0c8'); sparkBurst(14);
   const defs=slotKind==='weapon'?WEAPONS:PASSIVES; const s=defs.find(x=>x.id===r.landedSym);
   if(s){ $('cardName').textContent=s.n; $('cardName').className='r-'+s.rar; $('cardDesc').innerHTML='<div class="ofsub">'+projFx(s, skLevel(s)+1)+'</div>'; }
@@ -448,7 +450,7 @@ function openOffer(){
     (g.rites?'<div class="ofsub" style="color:#ff7b7b">☨ THE RED TABLE ☨</div>':'')+
     '<div class="ofbig">'+big+(takeOv>0?' <span class="ovchip">+'+(takeOv*12)+' ◈</span>':'')+'</div>'+
     '<div class="ofstat">'+projFx(g.def, takeLv)+'</div>'+
-    '<div class="ofrow"><span class="ofg">🎲 '+g.threshold+'+ → '+winLine(g)+'</span>'+
+    '<div class="ofrow"><span class="ofg">🎲 '+g.threshold+'+ ('+Math.round((DICE_P[Math.min(12,Math.max(7,g.threshold))]||0.417)*100)+'%) → '+winLine(g)+'</span>'+
     '<span class="ofl">✕ '+missShort(g)+'</span></div>';
   $('gambleMsg').innerHTML = (g.round===MAXROLL && (g._rerolls||0)<(P.yolk?2:1)) ? '<span class="keyhint">R</span> respin the reels' : '';
   SFX.casinoDing();
@@ -494,8 +496,9 @@ function doRisk(){
   if(g.rites){ flash(0.3,'#8b1620'); SFX.thud(); } // the red table asks no blood — only nerve
   SFX.diceRattle(); SFX.riser(); sparkBurst(12);
   $('cardName').textContent=g.def.n; $('cardName').className='r-'+g.def.rar+' bigname';
-  $('cardDesc').innerHTML='<div class="ofbig">NEED '+g.threshold+'+</div>'+
-    '<div class="ofrow"><span class="ofg">🎲 → '+winLine(g)+'</span><span class="ofl">✕ '+missShort(g)+'</span></div>';
+  { const oddsP=Math.round((DICE_P[Math.min(12,Math.max(7,g.threshold))]||0.417)*100);
+  $('cardDesc').innerHTML='<div class="ofbig">NEED '+g.threshold+'+ <span id="liveSum"></span></div><div class="ofmini">'+oddsP+'% TO HIT</div>'+
+    '<div class="ofrow"><span class="ofg">🎲 → '+winLine(g)+'</span><span class="ofl">✕ '+missShort(g)+'</span></div>'; }
   $('gambleMsg').innerHTML='';
   updateLadderPips();
   showSlotButtons();
@@ -670,6 +673,7 @@ function tickSlot(dt){
     }
   }
   for(const d of dice){ if(!d.rolling) continue; d.ft-=dt; if(d.ft<=0){ d.val=1+((Math.random()*6)|0); renderDie(d.el,d.val); d.ft=0.055; } }
+  if(slotStage==='dicing'){ const ls=$('liveSum'); if(ls && dice.length===2) ls.textContent='· '+(dice[0].val+dice[1].val); }
   if(spaceHold){
     if(slotStage==='offer'){ holdProg+=dt/0.5; ringUpdate(holdProg); if(holdProg>=1 && !holdFired){ holdFired=true; spaceHold=false; ringShow(false); SFX.tingle(); doRisk(); } }
     else { spaceHold=false; holdProg=0; ringShow(false); }

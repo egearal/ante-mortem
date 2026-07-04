@@ -1067,6 +1067,13 @@ body{cursor:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"
 .vNext{grid-column:1/-1;font-family:var(--disp);font-size:11px;letter-spacing:.14em;color:#b7a98e;padding:6px 4px;}
 .vNext b{color:#ffd36b;}
 
+/* QoL VI/VII — the table feels, the pit telegraphs */
+@keyframes stakeFear{0%,100%{transform:translateY(-50%) scale(1);box-shadow:0 0 14px rgba(255,60,80,.3);}50%{transform:translateY(-50%) scale(1.05);box-shadow:0 0 30px rgba(255,60,80,.75);}}
+.machine.dicing #sacCard:not(.hidden){animation:stakeFear .65s ease-in-out infinite;}
+#reelDots{margin-left:10px;letter-spacing:.3em;color:#8bff9a;font-size:11px;}
+@keyframes menuIn{from{opacity:0;}to{opacity:1;}}
+#menu:not(.hidden){animation:menuIn .55s ease-out;}
+
 /* pause: the HUD stays lit above the veil */
 body.paused #hud{z-index:25;}
 /* hp v3 fill smoothness */

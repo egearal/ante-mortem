@@ -145,7 +145,10 @@ function tickMapProps(dt){
         if(it.stand>=1.6){ rouletteBet(it); despawnInter(); return; } }
       else it.stand=Math.max(0,it.stand-dt*2);
     } else if(it.kind==='chest'){
-      if(idist<40){
+      if(idist<40 && it._openT===undefined){ it._openT=0.45; SFX.tingle(); SFX.leverWind(); ring(it.x,it.y,50,'#ffd36b'); }
+      if(it._openT!==undefined){ it._openT-=dt;
+        if(it._openT>0){ /* the lid strains — anticipation is the gift */ }
+        else {
         flash(0.22,'#ffd36b'); SFX.reelLock();
         LT.chests=(LT.chests||0)+1; bump('chests',LT.chests);
         P._chestsRun=(P._chestsRun||0)+1; if(P._chestsRun>=3) secret('glutton','GIFT GLUTTON');
@@ -159,6 +162,7 @@ function tickMapProps(dt){
           coinRain(16); SFX.cashout(); SFX.dingBells(); announce('✦ TREASURE +'+cg3+' COINS ✦', true); flash(0.4,'#ffd36b'); sparkBurst(22);
         }
         burst(it.x,it.y,14,'#e8b64c'); despawnInter(); return;
+        }
       }
     }
     if(it.life<=0){ burst(it.x,it.y,8,'#5a4a3a'); despawnInter(); return; }
@@ -210,7 +214,7 @@ function rouletteBet(rp){
   SFX.reelLock(); SFX.diceRattle(); ring(rp.x,rp.y,80,'#e8b64c'); sparkBurst(18); shake=Math.min(14,shake+6);
   const r3=Math.random();
   if(r3<0.35){ const cg2=10+((Math.random()*8)|0); P.coins+=cg2; LT.coins+=cg2; bump('runCoins',P.coins); bump('ltCoins',LT.coins);
-    coinRain(14); SFX.cashout(); announce('◈ FLOOR BET PAYS +'+cg2+' COINS ◈', true); flash(0.35,'#ffd36b'); }
+    coinRain(14); SFX.cashout(); announce('◈ FLOOR BET PAYS +'+cg2+' COINS ◈', true); flash(0.35,'#ffd36b'); ftext(rp.x,rp.y-70,'+'+cg2+' ◈','#ffd36b',true); }
   else if(r3<0.60){ const hl2=Math.round(P.maxHp*0.15); P.hp=Math.min(P.maxHp,P.hp+hl2);
     announce('✚ FLOOR BET: +'+hl2+' BLOOD ✚', true); flash(0.35,'#8bff9a'); SFX.dingBells(); }
   else if(r3<0.80){ P.speed*=1.3; debuffs.push({label:'⚡ SWIFT WAGER +30%', t:8, dur:8, revert:()=>{ P.speed/=1.3; }, dot:0, poison:false});
@@ -240,6 +244,7 @@ resetRun();
 
 /* ---------- entities ---------- */
 function spawnEnemy(type,x,y){
+  if(P){ const g9=spawnGuard(x,y); x=g9.x; y=g9.y; }
   const _fspd=(window._fmods&&window._fmods.spd)||1;
   const b=CFG.enemy[type], mins=gt/60, S=CFG.scale;
   idxSee(BOSS_DEFS[type]?'b':'e', type);
@@ -248,6 +253,12 @@ function spawnEnemy(type,x,y){
   enemies.push({type,x,y,r:b.r,hp:b.hp*hpS,maxhp:b.hp*hpS,spd:b.spd*spdS*_fspd,dmg:b.dmg*dmgS,
     xp:b.xp,coins:b.coins,cd:0,flash:0,kx:0,ky:0,ph:Math.random()*6.28,col:b.col,dark:b.dark,elite:type==='elite',
     ranged:b.ranged||false, shootCd:rnd(0.8,2.6), born:gt, vt:(type==='bomber'?'husk':null)});
+}
+function spawnGuard(x,y){ // nothing materializes on top of the gambler
+  const dx=x-P.x, dy=y-P.y, d=Math.hypot(dx,dy);
+  if(d>=260) return {x,y};
+  if(d<1){ const a=Math.random()*6.283; return {x:clamp(P.x+Math.cos(a)*260,20,CFG.arena-20), y:clamp(P.y+Math.sin(a)*260,20,CFG.arena-20)}; }
+  const s=260/d; return {x:clamp(P.x+dx*s,20,CFG.arena-20), y:clamp(P.y+dy*s,20,CFG.arena-20)};
 }
 function startWave(){
   wave++;
@@ -291,12 +302,15 @@ function startWave(){
     const ha=Math.random()*6.283, hd=Math.max(VW,VH)*0.62;
     const hx=clamp(P.x+Math.cos(ha)*hd,40,CFG.arena-40), hy=clamp(P.y+Math.sin(ha)*hd,40,CFG.arena-40);
     const hn=Math.round((20+wave*3)*((window._fmods&&window._fmods.horde)||1)*(P&&P.crowd?1.3:1)*rnd(0.85,1.2));
+    ring(hx,hy,180,'#8b1620'); ring(hx,hy,120,'#c81e2c'); // the ground marks where they pour in
     for(let k=0;k<hn && enemies.length<CFG.spawn.max;k++){ spawnEnemy('swarm', clamp(hx+rnd(-170,170),20,CFG.arena-20), clamp(hy+rnd(-170,170),20,CFG.arena-20)); }
     setTimeout(()=>{ if(state==='playing'){ showStreak('HORDE INCOMING'); SFX.murmur(); } }, 260);
   }
   if(eliteWave){
     const n=1+Math.floor(wave/8);
-    for(let k=0;k<n;k++){ const a=Math.random()*6.283, d=Math.max(VW,VH)*0.6; spawnEnemy('elite',clamp(P.x+Math.cos(a)*d,20,CFG.arena-20),clamp(P.y+Math.sin(a)*d,20,CFG.arena-20)); }
+    for(let k=0;k<n;k++){ const a=Math.random()*6.283, d=Math.max(VW,VH)*0.6;
+      const ex9=clamp(P.x+Math.cos(a)*d,20,CFG.arena-20), ey9=clamp(P.y+Math.sin(a)*d,20,CFG.arena-20);
+      spawnEnemy('elite',ex9,ey9); ring(ex9,ey9,160,'#c98bff'); ring(ex9,ey9,90,'#e8ccff'); }
     showStreak('WAVE '+wave+' · ELITE'); SFX.murmur(); flash(0.3,'#c98bff');
   } else {
     showStreak('WAVE '+wave);
@@ -981,6 +995,8 @@ function drawLandmarks(){
       ctx.fillStyle='#241a26'; ctx.beginPath(); ctx.ellipse(0,2,52,24,0,0,6.28); ctx.fill();
       ctx.strokeStyle='rgba(232,182,76,0.55)'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.ellipse(0,2,52,24,0,0,6.28); ctx.stroke();
       ctx.fillStyle=alive?'#7a1019':'#241014'; ctx.beginPath(); ctx.ellipse(0,0,42,18,0,0,6.28); ctx.fill();
+      if(alive && it.res<100){ ctx.strokeStyle='rgba(255,90,104,0.8)'; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.arc(0,0,60,-1.5708,-1.5708+(it.res/100)*6.283); ctx.stroke(); }
       if(alive){ // the pool shimmers — brighter while someone drinks
         ctx.save(); ctx.globalCompositeOperation='lighter';
         ctx.drawImage(glowSprite('rgba(200,30,44,0.3)','rgba(200,30,44,0)',64),-64,-64,128,128);
@@ -1883,6 +1899,11 @@ function drawEnemy(e){
   { const ga9=ctx.globalAlpha; ctx.globalAlpha=ga9*0.3; ctx.fillStyle='#000';
     ctx.beginPath(); ctx.ellipse(0,r*0.92,r*0.72,r*0.26,0,0,6.28); ctx.fill(); ctx.globalAlpha=ga9; }
   const sway=Math.sin(t)*r*0.12;
+  // ranged wind-up: the muzzle glows before the shot lands anywhere near you
+  if(e.ranged && e.shootCd<0.35 && e.shootCd>0){ ctx.save(); ctx.globalCompositeOperation='lighter';
+    const wu=1-e.shootCd/0.35; ctx.globalAlpha=wu*0.85;
+    ctx.drawImage(glowSprite('rgba(255,180,80,0.8)','rgba(255,150,60,0)',10+wu*10), -10-wu*10, -r*0.4-10-wu*10, 20+wu*20, 20+wu*20);
+    ctx.restore(); ctx.globalAlpha=1; }
   // top-lit gradient helper (chandelier light from above)
   const bg=(x,y,rx,ry,c1,c2,rot)=>{
     if(qLow){ ctx.fillStyle=c2; ctx.beginPath(); ctx.ellipse(x,y,rx,ry,rot||0,0,6.28); ctx.fill(); return; }
@@ -2284,6 +2305,7 @@ function drawPlayer(){
   const fx=Math.cos(P.aim), fy=Math.sin(P.aim);
   if(P.trail && !GFX.lite){ for(let i=0;i<P.trail.length;i++){ const tp=P.trail[i]; ctx.globalAlpha=(i/P.trail.length)*0.15; ctx.fillStyle='#8b1620'; ctx.beginPath(); ctx.arc(tp.x,tp.y,7*(i/P.trail.length),0,6.28); ctx.fill(); } ctx.globalAlpha=1; }
   ctx.save(); ctx.translate(P.x,P.y);
+  if(P.inv>0.12 && ((gt*22)|0)%2===0) ctx.globalAlpha=0.55; // struck souls flicker — the i-frames are visible
   // warm candle-glow pool around the gambler
   ctx.save(); ctx.globalCompositeOperation='lighter';
   ctx.globalAlpha=(0.10+brt*0.05)/0.15;
