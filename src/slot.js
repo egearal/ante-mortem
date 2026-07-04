@@ -152,7 +152,7 @@ function openSlotReady(kind){
   ensureBulbs(); window._slotFF=null; rerollCarry=null;
   slotKind=kind; gamble=null; diceShown=false; const isW=kind==='weapon';
   elSlot.classList.toggle('arsenal', isW);
-  $('slotTag').textContent = (lastRites?'☨ THE RED TABLE — YOUR SKILL RIDES ☨':(isW?'⚔ THE ARSENAL WHEEL ⚔':'THE WHEELS OF FATE'))+(slotCredit?' · ✦ ON THE HOUSE ✦':'')+(slotBank>0?' · BANK '+slotBank+'/7':'');
+  $('slotTag').textContent = (lastRites?'☨ THE RED TABLE — YOUR SKILL RIDES ☨':(isW?'⚔ THE ARSENAL WHEEL ⚔':'THE WHEELS OF FATE'))+(slotCredit?' · ✦ ON THE HOUSE ✦':'')+((P&&P.hotSlots>0)?' · ⚜ HOT DECK':'')+(slotBank>0?' · BANK '+slotBank+'/7':'');
   elSlot.classList.toggle('comped', slotCredit);
   $('reelsRow').style.display=''; $('diceRow').style.display='none'; $('riskWrap').style.display='none';
   $('prizeTag').textContent = isW?'YOUR WEAPON':'YOUR SKILL';
@@ -806,6 +806,7 @@ function closeSlot(){
   dice.forEach(d=>{ if(d.el) d.el.classList.remove('rolling','settle','crit'); });
   $('machine').classList.remove('win','jackpot','bust','pulling','dicing');
   elSlot.classList.add('hidden'); elSlot.classList.remove('lastrites');
+  if(P&&P.hotSlots>0) P.hotSlots--; // the HIGH ROLLER deck cools one slot at a time
   if(pending.length){ setTimeout(openNextSlot,250); }
   else { state='playing'; last=performance.now(); }
 }

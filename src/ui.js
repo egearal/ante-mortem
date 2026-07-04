@@ -462,6 +462,13 @@ const SOULS=[
    u:()=>SEC.has('theegg'), uTxt:'FIND THE EGG', ap:()=>{ P.wlv={razor:1}; P.radius*=0.7; P.speed*=1.2; P.maxHp=60; P.hp=60; P.yolk=true; }}
 ];
 function curSoul(){ const s=SOULS.find(x=>x.id===(IDX.sl||'vesper')); return (s&&s.u())?s:SOULS[0]; }
+// INDULGENCES — gilt buys the night a head start. Consumed when the run begins.
+const INDULGENCES=[
+ {id:'coffee', g:'☕', n:"DEALER'S COFFEE", cost:60,  d:'Two comped spins the moment you walk in.'},
+ {id:'pockets',g:'◈', n:'LOADED POCKETS',  cost:80,  d:'Start the night with +60 coins.'},
+ {id:'blood',  g:'♥', n:'THICK BLOOD',     cost:100, d:'+25 max blood for the night.'},
+ {id:'roller', g:'⚜', n:'HIGH ROLLER',     cost:150, d:'Your first 3 slots deal HOT — red-tier odds.'}
+];
 function openAnteRoom(){
   let p=$('antePanel');
   if(!p){ p=document.createElement('div'); p.id='antePanel'; p.className='layer hidden';
@@ -477,6 +484,12 @@ function openAnteRoom(){
       const cc=ev.target.closest('.ctChip'); if(cc){ const id=cc.dataset.id; IDX.ct=IDX.ct||[];
         const i=IDX.ct.indexOf(id); if(i>=0) IDX.ct.splice(i,1); else if(IDX.ct.length<2) IDX.ct.push(id); else return;
         idxSaveSoon(); renderAnteRoom(); SFX.press(); return; }
+      const ic=ev.target.closest('.indChip'); if(ic && !ic.classList.contains('owned')){
+        const d=INDULGENCES.find(x=>x.id===ic.dataset.id); if(!d) return;
+        if(gilt<d.cost){ SFX.bust(); ic.classList.add('deny'); setTimeout(()=>ic.classList.remove('deny'),350); return; }
+        gilt-=d.cost; saveGilt(); (IDX.ind=IDX.ind||[]).push(d.id); idxSaveSoon();
+        SFX.chipStack(); SFX.dingBells(); coinRain(10); sparkBurst(16);
+        renderAnteRoom(); return; }
     });
   }
   renderAnteRoom();
@@ -508,6 +521,12 @@ function renderAnteRoom(){
     RUN_CONTRACTS.forEach(c=>{ html+='<div class="ctChip'+(act.includes(c.id)?' on':'')+'" data-id="'+c.id+'"><b>'+c.g+' '+c.n+'</b><span>'+c.d+'</span></div>'; });
     html+='</div>';
   }
+  { const owned=IDX.ind||[];
+    html+='<div class="anteH">BUY INDULGENCES <span style="opacity:.6;font-size:11px">(gilt · one night only) — YOU HOLD <b style="color:var(--gold-bright)">'+gilt+' ◈ GILT</b></span></div><div class="ctRow">';
+    INDULGENCES.forEach(d=>{ const own=owned.includes(d.id);
+      html+='<div class="indChip'+(own?' owned':'')+(gilt<d.cost&&!own?' broke':'')+'" data-id="'+d.id+'"><b>'+d.g+' '+d.n+'</b><span>'+d.d+'</span>'
+        +'<i>'+(own?'SEALED FOR TONIGHT':d.cost+' ◈')+'</i></div>'; });
+    html+='</div>'; }
   b.innerHTML=html;
 }
 

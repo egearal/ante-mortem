@@ -2500,6 +2500,13 @@ function startGame(){
   { const act=(typeof RUN_CONTRACTS!=='undefined')?(IDX.ct||[]):[];
     act.forEach(id=>{ const ct=RUN_CONTRACTS.find(x=>x.id===id); if(ct){ try{ ct.ap(); }catch(e){} window._markMult*=1.25; } });
     if(act.length) setTimeout(()=>announce('✍ '+act.length+' CONTRACT'+(act.length>1?'S':'')+' SIGNED — ×'+window._markMult.toFixed(2)+' MARKS & GILT ✍', true), 1600); }
+  { const ind=(typeof INDULGENCES!=='undefined')?(IDX.ind||[]):[];
+    if(ind.includes('pockets')){ P.coins+=60; }
+    if(ind.includes('blood')){ P.maxHp+=25; P.hp+=25; }
+    if(ind.includes('roller')){ P.hotSlots=3; }
+    if(ind.includes('coffee')){ P._credit=(P._credit||0)+2; }
+    if(ind.length){ setTimeout(()=>announce('✦ '+ind.length+' INDULGENCE'+(ind.length>1?'S':'')+' HONORED ✦', true), 2100);
+      IDX.ind=[]; idxSaveSoon(); } }
   P._idle=0; P._sigT=0; P._corners=new Set(); P._chestsRun=0; P._roulRun=0; P._pauses=0; P._1313=false;
   resetRun();
   { const now=new Date();

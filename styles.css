@@ -946,6 +946,19 @@ body.bloodhour #machine{animation:bloodTremble 2.2s ease-in-out infinite;}
 @keyframes fzIgnite{0%{transform:scale(2.2);filter:brightness(2);}100%{transform:scale(1);filter:brightness(1);}}
 #crashFrenzy.ignite{animation:fzIgnite .4s cubic-bezier(.2,1.6,.4,1);}
 
+/* INDULGENCES — gilt chips in the ante room */
+.indChip{position:relative;border:1px solid rgba(255,211,107,.35);border-radius:10px;padding:10px 12px 26px;cursor:pointer;
+  background:linear-gradient(160deg,rgba(50,38,14,.5),rgba(20,14,6,.7));transition:transform .12s,box-shadow .12s;min-width:150px;max-width:210px;}
+.indChip b{display:block;color:#ffd36b;font-family:var(--disp);font-size:12.5px;letter-spacing:.08em;margin-bottom:4px;}
+.indChip span{display:block;color:#cfc2a6;font-size:11px;line-height:1.45;}
+.indChip i{position:absolute;left:12px;bottom:7px;font-style:normal;font-size:11px;color:#fff2c0;letter-spacing:.1em;}
+.indChip:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(255,211,107,.18);}
+.indChip.owned{border-color:rgba(139,255,154,.55);cursor:default;}
+.indChip.owned i{color:#8bff9a;}
+.indChip.broke{opacity:.55;}
+.indChip.deny{animation:denyShake .3s;}
+@keyframes denyShake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+
 /* pause: the HUD stays lit above the veil */
 body.paused #hud{z-index:25;}
 /* hp v3 fill smoothness */
