@@ -10,7 +10,7 @@ const CFG = {
     crit:0.05, critMult:2.0, instakill:0, regen:0, coinMult:1, lifesteal:0 },
   spawn:{ startInt:0.75, minInt:0.24, ramp:300, baseBatch:4, max:340 },
   wave:{ first:26, grow:6, cap:96, nextAt:0.4, gap:1.15, eliteEvery:4 },
-  slot:{ respinBase:14, respinStep:8, critPct:0.40, winSum:7, up:1.6, down:0.85, floor:0.5 },
+  slot:{ respinBase:14, respinStep:8, critPct:0.20, winSum:7, up:1.6, down:0.85, floor:0.5 },
   weights:{ common:48, uncommon:27, rare:15, epic:9, legendary:1 },
   elite:{ every:40, firstAt:38 },
   scale:{ hp:0.66, dmg:0.22, spd:0.10, spdCap:1.95 },
@@ -529,7 +529,8 @@ function update(dt){
     if(Math.random()<0.5) parts.push({x:P.x+rnd(-14,14),y:P.y+rnd(-8,12),vx:rnd(-16,16),vy:-rnd(60,140),life:rnd(.25,.5),col:'#ffd36b',r:rnd(1.4,2.6)});
     if(P.ovT>=90){ const ph9=P.ovHold; P.ovHold+=dt;
       if(Math.floor(P.ovHold)>Math.floor(ph9)){ tone(880+P.ovHold*90,0.1,'sine',0.12); flash(0.07,'#8bff9a'); }
-      if(P.ovHold>=ascTime) rageAscend();
+      // below 20% blood the crown is sealed — the bar holds but cannot ascend
+      if(P.ovHold>=ascTime && P.hp>=P.maxHp*0.2) rageAscend();
     } else if(P.ovT>0) rageDrop();
   }
   if(ascPend>0){ const pp=ascPend; ascPend-=dt;
@@ -1056,7 +1057,7 @@ function gainXP(n){
     P._xpComboT=nw;
     tone(520*Math.pow(1.0595,P._xpCombo),0.05,'triangle',0.07+P._xpCombo*0.003);
     if(P._xpCombo===14 && !P._xpPeak){ P._xpPeak=true; SFX.tingle(); setTimeout(()=>P._xpPeak=false,3000); } }
-  while(P.xp>=P.xpNext){ if(!P._ovPass && state==='playing'){ startOvercharge(); break; } P._ovPass=false;
+  while(P.xp>=P.xpNext){ if(!P._ovPass && state==='playing' && P.hp>=P.maxHp*0.2){ startOvercharge(); break; } P._ovPass=false;
     P.xp-=P.xpNext; P.level++; P.xpNext=Math.floor(18+P.level*6.5+P.level*P.level*1.35); pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); { const lv9=$('level'); if(lv9){ lv9.classList.remove('pop'); void lv9.offsetWidth; lv9.classList.add('pop'); } } ring(P.x,P.y,120,'#c81e2c'); ring(P.x,P.y,70,'#ffd36b'); burst(P.x,P.y,16,'#e8b64c'); for(let i=0;i<16;i++){ parts.push({x:P.x+rnd(-10,10),y:P.y+rnd(-4,4),vx:rnd(-14,14),vy:-rnd(90,220),life:rnd(.4,.8),col:i%3?'#ffd36b':'#fff2c0',r:rnd(1.6,3.2)}); } flash(0.25,'#c81e2c'); }
   if(pending.length && state==='playing') openNextSlot();
 }
@@ -1765,7 +1766,9 @@ function render(){
       ctx.beginPath(); ctx.moveTo(nx,xy-9); ctx.lineTo(nx+4.6,xy-3.6); ctx.lineTo(nx,xy+1.6); ctx.lineTo(nx-4.6,xy-3.6); ctx.closePath(); ctx.fill(); ctx.shadowBlur=0;
       ctx.font="800 14px 'Cinzel',serif"; ctx.textAlign='center';
       ctx.fillStyle='#8bff9a'; ctx.shadowColor='#8bff9a'; ctx.shadowBlur=10;
-      ctx.fillText('⚡ RAGE '+Math.round(P.ovT)+'%  ·  HOLD 90%+  '+Math.max(0,ascTime-P.ovHold).toFixed(1)+'s → THE ASCENT ⚡', VW/2, xy-34);
+      if(P.hp<P.maxHp*0.2){ ctx.fillStyle='#ff5560'; ctx.shadowColor='#ff5560';
+        ctx.fillText('☨ SEALED BY BLOOD — NO ASCENT BELOW 20% ♥ ☨', VW/2, xy-34); }
+      else ctx.fillText('⚡ RAGE '+Math.round(P.ovT)+'%  ·  HOLD 90%+  '+Math.max(0,ascTime-P.ovHold).toFixed(1)+'s → THE ASCENT ⚡', VW/2, xy-34);
       ctx.font="700 11px 'Cinzel',serif"; ctx.fillStyle='#ffce8a'; ctx.shadowColor='#ff9a3c';
       ctx.fillText('COINS & XP FEED THE BAR · ABOVE 90: +50% DMG DEALT & TAKEN · SLIP = −50% XP + SWEPT', VW/2, xy-18);
       ctx.shadowBlur=0;

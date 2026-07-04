@@ -22,7 +22,7 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
       {ico:'🎰', name:'THE MACHINE', col:'#ffd36b', items:[
         ['THE REELS','Every level-up: SPACE spins, SPACE stops each reel. One of a kind = level 1. A pair = level 2. A triple = MAX, instantly.'],
         ['THE DICE','After the reels you can gamble the prize: HOLD SPACE and roll 8 or higher. Every win = +1 level. Every miss hurts more than the last.'],
-        ['THE RED TABLE','Bleeding badly? The House offers a red lever. It stakes one of YOUR skills — dice wins heal you, but one miss takes everything.'],
+        ['THE RED TABLE','Below 20% blood the slot turns RED. One of your skills sits beside the reels as THE STAKE. Any dice miss burns it a level. Survive all FOUR dice and the House blesses you: 5 seconds untouchable, double damage, double fire.'],
         ['FEVER','Kill fast to fill the fever meter. Full = a golden rampage.']
       ]},
       {ico:'🎡', name:'THE GAMBLES', col:'#c98bff', items:[
@@ -350,7 +350,6 @@ window.addEventListener('keydown',e=>{
     else if(wheel.done) finishWheel();
     else launchWheel(); } return; }
   if(state==='slot'){
-    if(k==='x' && !e.repeat && slotStage==='lever'){ SFX.press(); pressPulse('gambleMsg'); refuseBloodLever(); return; }
     if(k==='r' && !e.repeat){ SFX.press(); pressPulse('gambleMsg'); rerollReels(); return; }
     if(k===' '){
       if(e.repeat) return;

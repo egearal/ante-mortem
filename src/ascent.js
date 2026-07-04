@@ -436,7 +436,11 @@ function tickCrashTok(dt){
   } else {
     crashTok.t-=dt; crashTok._p=(crashTok._p||0)-dt; if(crashTok._p<=0){ crashTok._p=6; tone(1318,0.09,'sine',0.05); ring(crashTok.x,crashTok.y,52,'#8bff9a'); }
     if(crashTok.t<=0){ crashTok=null; return; }
-    if(Math.hypot(P.x-crashTok.x,P.y-crashTok.y)<P.radius+16){ crashTok=null; openCrash(); }
+    if(Math.hypot(P.x-crashTok.x,P.y-crashTok.y)<P.radius+16){
+      if(P.hp<P.maxHp*0.2){ crashTok._d=(crashTok._d||0)-dt;
+        if(crashTok._d<=0){ crashTok._d=2; showStreak('☨ SEALED — TOO BLED TO ASCEND ☨'); SFX.thud(); flash(0.25,'#8b1620'); }
+        return; }
+      crashTok=null; openCrash(); }
   }
 }
 function drawCrashTok(){
