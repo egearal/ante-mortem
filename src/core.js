@@ -2526,6 +2526,22 @@ function specialAI(e,dt,dx,dy,d){
 let last=0;
 function loop(now){
   requestAnimationFrame(loop);
+  frame(now);
+}
+// FALLBACK TICKER — browsers HARD-PAUSE requestAnimationFrame for hidden/embedded
+// documents (preview panels, iframes, background tabs). Without this, the whole
+// game freezes at 0:00 in those contexts. This watchdog keeps the night alive by
+// driving the frame directly when rAF has stalled; it stays out of the way (the
+// gap check) whenever rAF is healthy, so a normal focused tab is unaffected.
+setInterval(()=>{
+  const now=performance.now();
+  const gap=now-loopPrev;
+  if(gap>90){
+    const base=loopPrev, steps=Math.min(6,Math.max(1,Math.round(gap/60)));
+    for(let i=1;i<=steps;i++) frame(base+gap*i/steps);
+  }
+}, 50);
+function frame(now){
   try{
   const dt=Math.min(Math.max((now-last)/1000,0),0.05); last=now;
   if(loopPrev){ frameAvg=frameAvg*0.93+(now-loopPrev)*0.07; } loopPrev=now;
