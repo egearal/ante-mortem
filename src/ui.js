@@ -57,7 +57,8 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
       +'<button class="btn gold" id="howPlayNow" style="margin-top:10px;">♠ PLAY NOW</button>'
       +'<div class="howNav"><span class="keyhint">D</span> / <span class="keyhint">→</span> next · <span class="keyhint">A</span> / <span class="keyhint">←</span> back</div>'
       +'<button class="gxBtn gxClose" id="howClose">CLOSE</button>';
-    window._howShow=(i)=>{ window._howTab=((i%TABS.length)+TABS.length)%TABS.length;
+    window._howShow=(i)=>{ if(i===undefined||isNaN(i)) i=window._howTab||0;
+      window._howTab=((i%TABS.length)+TABS.length)%TABS.length;
       const s=TABS[window._howTab];
       hp.querySelectorAll('.howTab').forEach((b,bi)=>b.classList.toggle('on',bi===window._howTab));
       $('howBody').innerHTML=sec(s);
@@ -68,7 +69,7 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
       if(state==='menu'){ $('startBtn').click(); }
       else if(state==='paused'){ state='playing'; document.body.classList.remove('paused'); $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); }
     }); },0);
-    pl.appendChild(hp);
+    document.body.appendChild(hp); // lives on the body — the MENU can open it too, not just the pause
     row.addEventListener('click',e=>e.stopPropagation());
     hp.addEventListener('click',e=>e.stopPropagation());
     $('howBtn').addEventListener('click',()=>{ hp.classList.remove('hidden'); window._howShow(window._howTab||0); });
@@ -96,7 +97,8 @@ $('vaultClose').addEventListener('click',()=>{ $('vaultPanel').classList.add('hi
 document.querySelector('.pauseCard').addEventListener('click',()=>{ if(state==='paused'){ state='playing'; $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); } });
 $('achClose').addEventListener('click',()=>{ $('achPanel').classList.add('hidden'); });
 $('idxClose').addEventListener('click',()=>{ $('indexPanel').classList.add('hidden'); SFX.casinoDing(); });
-{ const hb=$('howMenuBtn'); if(hb) hb.addEventListener('click',()=>{ if(typeof window._howShow==='function') window._howShow(); SFX.uiDing(); }); }
+{ const hb=$('howMenuBtn'); if(hb) hb.addEventListener('click',()=>{
+  const hp9=$('howPanel'); if(hp9){ hp9.classList.remove('hidden'); if(typeof window._howShow==='function') window._howShow(window._howTab||0); SFX.uiDing(); } }); }
 // F — the whole window belongs to the House
 window.addEventListener('keydown',e=>{ if(e.key.toLowerCase()==='f' && !e.repeat && (state==='menu'||state==='playing'||state==='paused')){
   try{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }catch(x){} } });
@@ -140,14 +142,14 @@ function showTab(){
   tp.classList.add('show');
 }
 function hideTab(){ const tp=$('tabPanel'); if(tp) tp.classList.remove('show'); }
-const GFX={ q:'auto', shafts:true, ghosts:true, shake:1, flash:1, grade:true, sat:true, pcap:220, fps:false, lite:false, preset:'medium' };
+const GFX={ q:'auto', shafts:true, ghosts:true, shake:1, flash:1, grade:true, sat:true, pcap:220, fps:false, lite:false, lod:'normal', preset:'medium' };
 const GFX_KEY='antemortem_gfx_v1';
 // one-click presets — MEDIUM matches the classic defaults so old saves label correctly
 const GFX_PRESETS={
-  toaster:{ q:'low',  lite:true,  shafts:false, ghosts:false, grade:false, shake:0.5, flash:0.5, pcap:70 },
-  low:    { q:'low',  lite:false, shafts:false, ghosts:false, grade:true,  shake:1,   flash:1,   pcap:140 },
-  medium: { q:'auto', lite:false, shafts:true,  ghosts:true,  grade:true,  shake:1,   flash:1,   pcap:220 },
-  high:   { q:'high', lite:false, shafts:true,  ghosts:true,  grade:true,  shake:1,   flash:1,   pcap:220 }
+  toaster:{ q:'low',  lite:true,  shafts:false, ghosts:false, grade:false, shake:0.5, flash:0.5, pcap:70,  lod:'low' },
+  low:    { q:'low',  lite:false, shafts:false, ghosts:false, grade:true,  shake:1,   flash:1,   pcap:140, lod:'low' },
+  medium: { q:'auto', lite:false, shafts:true,  ghosts:true,  grade:true,  shake:1,   flash:1,   pcap:220, lod:'normal' },
+  high:   { q:'high', lite:false, shafts:true,  ghosts:true,  grade:true,  shake:1,   flash:1,   pcap:220, lod:'high' }
 };
 function gfxDerivePreset(){
   for(const name in GFX_PRESETS){ const p=GFX_PRESETS[name];
@@ -170,6 +172,7 @@ const GFX_DEFS=[
  {k:'shake', n:'SCREEN SHAKE',  opts:[[1,'FULL'],[0.5,'REDUCED'],[0,'OFF']]},
  {k:'flash', n:'SCREEN FLASH',  opts:[[1,'FULL'],[0.5,'REDUCED'],[0,'OFF']]},
  {k:'pcap',  n:'PARTICLES',     opts:[[260,'FULL'],[140,'REDUCED'],[70,'MINIMAL']]},
+ {k:'lod',  n:'CHUNK DISTANCE', opts:[['low','LOW — 20 IN FULL ART'],['normal','NORMAL — 44'],['high','HIGH — 120'],['inf','INFINITE — ALL']]},
  {k:'fps',   n:'FPS COUNTER',   opts:[[false,'OFF'],[true,'ON']]},
  {k:'cb',   n:'COLORBLIND PIPS', opts:[[false,'OFF'],[true,'SHAPES']]}
 ];
@@ -194,7 +197,8 @@ function buildGfxPanel(){
     +'<div id="gxPresets">'
     +[['toaster','🍞 TOASTER'],['low','LOW'],['medium','MEDIUM'],['high','HIGH']].map(x=>'<button class="gxPre" data-pre="'+x[0]+'">'+x[1]+'</button>').join('')
     +'</div><div id="gxCustom" style="display:none">CUSTOM</div>'
-    +GFX_DEFS.map(d=>'<div class="gxRow"><span class="gxName">'+d.n+'</span><button class="gxBtn" data-k="'+d.k+'">'+gfxLabel(d)+'</button></div>').join('')
+    +'<div class="gxRow"><span class="gxName">MASTER VOLUME</span><input type="range" id="gxVol" min="0" max="1" step="0.05" value="'+(GFX.vol!==undefined?GFX.vol:1)+'"></div>'
+    +GFX_DEFS.filter(d=>d.k!=='vol').map(d=>'<div class="gxRow"><span class="gxName">'+d.n+'</span><button class="gxBtn" data-k="'+d.k+'">'+gfxLabel(d)+'</button></div>').join('')
     +'<div class="gxRow"><span class="gxName">FULLSCREEN</span><button class="gxBtn" id="gxFull">F — TOGGLE</button></div>'
     +'<button class="gxBtn gxClose" id="gfxClose">CLOSE</button></div>';
   document.body.appendChild(p);
@@ -208,6 +212,10 @@ function buildGfxPanel(){
   }));
   $('gfxClose').addEventListener('click',()=>{ p.classList.add('hidden'); SFX.casinoDing(); });
   { const gf=p.querySelector('#gxFull'); if(gf) gf.addEventListener('click',()=>{ try{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }catch(x){} SFX.uiDing(); }); }
+  { const gv=p.querySelector('#gxVol'); if(gv){
+      gv.addEventListener('input',()=>{ GFX.vol=parseFloat(gv.value); applyGfxSide();
+        if(!gv._tk||performance.now()-gv._tk>120){ gv._tk=performance.now(); try{ tone(880,0.04,'sine',0.08); }catch(x){} } });
+      gv.addEventListener('change',()=>{ saveGfx(); }); } }
   syncPresetRow();
 }
 function openGfx(){ buildGfxPanel(); $('gfxPanel').classList.remove('hidden'); SFX.vaultOpen(); }

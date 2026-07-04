@@ -1533,7 +1533,7 @@ function render(){
     ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.5+Math.sin(gt*3+e.ph)*0.15;
     const br9=e.r*2.6; ctx.drawImage(glowSprite('rgba(201,80,120,0.3)','rgba(140,20,40,0)',br9), e.x-br9, e.y-br9*0.7, br9*2, br9*1.4); ctx.restore(); }
   // horde LOD: beyond the nearest N enemies, draw cheap silhouettes (toaster keeps only 24 in full art)
-  { const LODN=GFX.lite?20:44;
+  { const LODN=({low:20,normal:44,high:120,inf:99999})[GFX.lod] || (GFX.lite?20:44);
   if(enemies.length>LODN){
     const ds=enemies.map(e=>{ const dx=e.x-P.x, dy=e.y-P.y; return e._d2=dx*dx+dy*dy; }).sort((a,b)=>a-b);
     const cut=ds[LODN-1];

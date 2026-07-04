@@ -1116,6 +1116,12 @@ body{cursor:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"
 #menu #startBtn:hover::before{top:6px;opacity:.85;}
 #menu #startBtn:active{transform:translateY(2px) scale(.99);box-shadow:0 2px 0 #8a6a1c,0 4px 12px rgba(0,0,0,.5);}
 
+/* OPTIONS v2 — a slider you can actually drag */
+#gxVol{-webkit-appearance:none;appearance:none;width:160px;height:5px;border-radius:4px;background:linear-gradient(90deg,#8a5a10,#ffd36b);outline:none;cursor:pointer;}
+#gxVol::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:#ffd36b;border:2px solid #231407;box-shadow:0 0 10px rgba(255,211,107,.6);cursor:grab;}
+#gxVol::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#ffd36b;border:2px solid #231407;box-shadow:0 0 10px rgba(255,211,107,.6);cursor:grab;}
+#gxVol:active::-webkit-slider-thumb{cursor:grabbing;transform:scale(1.15);}
+
 /* pause: the HUD stays lit above the veil */
 body.paused #hud{z-index:25;}
 /* hp v3 fill smoothness */
