@@ -90,6 +90,12 @@ $('vaultClose').addEventListener('click',()=>{ $('vaultPanel').classList.add('hi
 document.querySelector('.pauseCard').addEventListener('click',()=>{ if(state==='paused'){ state='playing'; $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); } });
 $('achClose').addEventListener('click',()=>{ $('achPanel').classList.add('hidden'); });
 $('idxClose').addEventListener('click',()=>{ $('indexPanel').classList.add('hidden'); SFX.casinoDing(); });
+{ const hb=$('howMenuBtn'); if(hb) hb.addEventListener('click',()=>{ if(typeof window._howShow==='function') window._howShow(); SFX.uiDing(); }); }
+// F — the whole window belongs to the House
+window.addEventListener('keydown',e=>{ if(e.key.toLowerCase()==='f' && !e.repeat && (state==='menu'||state==='playing'||state==='paused')){
+  try{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }catch(x){} } });
+// right-click stays native in menus, silent in the pit
+window.addEventListener('contextmenu',e=>{ if(state==='playing'||state==='slot'||state==='wheel'||state==='dead') e.preventDefault(); });
 $('mute').addEventListener('click',()=>{ muted=!muted; if(master) master.gain.value=muted?0:0.8; $('mute').textContent=muted?'♩':'♪'; $('mute').style.color=muted?'#5a4a3a':''; }); let tabHold=false;
 function showTab(){
   let tp=$('tabPanel');
