@@ -1077,6 +1077,17 @@ body{cursor:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"
 @keyframes estGrow{0%{transform:scale(1);}30%{transform:scale(1.18);box-shadow:0 0 26px rgba(232,182,76,.8);}100%{transform:scale(1);}}
 .mChip.estGrow{animation:estGrow 2.4s ease-out;}
 
+/* THE VEIL — a found secret flips from riddle to truth */
+#secretReveal{position:fixed;inset:0;z-index:90;display:flex;align-items:flex-start;justify-content:center;padding-top:16vh;pointer-events:none;}
+#secretReveal.hidden{display:none;}
+.srCard{background:linear-gradient(170deg,rgba(34,20,40,.96),rgba(12,6,14,.97));border:1px solid rgba(201,139,255,.6);border-radius:12px;
+  padding:16px 30px;text-align:center;box-shadow:0 0 44px rgba(201,139,255,.35),0 24px 60px rgba(0,0,0,.7);transform-style:preserve-3d;}
+#secretReveal.go .srCard{animation:srFlip 2.6s cubic-bezier(.2,1.2,.3,1) forwards;}
+@keyframes srFlip{0%{transform:rotateX(88deg) scale(.9);opacity:0;}14%{transform:rotateX(0) scale(1.04);opacity:1;}20%{transform:none;}86%{opacity:1;}100%{opacity:0;transform:translateY(-16px);}}
+.srRiddle{font-style:italic;color:#b9a6d6;font-size:13px;margin-bottom:6px;}
+.srName{font-family:var(--disp);color:#e8ccff;font-size:17px;letter-spacing:.14em;text-shadow:0 0 14px rgba(201,139,255,.7);}
+.srPay{font-family:var(--disp);color:#ffd36b;font-size:11px;letter-spacing:.18em;margin-top:5px;}
+
 /* pause: the HUD stays lit above the veil */
 body.paused #hud{z-index:25;}
 /* hp v3 fill smoothness */

@@ -216,6 +216,7 @@ function grantWeaponLevels(def, levels){
   const cur=P.wlv[def.id]||0; P.wlv[def.id]=Math.min(def.max, cur+levels); renderRelics();
   bump('w_'+def.id, P.wlv[def.id]); recCheck('weaponLv', P.wlv[def.id], def.n+' level'); idxSee('w',def.id);
   const nl=P.wlv[def.id];
+  if(nl>=def.max) secret('maxlove','THE FINAL EDGE');
   if(nl>cur) setTimeout(()=>announce('⚔ '+def.n.toUpperCase()+' — Lv '+cur+' → '+nl+' ⚔', true), 60);
   grantOverflow(levels-(nl-cur));
   return nl;

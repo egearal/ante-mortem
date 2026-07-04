@@ -58,8 +58,23 @@ const WHISPERS={
   icarus:['ICARUS ASCENDANT','Ride the climb past the seventh heaven.','Passed 7.77x in the Ascent.'],
   coldfeet:['COLD FEET','Hesitate thirteen times in one night.','Paused 13 times in one run.'],
   theegg:['THE EGG','Something small and golden hides far from the lights.','Found and ate the golden egg.'],
-  pactbreaker:['PACT BREAKER','Refuse the red lever thrice in one night.','Refused the blood lever 3 times in one run.'],
+  pactbreaker:['PACT BREAKER','Take from the red table thrice, and never roll.','Took 3 red-table offers in one night without dicing.'],
   highroller:['HIGH ROLLER','Pay a three-figure cut for one case.','Paid 100+ coins to unseal the wheel.'],
+  sixsix:['THE BEAST\'S HOUR','Fall when the clock lies about the number of the beast.','Died at 6:66 on the run clock (7:06).'],
+  redone:['ONE DROP LEFT','Leave the red table paid, with a single drop in you.','Won a red table offer at 1 HP.'],
+  blessedgod:['THE FOURTH DIE','Ride all four dice where the felt runs red.','Earned the HOUSE\'S BLESSING.'],
+  untouched60:['THE UNTOUCHED MINUTE','Let the last minute pass without a scratch.','Reached foreclosure untouched for the final 60s.'],
+  fountgold:['BATHED IN FIRE','Drink from the well while you burn.','Healed at the fountain during Fever.'],
+  snake2:['TWIN SERPENTS','Two pairs of serpent eyes at one sitting.','Rolled snake eyes twice in one table.'],
+  voucher3:['THE HOARDER','Hoard three favors unspent.','Held 3 house vouchers at once.'],
+  allpages:['ONE CANDLE','Read eight pages by a single candle.','Read 8 ledger pages in one sitting.'],
+  curse3:['HEXWEARER','Wear three hexes and keep walking.','Carried 3 curses at once.'],
+  dodger:['FIVE UNBLED','Reach the fifth minute without bleeding once.','Took zero damage before 5:00.'],
+  maxlove:['THE FINAL EDGE','Take one blade to its final edge.','Maxed a weapon to its level cap.'],
+  sealfive:['ONE BREATH','Drain the vault of five seals in one breath.','Bought 5 vault seals in a single run.'],
+  chained3:['CHAINBREAKER','Break three chains from a single case.','Snapped a 3-chain sealed case.'],
+  richman:['THE WEIGHTED POCKET','Let three hundred coins weigh you down.','Held 300 coins at once.'],
+  mortem:['THE OTHER HALF','The door knows both halves of its own name.','Typed the second word at the door.'],
 };
 const WHISPER_TOTAL=Object.keys(WHISPERS).length;
 let secPaid=false;
@@ -69,7 +84,26 @@ function secret(id,name){
   announce('🗝 SECRET — '+name+' · +25 GILT 🗝', true);
   SFX.secretFound(); sparkBurst(26); flash(0.3,'#c98bff'); coinRain(8);
   LT.secrets=SEC.size; bump('secrets',SEC.size);
+  // the card-flip reveal: the riddle burns, the truth stands in gold
+  try{ const w=WHISPERS[id];
+    if(w){ let rv=$('secretReveal');
+      if(!rv){ rv=document.createElement('div'); rv.id='secretReveal'; document.body.appendChild(rv); }
+      rv.innerHTML='<div class="srCard"><div class="srRiddle">“'+w[1]+'”</div><div class="srName">🗝 '+w[0]+'</div><div class="srPay">+25 ◈ GILT</div></div>';
+      rv.classList.remove('hidden','go'); void rv.offsetWidth; rv.classList.add('go');
+      setTimeout(()=>rv.classList.add('hidden'), 2600); } }catch(e){}
+  // THE GRAND SECRET — all whispers answered: the House bows
+  if(SEC.size>=WHISPER_TOTAL && !LT.equal){ LT.equal=true; achSaveSoon();
+    setTimeout(()=>{ announce("♛ THE HOUSE'S EQUAL — ALL WHISPERS ANSWERED ♛", true);
+      SFX.seraph&&SFX.seraph(); if(typeof bigWin==='function') bigWin("THE HOUSE'S EQUAL",4);
+      if(typeof domConfetti==='function') domConfetti(30); }, 2800); }
   try{ idxBump(); }catch(e){}
+}
+// proximity murmur — one step from a secret, the walls lean in (once per run each)
+function nearWhisper(id){
+  if(SEC.has(id) || !P) return;
+  P._nw=P._nw||new Set(); if(P._nw.has(id)) return; P._nw.add(id);
+  try{ whisper(); }catch(e){ SFX.murmur&&SFX.murmur(); }
+  showStreak('… THE WALLS LEAN IN …');
 }
 let keyBuf='', konamiIdx=0;
 const KONAMI=['arrowup','arrowup','arrowdown','arrowdown','arrowleft','arrowright','arrowleft','arrowright','b','a'];
@@ -78,6 +112,7 @@ function feedSecretKeys(k){
   else konamiIdx=(k===KONAMI[0])?1:0;
   if(k.length===1 && /[a-z0-9]/.test(k)){ keyBuf=(keyBuf+k).slice(-12);
     if(keyBuf.endsWith('ante')) secret('ante','HOUSE PASSWORD');
+    if(keyBuf.endsWith('mortem')){ secret('mortem','THE OTHER HALF'); flash(0.5,'#8b1620'); }
     if(keyBuf.endsWith('666')){ secret('beast','THE BEAST\'S NUMBER'); flash(0.4,'#8b1620'); }
     if(keyBuf.endsWith('jackpot')){ secret('greedy','GREEDY WORDS'); if(state==='playing') coinRain(10); }
     if(keyBuf.endsWith('vesper')) secret('vesper','KNOW THYSELF');
@@ -330,6 +365,8 @@ function readStoryPage(id){
   const pg=STORY_PAGES.find(x=>x.id===id); if(!pg||!storyUnlocked(pg)) return;
   _storyCur=id;
   if((IDX.st||[]).indexOf(id)<0){ (IDX.st=IDX.st||[]).push(id); idxSaveSoon(); }
+  window._pgSes=(window._pgSes||new Set()); window._pgSes.add(id);
+  if(window._pgSes.size>=8) secret('allpages','ONE CANDLE');
   let rv=$('pageReveal');
   if(!rv){ rv=document.createElement('div'); rv.id='pageReveal';
     rv.innerHTML='<div class="prVeil"></div><div class="prPage"><span class="prArrow prPrev">‹</span><span class="prArrow prNext">›</span><div class="prTitle"></div><div class="prBody"></div><div class="prFoot">— from the House\'s own ledger</div></div>';

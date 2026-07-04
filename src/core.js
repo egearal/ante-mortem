@@ -128,6 +128,7 @@ function tickMapProps(dt){
         it._on=true;
         const heal=Math.min(16*dt, P.maxHp-P.hp, it.res);
         P.hp+=heal; it.res-=heal;
+        if(feverOn) secret('fountgold','BATHED IN FIRE');
         it._tick=(it._tick||0)-dt;
         if(it._tick<=0){ it._tick=0.5; it._tk=(it._tk||0)+1;
           ftext(P.x, P.y-28, '+8 ♥', '#8bff9a');
@@ -372,6 +373,7 @@ function hurtPlayer(dmg){
   if(P.armor) dmg=Math.max(1,dmg-P.armor);
   if(P.inv<=0) P.noDmgStreak=0;
   if(P.inv>0) return;
+  P._lastHurtGt=gt;
   P.hp-=dmg; P.inv=0.5+(P.invBonus||0); shake=Math.min(11,shake+5); flash(0.35,'#8b1620'); SFX.hurt();
   { const hw=$('hpwrap')||$('hpfill'); if(hw){ hw.classList.remove('hurt'); void hw.offsetWidth; hw.classList.add('hurt'); } }
   { let src=null, bd=6400; for(const e2 of enemies){ const d2=(e2.x-P.x)*(e2.x-P.x)+(e2.y-P.y)*(e2.y-P.y); if(d2<bd){ bd=d2; src=e2; } }
@@ -592,6 +594,16 @@ function update(dt){
       goldenT=20;
       announce('✨ GOLDEN HOUR — DOUBLE COINS 20s ✨', true);
       SFX.dingBells(); SFX.casinoDing(); flash(0.4,'#ffd36b'); coinRain(12); } }
+  // the veil: quiet checks for the nearly-found (every ~5s)
+  P._nwT=(P._nwT||0)-dt;
+  if(P._nwT<=0){ P._nwT=5;
+    if(P.coins>=300) secret('richman','THE WEIGHTED POCKET');
+    else if(P.coins>=240) nearWhisper('richman');
+    if(P.coins>=700&&P.coins<777) nearWhisper('sevens');
+    if(killStreak>=420&&killStreak<500) nearWhisper('streak500');
+    if(gt>=300 && P._lastHurtGt===undefined) secret('dodger','FIVE UNBLED');
+    if(debuffs.filter(b=>!b.good).length>=3) secret('curse3','HEXWEARER');
+  }
   // 12:00 — one minute before the purge, the clock bleeds
   if(gt>=720 && !P._stirred){ P._stirred=true; announce('☷ THE HOUSE STIRS — ONE MINUTE ☷', false); SFX.murmur(); flash(0.3,'#8b1620');
     const tm9=$('timer'); if(tm9) tm9.classList.add('stirs'); }
@@ -2303,7 +2315,8 @@ function drawPlayer(){
   const t=gt*6, mv=P.moving?1:0, brt=Math.sin(gt*2.2)*0.5+0.5;
   const gh=!!P._rites; // near-death ghoul form
   const fx=Math.cos(P.aim), fy=Math.sin(P.aim);
-  if(P.trail && !GFX.lite){ for(let i=0;i<P.trail.length;i++){ const tp=P.trail[i]; ctx.globalAlpha=(i/P.trail.length)*0.15; ctx.fillStyle='#8b1620'; ctx.beginPath(); ctx.arc(tp.x,tp.y,7*(i/P.trail.length),0,6.28); ctx.fill(); } ctx.globalAlpha=1; }
+  if(P.trail && !GFX.lite){ const tc9=P._goldTrail?'#ffd36b':'#8b1620';
+    for(let i=0;i<P.trail.length;i++){ const tp=P.trail[i]; ctx.globalAlpha=(i/P.trail.length)*(P._goldTrail?0.24:0.15); ctx.fillStyle=tc9; ctx.beginPath(); ctx.arc(tp.x,tp.y,7*(i/P.trail.length),0,6.28); ctx.fill(); } ctx.globalAlpha=1; }
   ctx.save(); ctx.translate(P.x,P.y);
   if(P.inv>0.12 && ((gt*22)|0)%2===0) ctx.globalAlpha=0.55; // struck souls flicker — the i-frames are visible
   // warm candle-glow pool around the gambler
@@ -2583,6 +2596,7 @@ function startGame(){
     if(ind.includes('coffee')){ P._credit=(P._credit||0)+2; }
     if(ind.length){ setTimeout(()=>announce('✦ '+ind.length+' INDULGENCE'+(ind.length>1?'S':'')+' HONORED ✦', true), 2100);
       IDX.ind=[]; idxSaveSoon(); } }
+  if(LT.equal){ P.coinMult*=1.05; P._goldTrail=true; } // THE HOUSE'S EQUAL — forever
   { const today=new Date().toISOString().slice(0,10);
     if(LT.lastDay!==today){ LT.lastDay=today; gilt+=15; saveGilt(); if(typeof achSaveSoon==='function') achSaveSoon();
       setTimeout(()=>announce('☀ FIRST ANTE OF THE DAY — +15 GILT ☀', true), 3000); } }

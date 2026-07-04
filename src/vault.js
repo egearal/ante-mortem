@@ -85,7 +85,7 @@ function buyVault(id){
   LT.seals=(LT.seals||0)+1; bump('seals',LT.seals);
   applySealDelta(id);
   vaultBuys++;
-  if(vaultBuys>=5){ vaultLocked=gt+300;
+  if(vaultBuys>=5){ vaultLocked=gt+300; secret('sealfive','ONE BREATH');
     renderVault();
     setTimeout(()=>{ if(state==='vault'){ $('vaultPanel').classList.add('hidden'); state='playing'; }
       announce('◈ FIVE SEALS BOUGHT — THE VAULT RESTS 5:00 ◈',true); SFX.reelLock(); },1300);

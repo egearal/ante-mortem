@@ -100,6 +100,8 @@ function startFlicker(mk){
 async function actuallyDie(){
   if(state==='dead') return;
   if(P.coins===0) secret('broke','BROKE AT THE END');
+  { const g6=Math.floor(gt); if(g6>=425&&g6<=427) secret('sixsix',"THE BEAST'S HOUR"); }
+  if(gt>=900 && (P._lastHurtGt===undefined || gt-P._lastHurtGt>=60)) secret('untouched60','THE UNTOUCHED MINUTE');
   state='dead'; stopDrone(); SFX.death(); shake=18; flash(0.6,'#8b1620');
   const score=computeScore(), giltEarned=Math.floor(score/40);
   gilt+=giltEarned; saveGilt();

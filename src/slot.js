@@ -365,7 +365,7 @@ function finalizeReward(bestId, matchN){
   { const add9=matchN>=3?2:(matchN===2?1:0);
     for(let t9=0;t9<add9;t9++) setTimeout(()=>{ tone(520+(slotBank+t9)*85,0.09,'sine',0.12); noise(0.05,0.05,3000); }, 250+t9*140);
     slotBank+=add9; }
-  if(slotBank>=7){ slotBank-=7; vouchers++; SFX.dingBells(); SFX.chipStack();
+  if(slotBank>=7){ slotBank-=7; vouchers++; if(vouchers>=3) secret('voucher3','THE HOARDER'); SFX.dingBells(); SFX.chipStack();
     setTimeout(()=>announce('◈ BANK FULL — HOUSE VOUCHER EARNED ◈', true), 200); }
   const defs=slotKind==='weapon'?WEAPONS:PASSIVES; const def=defs.find(x=>x.id===bestId);
   const curLv9 = slotKind==='weapon' ? (P.wlv[def.id]||0) : skLevel(def);
@@ -420,6 +420,8 @@ function burnStake(){
 // HOUSE'S BLESSING — survive all four dice at the red table: 5s untouchable,
 // double damage, double fire rate. The House respects nerve.
 function houseBlessing(){
+  secret('blessedgod','THE FOURTH DIE');
+  if(P.hp<=1) secret('redone','ONE DROP LEFT');
   if(typeof duckDrone==='function') duckDrone(1600);
   P.inv=Math.max(P.inv||0,5);
   P.damage*=2; P.fireRate*=2;
@@ -565,7 +567,8 @@ function resolveRisk(){
   const g=gamble; const sum=g.dL+g.dR;
   RUN.diceTries++; RUN.diceP+=DICE_P[Math.min(12,Math.max(7,g.threshold))]||0.417; if(g.win) RUN.diceWins++;
   $('gambleMsg').innerHTML='';
-  if(g.dL===1&&g.dR===1) secret('snakeeyes','SNAKE EYES');
+  if(g.dL===1&&g.dR===1){ secret('snakeeyes','SNAKE EYES');
+    g._snakes=(g._snakes||0)+1; if(g._snakes>=2) secret('snake2','TWIN SERPENTS'); }
   if(g.win){
     const perfect = sum===12;
     (g.hist=g.hist||[]).push('w'); updateLadderPips();
@@ -642,7 +645,9 @@ function resolveRisk(){
 function takeReward(){
   if(slotStage!=='offer' || !gamble) return;
   const g=gamble;
-  if(g.rites) stakeReturns(); // TAKE is honest — the stake comes home
+  if(g.rites){ stakeReturns(); // TAKE is honest — the stake comes home
+    if((g.hist||[]).length===0){ P._refuses=(P._refuses||0)+1; if(P._refuses>=3) secret('pactbreaker','PACT BREAKER'); }
+    if(P.hp<=1 && (g.hist||[]).length>0) secret('redone','ONE DROP LEFT'); }
   if(g.kind==='weapon') grantWeaponLevels(g.def, g.reward); else grantSkill(g.def, g.reward);
   SFX.winDing(); coinRain(8); flash(0.25,'#e8b64c');
   closeSlot();

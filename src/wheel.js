@@ -64,7 +64,7 @@ function buildChains(){
   const seal=$('wheelSeal'); if(!seal) return;
   seal.querySelectorAll('.wsChain').forEach(c=>c.remove());
   const set=CHAIN_SETS[(Math.random()*CHAIN_SETS.length)|0];
-  wheel.chains=set.length; wheel.chainEls=[];
+  wheel.chains=set.length; wheel._chainN=set.length; wheel.chainEls=[];
   set.forEach(cd=>{ const c=document.createElement('div'); c.className='wsChain';
     c.style.top=cd.t+'%'; c.style.transform='rotate('+cd.r+'deg)';
     seal.insertBefore(c, seal.firstChild); wheel.chainEls.push(c); });
@@ -85,6 +85,7 @@ function unsealWheel(){
   const el=(wheel.chainEls||[]).pop();
   if(el){ el.classList.add('snap'); setTimeout(()=>el.remove(),500); }
   wheel.chains--;
+  if(wheel.chains===0 && (wheel._chainN||0)>=3) secret('chained3','CHAINBREAKER');
   SFX.reelLock(); tone(84,0.16,'sine',0.3,44); noise(0.1,0.2,1600); SFX.leverSlam();
   flash(0.3,'#ffd36b'); shake=Math.min(16,shake+7); sparkBurstAt('tickerBox','wheelLayer',12);
   { const box=$('tickerBox'); if(box){ box.classList.remove('slam'); void box.offsetWidth; box.classList.add('slam'); } }
