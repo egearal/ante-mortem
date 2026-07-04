@@ -1091,6 +1091,16 @@ body{cursor:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"
 .srName{font-family:var(--disp);color:#e8ccff;font-size:17px;letter-spacing:.14em;text-shadow:0 0 14px rgba(201,139,255,.7);}
 .srPay{font-family:var(--disp);color:#ffd36b;font-size:11px;letter-spacing:.18em;margin-top:5px;}
 
+/* the contract economy */
+.ctChip.locked{opacity:.55;cursor:default;border-style:dashed;}
+.ctChip.locked b{color:#8f8371;}
+.ctSlotBuy{margin:4px 0 10px;padding:9px 16px;border:1px solid rgba(255,211,107,.45);border-radius:9px;cursor:pointer;display:inline-block;
+  font-family:var(--disp);font-size:12px;letter-spacing:.12em;color:#e2d6b8;background:linear-gradient(160deg,rgba(50,38,14,.55),rgba(20,14,6,.75));transition:box-shadow .15s;}
+.ctSlotBuy b{color:#ffd36b;}
+.ctSlotBuy:hover{box-shadow:0 0 20px rgba(255,211,107,.25);}
+.ctSlotBuy.broke{opacity:.55;}
+.ctSlotBuy.deny{animation:denyShake .3s;}
+
 /* pause: the HUD stays lit above the veil */
 body.paused #hud{z-index:25;}
 /* hp v3 fill smoothness */

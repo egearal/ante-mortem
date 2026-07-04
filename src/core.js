@@ -299,7 +299,7 @@ function startWave(){
     spawnEnemy(t,x,y);
   }
   // HORDE: a fast swarm pours in from one flank
-  if(wave>=2 && (wave%2===0 || Math.random()<0.55)){
+  if(wave>=2 && ((P&&P.stampede) || wave%2===0 || Math.random()<0.55)){
     const ha=Math.random()*6.283, hd=Math.max(VW,VH)*0.62;
     const hx=clamp(P.x+Math.cos(ha)*hd,40,CFG.arena-40), hy=clamp(P.y+Math.sin(ha)*hd,40,CFG.arena-40);
     const hn=Math.round((20+wave*3)*((window._fmods&&window._fmods.horde)||1)*(P&&P.crowd?1.3:1)*rnd(0.85,1.2));
@@ -308,7 +308,7 @@ function startWave(){
     setTimeout(()=>{ if(state==='playing'){ showStreak('HORDE INCOMING'); SFX.murmur(); } }, 260);
   }
   if(eliteWave){
-    const n=1+Math.floor(wave/8);
+    const n=(1+Math.floor(wave/8))*((P&&P.noMercy)?2:1);
     for(let k=0;k<n;k++){ const a=Math.random()*6.283, d=Math.max(VW,VH)*0.6;
       const ex9=clamp(P.x+Math.cos(a)*d,20,CFG.arena-20), ey9=clamp(P.y+Math.sin(a)*d,20,CFG.arena-20);
       spawnEnemy('elite',ex9,ey9); ring(ex9,ey9,160,'#c98bff'); ring(ex9,ey9,90,'#e8ccff'); }
@@ -2557,7 +2557,8 @@ function startGame(){
       if(fd.mods&&fd.mods.coin) P.coinMult=(P.coinMult||1)*fd.mods.coin;
       if(fd.mods&&fd.mods.xp) P.xpMult=(P.xpMult||1)*fd.mods.xp;
       if(fd.id!=='pit') setTimeout(()=>announce(fd.g+' TONIGHT: '+fd.n+' '+fd.g, true), 900); } }
-  { const act=(typeof RUN_CONTRACTS!=='undefined')?(IDX.ct||[]):[];
+  { let act=(typeof RUN_CONTRACTS!=='undefined')?(IDX.ct||[]):[];
+    act=act.filter(id=>{ const c=RUN_CONTRACTS.find(x=>x.id===id); return c && (!c.u||c.u()); }).slice(0,(typeof ctSlots==='function')?ctSlots():2);
     act.forEach(id=>{ const ct=RUN_CONTRACTS.find(x=>x.id===id); if(ct){ try{ ct.ap(); }catch(e){} window._markMult*=1.25; } });
     if(act.length) setTimeout(()=>announce('✍ '+act.length+' CONTRACT'+(act.length>1?'S':'')+' SIGNED — ×'+window._markMult.toFixed(2)+' MARKS & GILT ✍', true), 1600); }
   { const ind=(typeof INDULGENCES!=='undefined')?(IDX.ind||[]):[];

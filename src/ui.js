@@ -496,12 +496,18 @@ const FLOORS=[
 function curFloor(){ const f=FLOORS.find(x=>x.id===(IDX.fl||'pit')); return (f&&f.u())?f:FLOORS[0]; }
 /* THE CONTRACTS — sign up to two; each pays ×1.25 marks & gilt at the ledger */
 const RUN_CONTRACTS=[
- {id:'glass',    g:'♡', n:'GLASS SOUL',     d:'Max blood halved. Every touch is a sentence.', ap:()=>{ P.maxHp=Math.max(20,Math.round(P.maxHp*0.5)); P.hp=P.maxHp; }},
- {id:'drought',  g:'✕', n:'THE DROUGHT',    d:'Fountains run dry. The wheel never heals.', ap:()=>{ P.drought=true; }},
- {id:'crowd',    g:'♟', n:'CROWDED TABLE',  d:'The pit spawns 30% heavier, all night.', ap:()=>{ P.crowd=true; }},
- {id:'cold',     g:'❄', n:'COLD DECK',      d:'The reels never match. No pairs. No triples. Ever.', ap:()=>{ P.coldDeck=true; }},
- {id:'midnight', g:'☾', n:'MIDNIGHT START', d:'The clock opens at 3:00 — ten minutes to matter.', ap:()=>{ gt=180; }}
+ {id:'glass',    g:'♡', n:'GLASS SOUL',     d:'Max blood halved. Every touch is a sentence.', u:()=>RANK.rank>=15, uTxt:'HOUSE RANK 15', ap:()=>{ P.maxHp=Math.max(20,Math.round(P.maxHp*0.5)); P.hp=P.maxHp; }},
+ {id:'drought',  g:'✕', n:'THE DROUGHT',    d:'Fountains run dry. The wheel never heals.', u:()=>(LT.deaths||0)>=25, uTxt:'DIE 25 TIMES', ap:()=>{ P.drought=true; }},
+ {id:'crowd',    g:'♟', n:'CROWDED TABLE',  d:'The pit spawns 30% heavier, all night.', u:()=>(LT.kills||0)>=5000, uTxt:'5,000 LIFETIME KILLS', ap:()=>{ P.crowd=true; }},
+ {id:'cold',     g:'❄', n:'COLD DECK',      d:'The reels never match. No pairs. No triples. Ever.', u:()=>(LT.spins||0)>=100, uTxt:'SPIN 100 SLOTS', ap:()=>{ P.coldDeck=true; }},
+ {id:'midnight', g:'☾', n:'MIDNIGHT START', d:'The clock opens at 3:00 — ten minutes to matter.', u:()=>(LT.houseMet||0)>=1, uTxt:'MEET THE HOUSE ONCE', ap:()=>{ gt=180; }},
+ {id:'nomercy',  g:'☠', n:'NO MERCY',       d:'Elites hunt in pairs, all night.', u:()=>RANK.rank>=35, uTxt:'HOUSE RANK 35', ap:()=>{ P.noMercy=true; }},
+ {id:'stampede', g:'♞', n:'THE STAMPEDE',   d:'A horde pours in EVERY wave. No quiet ones.', u:()=>(LT.kills||0)>=10000, uTxt:'10,000 LIFETIME KILLS', ap:()=>{ P.stampede=true; }},
+ {id:'nothing',  g:'⚖', n:'DOUBLE OR NOTHING', d:'No DEATH ROLL. Die once, die for real.', u:()=>RANK.rank>=50, uTxt:'HOUSE RANK 50', ap:()=>{ P.markerUsed=true; P.noRoll=true; }}
 ];
+// contract SLOTS — one comes free; the second and third are bought in gilt
+function ctSlots(){ return Math.min(3, IDX.ctSlots||1); }
+const CT_SLOT_COST=[0, 25000, 100000];
 const SOULS=[
  {id:'vesper', n:'VESPER',     g:'♠', col:'#e6d9c2', d:'The staked soul. Balanced hands, every door open.',
    u:()=>true, uTxt:'', ap:()=>{}},
@@ -536,9 +542,19 @@ function openAnteRoom(){
     $('anteBody').addEventListener('click',ev=>{
       const sc=ev.target.closest('.soulCard'); if(sc && !sc.classList.contains('locked')){ IDX.sl=sc.dataset.id; idxSaveSoon(); renderAnteRoom(); SFX.uiDing(); return; }
       const fc=ev.target.closest('.floorCard'); if(fc && !fc.classList.contains('locked')){ IDX.fl=fc.dataset.id; idxSaveSoon(); renderAnteRoom(); SFX.uiDing(); return; }
-      const cc=ev.target.closest('.ctChip'); if(cc){ const id=cc.dataset.id; IDX.ct=IDX.ct||[];
-        const i=IDX.ct.indexOf(id); if(i>=0) IDX.ct.splice(i,1); else if(IDX.ct.length<2) IDX.ct.push(id); else return;
+      const cc=ev.target.closest('.ctChip'); if(cc){
+        if(cc.classList.contains('locked')){ SFX.thud(); return; }
+        const id=cc.dataset.id; IDX.ct=IDX.ct||[];
+        const i=IDX.ct.indexOf(id); if(i>=0) IDX.ct.splice(i,1); else if(IDX.ct.length<ctSlots()) IDX.ct.push(id); else { SFX.thud(); return; }
         idxSaveSoon(); renderAnteRoom(); SFX.press(); return; }
+      const sb9=ev.target.closest('.ctSlotBuy'); if(sb9){
+        const nxt=ctSlots()+1; const cost=CT_SLOT_COST[nxt-1];
+        if(nxt>3||!cost) return;
+        if(gilt<cost){ SFX.bust(); sb9.classList.add('deny'); setTimeout(()=>sb9.classList.remove('deny'),350); return; }
+        gilt-=cost; saveGilt(); IDX.ctSlots=nxt; idxSaveSoon();
+        SFX.vaultBuy&&SFX.vaultBuy(); SFX.dingBells(); coinRain(18); sparkBurst(24); flash(0.4,'#ffd36b');
+        announce('✍ A '+(nxt===2?'SECOND':'THIRD')+' CONTRACT SLOT — THE HOUSE NOTARIZES ✍', true);
+        renderAnteRoom(); return; }
       const ic=ev.target.closest('.indChip'); if(ic && !ic.classList.contains('owned')){
         const d=INDULGENCES.find(x=>x.id===ic.dataset.id); if(!d) return;
         if(gilt<d.cost){ SFX.bust(); ic.classList.add('deny'); setTimeout(()=>ic.classList.remove('deny'),350); return; }
@@ -571,11 +587,19 @@ function renderAnteRoom(){
     html+='</div>';
   }
   if(typeof RUN_CONTRACTS!=='undefined'){
-    const act=IDX.ct||[];
-    html+='<div class="anteH">SIGN CONTRACTS <span style="opacity:.6;font-size:11px">(up to two · each ×1.25)</span>'
+    const act=IDX.ct||[]; const sl9=ctSlots();
+    while(act.length>sl9) act.pop(); // stale saves respect the cap
+    let slotPips=''; for(let i=0;i<3;i++) slotPips+= i<sl9?'◆':'◇';
+    html+='<div class="anteH">SIGN CONTRACTS <span style="opacity:.6;font-size:11px">(slots '+slotPips+' · each pays ×1.25)</span>'
       +(act.length?' <b style="color:#8bff9a;letter-spacing:.1em;font-size:12px">— TONIGHT PAYS ×'+Math.pow(1.25,act.length).toFixed(2)+' MARKS & GILT</b>':'')
-      +'</div><div class="ctRow">';
-    RUN_CONTRACTS.forEach(c=>{ html+='<div class="ctChip'+(act.includes(c.id)?' on':'')+'" data-id="'+c.id+'"><b>'+c.g+' '+c.n+'</b><span>'+c.d+'</span></div>'; });
+      +'</div>';
+    if(sl9<3){ const cost=CT_SLOT_COST[sl9];
+      html+='<div class="ctSlotBuy'+(gilt<cost?' broke':'')+'">🖋 UNLOCK '+(sl9===1?'SECOND':'THIRD')+' CONTRACT SLOT — <b>'+cost.toLocaleString()+' ◈ GILT</b></div>'; }
+    html+='<div class="ctRow">';
+    RUN_CONTRACTS.forEach(c=>{ const un=!c.u||c.u();
+      html+= un
+        ? '<div class="ctChip'+(act.includes(c.id)?' on':'')+'" data-id="'+c.id+'"><b>'+c.g+' '+c.n+'</b><span>'+c.d+'</span></div>'
+        : '<div class="ctChip locked" title="'+(c.uTxt||'')+'"><b>🔒 SEALED</b><span>'+c.uTxt+'</span></div>'; });
     html+='</div>';
   }
   { const owned=IDX.ind||[];
