@@ -373,7 +373,7 @@ function hurtPlayer(dmg){
   if(P.armor) dmg=Math.max(1,dmg-P.armor);
   if(P.inv<=0) P.noDmgStreak=0;
   if(P.inv>0) return;
-  P._lastHurtGt=gt;
+  P._lastHurtGt=gt; if(typeof houseActive!=='undefined' && houseActive) P._houseHurt=true;
   P.hp-=dmg; P.inv=0.5+(P.invBonus||0); shake=Math.min(11,shake+5); flash(0.35,'#8b1620'); SFX.hurt();
   { const hw=$('hpwrap')||$('hpfill'); if(hw){ hw.classList.remove('hurt'); void hw.offsetWidth; hw.classList.add('hurt'); } }
   { let src=null, bd=6400; for(const e2 of enemies){ const d2=(e2.x-P.x)*(e2.x-P.x)+(e2.y-P.y)*(e2.y-P.y); if(d2<bd){ bd=d2; src=e2; } }
@@ -603,6 +603,7 @@ function update(dt){
     if(killStreak>=420&&killStreak<500) nearWhisper('streak500');
     if(gt>=300 && P._lastHurtGt===undefined) secret('dodger','FIVE UNBLED');
     if(debuffs.filter(b=>!b.good).length>=3) secret('curse3','HEXWEARER');
+    try{ whisperSweep(); }catch(e){}
   }
   // 12:00 — one minute before the purge, the clock bleeds
   if(gt>=720 && !P._stirred){ P._stirred=true; announce('☷ THE HOUSE STIRS — ONE MINUTE ☷', false); SFX.murmur(); flash(0.3,'#8b1620');
@@ -2572,6 +2573,7 @@ function startGame(){
   { const today=new Date().toISOString().slice(0,10);
     if(LT.lastDay!==today){ LT.lastDay=today; gilt+=15; saveGilt(); if(typeof achSaveSoon==='function') achSaveSoon();
       setTimeout(()=>announce('☀ FIRST ANTE OF THE DAY — +15 GILT ☀', true), 3000); } }
+  window._gt0=gt; // the night's true zero (contracts may shift the clock)
   P._idle=0; P._sigT=0; P._corners=new Set(); P._chestsRun=0; P._roulRun=0; P._pauses=0; P._1313=false;
   resetRun();
   { const now=new Date();

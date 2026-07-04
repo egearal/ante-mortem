@@ -1157,6 +1157,16 @@ body{cursor:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"
 .spSpine i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#8a5a10,#ffd36b);border-radius:3px;}
 .spSpine b{position:absolute;right:0;top:8px;font-size:9px;letter-spacing:.14em;color:#9c8f7c;font-weight:400;}
 
+/* the hundred-and-one — unfound riddles hide behind frosted glass */
+.wsp:not(.on) i{filter:blur(2.2px) contrast(.8);opacity:.7;transition:filter .25s,opacity .25s;}
+.wsp:not(.on):hover i{filter:blur(0.7px);opacity:.95;}
+.wsp.vrare{border-color:rgba(201,139,255,.55);background:linear-gradient(160deg,rgba(50,28,66,.4),rgba(18,10,24,.6));}
+.wsp.vrare.on{box-shadow:0 0 16px rgba(201,139,255,.35);}
+.wsp.myth{border-color:rgba(240,240,255,.5);background:linear-gradient(160deg,rgba(10,10,16,.9),rgba(0,0,0,.95));}
+.wsp.myth i{color:#9aa;}
+.wsp.myth.on{box-shadow:0 0 26px rgba(240,240,255,.4);border-color:#fff;}
+.wsp.myth.on b{color:#fff;text-shadow:0 0 14px rgba(255,255,255,.8);}
+
 /* pause: the HUD stays lit above the veil */
 body.paused #hud{z-index:25;}
 /* hp v3 fill smoothness */

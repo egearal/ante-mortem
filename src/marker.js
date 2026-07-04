@@ -105,6 +105,11 @@ async function actuallyDie(){
   if(P.coins===0) secret('broke','BROKE AT THE END');
   { const g6=Math.floor(gt); if(g6>=425&&g6<=427) secret('sixsix',"THE BEAST'S HOUR"); }
   if(gt>=900 && (P._lastHurtGt===undefined || gt-P._lastHurtGt>=60)) secret('untouched60','THE UNTOUCHED MINUTE');
+  if(P.coins>=500) secret('unspent','UNSPENT');
+  if((gt-(window._gt0||0))<30) secret('mayfly','THE MAYFLY');
+  if(gt>=899) secret('fullnight','THE FULL NIGHT');
+  if(gt>=899 && !P._houseHurt){ const had=SEC.has('deathless'); secret('deathless','DEATHLESS');
+    if(!had && SEC.has('deathless')){ gilt+=975; saveGilt(); setTimeout(()=>announce('♛ DEATHLESS — THE HOUSE PAYS 1,000 GILT ♛',true),1200); } }
   stopDrone(); SFX.death(); shake=18; flash(0.6,'#8b1620');
   const score=computeScore(), giltEarned=Math.floor(score/40);
   gilt+=giltEarned; saveGilt();

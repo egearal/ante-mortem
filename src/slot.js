@@ -360,7 +360,7 @@ function lockSelector(){
 function finalizeReward(bestId, matchN){
   let seraph=Math.random()<0.01; if(seraph&&matchN<3) matchN++;
   if(slotFloor && matchN<2) matchN=2;
-  if(matchN>=3){ LT.triples++; bump('triples',LT.triples); } else if(matchN===2){ LT.pairs++; bump('pairs',LT.pairs); }
+  if(matchN>=3){ LT.triples++; bump('triples',LT.triples); RUN.pulls._tr3=(RUN.pulls._tr3||0)+1; } else if(matchN===2){ LT.pairs++; bump('pairs',LT.pairs); }
   { const add9=matchN>=3?2:(matchN===2?1:0);
     for(let t9=0;t9<add9;t9++) setTimeout(()=>{ tone(520+(slotBank+t9)*85,0.09,'sine',0.12); noise(0.05,0.05,3000); }, 250+t9*140);
     slotBank+=add9; }
@@ -419,6 +419,7 @@ function burnStake(){
 // double damage, double fire rate. The House respects nerve.
 function houseBlessing(){
   secret('blessedgod','THE FOURTH DIE');
+  try{ if(typeof curFloor==='function' && curFloor().id==='chapel') secret('chapelblessed','CHAPEL RITES'); }catch(e){}
   if(P.hp<=1) secret('redone','ONE DROP LEFT');
   if(typeof duckDrone==='function') duckDrone(1600);
   P.inv=Math.max(P.inv||0,5);
@@ -553,6 +554,7 @@ function resolveRisk(){
     if(perfect && g.round===1) secret('bornlucky','BORN LUCKY');
     if(perfect && g._lastPerfect) secret('dblperfect','DOUBLE PERFECTION');
     g._lastPerfect=perfect;
+    if(perfect){ g._perfRow=(g._perfRow||0)+1; if(g._perfRow>=3) secret('perfrow','THE IMPOSSIBLE ROW'); } else g._perfRow=0;
     LT.diceWins++; bump('diceWins',LT.diceWins);
     if(perfect){ LT.perfects++; bump('perfects',LT.perfects); }
     if(g.round>=MAXROLL){ LT.ladders++; bump('ladders',LT.ladders); }

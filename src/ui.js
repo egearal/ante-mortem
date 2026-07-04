@@ -402,6 +402,7 @@ window.addEventListener('keydown',e=>{
       if(mk.p<mk.max){
         mk.presses++;
         mk.p=Math.min(mk.max, mk.p+0.0025+Math.random()*0.005); // +0.25–0.75% a press — every decimal earned
+        if(mk.p>=mk.max) secret('pressmax','THE CEILING');
         SFX.press();
         pressFx(mk);
         renderPressMeter();

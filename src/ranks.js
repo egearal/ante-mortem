@@ -75,7 +75,106 @@ const WHISPERS={
   chained3:['CHAINBREAKER','Break three chains from a single case.','Snapped a 3-chain sealed case.'],
   richman:['THE WEIGHTED POCKET','Let three hundred coins weigh you down.','Held 300 coins at once.'],
   mortem:['THE OTHER HALF','The door knows both halves of its own name.','Typed the second word at the door.'],
+  fasthands:['FAST HANDS','Thirty souls before the second wave learns your name.','30 kills within the first two waves.'],
+  pacifist:['THE OBJECTOR','A minute and a half of mercy in a merciless house.','Reached 1:30 of a run with zero kills.'],
+  arsenal5:['FIVE BLADES','Carry five instruments of the trade at once.','Held 5 weapons in one night.'],
+  level15:['FIFTEENTH CHARGE','Fifteen levels in a single night.','Reached level 15 in one run.'],
+  max3arms:['THREE FINAL EDGES','Three blades honed past improving.','Maxed 3 weapons in one night.'],
+  curse0:['UNHEXED','Ten minutes without wearing a single hex.','Reached 10:00 with zero curses taken.'],
+  pauper:['THE EMPTY POCKET','Walk four minutes owning nothing at all.','Reached 4:00 with zero coins.'],
+  blood1:['THE LONG BLEED','Half a minute lived below a tenth of your blood.','Survived 30s straight under 10% HP.'],
+  overheal:['THE RESERVOIR','Two hundred drops in one body.','Reached 200 max blood.'],
+  speed99:['THE DRAUGHT','Outrun the House\'s patience.','Reached 350 move speed.'],
+  damage100:['THE HEAVY HAND','A hundredweight behind every blow.','Reached 100 damage.'],
+  pickup200:['THE LONG ARM','Nothing on the floor is out of reach.','Reached 200 pickup range.'],
+  streak200:['TWO HUNDRED','Two hundred souls without letting the count die.','Reached a 200 kill streak.'],
+  wave20:['THE TWENTIETH TIDE','Stand when the twentieth wave breaks.','Reached wave 20.'],
+  dice10:['TEN BONES','Ten dice rungs won in a single night.','Won 10 dice rolls in one run.'],
+  cartomancer:['CARTOMANCER','Fifty cards read from the marble.','Read 50 tarot cards, lifetime.'],
+  wheelwarden:['WHEEL WARDEN','Twenty-five spins of the chained case.','Spun the Wheel of Souls 25 times, lifetime.'],
+  seals20:['TWENTY SEALS','Twenty permanent marks of gilt on your soul.','Bought 20 vault seals, lifetime.'],
+  gilt10k:['THE FIRST FORTUNE','Ten thousand teeth in the bank.','Held 10,000 gilt.'],
+  marks10k:['TEN THOUSAND MARKS','The ladder remembers every one.','Earned 10,000 lifetime marks.'],
+  rank25:['THE QUARTER CLIMB','A quarter of the way to the seat.','Reached HOUSE RANK 25.'],
+  rank50:['THE HALFWAY HOUSE','Half the ladder behind you.','Reached HOUSE RANK 50.'],
+  rank75:['THE HIGH FLOORS','Three quarters up. The air is thinner. The stakes are not.','Reached HOUSE RANK 75.'],
+  deaths50:['FIFTY FUNERALS','Die fifty times and still come back for the reels.','50 lifetime deaths.'],
+  kills25k:['THE RECKONING','Twenty-five thousand souls by your hand.','25,000 lifetime kills.'],
+  runs50:['FIFTY NIGHTS','Fifty antes. The chair knows your shape.','50 lifetime runs.'],
+  hours5:['THE FIFTH HOUR','Five hours of your death spent at the table.','5 hours lifetime playtime.'],
+  fevers10:['SERIAL BURNER','Ten fevers survived — or enjoyed.','Entered Fever 10 times, lifetime.'],
+  perfects5:['FIVE TWELVES','Boxcars, five times over.','Rolled 5 PERFECT 12s, lifetime.'],
+  ladders10:['LADDER MONK','Ten dice ladders climbed to the top.','Completed 10 full dice ladders, lifetime.'],
+  estate50:['HALF THE HOUSE','Half of everything, catalogued and claimed.','Reached 50% estate.'],
+  pressmax:['THE CEILING','Press your life to the very cap of mercy.','Hit the DEATH ROLL press cap.'],
+  bounty10:['HEADHUNTER','Ten bounties collected in the House\'s name.','Claimed 10 bounties, lifetime.'],
+  chests20:['GIFT HISTORIAN','Twenty gifts opened, mimics notwithstanding.','Opened 20 chests, lifetime.'],
+  gods5:['FIVE CROWNS','GOD LEVEL, five times over.','Reached GOD LEVEL 5 times, lifetime.'],
+  unspent:['UNSPENT','Die holding a fortune you never touched.','Died with 500+ coins.'],
+  mayfly:['THE MAYFLY','A whole night, over in half a minute.','Died before 0:30.'],
+  fullnight:['THE FULL NIGHT','See the fifteenth minute with your own eyes.','Reached foreclosure.'],
+  triple2:['TWICE-BORN TRIPLES','Two triples pulled in a single night.','Landed 2 triples in one run.'],
+  arsenal6:['SIX BLADES','Six instruments. No hands left for prayer.','Held 6 weapons in one night.','vr'],
+  skillmonk:['THE BARE-HANDED','Five minutes on blades alone — not one skill taken.','Reached 5:00 with zero skills.','vr'],
+  level20:['TWENTIETH CHARGE','Twenty levels in one night. The reels are frightened.','Reached level 20 in one run.','vr'],
+  wave25:['THE SILVER TIDE','The twenty-fifth wave, and still standing.','Reached wave 25.','vr'],
+  dice15:['FIFTEEN BONES','Fifteen rungs in one night.','Won 15 dice rolls in one run.','vr'],
+  gilt50k:['THE DEEP VAULT','Fifty thousand teeth. The mill hums your name.','Held 50,000 gilt.','vr'],
+  estate75:['THE MAJOR SHAREHOLDER','Three quarters of the House in your name.','Reached 75% estate.','vr'],
+  perfrow:['THE IMPOSSIBLE ROW','Three perfect twelves at one sitting.','3 PERFECT 12s in one table.','vr'],
+  chapelblessed:['CHAPEL RITES','Earn the blessing where the light is holy.','HOUSE\'S BLESSING on THE CHAPEL floor.','vr'],
+  gold600:['THE DRAGON\'S POCKET','Six hundred coins, carried, jingling.','Held 600 coins at once.','vr'],
+  deathless:['DEATHLESS','Let death walk beside you for two whole minutes, and never once be touched.','Survived THE HOUSE\'s reign (13:00–15:00) untouched. Pays 1,000 gilt.','myth'],
 };
+// THE SWEEP — cheap threshold whispers, checked every ~5s from the update loop
+function whisperSweep(){
+  if(!P || state!=='playing') return;
+  const t0=window._gt0||0, rt=gt-t0;
+  const arms=WEAPONS.filter(w=>(P.wlv[w.id]||0)>0).length;
+  const armsMax=WEAPONS.filter(w=>(P.wlv[w.id]||0)>=w.max).length;
+  if(wave<=2 && P.kills>=30) secret('fasthands','FAST HANDS');
+  if(rt>=90 && P.kills===0) secret('pacifist','THE OBJECTOR');
+  if(arms>=5) secret('arsenal5','FIVE BLADES');
+  if(arms>=6) secret('arsenal6','SIX BLADES');
+  if(armsMax>=3) secret('max3arms','THREE FINAL EDGES');
+  if(P.level>=15) secret('level15','FIFTEENTH CHARGE');
+  if(P.level>=20) secret('level20','TWENTIETH CHARGE');
+  if(rt>=600 && (RUN.curses||0)===0) secret('curse0','UNHEXED');
+  if(rt>=240 && P.coins===0) secret('pauper','THE EMPTY POCKET');
+  if(rt>=300 && (!P.passiveList||!P.passiveList.length)) secret('skillmonk','THE BARE-HANDED');
+  if(P.hp/P.maxHp<0.10){ P._lowT=(P._lowT||0)+5; if(P._lowT>=30) secret('blood1','THE LONG BLEED'); } else P._lowT=0;
+  if(P.maxHp>=200) secret('overheal','THE RESERVOIR');
+  if(P.speed>=350) secret('speed99','THE DRAUGHT');
+  if(P.damage>=100) secret('damage100','THE HEAVY HAND');
+  if(P.pickup>=200) secret('pickup200','THE LONG ARM');
+  if(killStreak>=200) secret('streak200','TWO HUNDRED');
+  if(wave>=20) secret('wave20','THE TWENTIETH TIDE');
+  if(wave>=25) secret('wave25','THE SILVER TIDE');
+  if((RUN.diceWins||0)>=10) secret('dice10','TEN BONES');
+  if((RUN.diceWins||0)>=15) secret('dice15','FIFTEEN BONES');
+  if(P.coins>=600) secret('gold600',"THE DRAGON'S POCKET");
+  if((LT.tarot||0)>=50) secret('cartomancer','CARTOMANCER');
+  if((LT.wheel||0)>=25) secret('wheelwarden','WHEEL WARDEN');
+  if((LT.seals||0)>=20) secret('seals20','TWENTY SEALS');
+  if(gilt>=10000) secret('gilt10k','THE FIRST FORTUNE');
+  if(gilt>=50000) secret('gilt50k','THE DEEP VAULT');
+  if(RANK.marks>=10000) secret('marks10k','TEN THOUSAND MARKS');
+  if(RANK.rank>=25) secret('rank25','THE QUARTER CLIMB');
+  if(RANK.rank>=50) secret('rank50','THE HALFWAY HOUSE');
+  if(RANK.rank>=75) secret('rank75','THE HIGH FLOORS');
+  if((LT.deaths||0)>=50) secret('deaths50','FIFTY FUNERALS');
+  if((LT.kills||0)>=25000) secret('kills25k','THE RECKONING');
+  if((LT.runs||0)>=50) secret('runs50','FIFTY NIGHTS');
+  if((LT.minutes||0)>=300) secret('hours5','THE FIFTH HOUR');
+  if((LT.fevers||0)>=10) secret('fevers10','SERIAL BURNER');
+  if((LT.perfects||0)>=5) secret('perfects5','FIVE TWELVES');
+  if((LT.ladders||0)>=10) secret('ladders10','LADDER MONK');
+  if((LT.bounty||0)>=10) secret('bounty10','HEADHUNTER');
+  if((LT.chests||0)>=20) secret('chests20','GIFT HISTORIAN');
+  if((LT.gods||0)>=5) secret('gods5','FIVE CROWNS');
+  if((RUN.pulls&&((RUN.pulls._tr3||0)>=2))) secret('triple2','TWICE-BORN TRIPLES');
+  try{ if(typeof estatePct==='function'){ const ep=estatePct(); if(ep>=50) secret('estate50','HALF THE HOUSE'); if(ep>=75) secret('estate75','THE MAJOR SHAREHOLDER'); } }catch(e){}
+}
 const WHISPER_TOTAL=Object.keys(WHISPERS).length;
 let secPaid=false;
 function secret(id,name){
@@ -296,9 +395,10 @@ function openIndexPanel(){
       }).join('')
      +'</div><div class="idxHint">MARKS raise your rank. Every rung pays — gilt, blood, or a blade.</div></div>')
    +'<div class="idxSec" style="--sc:#c98bff"><div class="idxSecH"><b>🗝 THE WHISPERS</b><span>'+SEC.size+' / '+WHISPER_TOTAL+'</span></div><div class="wspGrid">'
-     +Object.keys(WHISPERS).map(id=>{ const w=WHISPERS[id], got=SEC.has(id);
-        return got? '<div class="wsp on" data-name="'+w[0].replace(/"/g,'&quot;')+'" data-tip="'+w[2].replace(/"/g,'&quot;')+'">🗝 <b>'+w[0]+'</b></div>'
-                  : '<div class="wsp"><i>“'+w[1]+'”</i></div>'; }).join('')
+     +Object.keys(WHISPERS).map(id=>{ const w=WHISPERS[id], got=SEC.has(id), tier=w[3]||'';
+        const tc=tier==='myth'?' myth':(tier==='vr'?' vrare':'');
+        return got? '<div class="wsp on'+tc+'" data-name="'+w[0].replace(/"/g,'&quot;')+'" data-tip="'+w[2].replace(/"/g,'&quot;')+'">🗝 <b>'+w[0]+'</b></div>'
+                  : '<div class="wsp'+tc+'"><i>“'+w[1]+'”</i></div>'; }).join('')
      +'</div><div class="idxHint">Each whisper answered pays 25 GILT. The riddles are the walls talking.</div></div>';
   p.classList.remove('hidden');
   { const now=list.querySelector('.ldRow.now'); if(now) now.scrollIntoView({block:'center'}); }
