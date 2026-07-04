@@ -1167,6 +1167,17 @@ body{cursor:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"
 .wsp.myth.on{box-shadow:0 0 26px rgba(240,240,255,.4);border-color:#fff;}
 .wsp.myth.on b{color:#fff;text-shadow:0 0 14px rgba(255,255,255,.8);}
 
+/* QoL X+XI — plates, dust, bank chips */
+#bossPlate{position:fixed;top:16%;left:50%;transform:translateX(-50%) scale(.6);z-index:46;pointer-events:none;opacity:0;
+  font-family:var(--disp);font-size:30px;letter-spacing:.22em;color:#ffd36b;text-shadow:0 0 24px rgba(255,60,80,.8),0 2px 0 #000;
+  padding:10px 34px;border-top:1px solid rgba(255,211,107,.6);border-bottom:1px solid rgba(255,211,107,.6);background:linear-gradient(90deg,transparent,rgba(20,4,8,.85) 15%,rgba(20,4,8,.85) 85%,transparent);}
+#bossPlate b{color:#ff5560;}
+@keyframes bossPlateIn{0%{opacity:0;transform:translateX(-50%) scale(1.6);}12%{opacity:1;transform:translateX(-50%) scale(1);}82%{opacity:1;}100%{opacity:0;transform:translateX(-50%) translateY(-10px) scale(.98);}}
+#bossPlate.go{animation:bossPlateIn 2.6s ease-out forwards;}
+@keyframes dieDust{0%{filter:brightness(1.6);}30%{filter:brightness(1.2) drop-shadow(0 6px 4px rgba(200,180,120,.4));}100%{filter:none;}}
+.die.dust{animation:dieDust .5s ease-out;}
+.ptBank{font-family:var(--disp);font-size:9.5px;letter-spacing:.22em;color:#8bff9a;margin-bottom:4px;}
+
 /* pause: the HUD stays lit above the veil */
 body.paused #hud{z-index:25;}
 /* hp v3 fill smoothness */

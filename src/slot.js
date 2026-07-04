@@ -127,7 +127,9 @@ function ensurePayTable(){
   const row=(rar)=>'<div class="ptRow" data-rar="'+rar+'" style="--pc:'+RARC[rar]+'"><span class="ptN">'+SLOT_RAR[rar]+'</span><span class="ptPips">'+pips[rar]+'</span></div>';
   const hasAsc=P.passiveList && P.passiveList.some(x=>x.rar==='ascend');
   pt.classList.toggle('red', !!lastRites);
-  pt.innerHTML='<div class="ptHead">'+(lastRites?'☨ THE RED TABLE ☨':'THE ODDS')+'</div>'
+  const bankChips=slotBank>0?('<div class="ptBank">'+'●'.repeat(Math.min(7,slotBank))+'○'.repeat(Math.max(0,7-slotBank))+' BANK</div>'):'';
+  const vchChips=vouchers>0?('<div class="ptBank" style="color:#ffd36b">◈×'+vouchers+' VOUCHER'+(vouchers>1?'S':'')+'</div>'):'';
+  pt.innerHTML=bankChips+vchChips+'<div class="ptHead">'+(lastRites?'☨ THE RED TABLE ☨':'THE ODDS')+'</div>'
     +row('common')+row('uncommon')+row('rare')+row('epic')+row('legendary')
     +(hasAsc?'<div class="ptRow" data-rar="ascend" style="--pc:'+RARC.ascend+'"><span class="ptN">ASCENSION</span><span class="ptPips">◆◆◆◆◆◆</span></div>':'')
     +'<div class="ptFoot">'+(lastRites?'<b style="color:#ff7b7b">ANY MISS BURNS THE STAKE</b><br>ALL FOUR DICE = HOUSE&#39;S BLESSING':'<b>PAIR = LEVEL 2 · TRIPLE = MAX</b><br>EVERY DICE WIN = +1 LEVEL')+'</div>';
@@ -205,6 +207,10 @@ function spinReels(){
   });
   LT.spins++; bump('spins',LT.spins);
   slotStage='spinning'; reelsStopped=0; stopLock=performance.now()+40;
+  // the reels sing while they run — a low hum that climbs as each one locks
+  clearInterval(window._spinWh);
+  window._spinWh=setInterval(()=>{ if(slotStage!=='spinning'||muted){ clearInterval(window._spinWh); return; }
+    tone(110*Math.pow(1.26,reelsStopped),0.09,'sine',0.035,100*Math.pow(1.26,reelsStopped)); }, 240);
   tone(90,0.5,'sine',0.1,140); noise(0.35,0.05,700); // the reels hum awake
   requestAnimationFrame(()=>{ slotReels.forEach(r=>{ r.symH=(r.el.children[0]&&r.el.children[0].offsetHeight)||63; r.boxH=r.el.parentElement.clientHeight||189; r.el.classList.add('blur'); }); });
   $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> stop each reel — match for more <span id="reelDots">●○○</span>';
@@ -561,7 +567,8 @@ function resolveRisk(){
     // every win = +1 level (PERFECT 12 pays one more) — rarity never moves
     let gain=1; if(perfect) gain+=1;
     g.reward+=gain;
-    dice.forEach(d=>{ d.el.classList.add('crit'); d.el.classList.remove('goldwin'); void d.el.offsetWidth; d.el.classList.add('goldwin'); });
+    dice.forEach(d=>{ d.el.classList.add('crit'); d.el.classList.remove('goldwin'); void d.el.offsetWidth; d.el.classList.add('goldwin');
+      d.el.classList.remove('dust'); void d.el.offsetWidth; d.el.classList.add('dust'); });
     shake=Math.min(20,shake+2); tone(52,0.18,'sine',0.22,34);
     const rw=g.reward; SFX.dingBells(); SFX.casinoDing(); if(rw>=4) setTimeout(()=>SFX.cashout(),120); if(rw>=5) setTimeout(()=>SFX.dingBells(),220); coinRain(16+rw*4); flash(0.42,'#8bff9a'); $('machine').classList.add('win'); shake=Math.min(22,shake+7+rw); excite=1; sparkBurst(24+rw*5);
     if(perfect) perfectFlash();
@@ -800,6 +807,7 @@ function closeSlot(){
   dice.forEach(d=>{ if(d.el) d.el.classList.remove('rolling','settle','crit'); });
   $('machine').classList.remove('win','jackpot','bust','pulling','dicing');
   elSlot.classList.add('hidden'); elSlot.classList.remove('lastrites');
+  noise(0.18,0.05,900); // the felt brushes itself clean
   if(P&&P.hotSlots>0) P.hotSlots--; // the HIGH ROLLER deck cools one slot at a time
   if(pending.length){ setTimeout(openNextSlot,250); }
   else { state='playing'; last=performance.now(); }

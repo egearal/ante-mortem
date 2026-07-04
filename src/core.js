@@ -262,6 +262,7 @@ function spawnGuard(x,y){ // nothing materializes on top of the gambler
   const s=260/d; return {x:clamp(P.x+dx*s,20,CFG.arena-20), y:clamp(P.y+dy*s,20,CFG.arena-20)};
 }
 function startWave(){
+  if(wave>0 && P){ showStreak('WAVE '+wave+' THINNED'); }
   wave++;
   bump('wave',wave); recCheck('wave',wave,'Wave');
   if(wave>1){ SFX.casinoDing(); ftext(P.x,P.y-40,'WAVE '+wave,'#e8b64c',true); ring(P.x,P.y,64,'#e8b64c'); }
@@ -458,7 +459,9 @@ function killEnemy(e,idx){
     flash(0.2+tier*0.06,'#ffd36b'); shake=Math.min(18,shake+3+tier*2); coinRain(tier*4);
     ring(P.x,P.y,90+tier*30,'#ffd36b');
   }
-  if(e.elite){ shake=Math.min(20,shake+11); flash(0.55,'#c98bff'); SFX.cheer(); ring(e.x,e.y,140,'#c98bff'); eliteBlessing(); }
+  if(e.elite){ shake=Math.min(20,shake+11); flash(0.55,'#c98bff'); SFX.cheer(); ring(e.x,e.y,140,'#c98bff'); ring(e.x,e.y,90,'#e8ccff'); eliteBlessing(); }
+  if(e.type==='gilded'){ goldFlood&&goldFlood(e.x,e.y); SFX.cashout(); SFX.dingBells(); }
+  if(e.type==='bomber'){ noise(0.3,0.3,700); } else if(e.type==='revenant'){ tone(90,0.5,'sine',0.2,40); }
   enemies.splice(idx,1);
 }
 
@@ -723,6 +726,7 @@ function update(dt){
   }
   // 15:00 — FORECLOSURE. Not death; repossession. The final press does not apply.
   if(houseActive && gt>=900 && state==='playing'){
+    hitstop=Math.max(hitstop,0.5); // half a second of held breath
     announce('☷ THE HOUSE FORECLOSES ☷', false);
     P.markerUsed=true; P.hp=0; actuallyDie();
     return;
@@ -2438,12 +2442,18 @@ const BOSS_DEFS={
 /* ============================================================
    BOSSES + SPECIAL ENEMY BEHAVIOR
    ============================================================ */
+function bossPlate(name){
+  let bp=$('bossPlate'); if(!bp){ bp=document.createElement('div'); bp.id='bossPlate'; document.body.appendChild(bp); }
+  bp.innerHTML='<b>♛</b> '+name+' <b>♛</b>'; bp.classList.remove('go'); void bp.offsetWidth; bp.classList.add('go');
+  SFX.bossRoar&&SFX.bossRoar(); setTimeout(()=>bp.classList.remove('go'),2600);
+}
 function spawnBoss(){
   const order=['pitboss','croupier','collector','thehouse'];
   const kind=order[(Math.floor(wave/10)-1)%order.length];
   const a=Math.random()*6.283, dd=Math.max(VW,VH)*0.55;
   const x=clamp(P.x+Math.cos(a)*dd,40,CFG.arena-40), y=clamp(P.y+Math.sin(a)*dd,40,CFG.arena-40);
   spawnEnemy(kind,x,y);
+  try{ bossPlate(BOSS_DEFS[kind].name); }catch(e){}
   const b=enemies[enemies.length-1]; if(b){ b.boss=true; if(contractDone('pallbearer')){ b.hp*=0.9; b.maxhp=(b.maxhp||b.hp)*0.9; } b.bossKind=kind; b.vt=BOSS_DEFS[kind].vt; b.bstate='stalk'; b.bt=2; b.spiralA=0; }
   showStreak('⚜ '+BOSS_DEFS[kind].name+' APPROACHES ⚜'); SFX.bossRoar(); flash(0.5,'#c98bff'); shake=Math.min(20,shake+12); startDrone();
 }
@@ -2847,7 +2857,10 @@ const HOUSE_LINES=[
 function houseSpeak(txt){
   let vl=document.getElementById('voiceLayer');
   if(!vl){ vl=document.createElement('div'); vl.id='voiceLayer'; document.body.appendChild(vl); }
-  vl.innerHTML='<div class="voiceText">'+txt+'</div>';
+  vl.innerHTML='<div class="voiceText"></div>';
+  { const vt=vl.firstChild; let ci=0;
+    clearInterval(vl._tw); vl._tw=setInterval(()=>{ if(ci>=txt.length){ clearInterval(vl._tw); return; }
+      vt.textContent+=txt[ci++]; if(ci%3===0) tone(1100+Math.random()*300,0.015,'square',0.03); }, 28); }
   tone(52,2.2,'sine',0.22,30); setTimeout(()=>SFX.murmur(),300); setTimeout(()=>tone(44,1.4,'sine',0.16,26),900);
   clearTimeout(vl._t); vl._t=setTimeout(()=>{ vl.innerHTML=''; }, 7000);
 }
