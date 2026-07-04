@@ -224,9 +224,13 @@ function _hW(id,v){ const k='w'+id; if(_hud[k]===v) return; _hud[k]=v; $(id).sty
 function updateHUD(){
   // text/DOM writes only on change — the browser skips the rest for free
   _hSet('timer',fmt(gt));
+  { let wv=$('waveInfo'); if(!wv){ wv=document.createElement('div'); wv.id='waveInfo'; const tm=$('timer'); if(tm&&tm.parentNode) tm.parentNode.insertBefore(wv,tm.nextSibling); }
+    if(wv) { const left9=Math.max(0,enemies.filter(e=>!e.boss).length-waveClearTarget);
+      const wtxt='WAVE '+wave+(left9>0?' · '+left9+' TO THIN':''); if(_hud.wv!==wtxt){ _hud.wv=wtxt; wv.textContent=wtxt; } } }
   _hSet('coinCount',P.coins.toLocaleString());
   const bb=$('bossBar'); const bs=enemies.find(x=>x.boss);
-  if(bs){ bb.classList.remove('hidden'); _hSet('bossName',BOSS_DEFS[bs.bossKind].name); _hW('bossFill',Math.max(0,bs.hp/bs.maxhp*100).toFixed(1)+'%'); }
+  if(bs){ bb.classList.remove('hidden'); const bp9=Math.max(0,bs.hp/bs.maxhp*100);
+    _hSet('bossName',BOSS_DEFS[bs.bossKind].name+' — '+Math.ceil(bp9)+'%'); _hW('bossFill',bp9.toFixed(1)+'%'); }
   else if(_hud.bossOn!==false) bb.classList.add('hidden');
   _hud.bossOn=!!bs;
   const hpPct=clamp(P.hp/P.maxHp,0,1)*100;
@@ -236,7 +240,12 @@ function updateHUD(){
   _hSet('level','LEVEL '+P.level);
   _hSet('killCount',P.kills.toLocaleString());
   const cm=$('combo');
-  if(killStreak>=4){ cm.classList.remove('hidden'); _hSet('combo','×'+(P.comboMult||1).toFixed(1)+'  COMBO'); cm.style.transform='translateX(-50%) scale('+(1+Math.min(0.5,killStreak*0.01))+')'; }
+  if(killStreak>=4){ cm.classList.remove('hidden');
+    const gp9=Math.max(0,Math.min(1,streakT/1.0))*100;
+    const ch='×'+(P.comboMult||1).toFixed(1)+'  COMBO<i class="grace" style="width:'+gp9.toFixed(0)+'%"></i>';
+    if(_hud.combo!==ch){ _hud.combo=ch; cm.innerHTML=ch; }
+    cm.classList.toggle('flames', killStreak>=50);
+    cm.style.transform='translateX(-50%) scale('+(1+Math.min(0.5,killStreak*0.01))+')'; }
   else cm.classList.add('hidden');
   const db=$('debuffs');
   if(db){ if(debuffs.length){

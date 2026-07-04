@@ -130,7 +130,7 @@ function tickMapProps(dt){
         P.hp+=heal; it.res-=heal;
         it._tick=(it._tick||0)-dt;
         if(it._tick<=0){ it._tick=0.5; it._tk=(it._tk||0)+1;
-          ftext(P.x, P.y-28, '+8', '#ff8090');
+          ftext(P.x, P.y-28, '+8 ♥', '#8bff9a');
           tone(700*Math.pow(1.0595,Math.min(12,it._tk)), 0.09, 'sine', 0.11);
           tone(1400*Math.pow(1.0595,Math.min(12,it._tk)), 0.06, 'sine', 0.05);
           ring(it.x, it.y, 46, '#c81e2c');
@@ -360,6 +360,8 @@ function hurtPlayer(dmg){
   if(P.inv>0) return;
   P.hp-=dmg; P.inv=0.5+(P.invBonus||0); shake=Math.min(11,shake+5); flash(0.35,'#8b1620'); SFX.hurt();
   { const hw=$('hpwrap')||$('hpfill'); if(hw){ hw.classList.remove('hurt'); void hw.offsetWidth; hw.classList.add('hurt'); } }
+  { let src=null, bd=6400; for(const e2 of enemies){ const d2=(e2.x-P.x)*(e2.x-P.x)+(e2.y-P.y)*(e2.y-P.y); if(d2<bd){ bd=d2; src=e2; } }
+    if(src) window._hitArc={a:Math.atan2(src.y-P.y,src.x-P.x), t:0.42}; }
   if(P.thorns){ for(const e of enemies){ if(Math.hypot(e.x-P.x,e.y-P.y)<70){ e.hp-=P.thorns; trackDmg(P.thorns); e.flash=0.12; ftext(e.x,e.y,Math.round(P.thorns),'#ff9a9a'); } } ring(P.x,P.y,70,'#ff6b6b'); }
   if(P.hp<=0){
     if(P.mythPhoenix && !P.phUsed){
@@ -575,6 +577,9 @@ function update(dt){
       goldenT=20;
       announce('✨ GOLDEN HOUR — DOUBLE COINS 20s ✨', true);
       SFX.dingBells(); SFX.casinoDing(); flash(0.4,'#ffd36b'); coinRain(12); } }
+  // 12:00 — one minute before the purge, the clock bleeds
+  if(gt>=720 && !P._stirred){ P._stirred=true; announce('☷ THE HOUSE STIRS — ONE MINUTE ☷', false); SFX.murmur(); flash(0.3,'#8b1620');
+    const tm9=$('timer'); if(tm9) tm9.classList.add('stirs'); }
   // HOUSE CREDIT — comp spins arrive with ceremony, one at a time, never silent
   if(P._credit>0 && state==='playing' && !houseActive && gt>=2.5 && !pending.length){
     if(!P._creditA){ P._creditA=true; P._creditT=gt+1.1;
@@ -819,7 +824,7 @@ function update(dt){
     if(d<P.radius+7){ if(P.ovT>0){ coins.splice(i,1); P.ovT=Math.min(100,P.ovT+2.5*(P.ovFeed||1)); tone(600+P.ovT*9,0.06,'sine',0.1); flash(0.06,'#ffd36b'); ftext(P.x,P.y-12,'+FUEL','#ffd36b'); burst(P.x,P.y,3,'#ff9a3c'); continue; } const gain=Math.max(1,Math.round(P.comboMult)); P.coins+=gain; LT.coins+=gain; if(P.coins===777) secret('sevens','TRIPLE SEVENS'); bump('runCoins',P.coins); bump('ltCoins',LT.coins); if(P.midas)P.midasStacks=Math.min(25,P.midasStacks+1); coins.splice(i,1);
       { const n8=performance.now(); P._coinCombo=(n8-(P._coinT||0)<800)?(P._coinCombo||0)+1:0; P._coinT=n8;
         tone(700*Math.pow(1.0595,Math.min(16,P._coinCombo)),0.06,'sine',0.07);
-        if(P._coinCombo>0 && P._coinCombo%10===0){ SFX.casinoDing(); sparkBurst(8); }
+        if(P._coinCombo>0 && P._coinCombo%10===0){ SFX.casinoDing(); sparkBurst(8); ftext(P.x,P.y-40,'COIN RUSH ×'+P._coinCombo,'#ffd36b'); }
         const cc9=$('coinCount'); if(cc9){ cc9.classList.remove('pop'); void cc9.offsetWidth; cc9.classList.add('pop'); } }
       burst(P.x,P.y,2,'#e8b64c'); }
   }
@@ -1051,6 +1056,7 @@ function drawLandmarks(){
   }
 }
 function gainXP(n){
+  { const xf=$('xpfill'); if(xf && !window._xpFl){ window._xpFl=true; xf.classList.add('flick'); setTimeout(()=>{ xf.classList.remove('flick'); window._xpFl=false; },160); } }
   n=Math.round(n*(P.xpMult||1));
   if(P.ovT>0 && !P._ovPass && n>0){
     P.ovT=Math.min(100, P.ovT+n*0.5*(P.ovFeed||1));
@@ -1491,6 +1497,10 @@ function render(){
     ctx.strokeStyle='#ffd36b'; ctx.lineWidth=2.4;
     ctx.beginPath(); ctx.arc(0,0,be.r*1.4+10,-1.5708,-1.5708+(bounty.t/12)*6.283); ctx.stroke();
     ctx.restore(); }
+  // a red arc names the tooth that bit you
+  if(window._hitArc && window._hitArc.t>0){ const ha=window._hitArc; ha.t-=1/60;
+    ctx.save(); ctx.strokeStyle='rgba(255,70,85,'+(ha.t*1.8)+')'; ctx.lineWidth=4.5; ctx.lineCap='round';
+    ctx.beginPath(); ctx.arc(P.x,P.y,44,ha.a-0.55,ha.a+0.55); ctx.stroke(); ctx.restore(); }
   // the player carries candlelight — a warm pool on the marble beneath (one cached blit)
   if(!GFX.lite){ ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.5+Math.sin(gt*2.4)*0.08;
     ctx.drawImage(glowSprite('rgba(255,205,120,0.32)','rgba(255,190,90,0)',88), P.x-88, P.y-60, 176, 118); ctx.restore(); }
@@ -2248,6 +2258,7 @@ function drawGuide(tx,ty,col){
 // the standing tokens each get their true-color arrow; the vault only beckons briefly when it reopens
 function drawGuides(){
   if(state!=='playing') return;
+  { const bs=enemies.find(e=>e.boss); if(bs && !inView(bs.x,bs.y,-40)) drawGuide(bs.x,bs.y,bs.col||'#ff5560'); }
   if(crashTok) drawGuide(crashTok.x, crashTok.y, '#8bff9a');
   if(wheelTok) drawGuide(wheelTok.x, wheelTok.y, '#c98bff');
   if(eggProp)  drawGuide(eggProp.x,  eggProp.y,  '#ffd36b');

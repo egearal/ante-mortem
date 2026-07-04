@@ -1047,6 +1047,17 @@ body{cursor:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"
 @keyframes hpHurt{0%{filter:brightness(2.2) saturate(1.6);}100%{filter:none;}}
 #hpwrap.hurt,#hpfill.hurt{animation:hpHurt .3s ease-out;}
 
+/* QoL III — the HUD sharpens its teeth */
+@keyframes stirsPulse{0%,100%{color:#ff5560;text-shadow:0 0 8px rgba(255,60,80,.5);}50%{color:#ff8090;text-shadow:0 0 20px rgba(255,60,80,.95);}}
+#timer.stirs{animation:stirsPulse 1s ease-in-out infinite;}
+#waveInfo{font-family:var(--disp);font-size:10px;letter-spacing:.18em;color:#9a8f7e;text-align:center;margin-top:2px;}
+@keyframes comboFlames{0%,100%{text-shadow:0 0 8px rgba(255,150,40,.6);}50%{text-shadow:0 0 22px rgba(255,90,20,.95),0 -4px 14px rgba(255,180,60,.7);}}
+#combo.flames{animation:comboFlames .5s ease-in-out infinite;color:#ffb066;}
+#combo{position:relative;overflow:visible;}
+#combo .grace{position:absolute;left:8%;right:8%;bottom:-4px;height:2.5px;background:linear-gradient(90deg,#ffd36b,#ff9a3c);border-radius:2px;display:block;transition:width .1s linear;}
+@keyframes xpFlick{0%{filter:brightness(2.4);}100%{filter:none;}}
+#xpfill.flick{animation:xpFlick .16s ease-out;}
+
 /* pause: the HUD stays lit above the veil */
 body.paused #hud{z-index:25;}
 /* hp v3 fill smoothness */

@@ -33,7 +33,16 @@ function goldFlood(x,y){ for(let i=0;i<60;i++){ const a=Math.random()*6.28,s=rnd
 function ash(x,y,n){ for(let i=0;i<n;i++){ const a=Math.random()*6.28,s=rnd(10,60); parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-20,life:rnd(.8,1.8),col:pick(['#3a2a24','#2c2320','#4a3a30']),r:rnd(1,3),ash:true}); } }
 function ring(x,y,maxr,col){ rings.push({x,y,r:6,maxr,life:0.5,col}); }
 function spark(x1,y1,x2,y2,col){ sparks.push({x1,y1,x2,y2,life:0.18,col:col||'#bfe0ff'}); }
-function ftext(x,y,t,col,big){ texts.push({x,y,t,col,life:big?1.0:0.9,vy:big?-52:-40,size:big?31:15}); }
+function ftext(x,y,t,col,big){
+  // stacked hits MERGE into one bigger number — less confetti, more punch
+  const n=parseFloat(t);
+  if(!big && !isNaN(n) && /^[-+]?\d+$/.test(String(t).trim())){
+    for(let i=texts.length-1;i>=Math.max(0,texts.length-8);i--){ const o=texts[i];
+      if(o._n!==undefined && o.life>0.55 && o.col===col && Math.abs(o.x-x)<32 && Math.abs(o.y-y)<36){
+        o._n+=n; o.t=String(Math.round(o._n)); o.size=Math.min(27,o.size+2.5); o.life=Math.max(o.life,0.78); return; } }
+    texts.push({x,y,t:String(n),col,life:0.9,vy:-40,size:15,_n:n}); return; }
+  texts.push({x,y,t,col,life:big?1.0:0.9,vy:big?-52:-40,size:big?31:15});
+}
 function flash(a,col){ a*=GFX.flash; if(a<=0) return; if(REDUCE) a*=0.4; elFlash.style.background=`radial-gradient(circle,${col||'#e8b64c'},transparent 65%)`; elFlash.style.opacity=a; setTimeout(()=>elFlash.style.opacity=0,90); }
 let smites=[];
 function chandelierBurst(l){
