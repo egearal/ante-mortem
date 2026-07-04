@@ -1041,6 +1041,12 @@ body{cursor:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"
 #cornerBL{bottom:10px;left:10px;border-right:none;border-top:none;border-bottom-left-radius:10px;}
 #cornerBR{bottom:10px;right:10px;border-left:none;border-top:none;border-bottom-right-radius:10px;}
 
+/* QoL I — the button beckons, the capsule flinches */
+@keyframes beckonShine{0%,100%{box-shadow:0 6px 0 #8a6a1c,0 0 24px rgba(255,211,107,.4);}50%{box-shadow:0 6px 0 #8a6a1c,0 0 64px rgba(255,211,107,.95);}}
+#startBtn.beckon{animation:beckonShine 1.4s ease-in-out infinite;}
+@keyframes hpHurt{0%{filter:brightness(2.2) saturate(1.6);}100%{filter:none;}}
+#hpwrap.hurt,#hpfill.hurt{animation:hpHurt .3s ease-out;}
+
 /* pause: the HUD stays lit above the veil */
 body.paused #hud{z-index:25;}
 /* hp v3 fill smoothness */

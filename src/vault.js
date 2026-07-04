@@ -93,7 +93,7 @@ function buyVault(id){
 }
 let vaultBrowse=false; // menu window-shopping: everything visible, nothing buyable
 function renderVault(){
-  $('vaultGilt').textContent=gilt;
+  $('vaultGilt').textContent=gilt.toLocaleString();
   const sub=document.querySelector('#vaultPanel .vaultSub');
   if(sub) sub.textContent = vaultBrowse ? '◈ THE DOOR STANDS OPEN IN THE PIT — FIVE SEALS A NIGHT ◈' : 'PERMANENT BLESSINGS · SEALED IN GILT · '+(5-vaultBuys)+' LEFT TONIGHT';
   const grid=$('vaultGrid'); let html='';

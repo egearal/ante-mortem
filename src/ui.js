@@ -150,8 +150,13 @@ function gfxDerivePreset(){
 }
 async function loadGfx(){ try{ const r=await store.get(GFX_KEY,false); if(r&&r.value) Object.assign(GFX,JSON.parse(r.value)); }catch(e){} GFX.preset=gfxDerivePreset(); applyGfxSide(); }
 function saveGfx(){ try{ store.set(GFX_KEY,JSON.stringify(GFX),false); }catch(e){} }
-function applyGfxSide(){}
+function applyGfxSide(){
+  // the volume knob is real: master gain follows it
+  if(typeof master!=='undefined' && master && typeof muted!=='undefined' && !muted)
+    master.gain.value=0.8*(GFX.vol!==undefined?GFX.vol:1);
+}
 const GFX_DEFS=[
+ {k:'vol',  n:'MASTER VOLUME',  opts:[[1,'FULL'],[0.7,'70%'],[0.4,'40%'],[0.15,'15%'],[0,'MUTE']]},
  {k:'q',    n:'QUALITY',        opts:[['auto','AUTO'],['high','HIGH'],['low','LOW']]},
  {k:'shafts',n:'LIGHT SHAFTS',  opts:[[true,'ON'],[false,'OFF']]},
  {k:'ghosts',n:'GHOST PATRONS', opts:[[true,'ON'],[false,'OFF']]},
@@ -178,11 +183,12 @@ function syncPresetRow(){
 function buildGfxPanel(){
   if($('gfxPanel')) return;
   const p=document.createElement('div'); p.id='gfxPanel'; p.className='hidden';
-  p.innerHTML='<div id="gfxCard"><div id="gfxTitle">⚙ GRAPHICS OF THE HOUSE ⚙</div>'
+  p.innerHTML='<div id="gfxCard"><div id="gfxTitle">⚙ OPTIONS OF THE HOUSE ⚙</div>'
     +'<div id="gxPresets">'
     +[['toaster','🍞 TOASTER'],['low','LOW'],['medium','MEDIUM'],['high','HIGH']].map(x=>'<button class="gxPre" data-pre="'+x[0]+'">'+x[1]+'</button>').join('')
     +'</div><div id="gxCustom" style="display:none">CUSTOM</div>'
     +GFX_DEFS.map(d=>'<div class="gxRow"><span class="gxName">'+d.n+'</span><button class="gxBtn" data-k="'+d.k+'">'+gfxLabel(d)+'</button></div>').join('')
+    +'<div class="gxRow"><span class="gxName">FULLSCREEN</span><button class="gxBtn" id="gxFull">F — TOGGLE</button></div>'
     +'<button class="gxBtn gxClose" id="gfxClose">CLOSE</button></div>';
   document.body.appendChild(p);
   p.querySelectorAll('.gxPre').forEach(b=>b.addEventListener('click',()=>{ applyGfxPreset(b.dataset.pre); SFX.casinoDing(); }));
@@ -194,6 +200,7 @@ function buildGfxPanel(){
     b.textContent=gfxLabel(d); applyGfxSide(); saveGfx(); SFX.uiDing();
   }));
   $('gfxClose').addEventListener('click',()=>{ p.classList.add('hidden'); SFX.casinoDing(); });
+  { const gf=p.querySelector('#gxFull'); if(gf) gf.addEventListener('click',()=>{ try{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }catch(x){} SFX.uiDing(); }); }
   syncPresetRow();
 }
 function openGfx(){ buildGfxPanel(); $('gfxPanel').classList.remove('hidden'); SFX.vaultOpen(); }
@@ -303,6 +310,7 @@ window.addEventListener('keydown',e=>{
     if(!panelOpen && !$('menu').classList.contains('hidden')){ e.preventDefault(); SFX.press(); $('startBtn').click(); return; }
   }
   if(state==='dead'){
+    if(k==='r' && !e.repeat){ SFX.press(); pressPulse('againBtn'); $('againBtn').click(); return; }
     if(k===' ' && !inInput && !e.repeat){
       if(performance.now()-(window._recapT0||0)<500) return; // FINAL PRESS mashers don't skip-restart
       SFX.press();
@@ -315,8 +323,13 @@ window.addEventListener('keydown',e=>{
   if(k==='escape'){
     if(e.repeat) return;
     e.preventDefault();
+    // universal BACK: any open parlor closes before the pause even wakes
+    { const open=['booksPanel','antePanel','gfxPanel','indexPanel','achPanel','storyPanel','vaultPanel','howPanel']
+        .map(id=>$(id)).find(p=>p && !p.classList.contains('hidden'));
+      if(open && state!=='vault'){ open.classList.add('hidden'); if(open.id==='vaultPanel') vaultBrowse=false; SFX.casinoDing(); return; } }
     if(state==='vault'){ $('vaultPanel').classList.add('hidden'); state='playing'; SFX.casinoDing(); return; }
     if(state==='playing'){ state='paused'; document.body.classList.add('paused'); $('pauseLayer').classList.remove('hidden'); SFX.thud();
+      { const pt=document.querySelector('.pauseCard .pz'); if(pt) pt.textContent='◈ PAUSED ◈'; }
       $('pauseStats').innerHTML='<div class="ps"><b>'+P.kills+'</b><i>KILLS</i></div><div class="ps"><b>'+P.level+'</b><i>LEVEL</i></div><div class="ps"><b>'+P.coins+'</b><i>COINS</i></div><div class="ps"><b>'+wave+'</b><i>WAVE</i></div><div class="ps"><b>'+Math.floor(gt/60)+':'+String(Math.floor(gt%60)).padStart(2,'0')+'</b><i>TIME</i></div>'+'<div style="flex-basis:100%;text-align:center;font-family:var(--disp);font-size:10px;letter-spacing:.08em;color:#9a8f7e;margin-top:8px">◈ COINS — the House&#39;s gold, this run · ⚜ XP — level charge, wagered in the Ascent · GILT — eternal Vault currency</div>'; if(P){ P._pauses=(P._pauses||0)+1; if(P._pauses>=13) secret('coldfeet','COLD FEET'); } }
     else if(state==='paused'){ state='playing'; document.body.classList.remove('paused'); $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); }
     return;
@@ -593,7 +606,8 @@ function renderChips(){
     ['⚜','RANK '+RANK.rank+' · '+RANKS[RANK.rank-1].n,'#fff2c0'],
     window._daily?['☀',window._daily,'#8bff9a']:null
   ].filter(Boolean);
-  const cr=$('chipRow'); if(cr) cr.innerHTML=chips.map(c=>'<span class="mChip" style="--cc:'+c[2]+'"><b>'+c[0]+'</b>'+c[1]+'</span>').join('');
+  const tipFor=(g)=>({'🏆':'FEATS — lifetime marks of skill','📖':'THE INDEX — everything catalogued','✦':'WHISPERS — riddles answered','🏛':'THE ESTATE — how much of the House is yours','🗡':'THE ARSENAL DRIP — the next blade and its rank','⚜':'HOUSE RANK — your standing tonight'})[g]||'';
+  const cr=$('chipRow'); if(cr) cr.innerHTML=chips.map(c=>'<span class="mChip" style="--cc:'+c[2]+'" title="'+tipFor(c[0])+'"><b>'+c[0]+'</b>'+c[1]+'</span>').join('');
 }
 /* a rare shooting star across the menu sky */
 function menuStar(){
@@ -619,3 +633,23 @@ function menuStar(){
   menuStar();
   requestAnimationFrame(loop);
 })();
+
+// THE HOUSE WAITS — losing the window pauses the night (test rigs set _noAutoPause)
+function houseWaits(){
+  if(window._noAutoPause) return;
+  if(state!=='playing') return;
+  state='paused'; document.body.classList.add('paused');
+  $('pauseLayer').classList.remove('hidden');
+  const pt=document.querySelector('.pauseCard .pz'); if(pt) pt.textContent='◈ THE HOUSE WAITS ◈';
+  SFX.thud&&SFX.thud();
+}
+window.addEventListener('blur',houseWaits);
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) houseWaits(); });
+// the menu beckons after a quiet minute
+let _idleT=performance.now();
+['keydown','mousemove','mousedown'].forEach(ev=>window.addEventListener(ev,()=>{ _idleT=performance.now();
+  const sb=$('startBtn'); if(sb) sb.classList.remove('beckon'); }));
+setInterval(()=>{ if(state==='menu' && performance.now()-_idleT>60000){
+  const sb=$('startBtn'); if(sb && !sb.classList.contains('beckon')){ sb.classList.add('beckon'); SFX.tingle&&SFX.tingle(); } } }, 5000);
+// every menu press answers back
+{ const mr=$('menuRow2'); if(mr) mr.addEventListener('click',e=>{ const b=e.target.closest('button'); if(b){ pressPulse(b); } }); }

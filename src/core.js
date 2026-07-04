@@ -359,6 +359,7 @@ function hurtPlayer(dmg){
   if(P.inv<=0) P.noDmgStreak=0;
   if(P.inv>0) return;
   P.hp-=dmg; P.inv=0.5+(P.invBonus||0); shake=Math.min(11,shake+5); flash(0.35,'#8b1620'); SFX.hurt();
+  { const hw=$('hpwrap')||$('hpfill'); if(hw){ hw.classList.remove('hurt'); void hw.offsetWidth; hw.classList.add('hurt'); } }
   if(P.thorns){ for(const e of enemies){ if(Math.hypot(e.x-P.x,e.y-P.y)<70){ e.hp-=P.thorns; trackDmg(P.thorns); e.flash=0.12; ftext(e.x,e.y,Math.round(P.thorns),'#ff9a9a'); } } ring(P.x,P.y,70,'#ff6b6b'); }
   if(P.hp<=0){
     if(P.mythPhoenix && !P.phUsed){
@@ -555,7 +556,8 @@ function update(dt){
       announce('⚔ DARE MET — +40 COINS ⚔', true); SFX.cashout(); SFX.dingBells(); coinRain(16); sparkBurst(26); flash(0.3,'#8bff9a'); dare=null; dareT=40+Math.random()*24; }
     else if(dare.t<=0){ announce('… THE HOUSE SCOFFS …', false); SFX.thud(); dare=null; dareT=40+Math.random()*24; }
   }
-  if(P.hp/P.maxHp<0.25){ P._hb=(P._hb||0)-dt; if(P._hb<=0){ P._hb=0.85; tone(56,0.16,'sine',0.22,44); setTimeout(()=>tone(50,0.13,'sine',0.16,40),160); }
+  if(P.hp/P.maxHp<0.25){ P._hb=(P._hb||0)-dt; if(P._hb<=0){ P._hb=0.85; tone(56,0.16,'sine',0.22,44); setTimeout(()=>tone(50,0.13,'sine',0.16,40),160);
+      flash(0.09,'#6b0f18'); } // the vignette throbs WITH the heartbeat — eyes and ears agree
     if(!P._rites){ P._rites=true; showStreak('☨ THE HOUSE SMELLS BLOOD ☨'); SFX.murmur(); startDrone(); flash(0.4,'#8b1620'); }
   } else if(P._rites && P.hp/P.maxHp>0.38){ P._rites=false; stopDrone(); showStreak('✦ THE BLOOD RETURNS ✦'); SFX.tingle(); }
   const _mn=Math.floor(gt/60); if(_mn>(P._lastMin||0)){ P._lastMin=_mn; bump('minutes',_mn); recCheck('minutes',_mn,'Minutes');

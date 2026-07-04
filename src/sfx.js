@@ -4,7 +4,9 @@ let AC=null, master=null, muted=false, drone=null, droneGain=null;
 function initAudio(){
   if(AC) return;
   try{ AC = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return; }
-  master = AC.createGain(); master.gain.value = 0.8; master.connect(AC.destination);
+  master = AC.createGain();
+  master.gain.value = 0.8*((typeof GFX!=='undefined'&&GFX.vol!==undefined)?GFX.vol:1);
+  master.connect(AC.destination);
 }
 function tone(freq,dur,type,vol,slideTo){
   if(!AC||muted) return;
