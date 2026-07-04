@@ -171,12 +171,6 @@ function tickMapProps(dt){
     SFX.tingle(); goldFlood(eggProp.x,eggProp.y); flash(0.3,'#ffd36b');
     eggProp=null;
   }
-  // the key waits where the boss fell
-  if(keyProp && Math.hypot(P.x-keyProp.x,P.y-keyProp.y)<28){
-    P._vaultKey=true; keyProp=null;
-    announce('🗝 THE VAULT KEY IS YOURS — FIND THE DOOR 🗝', true);
-    SFX.achieve(); SFX.tingle(); flash(0.35,'#ffd36b'); goldFlood(P.x,P.y);
-  }
   // ghost patrons wander
   for(const g of ghostPatrons){
     const gdx=g.tx-g.x, gdy=g.ty-g.y, gd=Math.hypot(gdx,gdy);
@@ -412,8 +406,6 @@ function killEnemy(e,idx){
       ftext(e.x,e.y-30,'+'+bounty+' ◈ GILT','#ffd36b',true);
       if(first) setTimeout(()=>announce('✦ FIRST BLOOD BOUNTY +'+bounty+' ◈ ✦', true), 900); }
     bigWin(BOSS_DEFS[e.bossKind].name+' FALLS',4); coinRain(30); stopDrone();
-    if(!P._vaultKey && !keyProp){ keyProp={x:e.x, y:e.y}; // the pit boss carried THE KEY all along
-      setTimeout(()=>announce('🗝 THE BOSS DROPPED THE VAULT KEY 🗝', true), 1600); }
     pending.push({floor:'epic'});
     for(let gi=0;gi<16;gi++) coins.push({x:e.x+rnd(-20,20),y:e.y+rnd(-20,20),r:6,vx:rnd(-150,150),vy:rnd(-150,150)}); }
   orbs.push({x:e.x,y:e.y,xp:e.xp*0.75*(P.xpMult||1),r:5,vx:rnd(-30,30),vy:rnd(-30,30)});
@@ -1483,7 +1475,7 @@ function render(){
     ctx.strokeStyle='rgba(255,255,255,0.7)'; ctx.lineWidth=1.6;
     ctx.beginPath(); ctx.arc(0,0,pr9-3,-0.36,0.36); ctx.stroke();
     ctx.restore(); }
-  drawSmites(); drawTarots(); drawWheelTok(); drawCrashTok(); drawEgg(); drawKey();
+  drawSmites(); drawTarots(); drawWheelTok(); drawCrashTok(); drawEgg();
   if(bounty && enemies.includes(bounty.e)){ const be=bounty.e;
     ctx.save(); ctx.translate(be.x,be.y);
     ctx.rotate(gt*2); ctx.strokeStyle='rgba(255,211,107,'+(0.6+Math.sin(gt*6)*0.3)+')'; ctx.lineWidth=2.4; ctx.setLineDash([7,6]);
@@ -2223,19 +2215,6 @@ function drawEnemy(e){
   ctx.restore();
 }
 
-function drawKey(){
-  if(!keyProp) return; const k9=keyProp;
-  if(k9.x<camX-40||k9.x>camX+VW+40||k9.y<camY-40||k9.y>camY+VH+40) return;
-  ctx.save(); ctx.translate(k9.x, k9.y+Math.sin(gt*2.4)*2);
-  ctx.save(); ctx.globalCompositeOperation='lighter';
-  ctx.drawImage(glowSprite('rgba(255,211,107,0.3)','rgba(255,211,107,0)',26),-26,-26,52,52); ctx.restore();
-  ctx.rotate(0.6+Math.sin(gt*1.6)*0.12);
-  ctx.strokeStyle='#e8b64c'; ctx.lineWidth=2.6;
-  ctx.beginPath(); ctx.arc(-6,0,4.4,0,6.28); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(-1.6,0); ctx.lineTo(10,0); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(7,0); ctx.lineTo(7,4); ctx.moveTo(10,0); ctx.lineTo(10,5); ctx.stroke();
-  ctx.restore();
-}
 function drawEgg(){
   if(!eggProp) return; const e9=eggProp;
   if(e9.x<camX-40||e9.x>camX+VW+40||e9.y<camY-40||e9.y>camY+VH+40) return;
@@ -2491,7 +2470,7 @@ function loop(now){
   }catch(_e){ if(!window._amErr){ window._amErr=1; console.error('[ANTE MORTEM]',_e); } }
 }
 function startGame(){
-  initAudio(); houseActive=false; keyProp=null; if(AC&&AC.state==='suspended')AC.resume();
+  initAudio(); houseActive=false; keyProp=null; vaultBuys=0; vaultLocked=0; if(AC&&AC.state==='suspended')AC.resume();
   P={ x:CFG.arena/2, y:CFG.arena/2, aim:0, moving:false, inv:0, coins:0, kills:0,
     hp:CFG.player.maxHp, maxHp:CFG.player.maxHp, speed:CFG.player.speed, radius:CFG.player.radius, pickup:CFG.player.pickup,
     damage:CFG.player.damage, fireRate:CFG.player.fireRate, projectiles:CFG.player.projectiles, pierce:CFG.player.pierce,

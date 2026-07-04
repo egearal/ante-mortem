@@ -73,25 +73,29 @@ function applySealDelta(id){
   else if(id==='borrow') P.slowEdge=0.25*vlv('borrow');
   else if(id==='oldbone'||id==='pocket'||id==='credit') announce('◈ FROM THE NEXT DEAL ◈',true);
 }
-let vaultSpent=false;
+// the door stands OPEN now — five seals a night, then it rests 5:00
+let vaultBuys=0, vaultLocked=0;
 function buyVault(id){
   const def=VAULT_DEFS.find(d=>d.id===id); if(!def) return;
-  if(vaultSpent){ SFX.thud(); return; }
+  if(vaultLocked>0 && gt<vaultLocked){ SFX.thud(); return; }
   if(!vaultUnlocked(def) || vlv(id)>=def.max) return;
   const cost=vaultCost(def); if(gilt<cost){ SFX.bust(); return; }
   gilt-=cost; VAULT.lv[id]=vlv(id)+1;
   saveGilt(); saveAch(); SFX.vaultBuy(); sparkBurst(20);
   LT.seals=(LT.seals||0)+1; bump('seals',LT.seals);
   applySealDelta(id);
-  vaultSpent=true;
-  renderVault();
-  setTimeout(()=>{ if(state==='vault'){ $('vaultPanel').classList.add('hidden'); state='playing'; announce('◈ THE VAULT SEALS ITSELF — RETURNS IN 5 MINUTES ◈',true); SFX.reelLock(); } },1300);
+  vaultBuys++;
+  if(vaultBuys>=5){ vaultLocked=gt+300;
+    renderVault();
+    setTimeout(()=>{ if(state==='vault'){ $('vaultPanel').classList.add('hidden'); state='playing'; }
+      announce('◈ FIVE SEALS BOUGHT — THE VAULT RESTS 5:00 ◈',true); SFX.reelLock(); },1300);
+  } else renderVault();
 }
 let vaultBrowse=false; // menu window-shopping: everything visible, nothing buyable
 function renderVault(){
   $('vaultGilt').textContent=gilt;
   const sub=document.querySelector('#vaultPanel .vaultSub');
-  if(sub) sub.textContent = vaultBrowse ? '◈ THE DOOR MANIFESTS IN THE PIT — EVERY 5:00, ONE SEAL PER VISIT ◈' : 'PERMANENT BLESSINGS · SEALED IN GILT';
+  if(sub) sub.textContent = vaultBrowse ? '◈ THE DOOR STANDS OPEN IN THE PIT — FIVE SEALS A NIGHT ◈' : 'PERMANENT BLESSINGS · SEALED IN GILT · '+(5-vaultBuys)+' LEFT TONIGHT';
   const grid=$('vaultGrid'); let html='';
   for(const def of VAULT_DEFS){
     const lv=vlv(def.id), unlocked2=vaultUnlocked(def), maxed=lv>=def.max, cost=vaultCost(def);
@@ -103,7 +107,7 @@ function renderVault(){
       +(!unlocked2 ? '<div class="vLock">🔒 '+def.reqTxt+'</div>'
         : maxed ? '<button class="vBuy" disabled>FULLY UNSEALED</button>'
         : vaultBrowse ? '<button class="vBuy" disabled>AT THE DOOR — '+cost+' ◈</button>'
-        : vaultSpent ? '<button class="vBuy" disabled>THE DOOR CLOSES</button>'
+        : (vaultLocked>0&&gt<vaultLocked) ? '<button class="vBuy" disabled>THE VAULT RESTS</button>'
         : '<button class="vBuy" data-vid="'+def.id+'" '+(gilt<cost?'disabled':'')+'>UNSEAL — '+cost+' ◈</button>')
       +'</div>';
   }
@@ -121,13 +125,11 @@ function renderVault(){
   grid.querySelectorAll('.vBuy[data-vid]').forEach(b=>b.addEventListener('click',()=>buyVault(b.dataset.vid)));
 }
 function openVault(){ renderVault(); $('vaultPanel').classList.remove('hidden'); SFX.vaultOpen(); }
-function vaultWindowOpen(){ return !!(P&&P._vaultKey); } // the door answers to THE KEY now — the pit boss carries it
-function nextVaultTime(){ return gt<300 ? 300 : (Math.floor(gt/300)+1)*300; }
+function vaultWindowOpen(){ return !!P && !(vaultLocked>0 && gt<vaultLocked); } // always open — until five seals spend it
 function tickVaultDoor(){
-  const vw=vaultWindowOpen();
-  if(vw&&!window._vw){ window._vw=true; vaultSpent=false;
-    announce('◈ THE KEY TURNS — THE VAULT ANSWERS ◈',true); SFX.vaultOpen(); SFX.dingBells();
+  if(vaultLocked>0 && gt>=vaultLocked){ vaultLocked=0; vaultBuys=0;
+    announce('◈ THE VAULT BREATHES AGAIN — FIVE MORE SEALS ◈',true); SFX.vaultOpen(); SFX.dingBells();
     if(vaultProp){ ring(vaultProp.x,vaultProp.y,160,'#ffd36b'); ring(vaultProp.x,vaultProp.y,90,'#fff2c0'); } }
-  if(vw&&vaultProp){ window._vwp=(window._vwp||0)+1; if(window._vwp%150===0) ring(vaultProp.x,vaultProp.y,120,'#ffd36b'); }
+  if(vaultWindowOpen()&&vaultProp){ window._vwp=(window._vwp||0)+1; if(window._vwp%150===0) ring(vaultProp.x,vaultProp.y,120,'#ffd36b'); }
 }
 async function saveGilt(){ try{ if(!store)return; await store.set(GILT_KEY,JSON.stringify({gilt,best}),false); }catch(e){} }

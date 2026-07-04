@@ -311,7 +311,7 @@ window.addEventListener('keydown',e=>{
     if(P.ovT>0){ cashRage(); return; }
     if(vaultProp && Math.hypot(P.x-vaultProp.x,P.y-vaultProp.y)<115){
       if(vaultWindowOpen()){ state='vault'; openVault(); }
-      else { announce('◈ THE VAULT IS SEALED — THE KEY HANGS ON THE PIT BOSS ◈',false); SFX.thud(); }
+      else { announce('◈ THE VAULT RESTS — BACK IN '+Math.max(1,Math.ceil((vaultLocked-gt)/60))+' MIN ◈',false); SFX.thud(); }
       return; }
     if(killStreak>=27){ const cash=Math.floor(killStreak/4);
       P.coins+=cash; LT.coins+=cash; bump('runCoins',P.coins); bump('ltCoins',LT.coins);
