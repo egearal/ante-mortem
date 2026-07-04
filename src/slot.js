@@ -122,7 +122,9 @@ function ensurePayTable(){
   let pt=$('payTable');
   if(!pt){ pt=document.createElement('div'); pt.id='payTable'; $('machine').appendChild(pt); }
   // the House never shows its numbers — rarity reads in pips, hotter tables read in flames
-  const pips={common:'◆',uncommon:'◆◆',rare:'◆◆◆',epic:'◆◆◆◆',legendary:'◆◆◆◆◆'}; // one symbol, every table — the color carries the mood
+  const pips=(typeof GFX!=='undefined'&&GFX.cb)
+    ? {common:'●',uncommon:'●●',rare:'▲▲▲',epic:'■■■■',legendary:'✦✦✦✦✦'} // shape-coded for colorblind hands
+    : {common:'◆',uncommon:'◆◆',rare:'◆◆◆',epic:'◆◆◆◆',legendary:'◆◆◆◆◆'}; // one symbol, every table — the color carries the mood
   const row=(rar)=>'<div class="ptRow" data-rar="'+rar+'" style="--pc:'+RARC[rar]+'"><span class="ptN">'+SLOT_RAR[rar]+'</span><span class="ptPips">'+pips[rar]+'</span></div>';
   const hasAsc=P.passiveList && P.passiveList.some(x=>x.rar==='ascend');
   pt.classList.toggle('red', !!lastRites);

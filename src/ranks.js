@@ -228,7 +228,7 @@ function openIndexPanel(){
     return got? '<div class="idxTile on"'+(tip?' data-tip="'+tip.replace(/"/g,'&quot;')+'" data-name="'+n.replace(/"/g,'&quot;')+'"':'')+' style="--ic:'+c+'"><span class="idxG">'+g+'</span>'+n+'</div>'
               : '<div class="idxTile"><span class="idxG">?</span>???</div>'; };
   const sec=(ico,name,col,rows)=>{ const got=rows.filter(r=>r[0]).length;
-    return '<div class="idxSec" style="--sc:'+col+'"><div class="idxSecH"><b>'+ico+' '+name+'</b><span>'+got+' / '+rows.length+'</span></div><div class="idxGrid">'
+    return '<div class="idxSec" style="--sc:'+col+'"><div class="idxSecH"><b>'+ico+' '+name+'</b><span>'+got+' / '+rows.length+' · '+Math.round(got/Math.max(1,rows.length)*100)+'%</span></div><div class="idxGrid">'
       +rows.map(r=>tile(r[0],r[1],r[2],r[3])).join('')+'</div></div>'; };
   if(!list._tipWired){ list._tipWired=true;
     list.addEventListener('mouseover',ev=>{ const el=ev.target.closest('.idxTile[data-tip]'); if(!el) return;

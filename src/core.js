@@ -2583,6 +2583,9 @@ function startGame(){
     if(ind.includes('coffee')){ P._credit=(P._credit||0)+2; }
     if(ind.length){ setTimeout(()=>announce('✦ '+ind.length+' INDULGENCE'+(ind.length>1?'S':'')+' HONORED ✦', true), 2100);
       IDX.ind=[]; idxSaveSoon(); } }
+  { const today=new Date().toISOString().slice(0,10);
+    if(LT.lastDay!==today){ LT.lastDay=today; gilt+=15; saveGilt(); if(typeof achSaveSoon==='function') achSaveSoon();
+      setTimeout(()=>announce('☀ FIRST ANTE OF THE DAY — +15 GILT ☀', true), 3000); } }
   P._idle=0; P._sigT=0; P._corners=new Set(); P._chestsRun=0; P._roulRun=0; P._pauses=0; P._1313=false;
   resetRun();
   { const now=new Date();
