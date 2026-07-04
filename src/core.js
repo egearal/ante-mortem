@@ -320,6 +320,21 @@ function enemyShoot(e){
   burst(e.x,e.y,3,'#ffce5a'); SFX.eshoot();
 }
 function trackDmg(d){ P.dmgDealt=(P.dmgDealt||0)+d; }
+// small purple bosses pay in BLESSINGS — borrowed power, 12-18s on the clock
+const BLESSINGS=[
+  {l:'⚔ HOUSE FAVOR — +40% DAMAGE', ap:()=>{P.damage*=1.4;},  rv:()=>{P.damage/=1.4;}},
+  {l:'⚡ HOT HANDS — +35% FIRE RATE', ap:()=>{P.fireRate*=1.35;}, rv:()=>{P.fireRate/=1.35;}},
+  {l:'👢 SWIFT — +30% SPEED', ap:()=>{P.speed*=1.3;},   rv:()=>{P.speed/=1.3;}},
+  {l:'◈ GILDED — COINS ×2', ap:()=>{P.coinMult*=2;},  rv:()=>{P.coinMult/=2;}},
+  {l:'♥ MENDING — +3 BLOOD/s', ap:()=>{P.regen=(P.regen||0)+3;}, rv:()=>{P.regen-=3;}}
+];
+function eliteBlessing(){
+  const b=BLESSINGS[(Math.random()*BLESSINGS.length)|0], dur=Math.round(rnd(12,18));
+  b.ap();
+  debuffs.push({label:b.l, t:dur, dur, revert:b.rv, dot:0, poison:false, good:true});
+  announce('✦ BLESSED — '+b.l+' · '+dur+'s ✦', true);
+  SFX.dingBells(); SFX.tingle(); flash(0.3,'#8bff9a'); sparkBurst(18); coinRain(8);
+}
 /* SCARS — permanent-for-the-run wounds the dice can leave. No mercy, no timer. */
 const SCARS=[
  {label:'−8 MAX BLOOD',      g:'♥', ap:()=>{ P.maxHp=Math.max(20,P.maxHp-8); P.hp=Math.min(P.hp,P.maxHp); }},
@@ -431,7 +446,7 @@ function killEnemy(e,idx){
     flash(0.2+tier*0.06,'#ffd36b'); shake=Math.min(18,shake+3+tier*2); coinRain(tier*4);
     ring(P.x,P.y,90+tier*30,'#ffd36b');
   }
-  if(e.elite){ shake=Math.min(20,shake+11); flash(0.55,'#c98bff'); SFX.cheer(); ring(e.x,e.y,140,'#c98bff'); pending.push({floor:'epic'}); }
+  if(e.elite){ shake=Math.min(20,shake+11); flash(0.55,'#c98bff'); SFX.cheer(); ring(e.x,e.y,140,'#c98bff'); eliteBlessing(); }
   enemies.splice(idx,1);
 }
 

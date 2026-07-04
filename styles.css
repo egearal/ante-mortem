@@ -940,6 +940,12 @@ body.bloodhour #machine{animation:bloodTremble 2.2s ease-in-out infinite;}
 #slot.comped .marquee{color:#fff2c0;text-shadow:0 0 20px rgba(255,211,107,.75);}
 #slot.comped .machine{box-shadow:0 30px 90px rgba(0,0,0,.8),0 0 46px rgba(255,211,107,.3),inset 0 0 70px rgba(35,26,8,.55);}
 
+/* the press lands — a green kiss on the cabinet frame, every stop */
+@keyframes pressflash{0%{box-shadow:0 0 0 3px rgba(139,255,154,.75),0 0 24px rgba(139,255,154,.35);}100%{box-shadow:0 0 0 3px rgba(139,255,154,0),0 0 0 rgba(139,255,154,0);}}
+.machine.pressflash{animation:pressflash .28s ease-out;}
+@keyframes fzIgnite{0%{transform:scale(2.2);filter:brightness(2);}100%{transform:scale(1);filter:brightness(1);}}
+#crashFrenzy.ignite{animation:fzIgnite .4s cubic-bezier(.2,1.6,.4,1);}
+
 /* pause: the HUD stays lit above the veil */
 body.paused #hud{z-index:25;}
 /* hp v3 fill smoothness */

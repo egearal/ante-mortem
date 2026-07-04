@@ -323,7 +323,8 @@ function stopSelector(){
   let h = loops*3 + ((((selWinner - selPos)%3)+3)%3);
   if(h < 6) h += 3;
   selHopsLeft = h;
-  SFX.tingle();
+  // the LOCK press hits like a reel stop — thick, not a tingle
+  SFX.reelHit(2); SFX.dingHit(2); setTimeout(()=>SFX.casinoDing(),60); shake=Math.min(12,shake+5);
 }
 // the halo wears the rarity of whatever it sits on
 function paintPick(i){
@@ -432,7 +433,7 @@ function stakeReturns(){
 }
 // the rung script, purified by decree: EVERY dice win = +1 level. Rarity is
 // dealt once by the reels and never changes. (PERFECT 12 still pays a bonus.)
-function missShort(g){ return g.round>=3 ? 'BUST + SCAR' : (g.round===2 ? 'SCAR' : 'CURSE'); }
+function missShort(g){ return g.round>=3 ? 'BUST + SCAR' : 'CURSE'; }
 function openOffer(){
   slotStage='offer'; endSeance(); const g=gamble; showRewardPanel();
   const deadly = g.round>=3;
@@ -612,10 +613,9 @@ function resolveRisk(){
       setTimeout(()=>{ l.classList.add('hidden'); t.style.color=''; },1200);
       slotStage='resolved'; showSlotButtons();
     } else {
-      // round 1 miss = a curse that passes · round 2 miss = a SCAR that doesn't
-      const dl = g.round===2 ? applyScar() : applyDebuff(g.pendingCurse);
-      const scarred = g.round===2;
-      if(!scarred) LT.curses++, bump('curses',LT.curses);
+      // rounds 1-2 miss = a curse that passes · only the deep rungs (3+) scar
+      const dl = applyDebuff(g.pendingCurse);
+      LT.curses++; bump('curses',LT.curses);
       tone(520,0.3,'sine',0.14,170); // the tingle ladder falls back down
       (g.hist=g.hist||[]).push('l'); updateLadderPips();
       const near1 = sum===g.threshold-1;
@@ -623,7 +623,7 @@ function resolveRisk(){
       dice.forEach(d=>d.el.classList.remove('crit'));
       $('machine').classList.remove('win','jackpot');
       $('cardName').textContent=g.def.n; $('cardName').className='r-'+g.def.rar+' bigname';
-      $('cardDesc').innerHTML=(near1?'<div class="ofbig" style="color:#ffb066">SO CLOSE…</div>':'')+'<div class="ofrow"><span class="ofl">✕ '+sum+' &lt; '+g.threshold+' — '+(scarred?'☒ SCARRED: ':'CURSED: ')+dl+'</span></div>';
+      $('cardDesc').innerHTML=(near1?'<div class="ofbig" style="color:#ffb066">SO CLOSE…</div>':'')+'<div class="ofrow"><span class="ofl">✕ '+sum+' &lt; '+g.threshold+' — CURSED: '+dl+'</span></div>';
       shake=Math.min(16,shake+7);
       g.round++; g.threshold=Math.min(12, g.threshold+1); g.pendingCurse=null;
       const nxt2=()=>{ window._slotFF=null; openOffer(); };

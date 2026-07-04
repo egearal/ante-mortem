@@ -251,11 +251,19 @@ function pushCrash(){
   { const gh=$('crashGhost'); if(gh){ gh.textContent=el.textContent; gh.style.color=el.style.color||'#e8d9c0';
       gh.classList.remove('go'); void gh.offsetWidth; gh.classList.add('go'); } }
   { const nw=performance.now();
+    const was=crash.fz;
     crash.fz=(nw-crash.lastP<280)?(crash.fz+1):1; crash.lastP=nw;
+    if(was>=4 && crash.fz===1) window._fzCd=nw+30000; // combo broke — the pit rests 30s
+    const cooled=window._fzCd && nw<window._fzCd;
     const fr=$('crashFrenzy');
-    if(fr){ if(crash.fz>=4){ fr.textContent='×'+crash.fz+' FRENZY'; fr.classList.add('on');
+    if(fr){ if(crash.fz>=4 && !cooled){
+        if(was<4){ // it IGNITES — a rarer, bigger moment
+          fr.classList.remove('ignite'); void fr.offsetWidth; fr.classList.add('ignite');
+          flash(0.3,'#ff9a3c'); shake=Math.min(14,shake+6);
+          [660,880,1174].forEach((f,i)=>setTimeout(()=>tone(f,0.09,'square',0.08),i*60)); }
+        fr.textContent='×'+crash.fz+' FRENZY'; fr.classList.add('on');
         tone(900+crash.fz*70,0.05,'square',0.06); }
-      else fr.classList.remove('on'); } }
+      else fr.classList.remove('on','ignite'); } }
   el.textContent=crash.mult.toFixed(2)+'×';
   el.className=crash.mult>=2?'hot':'';
   el.style.transform='scale('+(1+Math.min(0.5,0.1+inc*2.2))+')';

@@ -354,10 +354,13 @@ window.addEventListener('keydown',e=>{
     if(k===' '){
       if(e.repeat) return;
       SFX.press(); pressPulse('gambleMsg');
-      { const ab=document.querySelector('#slotBtns .btn'); if(ab) pressPulse(ab); }
       if(slotStage==='offer'){ spaceHold=true; holdProg=0; holdFired=false; ringShow(true);
         const rb=$('rollBtn'); if(rb) rb.classList.add('held'); }
       else slotTap();
+      // pulse AFTER the action — showSlotButtons rebuilds the button, so the
+      // flash must land on the NEW element (this is why only the last stop lit)
+      { const ab=document.querySelector('#slotBtns .btn'); if(ab) pressPulse(ab); }
+      { const m=$('machine'); if(m){ m.classList.remove('pressflash'); void m.offsetWidth; m.classList.add('pressflash'); } }
     }
     return;
   }
