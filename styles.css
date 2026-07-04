@@ -49,8 +49,6 @@ h1{font-family:var(--disp);font-weight:800;letter-spacing:.28em;margin:0 0 2px;f
 .stat{font-size:14px;letter-spacing:.12em;color:var(--bone);text-shadow:0 1px 3px #000;display:flex;align-items:center;gap:7px;}
 .stat .ico{font-size:16px;} .coins .ico{color:var(--gold);} .kills .ico{color:var(--blood-bright);}
 #timer{font-size:22px;letter-spacing:.18em;color:var(--gold-bright);text-shadow:0 0 12px rgba(232,182,76,.5);}
-#xpbar{position:absolute;top:44px;left:0;right:0;height:5px;background:rgba(0,0,0,.55);}
-#xpfill{height:100%;width:0;background:linear-gradient(90deg,#5a1220,var(--blood-bright));box-shadow:0 0 10px var(--blood-bright);transition:width .12s linear;}
 .hudBottom{position:absolute;bottom:14px;left:0;right:0;display:flex;align-items:flex-end;justify-content:space-between;padding:0 18px;}
 #hpwrap{width:min(340px,52vw);margin-bottom:8px;}
 #hplabel{font-size:11px;letter-spacing:.3em;color:var(--ash);margin-bottom:4px;}
@@ -1058,8 +1056,6 @@ body{cursor:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"
 #combo.flames{animation:comboFlames .5s ease-in-out infinite;color:#ffb066;}
 #combo{position:relative;overflow:visible;}
 #combo .grace{position:absolute;left:8%;right:8%;bottom:-4px;height:2.5px;background:linear-gradient(90deg,#ffd36b,#ff9a3c);border-radius:2px;display:block;transition:width .1s linear;}
-@keyframes xpFlick{0%{filter:brightness(2.4);}100%{filter:none;}}
-#xpfill.flick{animation:xpFlick .16s ease-out;}
 
 /* QoL IV — every parlor opens like a curtain, the quill writes */
 @keyframes panelIn{from{opacity:0;transform:scale(.965) translateY(8px);}to{opacity:1;transform:none;}}

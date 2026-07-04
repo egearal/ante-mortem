@@ -1088,7 +1088,6 @@ function drawLandmarks(){
   }
 }
 function gainXP(n){
-  { const xf=$('xpfill'); if(xf && !window._xpFl){ window._xpFl=true; xf.classList.add('flick'); setTimeout(()=>{ xf.classList.remove('flick'); window._xpFl=false; },160); } }
   n=Math.round(n*(P.xpMult||1));
   if(P.ovT>0 && !P._ovPass && n>0){
     P.ovT=Math.min(100, P.ovT+n*0.5*(P.ovFeed||1));
@@ -2523,24 +2522,21 @@ function specialAI(e,dt,dx,dy,d){
 /* ============================================================
    LOOP + START
    ============================================================ */
-let last=0;
+let last=0, _lastTick=0;
+// One tick, two possible drivers (rAF + a fallback interval). The dedup guard
+// keeps them from ever double-driving: whichever fires first runs the frame, the
+// other's near-simultaneous call is skipped.
+function tick(now){ if(now-_lastTick<8) return; _lastTick=now; frame(now); }
 function loop(now){
   requestAnimationFrame(loop);
-  frame(now);
+  tick(now);
 }
-// FALLBACK TICKER — browsers HARD-PAUSE requestAnimationFrame for hidden/embedded
-// documents (preview panels, iframes, background tabs). Without this, the whole
-// game freezes at 0:00 in those contexts. This watchdog keeps the night alive by
-// driving the frame directly when rAF has stalled; it stays out of the way (the
-// gap check) whenever rAF is healthy, so a normal focused tab is unaffected.
-setInterval(()=>{
-  const now=performance.now();
-  const gap=now-loopPrev;
-  if(gap>90){
-    const base=loopPrev, steps=Math.min(6,Math.max(1,Math.round(gap/60)));
-    for(let i=1;i<=steps;i++) frame(base+gap*i/steps);
-  }
-}, 50);
+// FALLBACK TICKER at ~60Hz — browsers HARD-PAUSE requestAnimationFrame for hidden/
+// embedded documents (preview panels, iframes). Without a fallback the whole game
+// freezes at 0:00 there; at 60Hz it also runs SMOOTH, not the 20fps of a slower
+// interval. On a healthy focused tab rAF wins every tick and the dedup guard makes
+// this a no-op, so it never costs a real tab anything.
+setInterval(()=>tick(performance.now()), 15);
 function frame(now){
   try{
   const dt=Math.min(Math.max((now-last)/1000,0),0.05); last=now;
