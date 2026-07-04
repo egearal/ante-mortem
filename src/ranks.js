@@ -399,7 +399,7 @@ const RANK_KEY='am_rank_v1';
 let RANK={marks:0, rank:1, _ld:0};
 const RANK_TITLES=['FRESH MEAT','PATRON','GAMBLER','HIGH ROLLER','DEBTOR','MARKED SOUL','HOUSE FAVORITE','PIT FIEND','CROUPIER OF BONES','VAULT KIN','HOUSE SHADOW','CARD BARON','BONE MARQUIS','GILT SOVEREIGN',"DEATH'S CONSORT",'WHEEL WARDEN','ASH ROYAL','THE CROWNED DEBT','MIDNIGHT MAGNATE','THE HOUSE ITSELF'];
 const RANK_MILESTONES={
- 10:{r:'START AT LEVEL 2',            ap:()=>{ pending.push({}); }},
+ 10:{r:'+5% XP FOREVER',              ap:()=>{ P.xpMult=(P.xpMult||1)*1.05; }},
  20:{r:'+10 STARTING BLOOD',          ap:()=>{ P.maxHp+=10; P.hp+=10; }},
  30:{r:'START WITH 20 COINS',         ap:()=>{ P.coins+=20; }},
  40:{r:'GOLDEN SPIN +2%',             ap:()=>{ P.goldenBoost=(P.goldenBoost||0)+0.02; }},

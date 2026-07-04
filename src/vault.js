@@ -11,7 +11,6 @@ const VAULT_DEFS=[
  {id:'pocket',n:'POCKET CHANGE',  d:'begin each run with +15 coins per seal',    max:4, base:55,  icon:'mag',   req:()=>(LT.chests||0)>=5,    reqTxt:'Open 5 of the House\'s gifts'},
  {id:'fever', n:'FEVER PITCH',    d:'fever charges +8% faster per seal',         max:5, base:110, icon:'nova',  req:()=>(LT.fevers||0)>=3,    reqTxt:'Enter Fever Mode 3 times'},
  {id:'marker',n:"MARKER'S FAVOR", d:'THE DEATH ROLL cap +2% per seal — to 60%', max:5, base:210, icon:'regen', req:()=>(LT.markers||0)>=1,   reqTxt:'Face the House Marker once'},
- {id:'credit',n:'HOUSE CREDIT',   d:'begin each run with a free slot spin per seal', max:3, base:260, icon:'cards', req:()=>(LT.bossKills||0)>=1, reqTxt:'Slay your first boss'},
  {id:'dice',  n:'LOADED DICE',    d:'every dice target lowered by 1, always',    max:1, base:640, icon:'proj',  req:()=>(LT.gods||0)>=1,      reqTxt:'Reach GOD LEVEL once'},
  {id:'wheel', n:'COURTESY SUMMONS',d:'the Wheel of Souls calls 8% sooner per seal', max:3, base:150, icon:'orbit', req:()=>(LT.wheel||0)>=3,   reqTxt:'Spin the Wheel of Souls 3 times'},
  {id:'rung',  n:'FIRST RUNG',     d:'the Ascent starts 0.12× higher per seal',   max:2, base:240, icon:'spark', req:()=>(LT.crash||0)>=3,     reqTxt:'Ride the Ascent 3 times'},
@@ -44,7 +43,6 @@ function applyVault(){
   P.speed*=(1+0.03*vlv('spd'));
   P.coinMult*=(1+0.04*vlv('gold'));
   if(vlv('pocket')){ P.coins+=15*vlv('pocket'); }
-  P._credit=vlv('credit'); // staged in update as ON THE HOUSE ceremonies, not silent pendings
   P.wheelHaste=0.08*vlv('wheel');
   P.ascStart=vlv('rung');
   P.tarotLuck=0.15*vlv('marked');
@@ -53,7 +51,7 @@ function applyVault(){
   if(vlv('salt')) P.curseCut=(P.curseCut||1)*Math.pow(0.92,vlv('salt'));
   if(vlv('oldbone')) P.wlv.bolt=Math.max(P.wlv.bolt||1,2);
   P.slowEdge=0.25*vlv('borrow');
-  if(contractDone('highroller')) P._credit++;
+  if(contractDone('highroller')) P.coins+=40; // the cut comes in coin now — no free hands
   if(contractDone('deadhand')) P.dmhArmed=true;
 }
 // mid-run purchases apply their single-level delta immediately
@@ -71,7 +69,7 @@ function applySealDelta(id){
   else if(id==='wick') P.feverDur=vlv('wick');
   else if(id==='salt') P.curseCut=(P.curseCut||1)*0.92;
   else if(id==='borrow') P.slowEdge=0.25*vlv('borrow');
-  else if(id==='oldbone'||id==='pocket'||id==='credit') announce('◈ FROM THE NEXT DEAL ◈',true);
+  else if(id==='oldbone'||id==='pocket') announce('◈ FROM THE NEXT DEAL ◈',true);
 }
 // the door stands OPEN now — five seals a night, then it rests 5:00
 let vaultBuys=0, vaultLocked=0;

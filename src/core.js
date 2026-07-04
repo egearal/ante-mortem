@@ -607,12 +607,6 @@ function update(dt){
   // 12:00 — one minute before the purge, the clock bleeds
   if(gt>=720 && !P._stirred){ P._stirred=true; announce('☷ THE HOUSE STIRS — ONE MINUTE ☷', false); SFX.murmur(); flash(0.3,'#8b1620');
     const tm9=$('timer'); if(tm9) tm9.classList.add('stirs'); }
-  // HOUSE CREDIT — comp spins arrive with ceremony, one at a time, never silent
-  if(P._credit>0 && state==='playing' && !houseActive && gt>=2.5 && !pending.length){
-    if(!P._creditA){ P._creditA=true; P._creditT=gt+1.1;
-      announce('◈ HOUSE CREDIT — ON THE HOUSE ◈', true); SFX.dingBells(); coinRain(10); }
-    else if(gt>=P._creditT){ P._creditA=false; P._credit--; pending.push({credit:true}); openNextSlot(); }
-  }
   // queued slots never wait for an XP pickup
   if(pending.length && state==='playing' && !houseActive) openNextSlot();
   // level-up anticipation: accelerating ticks in the last 10% of the XP bar
@@ -1106,7 +1100,7 @@ function gainXP(n){
     tone(520*Math.pow(1.0595,P._xpCombo),0.05,'triangle',0.07+P._xpCombo*0.003);
     if(P._xpCombo===14 && !P._xpPeak){ P._xpPeak=true; SFX.tingle(); setTimeout(()=>P._xpPeak=false,3000); } }
   while(P.xp>=P.xpNext){ if(!P._ovPass && state==='playing' && P.hp>=P.maxHp*0.2){ startOvercharge(); break; } P._ovPass=false;
-    P.xp-=P.xpNext; P.level++; P.xpNext=Math.floor(18+P.level*6.5+P.level*P.level*1.35); pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); { const lv9=$('level'); if(lv9){ lv9.classList.remove('pop'); void lv9.offsetWidth; lv9.classList.add('pop'); } } ring(P.x,P.y,120,'#c81e2c'); ring(P.x,P.y,70,'#ffd36b'); burst(P.x,P.y,16,'#e8b64c'); for(let i=0;i<16;i++){ parts.push({x:P.x+rnd(-10,10),y:P.y+rnd(-4,4),vx:rnd(-14,14),vy:-rnd(90,220),life:rnd(.4,.8),col:i%3?'#ffd36b':'#fff2c0',r:rnd(1.6,3.2)}); } flash(0.25,'#c81e2c'); }
+    P.xp-=P.xpNext; P.level++; P.xpNext=Math.floor(20+P.level*7+P.level*P.level*1.5); pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); { const lv9=$('level'); if(lv9){ lv9.classList.remove('pop'); void lv9.offsetWidth; lv9.classList.add('pop'); } } ring(P.x,P.y,120,'#c81e2c'); ring(P.x,P.y,70,'#ffd36b'); burst(P.x,P.y,16,'#e8b64c'); for(let i=0;i<16;i++){ parts.push({x:P.x+rnd(-10,10),y:P.y+rnd(-4,4),vx:rnd(-14,14),vy:-rnd(90,220),life:rnd(.4,.8),col:i%3?'#ffd36b':'#fff2c0',r:rnd(1.6,3.2)}); } flash(0.25,'#c81e2c'); }
   if(pending.length && state==='playing') openNextSlot();
 }
 
@@ -2566,7 +2560,7 @@ function startGame(){
     projSpeed:CFG.player.projSpeed, projLife:CFG.player.projLife, projRadius:CFG.player.projRadius,
     crit:CFG.player.crit, critMult:CFG.player.critMult, instakill:CFG.player.instakill, regen:CFG.player.regen,
     coinMult:CFG.player.coinMult, lifesteal:CFG.player.lifesteal,
-    xp:0, xpNext:25, level:1, midasStacks:0, mercy:0, comboMult:1, surgeT:0,
+    xp:0, xpNext:28, level:1, midasStacks:0, mercy:0, comboMult:1, surgeT:0,
     wlv:{bolt:1,cards:0,orbit:0,scythe:0,spark:0,chand:0,knives:0,aura:0,nova:0,seeker:0}, passiveList:[], curses:[] };
   enemies=[]; bullets=[]; ebullets=[]; orbs=[]; coins=[]; parts=[]; texts=[]; rings=[]; sparks=[]; sideBoons=[]; smites=[];
   waves=[]; guils=[]; gpools=[]; gstakes=[];
@@ -2593,7 +2587,7 @@ function startGame(){
     if(ind.includes('pockets')){ P.coins+=60; }
     if(ind.includes('blood')){ P.maxHp+=25; P.hp+=25; }
     if(ind.includes('roller')){ P.hotSlots=3; }
-    if(ind.includes('coffee')){ P._credit=(P._credit||0)+2; }
+    if(ind.includes('coffee')){ P.hotSlots=Math.max(P.hotSlots||0,1); }
     if(ind.length){ setTimeout(()=>announce('✦ '+ind.length+' INDULGENCE'+(ind.length>1?'S':'')+' HONORED ✦', true), 2100);
       IDX.ind=[]; idxSaveSoon(); } }
   if(LT.equal){ P.coinMult*=1.05; P._goldTrail=true; } // THE HOUSE'S EQUAL — forever
