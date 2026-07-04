@@ -225,7 +225,8 @@ function ringUpdate(p){ const r=$('holdRing'); if(!r)return; const off=1000*(1-M
   const q=Math.floor(Math.min(0.999,p)*4); if(q>(window._hq||0)){ window._hq=q; SFX.dingHit(1+q); } }
 function stopNextReel(){
   if(slotStage!=='spinning') return;
-  if(performance.now()<(stopLock||0)) return;
+  if(performance.now()<(stopLock||0)){ window._spBuf=performance.now()+260; return; } // the press is BANKED, not eaten
+  window._spBuf=0;
   const r=slotReels.find(x=>!x.stopped); if(!r) return;
   stopLock=performance.now()+45;
   r.stopped=true; r.el.classList.remove('blur');
@@ -648,6 +649,8 @@ function whisper(){
   setTimeout(()=>{ tone(b*0.5,1.1,'sine',0.09,b*0.44); noise(0.6,0.04,380); }, 420);
 }
 function tickSlot(dt){
+  if(window._spBuf && slotStage==='spinning' && performance.now()>=(stopLock||0)){
+    if(performance.now()<window._spBuf){ window._spBuf=0; stopNextReel(); } else window._spBuf=0; }
   if(lastRites){ whisperT-=dt; if(whisperT<=0){ whisperT=2.6+Math.random()*2.4; whisper(); } }
   if(slotStage==='spinning'||slotStage==='locking'){
     for(const r of slotReels){ if(r.stopped) continue; r.offset += r.speed*dt; const ty=-((r.offset % r.N)*r.symH); r.el.style.transform='translateY('+ty+'px)'; }

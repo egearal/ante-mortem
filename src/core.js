@@ -518,10 +518,19 @@ function drawAudience(){
 function update(dt){
   gt+=dt;
   let mx=0,my=0;
-  if(keys.has('w')||keys.has('arrowup'))my-=1;
+  if(keys.has('w')||keys.has('z')||keys.has('arrowup'))my-=1;
   if(keys.has('s')||keys.has('arrowdown'))my+=1;
-  if(keys.has('a')||keys.has('arrowleft'))mx-=1;
+  if(keys.has('a')||keys.has('q')||keys.has('arrowleft'))mx-=1;
   if(keys.has('d')||keys.has('arrowright'))mx+=1;
+  // a pad in hand works too: left stick moves, A is SPACE, B/START is ESC
+  if(navigator.getGamepads){ const _gp=navigator.getGamepads()[0];
+    if(_gp){ const gx=_gp.axes[0]||0, gy=_gp.axes[1]||0;
+      if(Math.abs(gx)>0.25) mx+=gx; if(Math.abs(gy)>0.25) my+=gy;
+      const a9=_gp.buttons[0]&&_gp.buttons[0].pressed, b9=(_gp.buttons[1]&&_gp.buttons[1].pressed)||(_gp.buttons[9]&&_gp.buttons[9].pressed);
+      if(a9&&!window._gpA) window.dispatchEvent(new KeyboardEvent('keydown',{key:' ',bubbles:true}));
+      if(!a9&&window._gpA) window.dispatchEvent(new KeyboardEvent('keyup',{key:' ',bubbles:true}));
+      if(b9&&!window._gpB) window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+      window._gpA=a9; window._gpB=b9; } }
   if(touch.active && mx===0 && my===0){ const dx=touch.wx-P.x, dy=touch.wy-P.y, d=Math.hypot(dx,dy); if(d>6){ mx=dx/d; my=dy/d; } }
   const ml=Math.hypot(mx,my); if(ml>0){ mx/=ml; my/=ml; P.aim=Math.atan2(my,mx); }
   P.x=clamp(P.x+mx*P.speed*dt,14,CFG.arena-14);

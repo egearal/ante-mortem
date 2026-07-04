@@ -292,7 +292,9 @@ const keys=new Set();
 const touch={active:false,wx:0,wy:0};
 window.addEventListener('keyup',e=>{ if(e.key==='Tab'){ e.preventDefault(); tabHold=false; hideTab(); } });
 window.addEventListener('keydown',e=>{
-  const k=e.key.toLowerCase();
+  let k=e.key.toLowerCase();
+  if(e.code==='NumpadEnter') k=' ';
+  if(k==='m' && !e.repeat && !(document.activeElement&&document.activeElement.tagName==='INPUT')){ const mb=$('mute'); if(mb){ mb.click(); } }
   feedSecretKeys(k);
   { const hp9=$('howPanel');
     if(hp9 && !hp9.classList.contains('hidden') && window._howShow){
@@ -302,7 +304,7 @@ window.addEventListener('keydown',e=>{
     if(pr9 && !pr9.classList.contains('hidden') && typeof stepStoryPage==='function'){
       if(k==='d'||k==='arrowright'){ e.preventDefault(); stepStoryPage(1); return; }
       if(k==='a'||k==='arrowleft'){ e.preventDefault(); stepStoryPage(-1); return; } } }
-  if(k==='tab'){ e.preventDefault(); if(!e.repeat && state==='playing'){ tabHold=true; showTab(); SFX.uiDing(); } return; }
+  if(k==='tab'){ e.preventDefault(); if(!e.repeat && (state==='playing'||state==='slot'||state==='wheel')){ tabHold=true; showTab(); SFX.uiDing(); } return; }
   const inInput = document.activeElement && document.activeElement.tagName==='INPUT';
   if(!inInput && ['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
   if(state==='menu' && k===' ' && !e.repeat){
@@ -328,10 +330,12 @@ window.addEventListener('keydown',e=>{
         .map(id=>$(id)).find(p=>p && !p.classList.contains('hidden'));
       if(open && state!=='vault'){ open.classList.add('hidden'); if(open.id==='vaultPanel') vaultBrowse=false; SFX.casinoDing(); return; } }
     if(state==='vault'){ $('vaultPanel').classList.add('hidden'); state='playing'; SFX.casinoDing(); return; }
-    if(state==='playing'){ state='paused'; document.body.classList.add('paused'); $('pauseLayer').classList.remove('hidden'); SFX.thud();
+    if(state==='playing'){ state='paused'; document.body.classList.add('paused'); $('pauseLayer').classList.remove('hidden'); SFX.thud(); window._pzT=performance.now();
       { const pt=document.querySelector('.pauseCard .pz'); if(pt) pt.textContent='◈ PAUSED ◈'; }
       $('pauseStats').innerHTML='<div class="ps"><b>'+P.kills+'</b><i>KILLS</i></div><div class="ps"><b>'+P.level+'</b><i>LEVEL</i></div><div class="ps"><b>'+P.coins+'</b><i>COINS</i></div><div class="ps"><b>'+wave+'</b><i>WAVE</i></div><div class="ps"><b>'+Math.floor(gt/60)+':'+String(Math.floor(gt%60)).padStart(2,'0')+'</b><i>TIME</i></div>'+'<div style="flex-basis:100%;text-align:center;font-family:var(--disp);font-size:10px;letter-spacing:.08em;color:#9a8f7e;margin-top:8px">◈ COINS — the House&#39;s gold, this run · ⚜ XP — level charge, wagered in the Ascent · GILT — eternal Vault currency</div>'; if(P){ P._pauses=(P._pauses||0)+1; if(P._pauses>=13) secret('coldfeet','COLD FEET'); } }
-    else if(state==='paused'){ state='playing'; document.body.classList.remove('paused'); $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); }
+    else if(state==='paused'){
+      if(performance.now()-(window._pzT||0)<500){ quitToMenu(); return; } // ESC·ESC — straight to the door
+      state='playing'; document.body.classList.remove('paused'); $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); }
     return;
   }
   if(k==='q' && state==='paused'){ e.preventDefault(); quitToMenu(); return; }
@@ -653,3 +657,18 @@ setInterval(()=>{ if(state==='menu' && performance.now()-_idleT>60000){
   const sb=$('startBtn'); if(sb && !sb.classList.contains('beckon')){ sb.classList.add('beckon'); SFX.tingle&&SFX.tingle(); } } }, 5000);
 // every menu press answers back
 { const mr=$('menuRow2'); if(mr) mr.addEventListener('click',e=>{ const b=e.target.closest('button'); if(b){ pressPulse(b); } }); }
+
+// the mouse is a SPACE too — on the safe beats (never on the offer; no misclick takes)
+{ const sl=$('slot'); if(sl) sl.addEventListener('click',e=>{
+    if(e.target.closest('button')) return;
+    if(state!=='slot') return;
+    if(['spinning','select','dicing','resolved','ready'].includes(slotStage)){ SFX.press&&SFX.press(); slotTap(); } }); }
+{ const wl=$('wheelLayer'); if(wl) wl.addEventListener('click',e=>{
+    if(e.target.closest('button')) return;
+    if(state!=='wheel') return;
+    SFX.press&&SFX.press();
+    if(wheel.phase==='sealed') unsealWheel();
+    else if(wheel.phase==='roll') brakeTicker();
+    else if(wheel.phase==='freespin') respinTicker();
+    else if(wheel.done) finishWheel();
+    else launchWheel(); }); }
