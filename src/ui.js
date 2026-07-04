@@ -104,25 +104,26 @@ function showTab(){
     const it=mk('<div class="tpi hov"><span class="tpg" style="color:'+(GLYPH_COL[w.id]||rc[w.rar]||'#fff')+'">'+w.g+'</span><span><b>'+w.n+'</b> · Lv '+lv+'<i class="tpfx">'+projFx(w,lv)+'</i></span></div>');
     relicTip(it, w.n, lv, projFx(w,lv)); col1.appendChild(it); }});
   if(!anyW) col1.appendChild(mk('<div class="tpi">—</div>'));
-  col1.appendChild(mk('<div class="tpH">✦ PASSIVES</div>'));
+  col1.appendChild(mk('<div class="tpH">✦ SKILLS</div>'));
   if(P.passiveList.length){ P.passiveList.forEach(r=>{
     const pdef=PASSIVES.find(p=>p.id===r.id);
     const it=mk('<div class="tpi hov"><span class="tpg" style="color:'+(GLYPH_COL[r.id]||rc[r.rar]||'#fff')+'">'+r.g+'</span><span><b>'+r.n+'</b>'+(r.count>1?' ×'+r.count:'')+'<i class="tpfx">'+(pdef?String(pdef.d(r.count)).slice(0,64):'')+'</i></span></div>');
     relicTip(it, r.n, r.count, pdef?pdef.d(r.count):''); col1.appendChild(it); });
   } else col1.appendChild(mk('<div class="tpi">—</div>'));
   const col2=document.createElement('div'); col2.className='tpCol';
-  col2.innerHTML='<div class="tpH">◈ THE LEDGER</div>'
+  col2.appendChild(mk('<div class="tpH">☠ SCARS</div>'));
+  if(P.scars && P.scars.length){
+    P.scars.forEach(s=>col2.appendChild(mk('<div class="tpi"><span class="tpg" style="color:#ff5560">'+(s.g||'☒')+'</span><span><b>'+(s.l||s)+'</b></span></div>')));
+  } else col2.appendChild(mk('<div class="tpi" style="opacity:.55">— unmarked, so far —</div>'));
+  const led=document.createElement('div');
+  led.innerHTML='<div class="tpH" style="margin-top:14px">◈ THE LEDGER</div>'
     +'<div class="tpi">LEVEL '+P.level+' · XP '+Math.floor(P.xp)+' / '+P.xpNext+(P.debt>0?' · <span style="color:#ff6b6b">DEBT '+P.debt+'</span>':'')+'</div>'
-    +'<div class="tpi">COINS '+P.coins+' · GILT '+gilt+' ◈</div>'
+    +'<div class="tpi">COINS '+P.coins.toLocaleString()+' · GILT '+gilt.toLocaleString()+' ◈</div>'
     +'<div class="tpi">WAVE '+wave+' · '+Math.floor(gt/60)+':'+String(Math.floor(gt%60)).padStart(2,'0')+'</div>'
-    +'<div class="tpi">KILLS '+P.kills+' · STREAK ×'+killStreak+'</div>'
-    +'<div class="tpi">ASCENT HOLD NEEDED: '+ascTime.toFixed(1)+'s ABOVE 90%</div>'
-    +'<div class="tpi">XP BONUS +'+Math.round(((P.xpMult||1)-1)*100)+'% · BAR FEED +'+Math.round(((P.ovFeed||1)-1)*100)+'%</div>'
+    +'<div class="tpi">KILLS '+P.kills.toLocaleString()+' · STREAK ×'+killStreak+'</div>'
     +'<div class="tpi">SECRETS '+SEC.size+' / '+WHISPER_TOTAL+' · SEALS '+Object.values(VAULT.lv).reduce((a,b)=>a+b,0)+'</div>'
-    +'<div class="tpi" style="color:#ffd36b">HOUSE RANK '+RANK.rank+' — '+RANKS[RANK.rank-1].n+' · '+RANK.marks+' MARKS</div>'
-    +'<div class="tpH" style="margin-top:10px">RARITIES</div>'
-    +'<div class="tpi"><span style="color:#cfc2a6">COMMON</span> · <span style="color:#8fd977">UNCOMMON</span> · <span style="color:#6fb7ff">RARE</span> · <span style="color:#c98bff">ULTRA</span> · <span style="color:#f8e2a0">LEGENDARY</span> · <span style="color:#8bffd0">ASCENSION</span></div>'
-    +'<div class="tpi" style="opacity:.7">EVERYTHING AT A GLANCE — ONE HAND IS ENOUGH</div>';
+    +'<div class="tpi" style="color:#ffd36b">HOUSE RANK '+RANK.rank+' — '+RANKS[RANK.rank-1].n+' · '+RANK.marks.toLocaleString()+' MARKS</div>';
+  while(led.firstChild) col2.appendChild(led.firstChild);
   tp.appendChild(col1); tp.appendChild(col2);
   tp.classList.add('show');
 }
