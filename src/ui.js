@@ -55,7 +55,7 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
       +'<div id="howTabs">'+TABS.map(tabBtn).join('')+'</div>'
       +'<div id="howBody"></div>'
       +'<button class="btn gold" id="howPlayNow" style="margin-top:10px;">♠ PLAY NOW</button>'
-      +'<div class="howNav"><span class="keyhint">D</span> / <span class="keyhint">→</span> next · <span class="keyhint">A</span> / <span class="keyhint">←</span> back</div>'
+      +'<span class="prArrow hnPrev">‹</span><span class="prArrow hnNext">›</span>'
       +'<button class="gxBtn gxClose" id="howClose">CLOSE</button>';
     window._howShow=(i)=>{ if(i===undefined||isNaN(i)) i=window._howTab||0;
       window._howTab=((i%TABS.length)+TABS.length)%TABS.length;
@@ -75,6 +75,9 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
     $('howBtn').addEventListener('click',()=>{ hp.classList.remove('hidden'); window._howShow(window._howTab||0); });
     hp.addEventListener('click',e=>{ const b=e.target.closest('.howTab'); if(b) window._howShow(+b.dataset.t); });
     $('howClose').addEventListener('click',()=>{ hp.classList.add('hidden'); SFX.casinoDing(); });
+    { const pv=hp.querySelector('.hnPrev'), nx=hp.querySelector('.hnNext');
+      if(pv) pv.addEventListener('click',()=>window._howShow((window._howTab||0)-1));
+      if(nx) nx.addEventListener('click',()=>window._howShow((window._howTab||0)+1)); }
     $('quitBtn').addEventListener('click',()=>quitToMenu());
     $('resumeBtn').addEventListener('click',()=>{ if(state==='paused'){ state='playing'; document.body.classList.remove('paused'); $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); } });
   } }
@@ -108,37 +111,37 @@ $('mute').addEventListener('click',()=>{ muted=!muted; if(master) master.gain.va
 function showTab(){
   let tp=$('tabPanel');
   if(!tp){ tp=document.createElement('div'); tp.id='tabPanel'; document.body.appendChild(tp); }
-  tp.innerHTML='';
   const rc={common:'#cfc2a6',uncommon:'#8fd977',rare:'#6fb7ff',epic:'#c98bff',legendary:'#ffd36b',mythic:'#fff2c0',ascend:'#8bffd0'};
-  const col1=document.createElement('div'); col1.className='tpCol';
-  const mk=(html)=>{ const d=document.createElement('div'); d.innerHTML=html; return d.firstChild; };
-  col1.appendChild(mk('<div class="tpH">⚔ WEAPONS</div>'));
+  // v4 — one modern sheet: stat tiles up top, weapon cards with their numbers
+  // in plain sight, skill rows with live values, a thin red scar strip
+  let h='<div class="tpSheet">';
+  h+='<div class="tpStats">'
+    +'<div class="tpTile"><b>'+P.level+'</b><i>LEVEL</i></div>'
+    +'<div class="tpTile"><b>'+Math.ceil(P.hp)+'<em>/'+P.maxHp+'</em></b><i>BLOOD</i></div>'
+    +'<div class="tpTile"><b>'+Math.round(P.damage)+'</b><i>DAMAGE</i></div>'
+    +'<div class="tpTile"><b>'+P.coins.toLocaleString()+'</b><i>COINS</i></div>'
+    +'<div class="tpTile"><b>'+RANK.rank+'</b><i>RANK</i></div>'
+    +'</div>';
+  h+='<div class="tpH">⚔ WEAPONS</div><div class="tpWGrid">';
   let anyW=false;
   WEAPONS.forEach(w=>{ const lv=P.wlv[w.id]||0; if(lv>0){ anyW=true;
-    const it=mk('<div class="tpi hov"><span class="tpg" style="color:'+(GLYPH_COL[w.id]||rc[w.rar]||'#fff')+'">'+w.g+'</span><span><b>'+w.n+'</b> · Lv '+lv+'<i class="tpfx">'+projFx(w,lv)+'</i></span></div>');
-    relicTip(it, w.n, lv, projFx(w,lv)); col1.appendChild(it); }});
-  if(!anyW) col1.appendChild(mk('<div class="tpi">—</div>'));
-  col1.appendChild(mk('<div class="tpH">✦ SKILLS</div>'));
-  if(P.passiveList.length){ P.passiveList.forEach(r=>{
-    const pdef=PASSIVES.find(p=>p.id===r.id);
-    const it=mk('<div class="tpi hov"><span class="tpg" style="color:'+(GLYPH_COL[r.id]||rc[r.rar]||'#fff')+'">'+r.g+'</span><span><b>'+r.n+'</b>'+(r.count>1?' ×'+r.count:'')+'<i class="tpfx">'+(pdef?String(pdef.d(r.count)).slice(0,64):'')+'</i></span></div>');
-    relicTip(it, r.n, r.count, pdef?pdef.d(r.count):''); col1.appendChild(it); });
-  } else col1.appendChild(mk('<div class="tpi">—</div>'));
-  const col2=document.createElement('div'); col2.className='tpCol';
-  col2.appendChild(mk('<div class="tpH">☠ SCARS</div>'));
+    h+='<div class="tpWCard" style="--wc:'+(GLYPH_COL[w.id]||rc[w.rar]||'#fff')+'">'
+      +'<span class="tpWG">'+w.g+'</span><b>'+w.n+'</b><i>Lv '+lv+'</i>'
+      +'<em>'+projFx(w,lv)+'</em></div>'; }});
+  if(!anyW) h+='<div class="tpEmpty">— unarmed —</div>';
+  h+='</div>';
+  h+='<div class="tpH">✦ SKILLS</div><div class="tpSRows">';
+  if(P.passiveList.length){ P.passiveList.forEach(r=>{ const pdef=PASSIVES.find(p=>p.id===r.id);
+    h+='<div class="tpSRow"><span class="tpg" style="color:'+(GLYPH_COL[r.id]||rc[r.rar]||'#fff')+'">'+r.g+'</span>'
+      +'<b>'+r.n+'</b>'+(r.count>1?'<u>×'+r.count+'</u>':'')
+      +'<em>'+(pdef?String(pdef.d(r.count)).slice(0,72):'')+'</em></div>'; });
+  } else h+='<div class="tpEmpty">— empty-handed —</div>';
+  h+='</div>';
   if(P.scars && P.scars.length){
-    P.scars.forEach(s=>col2.appendChild(mk('<div class="tpi"><span class="tpg" style="color:#ff5560">'+(s.g||'☒')+'</span><span><b>'+(s.l||s)+'</b></span></div>')));
-  } else col2.appendChild(mk('<div class="tpi" style="opacity:.55">— unmarked, so far —</div>'));
-  const led=document.createElement('div');
-  led.innerHTML='<div class="tpH" style="margin-top:14px">◈ THE LEDGER</div>'
-    +'<div class="tpi">LEVEL '+P.level+' · XP '+Math.floor(P.xp)+' / '+P.xpNext+(P.debt>0?' · <span style="color:#ff6b6b">DEBT '+P.debt+'</span>':'')+'</div>'
-    +'<div class="tpi">COINS '+P.coins.toLocaleString()+' · GILT '+gilt.toLocaleString()+' ◈</div>'
-    +'<div class="tpi">WAVE '+wave+' · '+Math.floor(gt/60)+':'+String(Math.floor(gt%60)).padStart(2,'0')+'</div>'
-    +'<div class="tpi">KILLS '+P.kills.toLocaleString()+' · STREAK ×'+killStreak+'</div>'
-    +'<div class="tpi">SECRETS '+SEC.size+' / '+WHISPER_TOTAL+' · SEALS '+Object.values(VAULT.lv).reduce((a,b)=>a+b,0)+'</div>'
-    +'<div class="tpi" style="color:#ffd36b">HOUSE RANK '+RANK.rank+' — '+RANKS[RANK.rank-1].n+' · '+RANK.marks.toLocaleString()+' MARKS</div>';
-  while(led.firstChild) col2.appendChild(led.firstChild);
-  tp.appendChild(col1); tp.appendChild(col2);
+    h+='<div class="tpScars">☠ SCARS &nbsp;·&nbsp; '+P.scars.map(sc=>(sc.g||'☒')+' '+(sc.l||sc)).join(' &nbsp;·&nbsp; ')+'</div>';
+  }
+  h+='</div>';
+  tp.innerHTML=h;
   tp.classList.add('show');
 }
 function hideTab(){ const tp=$('tabPanel'); if(tp) tp.classList.remove('show'); }
