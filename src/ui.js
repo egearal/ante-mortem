@@ -331,6 +331,8 @@ window.addEventListener('keydown',e=>{
     const panelOpen=['storyPanel','indexPanel','achPanel','vaultPanel','gfxPanel'].some(id=>{ const p=$(id); return p && !p.classList.contains('hidden'); });
     if(!panelOpen && !$('menu').classList.contains('hidden')){ e.preventDefault(); SFX.press(); $('startBtn').click(); return; }
   }
+  if(state==='marker' || state==='dead'){
+    if(['w','a','s','d','z','q','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){ e.preventDefault(); return; } }
   if(state==='dead'){
     if(k==='r' && !e.repeat){ SFX.press(); pressPulse('againBtn'); $('againBtn').click(); return; }
     if(k===' ' && !inInput && !e.repeat){

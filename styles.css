@@ -948,8 +948,10 @@ body.bloodhour #machine{animation:bloodTremble 2.2s ease-in-out infinite;}
 #slot.comped .machine{box-shadow:0 30px 90px rgba(0,0,0,.8),0 0 46px rgba(255,211,107,.3),inset 0 0 70px rgba(35,26,8,.55);}
 
 /* the press lands — a green kiss on the cabinet frame, every stop */
-@keyframes pressflash{0%{box-shadow:0 0 0 3px rgba(139,255,154,.75),0 0 24px rgba(139,255,154,.35);}100%{box-shadow:0 0 0 3px rgba(139,255,154,0),0 0 0 rgba(139,255,154,0);}}
+@keyframes pressflash{0%{box-shadow:0 0 0 3px rgba(139,255,154,.75),0 0 24px rgba(139,255,154,.35);transform:scale(1.006);}100%{box-shadow:0 0 0 3px rgba(139,255,154,0),0 0 0 rgba(139,255,154,0);transform:scale(1);}}
 .machine.pressflash{animation:pressflash .28s ease-out;}
+.machine.pressflash::after{content:'';position:absolute;inset:-6px;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(circle at 50% 62%,rgba(139,255,154,.14),transparent 55%);animation:pressflash .28s ease-out;}
 @keyframes fzIgnite{0%{transform:scale(2.2);filter:brightness(2);}100%{transform:scale(1);filter:brightness(1);}}
 #crashFrenzy.ignite{animation:fzIgnite .4s cubic-bezier(.2,1.6,.4,1);}
 
@@ -969,8 +971,9 @@ body.bloodhour #machine{animation:bloodTremble 2.2s ease-in-out infinite;}
 /* THE BOOKS + all-time badges */
 .rk10{font-style:normal;font-size:9.5px;letter-spacing:.12em;margin-left:8px;padding:2px 7px;border-radius:8px;vertical-align:2px;}
 .rk10.rk1{color:#171008;background:linear-gradient(120deg,#ffd36b,#fff2c0);box-shadow:0 0 14px rgba(255,211,107,.7);animation:rk1burn 1.1s ease-in-out infinite alternate;}
-.rk10.rk3{color:#1a1a20;background:linear-gradient(120deg,#cfd4de,#f2f4f8);}
-.rk10.rkX{color:#e8d9ff;background:rgba(122,66,180,.45);border:1px solid rgba(201,139,255,.5);}
+.rk10.rk2{color:#1a1a20;background:linear-gradient(120deg,#cfd4de,#f2f4f8);box-shadow:0 0 10px rgba(220,228,240,.5);}
+.rk10.rk3b{color:#2a1608;background:linear-gradient(120deg,#c98a4e,#e8b88a);box-shadow:0 0 10px rgba(201,138,78,.5);}
+.rk10.rkX{color:#cfc2a6;background:rgba(60,48,36,.6);border:1px solid rgba(232,182,76,.3);}
 @keyframes rk1burn{from{box-shadow:0 0 8px rgba(255,211,107,.5);}to{box-shadow:0 0 20px rgba(255,211,107,.95);}}
 .gsSum{margin-top:6px;color:#ffd36b;font-family:var(--disp);font-size:12px;letter-spacing:.18em;text-shadow:0 0 12px rgba(255,211,107,.5);animation:gsIn .4s cubic-bezier(.2,1.8,.4,1);}
 .bkCol{border:1px solid rgba(232,182,76,.25);border-radius:10px;padding:10px 12px;background:rgba(16,10,8,.5);}

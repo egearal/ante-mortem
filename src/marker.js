@@ -12,7 +12,7 @@ async function die(){
 }
 /* THE FINAL PRESS — no gold at the door. 35% to live; mash SPACE for 3.2 seconds, every press buys +0.5-1.5%, cap 50%. */
 function markerSpin(){
-  state='marker'; stopDrone();
+  state='marker'; stopDrone(); try{ keys.clear(); }catch(e){}
   const l=$('jackpotLayer'), t=$('jackpotText');
   l.classList.remove('hidden');
   const base=Math.min(0.46, 0.35+(P.pressBase||0));
@@ -62,7 +62,7 @@ function startFlicker(mk){
   mk.phase='flicker';
   const l=$('jackpotLayer'), t=$('jackpotText');
   const pPct=mk.p*100;
-  $('jackpotSub').innerHTML='<div class="fpPct big">'+pPct.toFixed(3)+'<i>%</i> TO LIVE</div><div class="fpHint">THE HOUSE ROLLS 0 – 100…</div>';
+  $('jackpotSub').innerHTML='<div class="fpPct big">'+pPct.toFixed(3)+'<i>%</i> TO LIVE</div><div class="fpHint">THE HOUSE ROLLS…</div>';
   t.className='jackpotText marker';
   const roll=Math.random()*100; // the truth, decided now
   mk.roll=roll; mk.margin=pPct-roll; RUN.rollMargin=mk.margin;
@@ -99,10 +99,13 @@ function startFlicker(mk){
 }
 async function actuallyDie(){
   if(state==='dead') return;
+  // the door opens FIRST — no recap decoration may ever stand between a corpse and its ledger
+  state='dead'; try{ keys.clear(); }catch(e){}
+  elGO.classList.remove('hidden');
   if(P.coins===0) secret('broke','BROKE AT THE END');
   { const g6=Math.floor(gt); if(g6>=425&&g6<=427) secret('sixsix',"THE BEAST'S HOUR"); }
   if(gt>=900 && (P._lastHurtGt===undefined || gt-P._lastHurtGt>=60)) secret('untouched60','THE UNTOUCHED MINUTE');
-  state='dead'; stopDrone(); SFX.death(); shake=18; flash(0.6,'#8b1620');
+  stopDrone(); SFX.death(); shake=18; flash(0.6,'#8b1620');
   const score=computeScore(), giltEarned=Math.floor(score/40);
   gilt+=giltEarned; saveGilt();
   LT.deaths++; bump('deaths',LT.deaths);
@@ -133,7 +136,7 @@ async function actuallyDie(){
   const gs=$('goStats'); if(gs) gs.innerHTML='';
   window._recapT0=performance.now(); window._recapDone=false; window._recapFast=false;
   const addRow=(s,i,instant)=>{ if(!gs) return; const d=document.createElement('div'); d.className='gsRow'+(instant?' now':'');
-    const bd=s[3]?('<em class="rk10 '+(s[3]===1?'rk1':s[3]<=3?'rk3':'rkX')+'">#'+s[3]+' ALL-TIME</em>'):'';
+    const bd=s[3]?('<em class="rk10 '+(s[3]===1?'rk1':s[3]===2?'rk2':s[3]===3?'rk3b':'rkX')+'">#'+s[3]+' ALL-TIME</em>'):'';
     d.innerHTML='<b>'+s[0]+'</b><span>'+s[1]+'</span><i>'+s[2]+bd+'</i>'; gs.appendChild(d);
     if(!instant){ SFX.dingHit(Math.min(6,i+1)); sparkBurst(6);
       if(s[3]===1){ SFX.rarSting(5); flash(0.4,'#ffd36b'); sparkBurst(30); shake=Math.min(16,shake+7); }
@@ -184,7 +187,6 @@ async function actuallyDie(){
       +(RANKS[RANK.rank]&&RANKS[RANK.rank].r?'<div class="rkNext">NEXT: '+RANKS[RANK.rank].r+' — '+(res.need-res.have)+' MARKS AWAY</div>':'');
     if(res.up){ SFX.seraph(); SFX.dingBells(); flash(0.5,'#ffd36b'); coinRain(22); }
   }
-  elGO.classList.remove('hidden');
 }
 /* the LUCK math: how the night's RNG treated you, normalized across dice, pulls, wheel, ascent, and the death roll */
 function luckVerdict(){
