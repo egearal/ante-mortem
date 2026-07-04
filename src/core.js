@@ -694,7 +694,9 @@ function update(dt){
 
   // waves — the House suffers no other guests after 13:00
   if(!houseActive){
-    if(enemies.length<=waveClearTarget){ waveGap-=dt; if(waveGap<=0) startWave(); }
+    if(enemies.length<=waveClearTarget){ waveGap-=dt;
+      if(!window._ewWarn && (wave+1)%CFG.wave.eliteEvery===0 && waveGap<1){ window._ewWarn=true; showStreak('♛ AN ELITE WAVE GATHERS ♛'); SFX.murmur(); setTimeout(()=>window._ewWarn=false,5000); }
+      if(waveGap<=0) startWave(); }
     else { waveGap=CFG.wave.gap; }
   }
   // 8:00 — THE FLOOR RISES. The stretch before the House must be earned.
@@ -1826,7 +1828,7 @@ function render(){
     } else {
       ctx.font="700 11px 'Cinzel',serif"; ctx.textAlign='center';
       ctx.fillStyle='rgba(236,208,160,0.9)'; ctx.shadowColor='#000'; ctx.shadowBlur=4;
-      ctx.fillText('⚜ LEVEL CHARGE — '+Math.floor(P.xp)+' / '+P.xpNext+' XP', VW/2, xy-11); ctx.shadowBlur=0;
+      ctx.fillText('⚜ LEVEL CHARGE — '+Math.floor(P.xp)+' / '+P.xpNext+' XP'+(pending.length?'  ▸ A SLOT WAITS':''), VW/2, xy-11); ctx.shadowBlur=0;
       if(P.debt>0){ ctx.fillStyle='#ff6b6b'; ctx.shadowColor='#ff6b6b'; ctx.shadowBlur=6;
         ctx.fillText('☠ IN DEBT TO THE HOUSE: '+P.debt+' XP', VW/2, xy+28); ctx.shadowBlur=0; }
       if(f>0.85){
@@ -2271,7 +2273,9 @@ function drawGuide(tx,ty,col){
 function drawGuides(){
   if(state!=='playing') return;
   { const bs=enemies.find(e=>e.boss); if(bs && !inView(bs.x,bs.y,-40)) drawGuide(bs.x,bs.y,bs.col||'#ff5560'); }
-  if(crashTok) drawGuide(crashTok.x, crashTok.y, '#8bff9a');
+  if(crashTok){ drawGuide(crashTok.x, crashTok.y, '#8bff9a');
+    if(inView(crashTok.x,crashTok.y,80) && crashTok.t<8){ ctx.save(); ctx.strokeStyle='rgba(139,255,154,0.8)'; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.arc(crashTok.x,crashTok.y,34,-1.5708,-1.5708+(crashTok.t/20)*6.283); ctx.stroke(); ctx.restore(); } }
   if(wheelTok) drawGuide(wheelTok.x, wheelTok.y, '#c98bff');
   if(eggProp)  drawGuide(eggProp.x,  eggProp.y,  '#ffd36b');
   if(vaultProp && window._vaultBeacon && gt<window._vaultBeacon) drawGuide(vaultProp.x, vaultProp.y, '#fff2c0');

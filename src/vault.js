@@ -133,5 +133,7 @@ function tickVaultDoor(){
     window._vaultBeacon=gt+8;
     if(vaultProp){ ring(vaultProp.x,vaultProp.y,160,'#ffd36b'); ring(vaultProp.x,vaultProp.y,90,'#fff2c0'); } }
   if(vaultWindowOpen()&&vaultProp){ window._vwp=(window._vwp||0)+1; if(window._vwp%150===0) ring(vaultProp.x,vaultProp.y,120,'#ffd36b'); }
+  if(vaultProp && vaultLocked>0 && gt<vaultLocked){ window._vlr=(window._vlr||0)+1;
+    if(window._vlr%240===0) ftext(vaultProp.x,vaultProp.y-96,'RESTS '+Math.ceil((vaultLocked-gt)/60)+' MIN','#8f8371'); }
 }
 async function saveGilt(){ try{ if(!store)return; await store.set(GILT_KEY,JSON.stringify({gilt,best}),false); }catch(e){} }

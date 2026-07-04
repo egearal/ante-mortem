@@ -177,7 +177,8 @@ const GFX_DEFS=[
  {k:'pcap',  n:'PARTICLES',     opts:[[260,'FULL'],[140,'REDUCED'],[70,'MINIMAL']]},
  {k:'lod',  n:'CHUNK DISTANCE', opts:[['low','LOW — 20 IN FULL ART'],['normal','NORMAL — 44'],['high','HIGH — 120'],['inf','INFINITE — ALL']]},
  {k:'fps',   n:'FPS COUNTER',   opts:[[false,'OFF'],[true,'ON']]},
- {k:'cb',   n:'COLORBLIND PIPS', opts:[[false,'OFF'],[true,'SHAPES']]}
+ {k:'cb',   n:'COLORBLIND PIPS', opts:[[false,'OFF'],[true,'SHAPES']]},
+ {k:'tabT', n:'TAB CODEX',      opts:[[false,'HOLD'],[true,'TOGGLE']]}
 ];
 function gfxLabel(d){ const o=d.opts.find(o=>o[0]===GFX[d.k]); return o?o[1]:String(GFX[d.k]); }
 function applyGfxPreset(name){
@@ -250,7 +251,8 @@ function updateHUD(){
   _hSet('timer',fmt(gt));
   { let wv=$('waveInfo'); if(!wv){ wv=document.createElement('div'); wv.id='waveInfo'; const tm=$('timer'); if(tm&&tm.parentNode) tm.parentNode.insertBefore(wv,tm.nextSibling); }
     if(wv) { const left9=Math.max(0,enemies.filter(e=>!e.boss).length-waveClearTarget);
-      const wtxt='WAVE '+wave+(left9>0?' · '+left9+' TO THIN':''); if(_hud.wv!==wtxt){ _hud.wv=wtxt; wv.textContent=wtxt; } } }
+      let wtxt='WAVE '+wave+(left9>0?' · '+left9+' TO THIN':'');
+      if(gt>=720&&gt<780) wtxt='☷ THE HOUSE IN '+Math.ceil(780-gt)+'s ☷'; if(_hud.wv!==wtxt){ _hud.wv=wtxt; wv.textContent=wtxt; } } }
   _hSet('coinCount',P.coins.toLocaleString());
   const bb=$('bossBar'); const bs=enemies.find(x=>x.boss);
   if(bs){ bb.classList.remove('hidden'); const bp9=Math.max(0,bs.hp/bs.maxhp*100);
@@ -266,7 +268,7 @@ function updateHUD(){
   const cm=$('combo');
   if(killStreak>=4){ cm.classList.remove('hidden');
     const gp9=Math.max(0,Math.min(1,streakT/1.0))*100;
-    const ch='×'+(P.comboMult||1).toFixed(1)+'  COMBO<i class="grace" style="width:'+gp9.toFixed(0)+'%"></i>';
+    const ch='×'+(P.comboMult||1).toFixed(1)+'  COMBO'+(P.bestStreak>killStreak?' <s>best '+P.bestStreak+'</s>':'')+'<i class="grace" style="width:'+gp9.toFixed(0)+'%"></i>';
     if(_hud.combo!==ch){ _hud.combo=ch; cm.innerHTML=ch; }
     cm.classList.toggle('flames', killStreak>=50);
     cm.style.transform='translateX(-50%) scale('+(1+Math.min(0.5,killStreak*0.01))+')'; }
@@ -337,7 +339,9 @@ window.addEventListener('keydown',e=>{
     if(pr9 && !pr9.classList.contains('hidden') && typeof stepStoryPage==='function'){
       if(k==='d'||k==='arrowright'){ e.preventDefault(); stepStoryPage(1); return; }
       if(k==='a'||k==='arrowleft'){ e.preventDefault(); stepStoryPage(-1); return; } } }
-  if(k==='tab'){ e.preventDefault(); if(!e.repeat && (state==='playing'||state==='slot'||state==='wheel')){ tabHold=true; showTab(); SFX.uiDing(); } return; }
+  if(k==='tab'){ e.preventDefault(); if(!e.repeat && (state==='playing'||state==='slot'||state==='wheel')){
+    if(GFX.tabT){ const tp=$('tabPanel'); if(tp&&tp.classList.contains('show')) hideTab(); else { showTab(); SFX.uiDing(); } }
+    else { tabHold=true; showTab(); SFX.uiDing(); } } return; }
   const inInput = document.activeElement && document.activeElement.tagName==='INPUT';
   if(!inInput && ['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
   if(state==='menu' && !e.repeat && !(document.activeElement&&document.activeElement.tagName==='INPUT')){
@@ -351,7 +355,7 @@ window.addEventListener('keydown',e=>{
   if(state==='marker' || state==='dead'){
     if(['w','a','s','d','z','q','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){ e.preventDefault(); return; } }
   if(state==='dead'){
-    if(k==='r' && !e.repeat){ SFX.press(); pressPulse('againBtn'); $('againBtn').click(); return; }
+    if(k==='r' && !e.repeat){ window._rHold=performance.now(); SFX.press(); pressPulse('againBtn'); return; }
     if(k===' ' && !inInput && !e.repeat){
       if(performance.now()-(window._recapT0||0)<500) return; // FINAL PRESS mashers don't skip-restart
       SFX.press();
@@ -364,6 +368,7 @@ window.addEventListener('keydown',e=>{
   if(k==='escape'){
     if(e.repeat) return;
     e.preventDefault();
+    if(state==='slot'||state==='wheel'){ showStreak('… FINISH THE HAND …'); SFX.thud(); return; }
     // universal BACK: any open parlor closes before the pause even wakes
     { const open=['booksPanel','antePanel','gfxPanel','indexPanel','achPanel','storyPanel','vaultPanel','howPanel']
         .map(id=>$(id)).find(p=>p && !p.classList.contains('hidden'));
@@ -441,6 +446,7 @@ window.addEventListener('keydown',e=>{
 });
 window.addEventListener('keyup',e=>{
   const k=e.key.toLowerCase();
+  if(k==='r' && state==='dead' && window._rHold){ if(performance.now()-window._rHold>=400){ $('againBtn').click(); } window._rHold=0; return; }
   if(k===' ' && state==='slot'){
     { const rb=$('rollBtn'); if(rb) rb.classList.remove('held'); }
     if(spaceHold){ spaceHold=false; ringShow(false); if(!holdFired && holdProg<1) slotTap(); holdProg=0; }
@@ -726,7 +732,8 @@ function houseWaits(){
   const pt=document.querySelector('.pauseCard .pz'); if(pt) pt.textContent='◈ THE HOUSE WAITS ◈';
   SFX.thud&&SFX.thud();
 }
-window.addEventListener('blur',houseWaits);
+window.addEventListener('blur',()=>{ try{ keys.clear(); }catch(e){} houseWaits(); });
+window.addEventListener('focus',()=>{ if(P && state==='playing') P.inv=Math.max(P.inv||0,1); }); // a breath of grace on return
 document.addEventListener('visibilitychange',()=>{ if(document.hidden) houseWaits(); });
 // the menu beckons after a quiet minute
 let _idleT=performance.now();

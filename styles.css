@@ -1186,6 +1186,10 @@ body{cursor:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"
 .bkRow.tonight{background:linear-gradient(90deg,rgba(255,211,107,.14),transparent);border-radius:4px;}
 .bkRow.tonight b{color:#ffd36b;}
 
+/* QoL XIV+XV */
+#combo s{text-decoration:none;font-size:10px;color:#8f8371;margin-left:8px;letter-spacing:.08em;}
+#tickerBox.pressflash{animation:pressflash .28s ease-out;}
+
 /* pause: the HUD stays lit above the veil */
 body.paused #hud{z-index:25;}
 /* hp v3 fill smoothness */

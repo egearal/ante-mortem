@@ -236,6 +236,7 @@ function respinTicker(){
 // SPACE mid-roll: slam the brake — the strip jumps to its crawl with a heavy clack
 function brakeTicker(){
   if(wheel.phase!=='roll' || wheel._braked) return; wheel._braked=true;
+  { const bx=$('tickerBox'); if(bx){ bx.classList.remove('pressflash'); void bx.offsetWidth; bx.classList.add('pressflash'); } }
   wheel.rollT=Math.max(wheel.rollT, wheel.rollDur*0.86);
   SFX.reelLock(); tone(120,0.24,'sine',0.26,68); noise(0.16,0.1,900); shake=Math.min(12,shake+6);
   // brake feels like a reel stop now: flash, sparks, and the box takes the hit
