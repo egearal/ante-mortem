@@ -1101,6 +1101,21 @@ body{cursor:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"
 .ctSlotBuy.broke{opacity:.55;}
 .ctSlotBuy.deny{animation:denyShake .3s;}
 
+/* the case reads its own odds */
+#wheelLegend{position:absolute;right:-190px;top:50%;transform:translateY(-50%);width:168px;text-align:left;
+  border:1px solid rgba(232,182,76,.3);border-radius:10px;padding:12px 14px;background:linear-gradient(180deg,rgba(20,12,8,.92),rgba(10,6,4,.95));}
+#wheelLegend .wlH{font-family:var(--disp);font-size:10px;letter-spacing:.22em;color:#b7a98e;margin-bottom:8px;border-bottom:1px solid rgba(232,182,76,.25);padding-bottom:5px;}
+#wheelLegend .wlRow{display:flex;align-items:baseline;gap:7px;font-family:var(--disp);font-size:10.5px;letter-spacing:.1em;color:#e2d6b8;padding:2.5px 0;}
+#wheelLegend .wlRow i{width:9px;height:9px;border-radius:2px;background:var(--lc);box-shadow:0 0 8px var(--lc);align-self:center;}
+#wheelLegend .wlRow span{margin-left:auto;font-size:8.5px;color:#8f8371;letter-spacing:.06em;}
+@media(max-width:1000px){#wheelLegend{display:none;}}
+/* PLAY TONIGHT — a bet, not a button */
+#menu #startBtn{position:relative;overflow:hidden;transition:transform .16s cubic-bezier(.2,1.4,.4,1),box-shadow .16s;}
+#menu #startBtn::before{content:'♠ ♥ ♦ ♣';position:absolute;right:10px;top:-18px;font-size:11px;letter-spacing:4px;opacity:0;transition:all .22s;color:#6b4a08;}
+#menu #startBtn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 9px 0 #8a6a1c,0 16px 40px rgba(0,0,0,.6),0 0 54px rgba(255,211,107,.55),inset 0 1px 0 rgba(255,255,255,.55);}
+#menu #startBtn:hover::before{top:6px;opacity:.85;}
+#menu #startBtn:active{transform:translateY(2px) scale(.99);box-shadow:0 2px 0 #8a6a1c,0 4px 12px rgba(0,0,0,.5);}
+
 /* pause: the HUD stays lit above the veil */
 body.paused #hud{z-index:25;}
 /* hp v3 fill smoothness */

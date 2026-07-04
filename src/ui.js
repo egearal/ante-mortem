@@ -442,7 +442,10 @@ cv.addEventListener('touchend',()=>touch.active=false);
 cv.addEventListener('touchcancel',()=>touch.active=false,{passive:true});
 $('startBtn').addEventListener('click',startGame);
 /* menu juice: plaque tilt toward cursor, piano-key hover chimes, press squash + ring burst */
-{ const chime=b=>{ if(!AC||muted) return; const sibs=[...b.parentNode.querySelectorAll('.btn')]; const i=Math.max(0,sibs.indexOf(b));
+{ const chime=b=>{ if(!AC||muted) return;
+    if(b.id==='startBtn'){ // PLAY TONIGHT speaks in velvet — a low thump under a gold chime
+      tone(196,0.16,'sine',0.14,150); tone(988,0.1,'sine',0.05); setTimeout(()=>tone(1318,0.08,'sine',0.04),60); return; }
+    const sibs=[...b.parentNode.querySelectorAll('.btn')]; const i=Math.max(0,sibs.indexOf(b));
     tone(740*Math.pow(1.122,i%8),0.07,'sine',0.06); tone(1480*Math.pow(1.122,i%8),0.05,'sine',0.03); };
   document.addEventListener('mouseover',e=>{ if(state==='playing') return; const b=e.target.closest&&e.target.closest('.btn'); if(!b||(e.relatedTarget&&b.contains(e.relatedTarget))) return; chime(b); },true);
   document.addEventListener('mouseout',e=>{ if(state==='playing') return; const b=e.target.closest&&e.target.closest('.btn'); if(!b||(e.relatedTarget&&b.contains(e.relatedTarget))) return;
