@@ -449,9 +449,9 @@ function killEnemy(e,idx){
     if(killStreak>=500){ secret('streak500','THE FIVE HUNDRED'); bigWin('500 STREAK',4); coinRain(40); }
   } { const kf=440*Math.pow(1.0595,Math.min(24,killStreak)); tone(kf,0.07,'triangle',0.09,kf*2); tone(kf*2,0.05,'sine',0.045); } excite=Math.min(1,excite+(e.elite?0.5:0.05)); bump('streak',killStreak); recCheck('streak',killStreak,'Streak');
   if(!feverOn){ const pf9=fever; fever=Math.min(1, fever+(e.elite?0.09:(e.boss?0.5:0.016))*(1+0.08*vlv('fever')));
-    if(pf9<0.5&&fever>=0.5) SFX.uiDing();
     if(pf9<0.9&&fever>=0.9){ SFX.casinoDing(); flash(0.12,'#ffd36b'); }
-    if(fever>=1) startFever(); }
+    // the pit only burns once a minute — granted fevers (tarot, wheel) may still ignite
+    if(fever>=1){ if(gt>=(window._feverLock||0)) startFever(); else fever=0.99; } }
   if(killStreak===10||killStreak===25||killStreak===50||killStreak===100||killStreak===200){
     const tier=killStreak>=200?5:killStreak>=100?4:killStreak>=50?3:killStreak>=25?2:1;
     showStreak(killStreak+' STREAK'); SFX.cheer(); SFX.dingHit(tier); if(tier>=3) SFX.dingBells();
@@ -1764,19 +1764,11 @@ function render(){
   }
   // FEVER overlay — golden rush
   if(feverOn){
-    ctx.save(); ctx.globalCompositeOperation='screen';
-    const fg2=ctx.createRadialGradient(VW/2,VH/2,Math.min(VW,VH)*0.2,VW/2,VH/2,Math.max(VW,VH)*0.75);
-    const fp=0.07+Math.sin(gt*9)*0.03;
-    fg2.addColorStop(0,'rgba(255,190,70,'+fp*0.4+')'); fg2.addColorStop(1,'rgba(255,150,30,'+fp+')');
-    ctx.fillStyle=fg2; ctx.fillRect(0,0,VW,VH); ctx.restore();
+    // the wash is gone — fever is the WRITING, the arena stays true
     ctx.save(); ctx.font="800 26px 'Cinzel',serif"; ctx.textAlign='center';
     ctx.fillStyle='#ffd36b'; ctx.shadowColor='#ffb020'; ctx.shadowBlur=18;
     ctx.fillText('⚡ FEVER '+feverT.toFixed(1)+'s ⚡', VW/2, 46+Math.sin(gt*12)*2);
     ctx.restore();
-    for(let bi2=0;bi2<16;bi2++){ const bx3=VW*(bi2+0.5)/16, on2=((Math.floor(gt*9)+bi2)%4)===0;
-      ctx.fillStyle=on2?'#ffe9a8':'rgba(120,80,20,0.5)';
-      if(on2){ ctx.shadowColor='#ffd36b'; ctx.shadowBlur=10; }
-      ctx.beginPath(); ctx.arc(bx3,8,4,0,6.28); ctx.fill(); ctx.shadowBlur=0; }
   }
   // XP / RAGE — gilded gothic gauge, smooth-lerped
   if(state==='playing'){
@@ -1846,22 +1838,7 @@ function render(){
     ctx.fillStyle=dare.got>=dare.need?'#8bff9a':'#ffd36b'; ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=10;
     ctx.fillText('⚔ '+dare.got+' / '+dare.need+' · '+dare.t.toFixed(1)+'s', VW/2, 130); ctx.shadowBlur=0;
   }
-  // fever meter (bottom center) while charging
-  if(!feverOn && fever>0.03 && state==='playing'){
-    const mw=Math.min(300,VW*0.4), mx=VW/2-mw/2, my=VH-26;
-    P._fvD=(P._fvD===undefined?fever:P._fvD); P._fvD+=(fever-P._fvD)*0.14; const fvf=P._fvD;
-    ctx.fillStyle='rgba(0,0,0,0.55)'; ctx.fillRect(mx-1,my-1,mw+2,8);
-    const fgrad=ctx.createLinearGradient(mx,0,mx+mw,0); fgrad.addColorStop(0,'#8a5a10'); fgrad.addColorStop(1,'#ffd36b');
-    ctx.fillStyle=fgrad; ctx.fillRect(mx,my,mw*fvf,6);
-    if(fever>0.85){ ctx.shadowColor='#ffd36b'; ctx.shadowBlur=10+Math.sin(gt*10)*6; ctx.fillRect(mx,my,mw*fvf,6); ctx.shadowBlur=0; }
-    // on the brink of ignition: gold edges pulse + soft tingle
-    if(fever>0.97 && vignB){
-      const eb2=(Math.sin(gt*6)*0.5+0.5)*0.22+0.06;
-      ctx.save(); ctx.globalCompositeOperation='screen'; ctx.globalAlpha=eb2;
-      ctx.drawImage(vignB.gold,0,0,VW,VH); ctx.restore();
-      P._fvTk=(P._fvTk||0)-1/60; if(P._fvTk<=0){ P._fvTk=1.2; SFX.tingle(); }
-    } else P._fvTk=0;
-  }
+  // (the fever charge bar is retired — fever announces itself when it arrives)
   // streak counter
   if(killStreak>=15 && state==='playing'){
     const sc=Math.min(46, 20+killStreak*0.12), pu=1+Math.max(0,streakT-1.4)*0.5;

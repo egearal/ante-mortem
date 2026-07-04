@@ -37,6 +37,7 @@ function startFever(){
 }
 function endFever(){
   feverOn=false; fever=0; feverT=0;
+  window._feverLock=gt+60; // the pit cools for a minute — grants bypass this
   if(P._fvRate!==undefined){ P.fireRate=P._fvRate; P._fvRate=undefined; }
   if(P._fvCoin!==undefined){ P.coinMult=P._fvCoin; P._fvCoin=undefined; }
   SFX.thud();
