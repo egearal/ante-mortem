@@ -959,6 +959,28 @@ body.bloodhour #machine{animation:bloodTremble 2.2s ease-in-out infinite;}
 .indChip.deny{animation:denyShake .3s;}
 @keyframes denyShake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
 
+/* THE BOOKS + all-time badges */
+.rk10{font-style:normal;font-size:9.5px;letter-spacing:.12em;margin-left:8px;padding:2px 7px;border-radius:8px;vertical-align:2px;}
+.rk10.rk1{color:#171008;background:linear-gradient(120deg,#ffd36b,#fff2c0);box-shadow:0 0 14px rgba(255,211,107,.7);animation:rk1burn 1.1s ease-in-out infinite alternate;}
+.rk10.rk3{color:#1a1a20;background:linear-gradient(120deg,#cfd4de,#f2f4f8);}
+.rk10.rkX{color:#e8d9ff;background:rgba(122,66,180,.45);border:1px solid rgba(201,139,255,.5);}
+@keyframes rk1burn{from{box-shadow:0 0 8px rgba(255,211,107,.5);}to{box-shadow:0 0 20px rgba(255,211,107,.95);}}
+.gsSum{margin-top:6px;color:#ffd36b;font-family:var(--disp);font-size:12px;letter-spacing:.18em;text-shadow:0 0 12px rgba(255,211,107,.5);animation:gsIn .4s cubic-bezier(.2,1.8,.4,1);}
+.bkCol{border:1px solid rgba(232,182,76,.25);border-radius:10px;padding:10px 12px;background:rgba(16,10,8,.5);}
+.bkH{font-family:var(--disp);color:#ffd36b;font-size:12.5px;letter-spacing:.14em;margin-bottom:7px;}
+.bkRow{display:flex;gap:8px;align-items:baseline;font-size:12px;padding:2.5px 0;color:#cfc2a6;}
+.bkRow b{color:#8f8371;width:26px;font-size:11px;}
+.bkRow i{font-style:normal;color:#f2e7c8;min-width:64px;}
+.bkRow span{margin-left:auto;font-size:10px;color:#7d7264;}
+.bkRow.top i{color:#ffd36b;text-shadow:0 0 8px rgba(255,211,107,.5);}
+.bkRow.none{color:#6f6557;font-style:italic;}
+/* ANTE UP — the AGAIN button is a bet now */
+.btn.anteUp{background:linear-gradient(160deg,#3a2a10,#241708);border-color:rgba(255,211,107,.6);color:#ffd36b;letter-spacing:.14em;position:relative;overflow:hidden;}
+.btn.anteUp::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,240,190,.22),transparent);animation:anteShine 2.6s linear infinite;}
+@keyframes anteShine{to{left:120%;}}
+.btn.anteUp:active{transform:scale(.96);}
+.btn.ghostBtn{opacity:.75;font-size:12px;}
+
 /* pause: the HUD stays lit above the veil */
 body.paused #hud{z-index:25;}
 /* hp v3 fill smoothness */

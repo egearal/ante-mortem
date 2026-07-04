@@ -7,6 +7,16 @@ const GILT_KEY='antemortem_gilt_v1';
 const ACH_KEY='antemortem_ach_v2';
 let LT={kills:0,coins:0,runs:0,deaths:0,diceWins:0,perfects:0,curses:0,skillLost:0,triples:0,pairs:0,ladders:0,spins:0,bossKills:0,gilt:0,gilded:0,killsBy:{},bossBy:{}};
 let REC={level:0,wave:0,kills:0,score:0,weaponLv:0,streak:0,minutes:0};
+// THE BOOKS — top-10 all-time per stat, persisted with the feats (additive key)
+let REC10={};
+function rec10Place(stat, v){
+  if(!v || v<=0) return 0;
+  const a=REC10[stat]=(REC10[stat]||[]);
+  const entry={v, d:new Date().toISOString().slice(0,10)};
+  a.push(entry); a.sort((x,y)=>y.v-x.v); if(a.length>10) a.length=10;
+  const i=a.indexOf(entry);
+  return i>=0 ? i+1 : 0;
+}
 let unlocked=new Set(), achQ=[], achShowing=0, achSaveT=null;
 const ACH_BY_STAT={}; let ACH_TOTAL=0;
 const STAT_LABEL={level:'Ascension',wave:'Waves',minutes:'Endurance',runKills:'Slaughter (run)',ltKills:'Slaughter (lifetime)',runCoins:'Riches (run)',ltCoins:'Riches (lifetime)',score:'Score',streak:'Kill Streaks',diceWins:'Dice Wins',perfects:'Perfect Twelves',curses:'Curses Endured',skillLost:'Souls Forfeit',triples:'Triple Jackpots',pairs:'Pairs',ladders:'Full Ladders',spins:'Spins',deaths:'Deaths',runs:'Runs',gilt:'Gilt Hoard',bossKills:'Bosses Slain',gilded:'Gilded Souls'};
@@ -192,8 +202,8 @@ function recCheck(key,value,label){
   }
 }
 function achSaveSoon(){ clearTimeout(achSaveT); achSaveT=setTimeout(saveAch, 1500); }
-async function saveAch(){ try{ if(!store)return; await store.set(ACH_KEY,JSON.stringify({u:[...unlocked],LT,REC,V:VAULT.lv,S:[...SEC],SP:secPaid}),false); }catch(e){} }
-async function loadAch(){ try{ if(!store)return; const r=await store.get(ACH_KEY,false); if(r&&r.value){ const o=JSON.parse(r.value); unlocked=new Set(o.u||[]); Object.assign(LT,o.LT||{}); Object.assign(REC,o.REC||{}); VAULT.lv=o.V||{}; (o.S||[]).forEach(x=>SEC.add(x)); secPaid=!!o.SP;
+async function saveAch(){ try{ if(!store)return; await store.set(ACH_KEY,JSON.stringify({u:[...unlocked],LT,REC,V:VAULT.lv,S:[...SEC],SP:secPaid,R10:REC10}),false); }catch(e){} }
+async function loadAch(){ try{ if(!store)return; const r=await store.get(ACH_KEY,false); if(r&&r.value){ const o=JSON.parse(r.value); unlocked=new Set(o.u||[]); Object.assign(LT,o.LT||{}); Object.assign(REC,o.REC||{}); VAULT.lv=o.V||{}; (o.S||[]).forEach(x=>SEC.add(x)); secPaid=!!o.SP; REC10=o.R10||{};
   if(!secPaid && SEC.size){ gilt+=25*SEC.size; saveGilt(); secPaid=true; achSaveSoon(); } // one-time bounty sweep for whispers already answered
   else if(!secPaid){ secPaid=true; achSaveSoon(); } } }catch(e){} }
 function openAchPanel(){

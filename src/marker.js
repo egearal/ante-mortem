@@ -106,6 +106,11 @@ async function actuallyDie(){
   LT.deaths++; bump('deaths',LT.deaths);
   LT.gilt+=giltEarned; bump('gilt',LT.gilt);
   bump('score',score); recCheck('score',score,'Score');
+  // THE BOOKS — where did tonight land, all-time?
+  const mkFinal=Math.round((P.kills + wave*12 + P.level*10 + giltEarned*2)*(window._markMult||1));
+  const plc={ kills:rec10Place('kills',P.kills), dmg:rec10Place('dmg',Math.round(P.dmgDealt||0)),
+    streak:rec10Place('streak',P.bestStreak||0), level:rec10Place('level',P.level),
+    time:rec10Place('time',Math.round(gt)), marks:rec10Place('marks',mkFinal) };
   saveAch();
   const newBest = score>best; if(newBest) best=score;
   $('goResult').textContent = newBest? 'A RECORD IN BLOOD' : 'YOU BLINKED OUT';
@@ -113,19 +118,28 @@ async function actuallyDie(){
   // THE RECKONING — stat rows slam in with rising dings, everything skippable, back in the pit in seconds
   const abbrev=v=>v>=10000?(v/1000).toFixed(1)+'k':Math.round(v).toLocaleString();
   const stats=[
-    ['☠','SLAIN',P.kills],
-    ['⚔','DAMAGE',abbrev(P.dmgDealt||0)],
-    ['🔥','BEST STREAK',P.bestStreak||0],
-    ['⚜','LEVEL',P.level],
-    ['⏱','TIME',fmt(gt)]
+    ['☠','SLAIN',P.kills,plc.kills],
+    ['⚔','DAMAGE',abbrev(P.dmgDealt||0),plc.dmg],
+    ['🔥','BEST STREAK',P.bestStreak||0,plc.streak],
+    ['⚜','LEVEL',P.level,plc.level],
+    ['⏱','TIME',fmt(gt),plc.time],
+    ['◈','MARKS',mkFinal.toLocaleString(),plc.marks]
   ];
+  const placedN=stats.filter(s=>s[3]>0).length;
   const gs=$('goStats'); if(gs) gs.innerHTML='';
   window._recapT0=performance.now(); window._recapDone=false; window._recapFast=false;
   const addRow=(s,i,instant)=>{ if(!gs) return; const d=document.createElement('div'); d.className='gsRow'+(instant?' now':'');
-    d.innerHTML='<b>'+s[0]+'</b><span>'+s[1]+'</span><i>'+s[2]+'</i>'; gs.appendChild(d);
-    if(!instant){ SFX.dingHit(Math.min(6,i+1)); sparkBurst(6); } };
+    const bd=s[3]?('<em class="rk10 '+(s[3]===1?'rk1':s[3]<=3?'rk3':'rkX')+'">#'+s[3]+' ALL-TIME</em>'):'';
+    d.innerHTML='<b>'+s[0]+'</b><span>'+s[1]+'</span><i>'+s[2]+bd+'</i>'; gs.appendChild(d);
+    if(!instant){ SFX.dingHit(Math.min(6,i+1)); sparkBurst(6);
+      if(s[3]===1){ SFX.rarSting(5); flash(0.4,'#ffd36b'); sparkBurst(30); shake=Math.min(16,shake+7); }
+      else if(s[3]&&s[3]<=3){ SFX.dingBells(); flash(0.22,'#e8e2d0'); } } };
   const tms=stats.map((s,i)=>setTimeout(()=>addRow(s,i,false), 250+i*170));
-  tms.push(setTimeout(()=>{ window._recapDone=true; }, 250+stats.length*170+150));
+  tms.push(setTimeout(()=>{ window._recapDone=true;
+    if(placedN>0 && gs){ const sm=document.createElement('div'); sm.className='gsSum';
+      sm.textContent='✦ '+placedN+' ALL-TIME MARK'+(placedN>1?'S':'')+' SET TONIGHT ✦'; gs.appendChild(sm);
+      SFX.cashout(); if(stats.some(s=>s[3]===1)) domConfetti(26,'gameover'); }
+  }, 250+stats.length*170+150));
   window._recapSkip=()=>{ tms.forEach(clearTimeout); if(gs) gs.innerHTML=''; stats.forEach((s,i)=>addRow(s,i,true)); window._recapFast=true; window._recapDone=true;
     $('goScore').textContent=score.toLocaleString(); $('goGilt').textContent=giltEarned.toLocaleString(); SFX.coinPling(); };
   // the tally ticks up like a payout counter
@@ -183,4 +197,28 @@ function luckVerdict(){
   const G=[[-2,'EXTREMELY UNLUCKY','#ff3040',0],[-1.2,'UNLUCKY','#ff5560',0],[-0.4,'A LITTLE UNLUCKY','#c98b7e',0],[0.4,'EVEN','#bfae8c',1],[1.2,'LUCKY','#8bff9a',2],[2,'VERY LUCKY','#ffd36b',4],[Infinity,'EXTREMELY LUCKY','#fff2c0',5]];
   for(const [th,grade,col,tier] of G){ if(score<th || th===Infinity) return {grade,col,tier}; }
   return {grade:'EVEN', col:'#bfae8c', tier:1};
+}
+
+// THE BOOKS — six ledgers, ten nights each. Opened from the death screen and the INDEX.
+function openBooks(){
+  let p=$('booksPanel');
+  if(!p){ p=document.createElement('div'); p.id='booksPanel'; p.className='layer hidden';
+    p.innerHTML='<div class="panel" style="max-width:min(920px,94vw);max-height:86vh;display:flex;flex-direction:column;">'
+      +'<h2 style="font-family:var(--disp);color:var(--gold-bright);letter-spacing:.14em;margin:0 0 4px;">📖 THE BOOKS</h2>'
+      +'<div style="color:#a99;font-size:11px;letter-spacing:.12em;margin-bottom:10px;">TEN NIGHTS THE HOUSE COULD NOT FORGET — PER LEDGER</div>'
+      +'<div id="booksBody" style="overflow-y:auto;flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;text-align:left;"></div>'
+      +'<button class="btn" id="booksClose" style="margin-top:12px;">Back</button></div>';
+    document.body.appendChild(p);
+    $('booksClose').addEventListener('click',()=>{ p.classList.add('hidden'); SFX.casinoDing(); });
+  }
+  const names={kills:'☠ SLAIN', dmg:'⚔ DAMAGE', streak:'🔥 STREAK', level:'⚜ LEVEL', time:'⏱ TIME', marks:'◈ MARKS'};
+  const fv=(k,v)=> k==='time'?fmt(v):(v>=10000?(v/1000).toFixed(1)+'k':v.toLocaleString());
+  $('booksBody').innerHTML=Object.keys(names).map(k=>{
+    const a=REC10[k]||[];
+    return '<div class="bkCol"><div class="bkH">'+names[k]+'</div>'
+      +(a.length? a.map((e,i)=>'<div class="bkRow'+(i===0?' top':'')+'"><b>#'+(i+1)+'</b><i>'+fv(k,e.v)+'</i><span>'+e.d+'</span></div>').join('')
+                : '<div class="bkRow none">no nights recorded</div>')
+      +'</div>';
+  }).join('');
+  p.classList.remove('hidden'); SFX.uiDing();
 }

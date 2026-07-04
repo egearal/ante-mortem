@@ -404,6 +404,7 @@ $('startBtn').addEventListener('click',startGame);
   window.fadeVeil=()=>{ v.classList.add('on'); setTimeout(()=>v.classList.remove('on'),160); };
   $('startBtn').addEventListener('click',()=>fadeVeil());
   $('againBtn').addEventListener('click',()=>fadeVeil());
+$('booksBtn').addEventListener('click',()=>{ openBooks(); });
 }
 window.addEventListener('blur',()=>{ keys.clear(); touch.active=false; tabHold=false; hideTab(); if(state==='playing'){ state='paused'; $('pauseLayer').classList.remove('hidden'); } });
 window.addEventListener('error',ev=>{ if(!window._amErr){ window._amErr=1; console.error('[ANTE MORTEM]',ev.error||ev.message); } });
