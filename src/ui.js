@@ -54,6 +54,7 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
     hp.innerHTML='<div id="howTitle">♠ HOW TO PLAY ♠</div>'
       +'<div id="howTabs">'+TABS.map(tabBtn).join('')+'</div>'
       +'<div id="howBody"></div>'
+      +'<button class="btn gold" id="howPlayNow" style="margin-top:10px;">♠ PLAY NOW</button>'
       +'<div class="howNav"><span class="keyhint">D</span> / <span class="keyhint">→</span> next · <span class="keyhint">A</span> / <span class="keyhint">←</span> back</div>'
       +'<button class="gxBtn gxClose" id="howClose">CLOSE</button>';
     window._howShow=(i)=>{ window._howTab=((i%TABS.length)+TABS.length)%TABS.length;
@@ -62,6 +63,11 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
       $('howBody').innerHTML=sec(s);
       SFX.uiDing(); };
     setTimeout(()=>window._howShow(0),0);
+    setTimeout(()=>{ const pn=$('howPlayNow'); if(pn) pn.addEventListener('click',()=>{
+      $('howPanel').classList.add('hidden');
+      if(state==='menu'){ $('startBtn').click(); }
+      else if(state==='paused'){ state='playing'; document.body.classList.remove('paused'); $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); }
+    }); },0);
     pl.appendChild(hp);
     row.addEventListener('click',e=>e.stopPropagation());
     hp.addEventListener('click',e=>e.stopPropagation());
@@ -316,6 +322,10 @@ window.addEventListener('keydown',e=>{
   if(k==='tab'){ e.preventDefault(); if(!e.repeat && (state==='playing'||state==='slot'||state==='wheel')){ tabHold=true; showTab(); SFX.uiDing(); } return; }
   const inInput = document.activeElement && document.activeElement.tagName==='INPUT';
   if(!inInput && ['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
+  if(state==='menu' && !e.repeat && !(document.activeElement&&document.activeElement.tagName==='INPUT')){
+    const hot={'i':'indexBtn','l':'storyBtn','o':'gfxBtn','h':'howMenuBtn'};
+    if(hot[k] && !$('menu').classList.contains('hidden')){ const b=$(hot[k]); if(b){ b.click(); return; } }
+  }
   if(state==='menu' && k===' ' && !e.repeat){
     const panelOpen=['storyPanel','indexPanel','achPanel','vaultPanel','gfxPanel'].some(id=>{ const p=$(id); return p && !p.classList.contains('hidden'); });
     if(!panelOpen && !$('menu').classList.contains('hidden')){ e.preventDefault(); SFX.press(); $('startBtn').click(); return; }
@@ -545,7 +555,7 @@ function renderAnteRoom(){
   SOULS.forEach(s=>{ const un=s.u(), on=cur.id===s.id;
     html+= un
       ? '<div class="soulCard'+(on?' on':'')+'" data-id="'+s.id+'" style="--sc:'+s.col+'"><div class="soulG">'+s.g+'</div><div class="soulN">'+s.n+'</div><div class="soulD">'+s.d+'</div>'+(on?'<div class="soulPick">— AT THE TABLE —</div>':'')+'</div>'
-      : '<div class="soulCard locked"><div class="soulG">?</div><div class="soulN">SEALED</div><div class="soulD">🔒 '+s.uTxt+'</div></div>';
+      : '<div class="soulCard locked" title="'+s.uTxt.replace(/"/g,'&quot;')+'"><div class="soulG">?</div><div class="soulN">SEALED</div><div class="soulD">🔒 '+s.uTxt+'</div></div>';
   });
   html+='</div>';
   if(typeof FLOORS!=='undefined'){
@@ -560,7 +570,9 @@ function renderAnteRoom(){
   }
   if(typeof RUN_CONTRACTS!=='undefined'){
     const act=IDX.ct||[];
-    html+='<div class="anteH">SIGN CONTRACTS <span style="opacity:.6;font-size:11px">(up to two · each pays ×1.25 MARKS & GILT)</span></div><div class="ctRow">';
+    html+='<div class="anteH">SIGN CONTRACTS <span style="opacity:.6;font-size:11px">(up to two · each ×1.25)</span>'
+      +(act.length?' <b style="color:#8bff9a;letter-spacing:.1em;font-size:12px">— TONIGHT PAYS ×'+Math.pow(1.25,act.length).toFixed(2)+' MARKS & GILT</b>':'')
+      +'</div><div class="ctRow">';
     RUN_CONTRACTS.forEach(c=>{ html+='<div class="ctChip'+(act.includes(c.id)?' on':'')+'" data-id="'+c.id+'"><b>'+c.g+' '+c.n+'</b><span>'+c.d+'</span></div>'; });
     html+='</div>';
   }

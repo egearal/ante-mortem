@@ -121,6 +121,9 @@ function renderVault(){
       +'<div class="vProgTxt">'+(done?'CONTRACT FULFILLED':cur+' / '+c.goal+' — '+c.gtxt)+'</div>'
       +'</div>';
   }
+  { const nx=VAULT_DEFS.find(d=>!vaultUnlocked(d));
+    if(nx) html+='<div class="vNext">🔒 NEXT DOOR: <b>'+nx.n+'</b> — '+nx.reqTxt+'</div>'; }
+  { const spent=(LT.seals||0); if(spent>0) html+='<div class="vNext" style="opacity:.7">THE HOUSE THANKS YOU — '+spent+' SEALS BOUGHT ALL-TIME</div>'; }
   grid.innerHTML=html;
   grid.querySelectorAll('.vBuy[data-vid]').forEach(b=>b.addEventListener('click',()=>buyVault(b.dataset.vid)));
 }

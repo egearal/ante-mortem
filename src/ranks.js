@@ -405,7 +405,7 @@ function awardMarks(m){
     RANK.rank++; up=true; const rk=RANKS[RANK.rank-1]; reward=rk.r||'';
     if(rk.g){ gilt+=rk.g; saveGilt(); }
   }
-  saveRank();
+  saveRank(); if(typeof quillFlick==='function') try{ quillFlick(); }catch(e){}
   if(up){ // the two-beat ceremony: what you unlocked, then what's next
     const cur=RANKS[RANK.rank-1], nx=RANKS[RANK.rank];
     setTimeout(()=>{ announce('⚜ RANK '+RANK.rank+' — '+cur.n+' · UNLOCKED: '+(cur.r||'THE TITLE')+' ⚜', true); SFX.seraph(); }, 500);

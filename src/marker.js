@@ -114,7 +114,9 @@ async function actuallyDie(){
   saveAch();
   const newBest = score>best; if(newBest) best=score;
   $('goResult').textContent = newBest? 'A RECORD IN BLOOD' : 'YOU BLINKED OUT';
-  $('goSub').textContent = newBest? 'The court will remember this run.' : 'The house collects its due.';
+  { const by=(gt>=900)?'THE FORECLOSURE':(window._hitBy||'').toUpperCase();
+    $('goSub').textContent = (newBest? 'The court will remember this run.' : 'The house collects its due.')+(by?(' — taken by '+by):''); }
+  quillFlick();
   // THE RECKONING — stat rows slam in with rising dings, everything skippable, back in the pit in seconds
   const abbrev=v=>v>=10000?(v/1000).toFixed(1)+'k':Math.round(v).toLocaleString();
   const stats=[
@@ -158,7 +160,9 @@ async function actuallyDie(){
       const wchips=WEAPONS.filter(w=>(P.wlv[w.id]||0)>0).map(w=>'<span class="glChip" style="color:'+(GLYPH_COL[w.id]||'#e8d9b0')+'">'+w.g+'<i>'+(P.wlv[w.id]||0)+'</i></span>').join('');
       const schips=(P.passiveList||[]).map(r=>'<span class="glChip" style="color:'+(GLYPH_COL[r.id]||'#8bff9a')+'">'+r.g+'<i>'+r.count+'</i></span>').join('');
       const bp=RUN.bestPull;
+      const lo9=(typeof curSoul==='function')?(curSoul().g+' '+curSoul().n+' · '+curFloor().g+' '+curFloor().n+((IDX.ct||[]).length?' · ✍ '+(IDX.ct||[]).length+' CONTRACT'+((IDX.ct||[]).length>1?'S':''):'')):'';
       gl.innerHTML=
+        (lo9?'<div class="glRow" style="color:#c9b78e;letter-spacing:.12em">'+lo9+'</div>':'')+
         '<div class="glRow"><span>WAVE</span><b>'+wave+'</b><span>CURSES</span><b>'+(RUN.curses||0)+'</b><span>SCARS</span><b>'+((P.scars||[]).length)+'</b><span>DICE</span><b>'+RUN.diceWins+'/'+RUN.diceTries+'</b>'
         +(bp?'<span>BEST PULL</span><b style="color:'+RARC[bp]+'">'+SLOT_RAR[bp]+'</b>':'')+'</div>'
         +(wchips?'<div class="glRow glChips">'+wchips+'</div>':'')
@@ -221,4 +225,11 @@ function openBooks(){
       +'</div>';
   }).join('');
   p.classList.remove('hidden'); SFX.uiDing();
+}
+
+// the quill — a tiny corner flick whenever the ledger writes itself
+function quillFlick(){
+  let q=$('quill');
+  if(!q){ q=document.createElement('div'); q.id='quill'; q.textContent='✒'; document.body.appendChild(q); }
+  q.classList.remove('on'); void q.offsetWidth; q.classList.add('on');
 }

@@ -361,7 +361,8 @@ function hurtPlayer(dmg){
   P.hp-=dmg; P.inv=0.5+(P.invBonus||0); shake=Math.min(11,shake+5); flash(0.35,'#8b1620'); SFX.hurt();
   { const hw=$('hpwrap')||$('hpfill'); if(hw){ hw.classList.remove('hurt'); void hw.offsetWidth; hw.classList.add('hurt'); } }
   { let src=null, bd=6400; for(const e2 of enemies){ const d2=(e2.x-P.x)*(e2.x-P.x)+(e2.y-P.y)*(e2.y-P.y); if(d2<bd){ bd=d2; src=e2; } }
-    if(src) window._hitArc={a:Math.atan2(src.y-P.y,src.x-P.x), t:0.42}; }
+    if(src){ window._hitArc={a:Math.atan2(src.y-P.y,src.x-P.x), t:0.42};
+      window._hitBy=src.boss?(BOSS_DEFS[src.bossKind]&&BOSS_DEFS[src.bossKind].name):(src.type||'the dark'); } }
   if(P.thorns){ for(const e of enemies){ if(Math.hypot(e.x-P.x,e.y-P.y)<70){ e.hp-=P.thorns; trackDmg(P.thorns); e.flash=0.12; ftext(e.x,e.y,Math.round(P.thorns),'#ff9a9a'); } } ring(P.x,P.y,70,'#ff6b6b'); }
   if(P.hp<=0){
     if(P.mythPhoenix && !P.phUsed){
@@ -2504,7 +2505,9 @@ function loop(now){
   requestAnimationFrame(loop);
   try{
   const dt=Math.min(Math.max((now-last)/1000,0),0.05); last=now;
-  if(loopPrev){ frameAvg=frameAvg*0.93+(now-loopPrev)*0.07; } loopPrev=now; qLow = GFX.q==='low' ? true : GFX.q==='high' ? false : (qLow ? (frameAvg>15.5) : (frameAvg>19));
+  if(loopPrev){ frameAvg=frameAvg*0.93+(now-loopPrev)*0.07; } loopPrev=now;
+  { const was=qLow; qLow = GFX.q==='low' ? true : GFX.q==='high' ? false : (qLow ? (frameAvg>15.5) : (frameAvg>19));
+    if(qLow&&!was&&state==='playing'&&!window._smoothT9){ window._smoothT9=true; showStreak('✦ THE HOUSE SMOOTHS THE FELT ✦'); setTimeout(()=>window._smoothT9=false,30000); } }
   if(qLow!==window._qPrev){ window._qPrev=qLow; resize(); }
   if(GFX.shake===0) shake=0; else if(GFX.shake<1) shake*=0.8;
   document.body.classList.toggle('gamble', state==='slot'||state==='wheel'||state==='crash'||state==='marker');
