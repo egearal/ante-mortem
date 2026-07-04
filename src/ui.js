@@ -267,8 +267,7 @@ function updateHUD(){
   _hSet('killCount',P.kills.toLocaleString());
   const cm=$('combo');
   if(killStreak>=4){ cm.classList.remove('hidden');
-    const gp9=Math.max(0,Math.min(1,streakT/1.0))*100;
-    const ch='×'+(P.comboMult||1).toFixed(1)+'  COMBO'+(P.bestStreak>killStreak?' <s>best '+P.bestStreak+'</s>':'')+'<i class="grace" style="width:'+gp9.toFixed(0)+'%"></i>';
+    const ch='×'+(P.comboMult||1).toFixed(1)+'  COMBO'+(P.bestStreak>killStreak?' <s>best '+P.bestStreak+'</s>':'');
     if(_hud.combo!==ch){ _hud.combo=ch; cm.innerHTML=ch; }
     cm.classList.toggle('flames', killStreak>=50);
     cm.style.transform='translateX(-50%) scale('+(1+Math.min(0.5,killStreak*0.01))+')'; }
