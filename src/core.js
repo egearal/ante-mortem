@@ -1407,11 +1407,11 @@ function render(){
   // glow via cached sprites, not shadowBlur — hundreds of these per frame
   const pickGlow = !qLow && !GFX.lite;
   if(pickGlow){ const gs=glowSprite('rgba(255,224,102,0.5)','rgba(255,224,102,0)',16);
-    for(const o of orbs) ctx.drawImage(gs,o.x-16,o.y-16,32,32); }
-  for(const o of orbs){ const pl=1+Math.sin(gt*6+o.x*0.1)*0.15; ctx.fillStyle='#ffd23f'; ctx.beginPath(); ctx.arc(o.x,o.y,o.r*pl,0,6.28); ctx.fill(); ctx.fillStyle='rgba(255,255,220,0.9)'; ctx.beginPath(); ctx.arc(o.x-o.r*0.3,o.y-o.r*0.3,o.r*0.35,0,6.28); ctx.fill(); }
+    for(const o of orbs){ if(!inView(o.x,o.y,40)) continue; ctx.drawImage(gs,o.x-16,o.y-16,32,32); } }
+  for(const o of orbs){ if(!inView(o.x,o.y,40)) continue; const pl=1+Math.sin(gt*6+o.x*0.1)*0.15; ctx.fillStyle='#ffd23f'; ctx.beginPath(); ctx.arc(o.x,o.y,o.r*pl,0,6.28); ctx.fill(); ctx.fillStyle='rgba(255,255,220,0.9)'; ctx.beginPath(); ctx.arc(o.x-o.r*0.3,o.y-o.r*0.3,o.r*0.35,0,6.28); ctx.fill(); }
   if(pickGlow){ const gs=glowSprite('rgba(248,226,160,0.45)','rgba(248,226,160,0)',13);
-    for(const c of coins) ctx.drawImage(gs,c.x-13,c.y-13,26,26); }
-  for(const c of coins){ const pl=1+Math.sin(gt*7+c.x*0.1)*0.12; ctx.fillStyle='#e8b64c'; ctx.beginPath(); ctx.arc(c.x,c.y,c.r*pl,0,6.28); ctx.fill(); ctx.fillStyle='#fff6d8'; ctx.beginPath(); ctx.arc(c.x-1.5,c.y-1.5,c.r*0.35,0,6.28); ctx.fill(); }
+    for(const c of coins){ if(!inView(c.x,c.y,40)) continue; ctx.drawImage(gs,c.x-13,c.y-13,26,26); } }
+  for(const c of coins){ if(!inView(c.x,c.y,40)) continue; const pl=1+Math.sin(gt*7+c.x*0.1)*0.12; ctx.fillStyle='#e8b64c'; ctx.beginPath(); ctx.arc(c.x,c.y,c.r*pl,0,6.28); ctx.fill(); ctx.fillStyle='#fff6d8'; ctx.beginPath(); ctx.arc(c.x-1.5,c.y-1.5,c.r*0.35,0,6.28); ctx.fill(); }
 
   // aura visual
   if(auraRadius()>0){ const aR=auraRadius(); ctx.save(); ctx.globalCompositeOperation='screen'; ctx.translate(P.x,P.y);
@@ -1480,6 +1480,13 @@ function render(){
     ctx.strokeStyle='#ffd36b'; ctx.lineWidth=2.4;
     ctx.beginPath(); ctx.arc(0,0,be.r*1.4+10,-1.5708,-1.5708+(bounty.t/12)*6.283); ctx.stroke();
     ctx.restore(); }
+  // the player carries candlelight — a warm pool on the marble beneath (one cached blit)
+  if(!GFX.lite){ ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.5+Math.sin(gt*2.4)*0.08;
+    ctx.drawImage(glowSprite('rgba(255,205,120,0.32)','rgba(255,190,90,0)',88), P.x-88, P.y-60, 176, 118); ctx.restore(); }
+  // bosses press their menace into the floor
+  if(!GFX.lite) for(const e of enemies){ if(!e.boss || !inView(e.x,e.y,200)) continue;
+    ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.5+Math.sin(gt*3+e.ph)*0.15;
+    const br9=e.r*2.6; ctx.drawImage(glowSprite('rgba(201,80,120,0.3)','rgba(140,20,40,0)',br9), e.x-br9, e.y-br9*0.7, br9*2, br9*1.4); ctx.restore(); }
   // horde LOD: beyond the nearest N enemies, draw cheap silhouettes (toaster keeps only 24 in full art)
   { const LODN=GFX.lite?20:44;
   if(enemies.length>LODN){

@@ -205,23 +205,32 @@ function showStreak(t){ elStreak.textContent=t; elStreak.style.opacity=1; elStre
 /* ============================================================
    HUD update
    ============================================================ */
+const _hud={};
+function _hSet(id,v){ if(_hud[id]===v) return; _hud[id]=v; $(id).textContent=v; }
+function _hW(id,v){ const k='w'+id; if(_hud[k]===v) return; _hud[k]=v; $(id).style.width=v; }
 function updateHUD(){
-  $('timer').textContent=fmt(gt);
-  $('coinCount').textContent=P.coins;
+  // text/DOM writes only on change — the browser skips the rest for free
+  _hSet('timer',fmt(gt));
+  _hSet('coinCount',P.coins.toLocaleString());
   const bb=$('bossBar'); const bs=enemies.find(x=>x.boss);
-  if(bs){ bb.classList.remove('hidden'); $('bossName').textContent=BOSS_DEFS[bs.bossKind].name; $('bossFill').style.width=Math.max(0,bs.hp/bs.maxhp*100)+'%'; }
-  else bb.classList.add('hidden');
-  $('killCount').textContent=P.kills;
+  if(bs){ bb.classList.remove('hidden'); _hSet('bossName',BOSS_DEFS[bs.bossKind].name); _hW('bossFill',Math.max(0,bs.hp/bs.maxhp*100).toFixed(1)+'%'); }
+  else if(_hud.bossOn!==false) bb.classList.add('hidden');
+  _hud.bossOn=!!bs;
   const hpPct=clamp(P.hp/P.maxHp,0,1)*100;
-  $('hpfill').style.width=hpPct+'%';
-  $('hptext').textContent=Math.ceil(P.hp)+' / '+P.maxHp;
-  $('xpfill').style.width=(P.xp/P.xpNext*100)+'%';
-  $('level').textContent='LEVEL '+P.level;
+  _hW('hpfill',hpPct.toFixed(1)+'%');
+  _hSet('hptext',Math.ceil(P.hp)+' / '+P.maxHp);
+  _hW('xpfill',(P.xp/P.xpNext*100).toFixed(1)+'%');
+  _hSet('level','LEVEL '+P.level);
+  _hSet('killCount',P.kills.toLocaleString());
   const cm=$('combo');
-  if(killStreak>=4){ cm.classList.remove('hidden'); cm.textContent='×'+(P.comboMult||1).toFixed(1)+'  COMBO'; cm.style.transform='translateX(-50%) scale('+(1+Math.min(0.5,killStreak*0.01))+')'; }
+  if(killStreak>=4){ cm.classList.remove('hidden'); _hSet('combo','×'+(P.comboMult||1).toFixed(1)+'  COMBO'); cm.style.transform='translateX(-50%) scale('+(1+Math.min(0.5,killStreak*0.01))+')'; }
   else cm.classList.add('hidden');
   const db=$('debuffs');
-  if(db){ if(debuffs.length){ db.innerHTML=debuffs.map(b=>'<span class="debuff'+(b.good?' buff':(b.poison?' poison':''))+'">'+(b.good?'✦ ':(b.poison?'☣ ':'☠ '))+b.label+' '+Math.ceil(b.t)+'s</span>').join(''); } else if(db.childElementCount) db.innerHTML=''; }
+  if(db){ if(debuffs.length){
+      const key=debuffs.map(b=>b.label+((b.t*4)|0)).join('|');
+      if(_hud.dbKey!==key){ _hud.dbKey=key;
+        db.innerHTML=debuffs.map(b=>'<span class="debuff'+(b.good?' buff':(b.poison?' poison':''))+'">'+(b.good?'✦ ':(b.poison?'☣ ':'☠ '))+b.label+' '+Math.ceil(b.t)+'s</span>').join(''); }
+    } else if(db.childElementCount){ db.innerHTML=''; _hud.dbKey=''; } }
 }
 function relicTip(el, name, lv, fx){
   el.onmouseenter=(ev)=>{ const t=$('relicTip'); t.innerHTML='<b>'+name+'</b> · Lv '+lv+'<br>'+fx; t.classList.remove('hidden');
