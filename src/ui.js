@@ -488,7 +488,7 @@ $('startBtn').addEventListener('click',startGame);
   $('againBtn').addEventListener('click',()=>fadeVeil());
 $('booksBtn').addEventListener('click',()=>{ openBooks(); });
 }
-window.addEventListener('blur',()=>{ keys.clear(); touch.active=false; tabHold=false; hideTab(); if(state==='playing'){ state='paused'; $('pauseLayer').classList.remove('hidden'); } });
+window.addEventListener('blur',()=>{ keys.clear(); touch.active=false; tabHold=false; hideTab(); }); // blur clears input only — it must NEVER pause (fires constantly in embeds/iframes)
 window.addEventListener('error',ev=>{ if(!window._amErr){ window._amErr=1; console.error('[ANTE MORTEM]',ev.error||ev.message); } });
 $('againBtn').addEventListener('click',()=>{ startGame(); });
 
@@ -724,18 +724,29 @@ function menuStar(){
   requestAnimationFrame(loop);
 })();
 
-// THE HOUSE WAITS — losing the window pauses the night (test rigs set _noAutoPause)
+// THE HOUSE WAITS — only a genuinely backgrounded TAB pauses the night. blur is
+// far too eager (embeds, iframes, devtools, clicking off-window all fire it), so
+// it must never pause — and this auto-pause SELF-HEALS the instant you return.
 function houseWaits(){
   if(window._noAutoPause) return;
   if(state!=='playing') return;
+  window._autoPaused=true;
   state='paused'; document.body.classList.add('paused');
   $('pauseLayer').classList.remove('hidden');
   const pt=document.querySelector('.pauseCard .pz'); if(pt) pt.textContent='◈ THE HOUSE WAITS ◈';
   SFX.thud&&SFX.thud();
 }
-window.addEventListener('blur',()=>{ try{ keys.clear(); }catch(e){} houseWaits(); });
-window.addEventListener('focus',()=>{ if(P && state==='playing') P.inv=Math.max(P.inv||0,1); }); // a breath of grace on return
-document.addEventListener('visibilitychange',()=>{ if(document.hidden) houseWaits(); });
+function houseReturns(){
+  if(window._autoPaused && state==='paused'){
+    window._autoPaused=false;
+    state='playing'; document.body.classList.remove('paused'); $('pauseLayer').classList.add('hidden');
+    const pt=document.querySelector('.pauseCard .pz'); if(pt) pt.textContent='◈ PAUSED ◈';
+    if(P) P.inv=Math.max(P.inv||0,1); // a breath of grace on return
+  }
+}
+window.addEventListener('blur',()=>{ try{ keys.clear(); }catch(e){} }); // input hygiene only — no pause
+window.addEventListener('focus',()=>{ houseReturns(); if(P && state==='playing') P.inv=Math.max(P.inv||0,1); });
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) houseWaits(); else houseReturns(); });
 // the menu beckons after a quiet minute
 let _idleT=performance.now();
 ['keydown','mousemove','mousedown'].forEach(ev=>window.addEventListener(ev,()=>{ _idleT=performance.now();
