@@ -261,6 +261,7 @@ function updateHUD(){
   _hud.bossOn=!!bs;
   const hpPct=clamp(P.hp/P.maxHp,0,1)*100;
   _hW('hpfill',hpPct.toFixed(1)+'%');
+  _hW('xpfill',(P.xp/P.xpNext*100).toFixed(1)+'%');
   _hSet('hptext',Math.ceil(P.hp)+' / '+P.maxHp);
   _hSet('level','LEVEL '+P.level);
   _hSet('killCount',P.kills.toLocaleString());

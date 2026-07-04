@@ -49,6 +49,13 @@ h1{font-family:var(--disp);font-weight:800;letter-spacing:.28em;margin:0 0 2px;f
 .stat{font-size:14px;letter-spacing:.12em;color:var(--bone);text-shadow:0 1px 3px #000;display:flex;align-items:center;gap:7px;}
 .stat .ico{font-size:16px;} .coins .ico{color:var(--gold);} .kills .ico{color:var(--blood-bright);}
 #timer{font-size:22px;letter-spacing:.18em;color:var(--gold-bright);text-shadow:0 0 12px rgba(232,182,76,.5);}
+#xpbar{position:absolute;top:44px;left:0;right:0;height:6px;border-radius:3px;overflow:hidden;
+  background:linear-gradient(180deg,rgba(0,0,0,.6),rgba(22,4,8,.5));box-shadow:inset 0 1px 2px rgba(0,0,0,.7);}
+#xpfill{position:relative;height:100%;width:0;border-radius:0 3px 3px 0;
+  background:linear-gradient(90deg,#6e0f18,#c81e2c 70%,#ff4050);
+  box-shadow:0 0 12px rgba(200,30,44,.55),0 0 4px rgba(255,80,80,.45);transition:width .18s linear;}
+#xpfill::after{content:'';position:absolute;inset:0 0 auto 0;height:2px;border-radius:3px;background:linear-gradient(90deg,transparent,rgba(255,190,190,.5));}
+#xpfill::before{content:'';position:absolute;top:0;right:0;bottom:0;width:6px;border-radius:3px;background:rgba(255,220,210,.85);box-shadow:0 0 8px rgba(255,90,90,.8);}
 .hudBottom{position:absolute;bottom:14px;left:0;right:0;display:flex;align-items:flex-end;justify-content:space-between;padding:0 18px;}
 #hpwrap{width:min(340px,52vw);margin-bottom:8px;}
 #hplabel{font-size:11px;letter-spacing:.3em;color:var(--ash);margin-bottom:4px;}
