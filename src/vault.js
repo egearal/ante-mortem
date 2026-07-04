@@ -3,23 +3,23 @@
 async function loadGilt(){ try{ if(!store)return; const r=await store.get(GILT_KEY,false); if(r&&r.value){ const o=JSON.parse(r.value); gilt=o.gilt||0; best=o.best||0; } }catch(e){} }
 const VAULT={ lv:{} };
 const VAULT_DEFS=[
- {id:'hp',    n:'BLOODLINE',      d:'+5% max blood per seal',                    max:5, base:72,  icon:'hp'},
- {id:'dmg',   n:'SHARPER FATE',   d:'+3% damage per seal',                       max:5, base:72,  icon:'dmg'},
- {id:'fire',  n:'QUICK FINGERS',  d:'+3% fire rate per seal',                    max:5, base:80,  icon:'fire'},
- {id:'spd',   n:'FLEET BOOTS',    d:'+3% move speed per seal',                   max:5, base:64,  icon:'spd'},
- {id:'gold',  n:'GOLDEN TOUCH',   d:'+4% coin gain per seal',                    max:5, base:90,  icon:'luck'},
- {id:'pocket',n:'POCKET CHANGE',  d:'begin each run with +15 coins per seal',    max:4, base:55,  icon:'mag',   req:()=>(LT.chests||0)>=5,    reqTxt:'Open 5 of the House\'s gifts'},
- {id:'fever', n:'FEVER PITCH',    d:'fever charges +8% faster per seal',         max:5, base:110, icon:'nova',  req:()=>(LT.fevers||0)>=3,    reqTxt:'Enter Fever Mode 3 times'},
- {id:'marker',n:"MARKER'S FAVOR", d:'THE DEATH ROLL cap +2% per seal — to 60%', max:5, base:210, icon:'regen', req:()=>(LT.markers||0)>=1,   reqTxt:'Face the House Marker once'},
- {id:'dice',  n:'LOADED DICE',    d:'every dice target lowered by 1, always',    max:1, base:640, icon:'proj',  req:()=>(LT.gods||0)>=1,      reqTxt:'Reach GOD LEVEL once'},
- {id:'wheel', n:'COURTESY SUMMONS',d:'the Wheel of Souls calls 8% sooner per seal', max:3, base:150, icon:'orbit', req:()=>(LT.wheel||0)>=3,   reqTxt:'Spin the Wheel of Souls 3 times'},
- {id:'rung',  n:'FIRST RUNG',     d:'the Ascent starts 0.12× higher per seal',   max:2, base:240, icon:'spark', req:()=>(LT.crash||0)>=3,     reqTxt:'Ride the Ascent 3 times'},
- {id:'marked',n:'MARKED CARDS',   d:'15% chance per seal a cursed tarot is redrawn', max:3, base:190, icon:'cards', req:()=>(LT.tarot||0)>=5,  reqTxt:'Read 5 tarot cards'},
- {id:'ledger',n:"HEADHUNTER'S LEDGER",d:'bounties pay +25% more coin per seal',  max:4, base:125, icon:'seeker',req:()=>(LT.bounty||0)>=5,    reqTxt:'Claim 5 bounties'},
- {id:'wick',  n:'SLOW BURN',      d:'FEVER burns +1.0s longer per seal',         max:3, base:220, icon:'chand', req:()=>(LT.fevers||0)>=5,    reqTxt:'Enter Fever Mode 5 times'},
- {id:'salt',  n:'WARDING SALT',   d:'curses run 8% shorter per seal',            max:3, base:170, icon:'aura',  req:()=>(LT.curses||0)>=10,   reqTxt:'Endure 10 curses'},
- {id:'oldbone',n:'OLD BONE',      d:'begin every run with BONE BOLT II',         max:1, base:500, icon:'bolt',  req:()=>(LT.kills||0)>=2500,  reqTxt:'2,500 lifetime kills'},
- {id:'borrow',n:'BORROWED TIME',  d:"death's-edge slow-mo lasts +0.25s per seal",max:2, base:270, icon:'scythe',req:()=>(LT.deaths||0)>=10,   reqTxt:'Die 10 times'}
+ {id:'hp',    n:'BLOODLINE',      d:'+5% max blood per seal',                    max:5, base:216, icon:'hp'},
+ {id:'dmg',   n:'SHARPER FATE',   d:'+3% damage per seal',                       max:5, base:216, icon:'dmg'},
+ {id:'fire',  n:'QUICK FINGERS',  d:'+3% fire rate per seal',                    max:5, base:240, icon:'fire'},
+ {id:'spd',   n:'FLEET BOOTS',    d:'+3% move speed per seal',                   max:5, base:192, icon:'spd'},
+ {id:'gold',  n:'GOLDEN TOUCH',   d:'+4% coin gain per seal',                    max:5, base:270, icon:'luck'},
+ {id:'pocket',n:'POCKET CHANGE',  d:'begin each run with +15 coins per seal',    max:4, base:165, icon:'mag',   req:()=>(LT.chests||0)>=5,    reqTxt:'Open 5 of the House\'s gifts'},
+ {id:'fever', n:'FEVER PITCH',    d:'fever charges +8% faster per seal',         max:5, base:330, icon:'nova',  req:()=>(LT.fevers||0)>=3,    reqTxt:'Enter Fever Mode 3 times'},
+ {id:'marker',n:"MARKER'S FAVOR", d:'THE DEATH ROLL cap +2% per seal — to 60%', max:5, base:630, icon:'regen', req:()=>(LT.markers||0)>=1,   reqTxt:'Face the House Marker once'},
+ {id:'dice',  n:'LOADED DICE',    d:'every dice target lowered by 1, always',    max:1, base:1920, icon:'proj',  req:()=>(LT.gods||0)>=1,      reqTxt:'Reach GOD LEVEL once'},
+ {id:'wheel', n:'COURTESY SUMMONS',d:'the Wheel of Souls calls 8% sooner per seal', max:3, base:450, icon:'orbit', req:()=>(LT.wheel||0)>=3,   reqTxt:'Spin the Wheel of Souls 3 times'},
+ {id:'rung',  n:'FIRST RUNG',     d:'the Ascent starts 0.12× higher per seal',   max:2, base:720, icon:'spark', req:()=>(LT.crash||0)>=3,     reqTxt:'Ride the Ascent 3 times'},
+ {id:'marked',n:'MARKED CARDS',   d:'15% chance per seal a cursed tarot is redrawn', max:3, base:570, icon:'cards', req:()=>(LT.tarot||0)>=5,  reqTxt:'Read 5 tarot cards'},
+ {id:'ledger',n:"HEADHUNTER'S LEDGER",d:'bounties pay +25% more coin per seal',  max:4, base:375, icon:'seeker',req:()=>(LT.bounty||0)>=5,    reqTxt:'Claim 5 bounties'},
+ {id:'wick',  n:'SLOW BURN',      d:'FEVER burns +1.0s longer per seal',         max:3, base:660, icon:'chand', req:()=>(LT.fevers||0)>=5,    reqTxt:'Enter Fever Mode 5 times'},
+ {id:'salt',  n:'WARDING SALT',   d:'curses run 8% shorter per seal',            max:3, base:510, icon:'aura',  req:()=>(LT.curses||0)>=10,   reqTxt:'Endure 10 curses'},
+ {id:'oldbone',n:'OLD BONE',      d:'begin every run with BONE BOLT II',         max:1, base:25000, icon:'bolt', req:()=>(LT.kills||0)>=2500,  reqTxt:'2,500 lifetime kills'},
+ {id:'borrow',n:'BORROWED TIME',  d:"death's-edge slow-mo lasts +0.25s per seal",max:2, base:810, icon:'scythe',req:()=>(LT.deaths||0)>=10,   reqTxt:'Die 10 times'}
 ];
 const CONTRACTS=[
  {id:'bloodpact', n:'BLOOD PACT',      d:'Fountains pour 25% faster, forever', goal:10,   cur:()=>(LT.rites||0),     gtxt:'Last Rites ×10'},
@@ -34,7 +34,7 @@ const CONTRACTS=[
 ];
 function contractDone(id){ const c=CONTRACTS.find(x=>x.id===id); return c && c.cur()>=c.goal; }
 function vlv(id){ return (VAULT.lv[id]|0); }
-function vaultCost(def){ return Math.round(def.base*Math.pow(1.6, vlv(def.id))*(1-((P&&P.vaultDisc)||0))); }
+function vaultCost(def){ return Math.round(def.base*Math.pow(2.2, vlv(def.id))*(1-((P&&P.vaultDisc)||0))); }
 function vaultUnlocked(def){ return !def.req || def.req(); }
 function applyVault(){
   P.maxHp=Math.round(P.maxHp*(1+0.05*vlv('hp'))); P.hp=P.maxHp;
@@ -126,7 +126,7 @@ function renderVault(){
   grid.querySelectorAll('.vBuy[data-vid]').forEach(b=>b.addEventListener('click',()=>buyVault(b.dataset.vid)));
 }
 function openVault(){ renderVault(); $('vaultPanel').classList.remove('hidden'); SFX.vaultOpen(); }
-function vaultWindowOpen(){ return !!P && !(vaultLocked>0 && gt<vaultLocked); } // always open — until five seals spend it
+function vaultWindowOpen(){ return !!P && gt>=180 && !(vaultLocked>0 && gt<vaultLocked); } // the door manifests at 3:00 — five seals a night
 function tickVaultDoor(){
   if(vaultLocked>0 && gt>=vaultLocked){ vaultLocked=0; vaultBuys=0;
     announce('◈ THE VAULT BREATHES AGAIN — FIVE MORE SEALS ◈',true); SFX.vaultOpen(); SFX.dingBells();

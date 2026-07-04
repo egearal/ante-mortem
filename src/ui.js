@@ -366,6 +366,7 @@ window.addEventListener('keydown',e=>{
     if(P.ovT>0){ cashRage(); return; }
     if(vaultProp && Math.hypot(P.x-vaultProp.x,P.y-vaultProp.y)<115){
       if(vaultWindowOpen()){ state='vault'; openVault(); }
+      else if(gt<180){ announce('◈ THE VAULT MANIFESTS AT 3:00 ◈',false); SFX.thud(); }
       else { announce('◈ THE VAULT RESTS — BACK IN '+Math.max(1,Math.ceil((vaultLocked-gt)/60))+' MIN ◈',false); SFX.thud(); }
       return; }
     if(killStreak>=27){ const cash=Math.floor(killStreak/4);
