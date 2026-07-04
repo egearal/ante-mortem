@@ -1004,7 +1004,14 @@ function drawLandmarks(){
       ctx.fillStyle='#e8b64c'; ctx.beginPath(); ctx.arc(0,0,10,0,6.28); ctx.fill();
       const pu2=0.5+Math.sin(gt*4)*0.3;
       ctx.strokeStyle='rgba(232,182,76,'+pu2+')'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(0,0,62+Math.sin(gt*4)*4,0,6.28); ctx.stroke();
-      if(it.stand>0){ ctx.strokeStyle='#8bff9a'; ctx.lineWidth=4; ctx.beginPath(); ctx.arc(0,0,66,-1.57,-1.57+it.stand/1.6*6.283); ctx.stroke(); }
+      if(it.stand>0){ ctx.strokeStyle='#ffd36b'; ctx.lineWidth=6; ctx.shadowColor='#ffd36b'; ctx.shadowBlur=10;
+        ctx.beginPath(); ctx.arc(0,0,66,-1.57,-1.57+it.stand/1.6*6.283); ctx.stroke(); ctx.shadowBlur=0; }
+      if(Math.hypot(P.x-it.x,P.y-it.y)<260){
+        ctx.fillStyle='rgba(255,211,107,'+(0.65+Math.sin(gt*3)*0.2)+')';
+        ctx.font="700 12px 'Cinzel',serif"; ctx.textAlign='center';
+        ctx.fillText("THE HOUSE'S TABLE", 0, -84+Math.sin(gt*2.2)*3);
+        ctx.font="700 10px 'Cinzel',serif"; ctx.fillStyle='rgba(236,220,180,0.8)';
+        ctx.fillText('STAND TO BET', 0, -70+Math.sin(gt*2.2)*3); }
       ctx.restore();
     } else if(it.kind==='chest'){
       const hb2=Math.sin(gt*3.4)*2;
@@ -1025,23 +1032,10 @@ function drawLandmarks(){
       ctx.restore();
     }
     ctx.restore();
-    // ===== THE DOPAMINE ARROW — pulses big/small, points from player to the offering =====
-    const adx=it.x-P.x, ady=it.y-P.y, ad=Math.hypot(adx,ady);
+    // ===== THE DOPAMINE ARROW — every guide wears its target's color =====
+    const ad=Math.hypot(it.x-P.x,it.y-P.y);
     if(ad>150){
-      const aa2=Math.atan2(ady,adx);
-      const pu3=0.7+Math.sin(gt*6)*0.3;
-      const orb=58+Math.sin(gt*6)*10;
-      const ax=P.x+Math.cos(aa2)*orb, ay=P.y+Math.sin(aa2)*orb;
-      ctx.save(); ctx.translate(ax,ay); ctx.rotate(aa2);
-      ctx.globalAlpha=0.55+Math.sin(gt*6)*0.25;
-      const asc=(0.8+pu3*0.5);
-      ctx.scale(asc,asc);
-      ctx.shadowColor='#ffd36b'; ctx.shadowBlur=16;
-      ctx.fillStyle=it.kind==='fountain'?'#ff5566':'#ffd36b';
-      ctx.beginPath(); ctx.moveTo(16,0); ctx.lineTo(-8,-11); ctx.lineTo(-3,0); ctx.lineTo(-8,11); ctx.closePath(); ctx.fill();
-      ctx.fillStyle='#fff'; ctx.globalAlpha*=0.8;
-      ctx.beginPath(); ctx.moveTo(12,0); ctx.lineTo(-4,-6); ctx.lineTo(-1,0); ctx.lineTo(-4,6); ctx.closePath(); ctx.fill();
-      ctx.restore(); ctx.globalAlpha=1;
+      drawGuide(it.x, it.y, it.kind==='fountain'?'#ff5560':'#ffd36b');
     }
   }
 }
@@ -1475,7 +1469,7 @@ function render(){
     ctx.strokeStyle='rgba(255,255,255,0.7)'; ctx.lineWidth=1.6;
     ctx.beginPath(); ctx.arc(0,0,pr9-3,-0.36,0.36); ctx.stroke();
     ctx.restore(); }
-  drawSmites(); drawTarots(); drawWheelTok(); drawCrashTok(); drawEgg();
+  drawSmites(); drawTarots(); drawWheelTok(); drawCrashTok(); drawEgg(); drawGuides();
   if(bounty && enemies.includes(bounty.e)){ const be=bounty.e;
     ctx.save(); ctx.translate(be.x,be.y);
     ctx.rotate(gt*2); ctx.strokeStyle='rgba(255,211,107,'+(0.6+Math.sin(gt*6)*0.3)+')'; ctx.lineWidth=2.4; ctx.setLineDash([7,6]);
@@ -2213,6 +2207,33 @@ function drawEnemy(e){
       ctx.beginPath(); ctx.ellipse(0,-r*0.15,r*0.72,r*0.85,0,0,6.28); ctx.fill(); ctx.globalAlpha=1; } }
   if(e.flash>0){ ctx.globalAlpha=Math.min(0.8,e.flash*6); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.ellipse(0,-r*0.2,r*0.78,r*0.95,0,0,6.28); ctx.fill(); ctx.globalAlpha=1; }
   ctx.restore();
+}
+
+// one arrow, many masters — pulses from the player toward an off-screen offering
+function drawGuide(tx,ty,col){
+  const adx=tx-P.x, ady=ty-P.y;
+  if(Math.hypot(adx,ady)<=150) return;
+  const aa2=Math.atan2(ady,adx);
+  const pu3=0.7+Math.sin(gt*6)*0.3;
+  const orb=58+Math.sin(gt*6)*10;
+  const ax=P.x+Math.cos(aa2)*orb, ay=P.y+Math.sin(aa2)*orb;
+  ctx.save(); ctx.translate(ax,ay); ctx.rotate(aa2);
+  ctx.globalAlpha=0.55+Math.sin(gt*6)*0.25;
+  const asc=(0.8+pu3*0.5); ctx.scale(asc,asc);
+  ctx.shadowColor=col; ctx.shadowBlur=16;
+  ctx.fillStyle=col;
+  ctx.beginPath(); ctx.moveTo(16,0); ctx.lineTo(-8,-11); ctx.lineTo(-3,0); ctx.lineTo(-8,11); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.globalAlpha*=0.8;
+  ctx.beginPath(); ctx.moveTo(12,0); ctx.lineTo(-4,-6); ctx.lineTo(-1,0); ctx.lineTo(-4,6); ctx.closePath(); ctx.fill();
+  ctx.restore(); ctx.globalAlpha=1;
+}
+// the standing tokens each get their true-color arrow; the vault only beckons briefly when it reopens
+function drawGuides(){
+  if(state!=='playing') return;
+  if(crashTok) drawGuide(crashTok.x, crashTok.y, '#8bff9a');
+  if(wheelTok) drawGuide(wheelTok.x, wheelTok.y, '#c98bff');
+  if(eggProp)  drawGuide(eggProp.x,  eggProp.y,  '#ffd36b');
+  if(vaultProp && window._vaultBeacon && gt<window._vaultBeacon) drawGuide(vaultProp.x, vaultProp.y, '#fff2c0');
 }
 
 function drawEgg(){

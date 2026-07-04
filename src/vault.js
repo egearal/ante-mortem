@@ -129,6 +129,7 @@ function vaultWindowOpen(){ return !!P && !(vaultLocked>0 && gt<vaultLocked); } 
 function tickVaultDoor(){
   if(vaultLocked>0 && gt>=vaultLocked){ vaultLocked=0; vaultBuys=0;
     announce('◈ THE VAULT BREATHES AGAIN — FIVE MORE SEALS ◈',true); SFX.vaultOpen(); SFX.dingBells();
+    window._vaultBeacon=gt+8;
     if(vaultProp){ ring(vaultProp.x,vaultProp.y,160,'#ffd36b'); ring(vaultProp.x,vaultProp.y,90,'#fff2c0'); } }
   if(vaultWindowOpen()&&vaultProp){ window._vwp=(window._vwp||0)+1; if(window._vwp%150===0) ring(vaultProp.x,vaultProp.y,120,'#ffd36b'); }
 }

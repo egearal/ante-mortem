@@ -234,7 +234,8 @@ function openIndexPanel(){
     list.addEventListener('mouseover',ev=>{ const el=ev.target.closest('.idxTile[data-tip]'); if(!el) return;
       const tp=$('relicTip'); tp.innerHTML='<b>'+el.dataset.name+'</b><br>'+el.dataset.tip; tp.classList.remove('hidden');
       const r9=el.getBoundingClientRect(); tp.style.right=(innerWidth-r9.left+10)+'px'; tp.style.top=(r9.top-6)+'px'; });
-    list.addEventListener('mouseout',ev=>{ if(ev.target.closest('.idxTile')) $('relicTip').classList.add('hidden'); }); }
+    list.addEventListener('mouseout',ev=>{ if(ev.target.closest('.idxTile')) $('relicTip').classList.add('hidden'); });
+    list.addEventListener('click',ev=>{ if(ev.target.closest('.ldBooks')){ openBooks(); } }); }
   list.innerHTML=
     ('<div class="idxSec" style="--sc:#ff9a3c"><div class="idxSecH"><b>⚔ THE ARSENAL</b><span>'+WEAPONS.filter(w=>IDX.w.indexOf(w.id)>=0).length+' / '+WEAPONS.length+'</span></div><div class="idxGrid">'
       +WEAPONS.map(w=>{ const seen=IDX.w.indexOf(w.id)>=0, unl=weaponUnlocked(w.id);
@@ -248,12 +249,23 @@ function openIndexPanel(){
    +sec('★','THE TAROT','#c98bff', TAROT_FATES.map(f=>[IDX.t.indexOf(f.n)>=0, f.t>0?'★':'☠', IDX.t.indexOf(f.n)>=0?f.n+'|'+((f.dd||'')+' ['+(f.t>0?'BLESSING':'CURSE')+']'):f.n, f.c||'#c98bff']))
    +sec('♟','THE COURT','#c22ca0', Object.keys(CFG.enemy).filter(k=>!BOSS_DEFS[k]).map(k=>[IDX.e.indexOf(k)>=0, '♟', k.toUpperCase(), CFG.enemy[k].col||'#c98bff']))
    +sec('♛','THE BOSSES','#ffd36b', Object.keys(BOSS_DEFS).map(k=>[IDX.b.indexOf(k)>=0, '♛', BOSS_DEFS[k].name, '#ffd36b']))
+   +('<div class="idxSec" style="--sc:#e8b64c"><div class="idxSecH"><b>⚜ THE LADDER</b><span>RANK '+RANK.rank+' / 100 · <i class="ldBooks">📖 THE BOOKS</i></span></div><div class="ldWrap">'
+     +RANKS.map((e,i)=>{ const r=i+1;
+        const cls=r===RANK.rank?' now':(r>RANK.rank&&r<=RANK.rank+3?' soon':(r<RANK.rank?' done':''));
+        const arm=Object.keys(WEAPON_UNLOCKS).find(id=>WEAPON_UNLOCKS[id]===r);
+        const wd=arm&&WEAPONS.find(x=>x.id===arm);
+        return '<div class="ldRow'+cls+'"><b>'+r+'</b><span class="ldN">'+e.n+'</span>'
+          +'<span class="ldM">'+rkCum(r).toLocaleString()+' ◈</span>'
+          +'<span class="ldR">'+(e.r||'')+(wd?(' <em style="color:'+(GLYPH_COL[wd.id]||'#ff9a3c')+'">⚔ '+wd.n+'</em>'):'')+'</span></div>';
+      }).join('')
+     +'</div><div class="idxHint">MARKS raise your rank. Every rung pays — gilt, blood, or a blade.</div></div>')
    +'<div class="idxSec" style="--sc:#c98bff"><div class="idxSecH"><b>🗝 THE WHISPERS</b><span>'+SEC.size+' / '+WHISPER_TOTAL+'</span></div><div class="wspGrid">'
      +Object.keys(WHISPERS).map(id=>{ const w=WHISPERS[id], got=SEC.has(id);
         return got? '<div class="wsp on" data-name="'+w[0].replace(/"/g,'&quot;')+'" data-tip="'+w[2].replace(/"/g,'&quot;')+'">🗝 <b>'+w[0]+'</b></div>'
                   : '<div class="wsp"><i>“'+w[1]+'”</i></div>'; }).join('')
      +'</div><div class="idxHint">Each whisper answered pays 25 GILT. The riddles are the walls talking.</div></div>';
   p.classList.remove('hidden');
+  { const now=list.querySelector('.ldRow.now'); if(now) now.scrollIntoView({block:'center'}); }
 }
 
 

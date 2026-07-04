@@ -558,7 +558,9 @@ function renderChips(){
   // the road ahead, visible: rank progress under the chips
   { let rb=$('menuRank');
     if(!rb){ rb=document.createElement('div'); rb.id='menuRank';
-      const cr=$('chipRow'); if(cr) cr.parentNode.insertBefore(rb, cr.nextSibling); }
+      const cr=$('chipRow'); if(cr) cr.parentNode.insertBefore(rb, cr.nextSibling);
+      rb.style.cursor='pointer'; rb.title='THE LADDER — every rank, every reward';
+      rb.addEventListener('click',()=>{ openIndexPanel(); SFX.uiDing(); }); }
     if(rb && typeof RANK!=='undefined' && typeof rkCum==='function'){
       const base=rkCum(RANK.rank), next=RANK.rank<RANKS.length?rkCum(RANK.rank+1):base+1;
       const pct=Math.min(100,Math.round((RANK.marks-base)/(next-base)*100));
