@@ -37,6 +37,7 @@ function startFever(){
 }
 function endFever(){
   feverOn=false; fever=0; feverT=0;
+  [880,660,440].forEach((f,i)=>setTimeout(()=>tone(f,0.12,'sine',0.06),i*90)); // the fire sighs out
   window._feverLock=gt+60; // the pit cools for a minute — grants bypass this
   if(P._fvRate!==undefined){ P.fireRate=P._fvRate; P._fvRate=undefined; }
   if(P._fvCoin!==undefined){ P.coinMult=P._fvCoin; P._fvCoin=undefined; }

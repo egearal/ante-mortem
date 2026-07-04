@@ -587,10 +587,11 @@ function update(dt){
       announce('⚔ DARE MET — +40 COINS ⚔', true); SFX.cashout(); SFX.dingBells(); coinRain(16); sparkBurst(26); flash(0.3,'#8bff9a'); dare=null; dareT=40+Math.random()*24; }
     else if(dare.t<=0){ announce('… THE HOUSE SCOFFS …', false); SFX.thud(); dare=null; dareT=40+Math.random()*24; }
   }
+  if(typeof droneGain!=='undefined' && droneGain && P.hp/P.maxHp<0.5){ try{ droneGain.gain.value=0.14*(1+(0.5-P.hp/P.maxHp)); }catch(e){} }
   if(P.hp/P.maxHp<0.25){ P._hb=(P._hb||0)-dt; if(P._hb<=0){ P._hb=0.85; tone(56,0.16,'sine',0.22,44); setTimeout(()=>tone(50,0.13,'sine',0.16,40),160);
       flash(0.09,'#6b0f18'); } // the vignette throbs WITH the heartbeat — eyes and ears agree
     if(!P._rites){ P._rites=true; showStreak('☨ THE HOUSE SMELLS BLOOD ☨'); SFX.murmur(); startDrone(); flash(0.4,'#8b1620'); }
-  } else if(P._rites && P.hp/P.maxHp>0.38){ P._rites=false; stopDrone(); showStreak('✦ THE BLOOD RETURNS ✦'); SFX.tingle(); }
+  } else if(P._rites && P.hp/P.maxHp>0.30){ P._rites=false; P._hb=0; stopDrone(); showStreak('✦ THE BLOOD RETURNS ✦'); SFX.tingle(); tone(660,0.2,'sine',0.1,880); }
   const _mn=Math.floor(gt/60); if(_mn>(P._lastMin||0)){ P._lastMin=_mn; bump('minutes',_mn); recCheck('minutes',_mn,'Minutes');
     if(_mn%3===0){ P.coinMult+=1;
       debuffs.push({label:'✨ GOLDEN HOUR ×2 COINS', t:20, dur:20, revert:()=>{ P.coinMult-=1; }, dot:0, poison:false, good:true});

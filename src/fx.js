@@ -127,6 +127,8 @@ function seraphCeremony(){
   setTimeout(()=>l.classList.add('hidden'),1400);
 }
 function coinRain(n){
+  // the rain sounds as big as it pays
+  try{ if(!muted&&AC) tone(520,0.05,'sine',Math.min(0.12,0.04+n*0.003)); }catch(e){}
   const box=$('coinRain'); if(!box) return;
   for(let i=0;i<n;i++){
     const c=document.createElement('div'); c.className='fallCoin';

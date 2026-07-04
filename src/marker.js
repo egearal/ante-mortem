@@ -121,6 +121,7 @@ async function actuallyDie(){
   const plc={ kills:rec10Place('kills',P.kills), dmg:rec10Place('dmg',Math.round(P.dmgDealt||0)),
     streak:rec10Place('streak',P.bestStreak||0), level:rec10Place('level',P.level),
     time:rec10Place('time',Math.round(gt)), marks:rec10Place('marks',mkFinal) };
+  window._tonight={kills:P.kills, dmg:Math.round(P.dmgDealt||0), streak:P.bestStreak||0, level:P.level, time:Math.round(gt), marks:mkFinal};
   saveAch();
   const newBest = score>best; if(newBest) best=score;
   $('goResult').textContent = newBest? 'A RECORD IN BLOOD' : 'YOU BLINKED OUT';
@@ -225,11 +226,12 @@ function openBooks(){
     $('booksClose').addEventListener('click',()=>{ p.classList.add('hidden'); SFX.casinoDing(); });
   }
   const names={kills:'☠ SLAIN', dmg:'⚔ DAMAGE', streak:'🔥 STREAK', level:'⚜ LEVEL', time:'⏱ TIME', marks:'◈ MARKS'};
+  const tn=window._tonight||{};
   const fv=(k,v)=> k==='time'?fmt(v):(v>=10000?(v/1000).toFixed(1)+'k':v.toLocaleString());
   $('booksBody').innerHTML=Object.keys(names).map(k=>{
     const a=REC10[k]||[];
     return '<div class="bkCol"><div class="bkH">'+names[k]+'</div>'
-      +(a.length? a.map((e,i)=>'<div class="bkRow'+(i===0?' top':'')+'"><b>#'+(i+1)+'</b><i>'+fv(k,e.v)+'</i><span>'+e.d+'</span></div>').join('')
+      +(a.length? a.map((e,i)=>'<div class="bkRow'+(i===0?' top':'')+((tn[k]!==undefined&&e.v===tn[k])?' tonight':'')+'"><b>#'+(i+1)+'</b><i>'+fv(k,e.v)+'</i><span>'+e.d+'</span></div>').join('')
                 : '<div class="bkRow none">no nights recorded</div>')
       +'</div>';
   }).join('');

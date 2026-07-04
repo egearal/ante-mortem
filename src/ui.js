@@ -203,6 +203,7 @@ function buildGfxPanel(){
     +'<div class="gxRow"><span class="gxName">MASTER VOLUME</span><input type="range" id="gxVol" min="0" max="1" step="0.05" value="'+(GFX.vol!==undefined?GFX.vol:1)+'"></div>'
     +GFX_DEFS.filter(d=>d.k!=='vol').map(d=>'<div class="gxRow"><span class="gxName">'+d.n+'</span><button class="gxBtn" data-k="'+d.k+'">'+gfxLabel(d)+'</button></div>').join('')
     +'<div class="gxRow"><span class="gxName">FULLSCREEN</span><button class="gxBtn" id="gxFull">F — TOGGLE</button></div>'
+    +'<div class="gxRow"><span class="gxName">EVERYTHING</span><button class="gxBtn" id="gxReset">RESET TO DEFAULTS</button></div>'
     +'<button class="gxBtn gxClose" id="gfxClose">CLOSE</button></div>';
   document.body.appendChild(p);
   p.querySelectorAll('.gxPre').forEach(b=>b.addEventListener('click',()=>{ applyGfxPreset(b.dataset.pre); SFX.casinoDing(); }));
@@ -215,6 +216,11 @@ function buildGfxPanel(){
   }));
   $('gfxClose').addEventListener('click',()=>{ p.classList.add('hidden'); SFX.casinoDing(); });
   { const gf=p.querySelector('#gxFull'); if(gf) gf.addEventListener('click',()=>{ try{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }catch(x){} SFX.uiDing(); }); }
+  { const gr=p.querySelector('#gxReset'); if(gr) gr.addEventListener('click',()=>{
+      applyGfxPreset('medium'); GFX.vol=1; GFX.cb=false; GFX.fps=false; applyGfxSide(); saveGfx();
+      const gv2=p.querySelector('#gxVol'); if(gv2) gv2.value=1;
+      p.querySelectorAll('.gxBtn[data-k]').forEach(b=>{ const d=GFX_DEFS.find(x=>x.k===b.dataset.k); if(d) b.textContent=gfxLabel(d); });
+      SFX.casinoDing(); }); }
   { const gv=p.querySelector('#gxVol'); if(gv){
       gv.addEventListener('input',()=>{ GFX.vol=parseFloat(gv.value); applyGfxSide();
         if(!gv._tk||performance.now()-gv._tk>120){ gv._tk=performance.now(); try{ tone(880,0.04,'sine',0.08); }catch(x){} } });
@@ -526,17 +532,17 @@ function ctSlots(){ return Math.min(3, IDX.ctSlots||1); }
 const CT_SLOT_COST=[0, 25000, 100000];
 const SOULS=[
  {id:'vesper', n:'VESPER',     g:'♠', col:'#e6d9c2', d:'The staked soul. Balanced hands, every door open.',
-   u:()=>true, uTxt:'', ap:()=>{}},
+   pips:'♥♥♥ · 👢👢👢 · 🎲🎲🎲', u:()=>true, uTxt:'', ap:()=>{}},
  {id:'dealer', n:'THE DEALER', g:'♦', col:'#6fb7ff', d:'Starts with Dealer\'s Hand. Every dice target −1, forever. Thin blood: −20 max.',
-   u:()=>RANK.rank>=12, uTxt:'REACH HOUSE RANK 12', ap:()=>{ P.wlv={cards:1}; P.diceEase=1; P.maxHp=Math.max(40,P.maxHp-20); P.hp=P.maxHp; }},
+   pips:'♥♥ · 👢👢👢 · 🎲🎲🎲🎲🎲', u:()=>RANK.rank>=12, uTxt:'REACH HOUSE RANK 12', ap:()=>{ P.wlv={cards:1}; P.diceEase=1; P.maxHp=Math.max(40,P.maxHp-20); P.hp=P.maxHp; }},
  {id:'widow',  n:'THE WIDOW',  g:'☾', col:'#c98bff', d:'She kept her Grave Moths. +15% XP. −15% damage — grief dulls the blade.',
-   u:()=>SEC.size>=12, uTxt:'ANSWER 12 WHISPERS', ap:()=>{ P.wlv={moths:1}; P.xpMult=(P.xpMult||1)*1.15; P.damage*=0.85; }},
+   pips:'♥♥ · 👢👢👢👢 · ✦✦✦✦', u:()=>SEC.size>=12, uTxt:'ANSWER 12 WHISPERS', ap:()=>{ P.wlv={moths:1}; P.xpMult=(P.xpMult||1)*1.15; P.damage*=0.85; }},
  {id:'debtor', n:'THE DEBTOR', g:'◈', col:'#ffd36b', d:'Starts rich: 60 coins, ×1.35 coin gain. Takes +10% damage — the interest.',
-   u:()=>(LT.deaths||0)>=25, uTxt:'DIE 25 TIMES', ap:()=>{ P.coins+=60; P.coinMult=(P.coinMult||1)*1.35; P.dmgTakenMult=(P.dmgTakenMult||1)+0.10; }},
+   pips:'♥♥♥ · 👢👢 · ◈◈◈◈◈', u:()=>(LT.deaths||0)>=25, uTxt:'DIE 25 TIMES', ap:()=>{ P.coins+=60; P.coinMult=(P.coinMult||1)*1.35; P.dmgTakenMult=(P.dmgTakenMult||1)+0.10; }},
  {id:'brute',  n:'THE BRUTE',  g:'⚒', col:'#ff9a3c', d:'Starts with Iron Stakes. +25% damage, +20 blood, −15% speed. Subtlety is for the thin.',
-   u:()=>(LT.kills||0)>=2500, uTxt:'2,500 LIFETIME KILLS', ap:()=>{ P.wlv={stakes:1}; P.damage*=1.25; P.maxHp+=20; P.hp=P.maxHp; P.speed*=0.85; }},
+   pips:'♥♥♥♥♥ · 👢 · ⚔⚔⚔⚔', u:()=>(LT.kills||0)>=2500, uTxt:'2,500 LIFETIME KILLS', ap:()=>{ P.wlv={stakes:1}; P.damage*=1.25; P.maxHp+=20; P.hp=P.maxHp; P.speed*=0.85; }},
  {id:'yolk',   n:'THE YOLK',   g:'◌', col:'#fff2c0', d:'Hatched too early. Tiny, quick, 60 blood — wide pockets, and the reels lean toward pairs for it.',
-   u:()=>SEC.has('theegg'), uTxt:'FIND THE EGG', ap:()=>{ P.wlv={razor:1}; P.radius*=0.7; P.speed*=1.2; P.maxHp=60; P.hp=60; P.pickup+=24; P.yolkFate=true; }}
+   pips:'♥ · 👢👢👢👢👢 · 🎲🎲🎲🎲', u:()=>SEC.has('theegg'), uTxt:'FIND THE EGG', ap:()=>{ P.wlv={razor:1}; P.radius*=0.7; P.speed*=1.2; P.maxHp=60; P.hp=60; P.pickup+=24; P.yolkFate=true; }}
 ];
 function curSoul(){ const s=SOULS.find(x=>x.id===(IDX.sl||'vesper')); return (s&&s.u())?s:SOULS[0]; }
 // INDULGENCES — gilt buys the night a head start. Consumed when the run begins.
@@ -588,7 +594,7 @@ function renderAnteRoom(){
   let html='<div class="anteH">CHOOSE YOUR SOUL</div><div class="soulRow">';
   SOULS.forEach(s=>{ const un=s.u(), on=cur.id===s.id;
     html+= un
-      ? '<div class="soulCard'+(on?' on':'')+'" data-id="'+s.id+'" style="--sc:'+s.col+'"><div class="soulG">'+s.g+'</div><div class="soulN">'+s.n+'</div><div class="soulD">'+s.d+'</div>'+(on?'<div class="soulPick">— AT THE TABLE —</div>':'')+'</div>'
+      ? '<div class="soulCard'+(on?' on':'')+'" data-id="'+s.id+'" style="--sc:'+s.col+'"><div class="soulG">'+s.g+'</div><div class="soulN">'+s.n+'</div><div class="soulD">'+s.d+'</div>'+(s.pips?'<div class="soulPips">'+s.pips+'</div>':'')+(on?'<div class="soulPick">— AT THE TABLE —</div>':'')+'</div>'
       : '<div class="soulCard locked" title="'+s.uTxt.replace(/"/g,'&quot;')+'"><div class="soulG">?</div><div class="soulN">SEALED</div><div class="soulD">🔒 '+s.uTxt+'</div></div>';
   });
   html+='</div>';
@@ -644,6 +650,10 @@ function renderChips(){
   try{ storyPulse(); }catch(e){}
   try{ menuMotion(); }catch(e){}
   // the loadout line — who, where, and on what terms
+  { let ln9=$('lastNight');
+    if(!ln9 && best>0){ ln9=document.createElement('div'); ln9.id='lastNight';
+      const sb=$('startBtn'); if(sb) sb.parentNode.insertBefore(ln9, sb); }
+    if(ln9) ln9.textContent = best>0 ? ('BEST NIGHT — '+best.toLocaleString()) : ''; }
   { let ll=$('loadoutLine');
     if(!ll){ ll=document.createElement('div'); ll.id='loadoutLine';
       const sb=$('startBtn'); if(sb) sb.parentNode.insertBefore(ll, sb.nextSibling);
@@ -660,6 +670,7 @@ function renderChips(){
     if(rb && typeof RANK!=='undefined' && typeof rkCum==='function'){
       const base=rkCum(RANK.rank), next=RANK.rank<RANKS.length?rkCum(RANK.rank+1):base+1;
       const pct=Math.min(100,Math.round((RANK.marks-base)/(next-base)*100));
+      rb.classList.toggle('near', pct>=90);
       rb.innerHTML='<div class="mrTop">⚜ RANK '+RANK.rank+' — '+RANKS[RANK.rank-1].n+'</div>'
         +'<div class="mrBar"><i style="width:'+pct+'%"></i></div>'
         +'<div class="mrSub">'+(RANK.marks-base)+' / '+(next-base)+' MARKS TO RANK '+(RANK.rank+1)+'</div>'; } }
@@ -668,7 +679,7 @@ function renderChips(){
     best>0?['🏆',best.toLocaleString(),'#ffd36b']:null,
     ['📖',idxPct()+'%','#c98bff'],
     ['✦',SEC.size+'/'+WHISPER_TOTAL,'#8bffd0'],
-    ['🏛',_est+'% OF THE HOUSE','#e8b64c'],
+    ['🏛',_est+'% OF THE HOUSE — ranks 30 · index 20 · whispers 15 · feats 15 · pages 10 · souls&floors 10','#e8b64c'],
     (LT.minutes||0)>=30?['⏱',((LT.minutes||0)/60).toFixed(1)+'h AT THE TABLE','#9adcff']:null,
     ...(function(){ const nx=nextArmUnlock(); if(!nx) return []; const wd=WEAPONS.find(x=>x.id===nx.id);
       return wd?[['🗡','NEXT ARM: '+wd.n.toUpperCase()+' · RANK '+nx.thr,'#ff9a3c']]:[]; })(),
