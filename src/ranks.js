@@ -370,7 +370,15 @@ function openIndexPanel(){
       const tp=$('relicTip'); tp.innerHTML='<b>'+el.dataset.name+'</b><br>'+el.dataset.tip; tp.classList.remove('hidden');
       const r9=el.getBoundingClientRect(); tp.style.right=(innerWidth-r9.left+10)+'px'; tp.style.top=(r9.top-6)+'px'; });
     list.addEventListener('mouseout',ev=>{ if(ev.target.closest('.idxTile')) $('relicTip').classList.add('hidden'); });
-    list.addEventListener('click',ev=>{ if(ev.target.closest('.ldBooks')){ openBooks(); } }); }
+    list.addEventListener('click',ev=>{ if(ev.target.closest('.ldBooks')){ openBooks(); return; }
+      const wt=ev.target.closest('.wsp:not(.on)');
+      if(wt){ const idx=[...wt.parentNode.children].indexOf(wt); const id=Object.keys(WHISPERS)[idx]; const w=WHISPERS[id];
+        if(!w || SEC.has(id)) return;
+        if(gilt<500){ SFX.thud(); showStreak('… A HINT COSTS 500 GILT …'); return; }
+        gilt-=500; saveGilt(); const word=w[0].split(' ')[0];
+        wt.innerHTML='<i>“'+w[1]+'”</i><b style="display:block;color:#c98bff;font-size:10px;letter-spacing:.14em;margin-top:4px">HINT: '+word+' …</b>';
+        SFX.chipStack(); SFX.murmur(); flash(0.2,'#c98bff');
+      } } ); }
   list.innerHTML=
     ('<div class="idxSec" style="--sc:#ff9a3c"><div class="idxSecH"><b>⚔ THE ARSENAL</b><span>'+WEAPONS.filter(w=>IDX.w.indexOf(w.id)>=0).length+' / '+WEAPONS.length+'</span></div><div class="idxGrid">'
       +WEAPONS.map(w=>{ const seen=IDX.w.indexOf(w.id)>=0, unl=weaponUnlocked(w.id);

@@ -78,6 +78,10 @@ function buyVault(id){
   if(vaultLocked>0 && gt<vaultLocked){ SFX.thud(); return; }
   if(!vaultUnlocked(def) || vlv(id)>=def.max) return;
   const cost=vaultCost(def); if(gilt<cost){ SFX.bust(); return; }
+  if(cost>=1000 && window._vConfirm!==id+vlv(id)){ window._vConfirm=id+vlv(id);
+    announce('◈ '+cost.toLocaleString()+' GILT — PRESS AGAIN TO SEAL ◈', true); SFX.casinoDing();
+    setTimeout(()=>{ if(window._vConfirm===id+vlv(id)) window._vConfirm=null; },4000); return; }
+  window._vConfirm=null;
   gilt-=cost; VAULT.lv[id]=vlv(id)+1;
   saveGilt(); saveAch(); SFX.vaultBuy(); sparkBurst(20);
   LT.seals=(LT.seals||0)+1; bump('seals',LT.seals);

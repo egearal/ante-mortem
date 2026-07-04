@@ -660,6 +660,7 @@ function renderChips(){
     if(!ln9 && best>0){ ln9=document.createElement('div'); ln9.id='lastNight';
       const sb=$('startBtn'); if(sb) sb.parentNode.insertBefore(ln9, sb); }
     if(ln9) ln9.textContent = best>0 ? ('BEST NIGHT — '+best.toLocaleString()) : ''; }
+  { if(_est>=100){ const tg=document.querySelector('#menu .tag'); if(tg && !tg.dataset.owned){ tg.dataset.owned='1'; tg.textContent='THE HOUSE IS YOURS'; } } }
   { let ll=$('loadoutLine');
     if(!ll){ ll=document.createElement('div'); ll.id='loadoutLine';
       const sb=$('startBtn'); if(sb) sb.parentNode.insertBefore(ll, sb.nextSibling);

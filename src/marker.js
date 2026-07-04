@@ -163,6 +163,9 @@ async function actuallyDie(){
       if(performance.now()-lastTick>45 && f<1){ lastTick=performance.now(); tone(600+e*900,0.025,'square',0.045); }
       if(f<1) setTimeout(tick,16); else { el.textContent=target.toLocaleString(); SFX.coinPling(); } };
     tick(); };
+  { const fp9=((P.kills*7+Math.round(gt)*13+P.level*101+score)>>>0).toString(16).toUpperCase().slice(0,6);
+    let fpEl=$('goSeed'); if(!fpEl){ fpEl=document.createElement('div'); fpEl.id='goSeed'; $('goStats').parentNode.insertBefore(fpEl,$('goStats')); }
+    fpEl.textContent='NIGHT №'+(LT.runs||0)+' · LEDGER '+fp9; }
   countUp($('goScore'), score, 1200);
   countUp($('goGilt'), giltEarned, 900); $('goGiltTotal').textContent=gilt;
   // THE LEDGER — the whole run at a glance: wave, arsenal, skills, wounds, the dice record, the best pull

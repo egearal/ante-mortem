@@ -2586,8 +2586,11 @@ function startGame(){
       IDX.ind=[]; idxSaveSoon(); } }
   if(LT.equal){ P.coinMult*=1.05; P._goldTrail=true; } // THE HOUSE'S EQUAL — forever
   { const today=new Date().toISOString().slice(0,10);
-    if(LT.lastDay!==today){ LT.lastDay=today; gilt+=15; saveGilt(); if(typeof achSaveSoon==='function') achSaveSoon();
-      setTimeout(()=>announce('☀ FIRST ANTE OF THE DAY — +15 GILT ☀', true), 3000); } }
+    if(LT.lastDay!==today){
+      const y=new Date(Date.now()-86400000).toISOString().slice(0,10);
+      LT.dayStreak=(LT.lastDay===y)?(LT.dayStreak||0)+1:1;
+      LT.lastDay=today; gilt+=15; saveGilt(); if(typeof achSaveSoon==='function') achSaveSoon();
+      setTimeout(()=>announce('☀ FIRST ANTE OF THE DAY — +15 GILT'+((LT.dayStreak||1)>1?' · '+LT.dayStreak+' NIGHTS RUNNING':'')+' ☀', true), 3000); } }
   window._gt0=gt; // the night's true zero (contracts may shift the clock)
   P._idle=0; P._sigT=0; P._corners=new Set(); P._chestsRun=0; P._roulRun=0; P._pauses=0; P._1313=false;
   resetRun();
