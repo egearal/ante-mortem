@@ -416,6 +416,7 @@ function burnStake(){
 // HOUSE'S BLESSING — survive all four dice at the red table: 5s untouchable,
 // double damage, double fire rate. The House respects nerve.
 function houseBlessing(){
+  if(typeof duckDrone==='function') duckDrone(1600);
   P.inv=Math.max(P.inv||0,5);
   P.damage*=2; P.fireRate*=2;
   debuffs.push({label:"♛ HOUSE'S BLESSING", t:5, dur:5, revert:()=>{ P.damage/=2; P.fireRate/=2; }, dot:0, poison:false, good:true});

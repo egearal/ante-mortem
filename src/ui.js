@@ -693,3 +693,9 @@ setInterval(()=>{ if(state==='menu' && performance.now()-_idleT>60000){
     else if(wheel.phase==='freespin') respinTicker();
     else if(wheel.done) finishWheel();
     else launchWheel(); }); }
+
+// every button in the House answers the finger — one quiet felt tick, always
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  try{ tone(1450,0.02,'square',0.028); }catch(x){}
+},true);

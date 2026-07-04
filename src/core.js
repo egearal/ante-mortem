@@ -111,7 +111,7 @@ function tickMapProps(dt){
       const kind=kinds[(Math.random()*kinds.length)|0];
       const a5=Math.random()*6.283, d5=320+Math.random()*360;
       interactable={ kind, x:clamp(P.x+Math.cos(a5)*d5,80,CFG.arena-80), y:clamp(P.y+Math.sin(a5)*d5,80,CFG.arena-80),
-        life:(kind==='chest'?24:32), res:100, stand:0, spin:0, ph:0 };
+        life:(kind==='chest'?24:32), res:100, stand:0, spin:0, ph:0, rich:Math.random() };
       const names={fountain:'🩸 A BLOOD FOUNTAIN RISES', roulette:'🎡 A FLOOR BET OPENS', chest:'✦ THE HOUSE LEAVES A GIFT'};
       showStreak(names[kind]); SFX.tingle(); SFX.casinoDing();
     } }
@@ -154,7 +154,7 @@ function tickMapProps(dt){
           for(let i2=0;i2<6 && enemies.length<CFG.spawn.max;i2++){ const sa3=Math.random()*6.283;
             spawnEnemy(i2<2?'stalker':'swarm', clamp(it.x+Math.cos(sa3)*60,20,CFG.arena-20), clamp(it.y+Math.sin(sa3)*60,20,CFG.arena-20)); }
         } else {
-          const cg3=9+((Math.random()*8)|0);
+          const cg3=9+Math.round((it.rich!==undefined?it.rich:Math.random())*7); // the shimmer told the truth
           for(let gi=0;gi<cg3;gi++) coins.push({x:it.x+rnd(-14,14),y:it.y+rnd(-14,14),r:6,vx:rnd(-140,140),vy:rnd(-140,140)});
           coinRain(16); SFX.cashout(); SFX.dingBells(); announce('✦ TREASURE +'+cg3+' COINS ✦', true); flash(0.4,'#ffd36b'); sparkBurst(22);
         }
@@ -824,7 +824,7 @@ function update(dt){
     if(d<range){ const pull=P.lode?520:400; c.x+=dx/d*pull*dt; c.y+=dy/d*pull*dt; }
     if(d<P.radius+7){ if(P.ovT>0){ coins.splice(i,1); P.ovT=Math.min(100,P.ovT+2.5*(P.ovFeed||1)); tone(600+P.ovT*9,0.06,'sine',0.1); flash(0.06,'#ffd36b'); ftext(P.x,P.y-12,'+FUEL','#ffd36b'); burst(P.x,P.y,3,'#ff9a3c'); continue; } const gain=Math.max(1,Math.round(P.comboMult)); P.coins+=gain; LT.coins+=gain; if(P.coins===777) secret('sevens','TRIPLE SEVENS'); bump('runCoins',P.coins); bump('ltCoins',LT.coins); if(P.midas)P.midasStacks=Math.min(25,P.midasStacks+1); coins.splice(i,1);
       { const n8=performance.now(); P._coinCombo=(n8-(P._coinT||0)<800)?(P._coinCombo||0)+1:0; P._coinT=n8;
-        tone(700*Math.pow(1.0595,Math.min(16,P._coinCombo)),0.06,'sine',0.07);
+        tone(700*Math.pow(2,(P._coinCombo%12)/12)*(P._coinCombo>=12?1.5:1),0.06,'sine',0.07);
         if(P._coinCombo>0 && P._coinCombo%10===0){ SFX.casinoDing(); sparkBurst(8); ftext(P.x,P.y-40,'COIN RUSH ×'+P._coinCombo,'#ffd36b'); }
         const cc9=$('coinCount'); if(cc9){ cc9.classList.remove('pop'); void cc9.offsetWidth; cc9.classList.add('pop'); } }
       burst(P.x,P.y,2,'#e8b64c'); }
@@ -1044,8 +1044,9 @@ function drawLandmarks(){
       ctx.beginPath(); ctx.moveTo(-22,-4); ctx.quadraticCurveTo(0,-22-hb2,22,-4); ctx.stroke();
       ctx.fillStyle='#ffd36b'; ctx.fillRect(-3.4,-2,6.8,9);
       ctx.fillStyle='#171008'; ctx.beginPath(); ctx.arc(0,1.6,1.6,0,6.28); ctx.fill();
-      for(let sp2=0;sp2<2;sp2++){ const spx=rnd(-18,18), spy=rnd(-16,6);
-        if(Math.random()<0.3){ ctx.fillStyle='rgba(255,240,190,0.9)'; ctx.fillRect(spx-2.4,spy-0.5,4.8,1); ctx.fillRect(spx-0.5,spy-2.4,1,4.8); } }
+      { const rich9=(it.rich!==undefined?it.rich:0.5);
+        for(let sp2=0;sp2<2+Math.round(rich9*3);sp2++){ const spx=rnd(-18,18), spy=rnd(-16,6);
+          if(Math.random()<0.18+rich9*0.4){ ctx.fillStyle='rgba(255,240,190,0.9)'; ctx.fillRect(spx-2.4,spy-0.5,4.8,1); ctx.fillRect(spx-0.5,spy-2.4,1,4.8); } } }
       ctx.restore();
     }
     ctx.restore();

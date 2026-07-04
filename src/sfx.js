@@ -120,6 +120,16 @@ function startDrone(){
   droneGain.gain.exponentialRampToValueAtTime(0.14,AC.currentTime+0.6);
   drone.connect(droneGain); droneGain.connect(master); drone.start();
 }
+// big paydays HUSH the room — the drone ducks so the sting can sing
+function duckDrone(ms){
+  if(!AC||!droneGain) return;
+  try{ const t=AC.currentTime;
+    droneGain.gain.cancelScheduledValues(t);
+    droneGain.gain.setValueAtTime(Math.max(0.0001,droneGain.gain.value),t);
+    droneGain.gain.exponentialRampToValueAtTime(0.015,t+0.09);
+    droneGain.gain.exponentialRampToValueAtTime(0.14,t+(ms||1200)/1000);
+  }catch(e){}
+}
 function stopDrone(){
   if(!drone) return;
   try{ droneGain.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+0.4); drone.stop(AC.currentTime+0.45);}catch(e){}

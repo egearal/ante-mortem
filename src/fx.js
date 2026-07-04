@@ -110,6 +110,7 @@ function pressPulse(el){
   el.classList.remove('sp-pop'); void el.offsetWidth; el.classList.add('sp-pop');
 }
 function bigWin(label,tier){
+  if(typeof duckDrone==='function') duckDrone(1400);
   const l=$('jackpotLayer'), t=$('jackpotText'); t.textContent=label; t.className='jackpotText t'+tier;
   l.classList.remove('hidden'); t.style.animation='none'; void t.offsetWidth; t.style.animation='';
   SFX.bigWin(tier); SFX.dingBells(); setTimeout(()=>SFX.dingBells(),240); setTimeout(()=>SFX.dingBells(),520); SFX.cashout(); setTimeout(()=>SFX.cashout(),400);
