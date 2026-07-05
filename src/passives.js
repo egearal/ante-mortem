@@ -56,7 +56,7 @@ function skillLevel(id){ const e=P.passiveList.find(x=>x.id===id); return e?e.co
 function ownedSkillCount(){ return P.passiveList.length; }
 function availableSkills(){
   const canNew = ownedSkillCount() < SKILL_CAP;
-  return PASSIVES.filter(s=>{ if(s.rar==='mythic') return false; const lv=skillLevel(s.id); if(s.rar==='ascend' && lv===0) return false; return lv>0 ? lv<s.max : canNew; });
+  return PASSIVES.filter(s=>{ if(s.rar==='mythic'||s.rar==='ascend') return false; const lv=skillLevel(s.id); return lv>0 ? lv<s.max : canNew; }); // ascensions come ONLY from the 7.77x Ascent, never the slots
 }
 function grantSkill(def, levels){
   const cur=skillLevel(def.id); const add=Math.min(levels, def.max-cur);

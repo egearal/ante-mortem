@@ -125,13 +125,11 @@ function ensurePayTable(){
     ? {common:'●',uncommon:'●●',rare:'▲▲▲',epic:'■■■■',legendary:'✦✦✦✦✦'} // shape-coded for colorblind hands
     : {common:'◆',uncommon:'◆◆',rare:'◆◆◆',epic:'◆◆◆◆',legendary:'◆◆◆◆◆'}; // one symbol, every table — the color carries the mood
   const row=(rar)=>'<div class="ptRow" data-rar="'+rar+'" style="--pc:'+RARC[rar]+'"><span class="ptN">'+SLOT_RAR[rar]+'</span><span class="ptPips">'+pips[rar]+'</span></div>';
-  const hasAsc=P.passiveList && P.passiveList.some(x=>x.rar==='ascend');
   pt.classList.toggle('red', !!lastRites);
   const bankChips=slotBank>0?('<div class="ptBank">'+'●'.repeat(Math.min(7,slotBank))+'○'.repeat(Math.max(0,7-slotBank))+' BANK</div>'):'';
   const vchChips=vouchers>0?('<div class="ptBank" style="color:#ffd36b">◈×'+vouchers+' VOUCHER'+(vouchers>1?'S':'')+'</div>'):'';
   pt.innerHTML=bankChips+vchChips+'<div class="ptHead">'+(lastRites?'☨ THE RED TABLE ☨':'THE ODDS')+'</div>'
     +row('common')+row('uncommon')+row('rare')+row('epic')+row('legendary')
-    +(hasAsc?'<div class="ptRow" data-rar="ascend" style="--pc:'+RARC.ascend+'"><span class="ptN">ASCENSION</span><span class="ptPips">◆◆◆◆◆◆</span></div>':'')
     +'<div class="ptFoot">'+(lastRites?'<b style="color:#ff7b7b">ANY MISS BURNS THE STAKE</b><br>ALL FOUR DICE = HOUSE&#39;S BLESSING':'<b>PAIR = LEVEL 2 · TRIPLE = MAX</b><br>EVERY DICE WIN = +1 LEVEL')+'</div>';
 }
 function flarePayRow(rar){

@@ -91,9 +91,9 @@ function openCrash(){
   { const ct=$('crashTimer'); if(ct) ct.remove(); }
   $('crashMult').textContent='1.00×'; $('crashMult').className='';
   prerollAsc();
-  $('crashStake').innerHTML='<span class="stk" data-x="1.77">I at 1.77×: '+przLabel(1)+'</span><span class="stk" data-x="2.77">II at 2.77×: '+przLabel(2)+'</span><span class="stk" data-x="3.69">III at 3.69×: '+przLabel(3)+'</span><span class="stk" data-x="7.77">7.77× JACKPOT: PICK OF 3 WEAPONS</span>';
+  $('crashStake').innerHTML='<span class="stk" data-x="1.77">I at 1.77×: ~'+Math.round(80*1.77)+' ◈</span><span class="stk" data-x="2.77">II at 2.77×: ~'+Math.round(80*2.77)+' ◈</span><span class="stk" data-x="3.69">III at 3.69×: ~'+Math.round(80*3.69)+' ◈</span><span class="stk" data-x="7.77">7.77× JACKPOT: PICK OF 3 ASCENSIONS</span>';
   $('crashHist').innerHTML=crashHist.slice(-6).map(h=>'<span class="'+(h.ok?'ok':'no')+'">'+h.v.toFixed(2)+'×</span>').join('');
-  $('crashMsg').innerHTML='THE HOUSE ASKS NOTHING — ONLY NERVE · WIN: A <b style="color:#8bffd0">PASSIVE</b> (II AT 2.77×, III AT 3.69×) · CRASH: <b style="color:#ff6b6b">THE FALL — A RANDOM CURSE, 5-15s</b> · <span class="keyhint">SPACE</span> PUSH';
+  $('crashMsg').innerHTML='THE HOUSE ASKS NOTHING — ONLY NERVE · CASH FOR <b style="color:#ffd36b">GOLD</b> (I·II·III) OR RIDE TO <b style="color:#8bffd0">AN ASCENSION AT 7.77×</b> · CRASH: <b style="color:#ff6b6b">THE FALL — A RANDOM CURSE, 5-15s</b> · <span class="keyhint">SPACE</span> PUSH';
   $('crashLayer').classList.remove('hidden'); SFX.vaultOpen(); startDrone();
 }
 // crash-point sampler pinned to the director's reach odds:
@@ -273,7 +273,7 @@ function pushCrash(){
     if(t>=4){ $('crashMsg').innerHTML='CASH: <b style="color:#fff2c0">☆ JACKPOT — CHOOSE OF 3 WEAPONS ☆</b> · <span class="keyhint">ENTER</span>'; }
     else if(t===0){ $('crashMsg').innerHTML='CASH: <b style="color:#8a7a58">NOTHING — TIER I AT 1.77×</b> · <span class="keyhint">ENTER</span>'; }
     else { const gates=[1.77,2.77,3.69,7.77];
-      $('crashMsg').innerHTML='CASH: <b style="color:#8bffd0">'+przLabel(t)+'</b> · AT '+gates[t]+'×: '+(t<3?przLabel(t+1):'<b style="color:#fff2c0">JACKPOT</b>')+' · <span class="keyhint">ENTER</span>'; } }
+      $('crashMsg').innerHTML='CASH: <b style="color:#ffd36b">~'+Math.round(80*crash.mult)+' ◈</b> · AT '+gates[t]+'×: '+(t<3?'<b style="color:#ffd36b">MORE GOLD</b>':'<b style="color:#8bffd0">AN ASCENSION</b>')+' · <span class="keyhint">ENTER</span>'; } }
   if(crash.mult>=crash.cp){
     crash.live=false; crash.done=true;
     el.textContent=crash.cp.toFixed(2)+'× — CRASHED'; el.className='dead'; el.style.transform='';
@@ -342,10 +342,13 @@ function jackpotOffer(){
   LT.crash=(LT.crash||0)+1; bump('crash',LT.crash);
   secret('icarus','ICARUS ASCENDANT');
   const lite=GFX.lite;
-  const opts=[]; let pool=availableWeapons();
-  for(let i=0;i<3 && pool.length;i++){ const pk=weightedByRarity(pool); opts.push(pk); pool=pool.filter(w=>w!==pk); }
+  // THE PINNACLE — the 7.77x jackpot is the ONLY source of Ascensions now
+  const opts=[];
+  let pool=PASSIVES.filter(p=>p.rar==='ascend' && skillLevel(p.id)===0);
+  if(pool.length<3){ const up=PASSIVES.filter(p=>p.rar==='ascend' && skillLevel(p.id)>0 && skillLevel(p.id)<p.max && pool.indexOf(p)<0); pool=pool.concat(up); }
+  for(let i=0;i<3 && pool.length;i++){ const pk=pool[(Math.random()*pool.length)|0]; opts.push(pk); pool=pool.filter(w=>w!==pk); }
   crash.jkOpts=opts;
-  if(!opts.length){ P.coins+=500; LT.coins+=500; announce('◈ ARSENAL FULL — 500 COINS ◈',true); setTimeout(closeCrash,1600); return; }
+  if(!opts.length){ P.coins+=500; LT.coins+=500; announce('◈ ALL ASCENSIONS HELD — 500 COINS ◈',true); setTimeout(closeCrash,1600); return; }
   // PHASE A — the letters: drumroll under J·A·C·K·P·O·T slamming in one by one
   startDrumroll();
   $('crashStrobe').style.opacity=1; $('crashStrobe').style.filter='hue-rotate(40deg) saturate(2)';
@@ -362,14 +365,13 @@ function jackpotOffer(){
     mq.classList.add('up');
     crash.jk=true;
     let w9=$('jkWrap'); if(!w9){ w9=document.createElement('div'); w9.id='jkWrap'; $('crashLayer').appendChild(w9); }
-    const rc={common:'#cfc2a6',uncommon:'#8fd977',rare:'#6fb7ff',epic:'#c98bff',legendary:'#ffd36b'};
-    w9.innerHTML='<div class="jkTitle">☆ THE HOUSE OPENS THE ARMORY — CHOOSE ☆</div><div class="jkRow">'+
-      opts.map((w,i)=>{ const lv=P.wlv[w.id]||0;
+    w9.innerHTML='<div class="jkTitle">☆ THE ASCENSION AWAITS — CHOOSE ☆</div><div class="jkRow">'+
+      opts.map((w,i)=>{ const lv=skillLevel(w.id);
         return '<div class="jkCard" data-i="'+i+'"><div class="jkKey">'+(i+1)+'</div>'
-          +'<div class="jkG" style="color:'+(GLYPH_COL[w.id]||rc[w.rar])+'">'+w.g+'</div>'
+          +'<div class="jkG" style="color:'+(GLYPH_COL[w.id]||'#8bffd0')+'">'+w.g+'</div>'
           +'<div class="jkN">'+w.n+'</div>'
-          +'<div class="jkR" style="color:'+(rc[w.rar]||'#fff')+'">'+(RAR_LABEL[w.rar]||w.rar.toUpperCase())+(lv>0?' · Lv '+lv+' → '+(lv+1):' · NEW')+'</div>'
-          +'<div class="jkD">'+projFx(w,lv+1)+'</div></div>'; }).join('')+'</div>';
+          +'<div class="jkR" style="color:#8bffd0">ASCENSION'+(lv>0?' · Lv '+lv+' → '+(lv+1):' · NEW')+'</div>'
+          +'<div class="jkD">'+w.fx+'</div></div>'; }).join('')+'</div>';
     w9.classList.add('show');
     w9.querySelectorAll('.jkCard').forEach(c=>c.onclick=()=>pickJackpot(+c.dataset.i));
     $('crashMsg').innerHTML='PRESS <span class="keyhint">1</span> <span class="keyhint">2</span> <span class="keyhint">3</span> OR CLICK';
@@ -379,14 +381,14 @@ function pickJackpot(i){
   if(!crash.jk) return; const def=crash.jkOpts[i]; if(!def) return;
   crash.jk=false;
   const lite=GFX.lite;
-  grantWeaponLevels(def,1);
+  grantSkill(def,1);
   const w9=$('jkWrap'); if(w9){ const cd=w9.querySelectorAll('.jkCard')[i]; if(cd) cd.classList.add('take'); setTimeout(()=>{ w9.classList.remove('show'); w9.innerHTML=''; },600); }
   { const mq=$('jkMarq'); if(mq) mq.className=''; }
   let gd=$('ascGift');
   if(!gd){ gd=document.createElement('div'); gd.id='ascGift'; $('crashLayer').appendChild(gd); }
-  gd.innerHTML='<div class="agG" style="color:'+(GLYPH_COL[def.id]||'#ffd36b')+';text-shadow:0 0 30px currentColor">'+def.g+'</div><div class="agN">'+def.n+'</div><div class="agT">JACKPOT ARM · '+projFx(def,P.wlv[def.id])+'</div>';
+  gd.innerHTML='<div class="agG" style="color:'+(GLYPH_COL[def.id]||'#8bffd0')+';text-shadow:0 0 30px currentColor">'+def.g+'</div><div class="agN">'+def.n+'</div><div class="agT">✦ ASCENSION · '+def.fx+'</div>';
   gd.classList.remove('go'); void gd.offsetWidth; gd.classList.add('go');
-  announce('☆ JACKPOT — '+def.n+' JOINS YOUR ARSENAL ☆', true);
+  announce('☆ ASCENSION — '+def.n+' IS YOURS ☆', true);
   SFX.rarSting(4); SFX.cashout(); setTimeout(()=>SFX.seraph(),180); SFX.casinoDing();
   gatePing('#fff2c0',520); flash(0.5,'#fff2c0'); shake=Math.min(24,shake+10);
   coinRain(lite?16:40); domConfetti(lite?20:50,'crashLayer'); sparkBurstAt('crashMult','crashLayer',lite?14:26);
@@ -408,21 +410,12 @@ function cashCrash(){
     tone(220,0.3,'sawtooth',0.1,120); SFX.thud();
     LT.crash=(LT.crash||0)+1; bump('crash',LT.crash);
     setTimeout(closeCrash, 1400); return; }
-  let pd=crash.prz&&crash.prz[t];
-  if(pd){ pd.ap(); addPassiveHUD(pd); renderRelics();
-    ascWinSlam('✦ '+pd.n+' ✦','TIER '+['','I','II','III'][t]+' — '+pd.fx,'#8bffd0'); }
-  else { const g=Math.round(60*crash.mult); P.coins+=g; LT.coins+=g; coinRain(20);
-    ascWinSlam('+'+g+' COINS','ALL PASSIVES HELD — THE HOUSE PAYS GOLD','#ffd36b');
-    announce('◈ ALL HELD — +'+g+' COINS ◈',true); }
-  if(pd){
-    let gd=$('ascGift');
-    if(!gd){ gd=document.createElement('div'); gd.id='ascGift'; $('crashLayer').appendChild(gd); }
-    gd.innerHTML='<div class="agG">'+pd.g+'</div><div class="agN">'+pd.n+'</div><div class="agT">'+pd.fx+' · TIER '+['','I','II','III'][t]+'</div>';
-    gd.classList.remove('go'); void gd.offsetWidth; gd.classList.add('go');
-    setTimeout(()=>{ announce('✦ PASSIVE CLAIMED — '+pd.n+' ✦', true); if(t>=3){ SFX.seraph(); flash(0.5,'#fff2c0'); } },450);
-  }
-  $('crashMsg').textContent='ASCENDED AT '+crash.mult.toFixed(2)+'×';
-  if(crash.mult>=3.69) bigWin('×'+crash.mult.toFixed(1)+' ASCENT',3);
+  // lower rungs (I/II/III) pay escalating GOLD now — the Ascension lives only at 7.77x
+  { const g=Math.round(80*crash.mult); P.coins+=g; LT.coins+=g; coinRain(20);
+    ascWinSlam('+'+g+' COINS','TIER '+['','I','II','III'][t]+' — THE HOUSE PAYS GOLD','#ffd36b');
+    announce('◈ CASHED AT '+crash.mult.toFixed(2)+'× — +'+g+' COINS ◈',true); }
+  $('crashMsg').textContent='CASHED AT '+crash.mult.toFixed(2)+'×';
+  if(crash.mult>=3.69) bigWin('×'+crash.mult.toFixed(1)+' — BIG GOLD',3);
   LT.crash=(LT.crash||0)+1; bump('crash',LT.crash);
   if(crash.mult>=7.77) secret('icarus','ICARUS ASCENDANT');
   setTimeout(closeCrash, 2100);
