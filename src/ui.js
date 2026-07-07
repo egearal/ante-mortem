@@ -139,7 +139,7 @@ window.addEventListener('keydown',e=>{ if(e.key.toLowerCase()==='f' && !e.repeat
   try{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }catch(x){} } });
 // right-click stays native in menus, silent in the pit
 window.addEventListener('contextmenu',e=>{ if(state==='playing'||state==='slot'||state==='wheel'||state==='dead') e.preventDefault(); });
-$('mute').addEventListener('click',()=>{ muted=!muted; GFX.muted=muted; try{ saveGfx(); }catch(e){} try{ setMasterVol(true); }catch(e){} $('mute').textContent=muted?'♩':'♪'; $('mute').style.color=muted?'#5a4a3a':''; }); let tabHold=false;
+$('mute').addEventListener('click',()=>{ muted=!muted; GFX.muted=muted; try{ saveGfx(); }catch(e){} try{ setMasterVol(true); }catch(e){} try{ if(!muted&&state==='playing') startAmbience(); else if(muted) stopAmbience(); }catch(e){} $('mute').textContent=muted?'♩':'♪'; $('mute').style.color=muted?'#5a4a3a':''; }); let tabHold=false;
 function showTab(){
   let tp=$('tabPanel');
   if(!tp){ tp=document.createElement('div'); tp.id='tabPanel'; document.body.appendChild(tp); }
@@ -485,7 +485,7 @@ window.addEventListener('keydown',e=>{
     else if(wheel.phase==='roll') brakeTicker();
     else if(wheel.phase==='freespin'){ SFX.leverWind(); SFX.tingle(); respinTicker(); }
     else if(wheel.done) finishWheel();
-    else launchWheel(); } return; }
+    else if(wheel.phase!=='goldhold') launchWheel(); } return; }
   if(state==='slot'){
     if(k===' '){
       if(e.repeat) return;

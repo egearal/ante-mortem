@@ -258,7 +258,7 @@ function finishWheel(){
 }
 function landWheel(seg){
   const sg=WSEGS[seg];
-  if(sg.cs==='gold' && !wheel._froze){ wheel._froze=true; stopDrumroll(); // CONTRABAND holds its breath for a beat
+  if(sg.cs==='gold' && !wheel._froze){ wheel._froze=true; wheel.phase='goldhold'; stopDrumroll(); // CONTRABAND holds its breath — and owns the keys while it does
     const bx9=$('tickerBox'); if(bx9){ bx9.classList.add('goldHold'); setTimeout(()=>bx9.classList.remove('goldHold'),340); }
     setTimeout(()=>landWheel(seg), 340); return; }
   stopDrumroll();

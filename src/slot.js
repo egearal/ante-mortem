@@ -101,6 +101,7 @@ function openNextSlot(){
 }
 function enterRedTable(){
   redForgiven=false;
+  if(!P.passiveList||!P.passiveList.length){ redStake=null; return; } // nothing to stake — the house deals plain
   const en=P.passiveList[(Math.random()*P.passiveList.length)|0];
   redStake={id:en.id, n:en.n, g:en.g};
   let sc=$('sacCard');
@@ -815,6 +816,7 @@ function projFx(def, level){ const f=PROJ_FX[def.id]; const lv=Math.max(1, Math.
 const MAXROLL=4;
 function shinyWord(){ return SHINY[(Math.random()*SHINY.length)|0]; }
 function closeSlot(){
+  window._slotFF=null;
   clearInterval(window._antiHb); $('machine').classList.remove('deadly','tripleHold');
   endSeance();
   stopDrone();

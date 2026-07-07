@@ -85,8 +85,9 @@ function startFlicker(mk){
         +'<div class="fpHint" style="color:'+(win?'#8bff9a':'#ff5560')+'">'+(win?'THE HOUSE GRANTS A MARKER':'THE HOUSE COLLECTS')+'</div>';
       t.textContent=roll.toFixed(3);
       t.style.color=win?'#8bff9a':'#ff5560';
+      const seq9=window._runSeq;
       if(win){ SFX.dingBells(); SFX.cashout(); coinRain(24); flash(0.5,'#8bff9a'); sparkBurstAt('jackpotText','jackpotLayer',36); domConfetti(24,'jackpotLayer');
-        setTimeout(()=>{ l.classList.add('hidden'); t.style.color=''; $('jackpotSub').classList.add('hidden'); { const fr9=$('fpRing'); if(fr9) fr9.style.display='none'; }
+        setTimeout(()=>{ if(state!=='marker'||window._runSeq!==seq9) return; l.classList.add('hidden'); t.style.color=''; $('jackpotSub').classList.add('hidden'); { const fr9=$('fpRing'); if(fr9) fr9.style.display='none'; }
           LT.markerWins=(LT.markerWins||0)+1; if(LT.markerWins>=2) secret('debtor','DEATH\'S DEBTOR');
           P.hp=Math.max(P.hp,P.maxHp*0.5); P.inv=2.5; state='playing';
           ring(P.x,P.y,260,'#8bff9a'); ring(P.x,P.y,170,'#ffd36b'); shake=Math.min(20,shake+10);
@@ -94,7 +95,7 @@ function startFlicker(mk){
           showStreak('✦ ONE MORE HAND ✦');
         },1500);
       } else { SFX.bust(); flash(0.55,'#8b1620');
-        setTimeout(()=>{ l.classList.add('hidden'); t.style.color=''; $('jackpotSub').classList.add('hidden'); { const fr9=$('fpRing'); if(fr9) fr9.style.display='none'; } actuallyDie(); },1500); }
+        setTimeout(()=>{ if(state!=='marker'||window._runSeq!==seq9) return; l.classList.add('hidden'); t.style.color=''; $('jackpotSub').classList.add('hidden'); { const fr9=$('fpRing'); if(fr9) fr9.style.display='none'; } actuallyDie(); },1500); }
     }
   };
   setTimeout(step, 420);
