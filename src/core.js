@@ -1617,6 +1617,7 @@ function render(){
     for(const e of enemies) e._lod = e._d2>cut && !e.boss && !e.elite;
   } else for(const e of enemies) e._lod=false; }
   PROF.mark('enemies');
+  window._dense=enemies.length>90; // in a storm, tertiary flourishes yield
   for(const e of enemies){
     if(!e.boss && (e.x<camX-100||e.x>camX+VW+100||e.y<camY-100||e.y>camY+VH+100)) continue; // offscreen court stays unpainted
     drawEnemy(e);
@@ -1946,14 +1947,60 @@ function render(){
   }
   ctx.restore();
 }
+// C3 — the far court gets SHAPE: silhouettes baked per (type|palette), one drawImage each.
+// Blur is legal here — it runs once at bake, never per frame.
+const _silC=new Map();
+function silSprite(T,dark,col){
+  const key=T+'|'+dark+'|'+col;
+  let cv=_silC.get(key);
+  if(!cv){
+    if(_silC.size>96){ let n=0; for(const k of _silC.keys()){ _silC.delete(k); if(++n>=24) break; } }
+    const R=20, S=64; cv=document.createElement('canvas'); cv.width=S; cv.height=S;
+    const g=cv.getContext('2d'); g.translate(S/2,S/2);
+    g.fillStyle=dark; g.beginPath();
+    if(T==='swarm'){ // winged blot
+      g.ellipse(0,0,R*0.45,R*0.55,0,0,6.28);
+      g.moveTo(-R*0.3,-R*0.1); g.quadraticCurveTo(-R*1.05,-R*0.55,-R*1.15,R*0.1); g.quadraticCurveTo(-R*0.7,R*0.05,-R*0.3,R*0.25);
+      g.moveTo(R*0.3,-R*0.1); g.quadraticCurveTo(R*1.05,-R*0.55,R*1.15,R*0.1); g.quadraticCurveTo(R*0.7,R*0.05,R*0.3,R*0.25);
+    } else if(T==='stalker'){ // legged spread
+      g.ellipse(0,0,R*0.85,R*0.5,0,0,6.28); g.fill(); g.beginPath();
+      g.strokeStyle=dark; g.lineWidth=2.6; g.lineCap='round';
+      for(const a of [-2.5,-2.0,-1.1,-0.6, 0.6,1.1,2.0,2.5]){ g.moveTo(Math.cos(a)*R*0.5,Math.sin(a)*R*0.3); g.lineTo(Math.cos(a)*R*1.25,Math.sin(a)*R*0.75+R*0.15); }
+      g.stroke(); g.beginPath();
+    } else if(T==='wraith'||T==='hexer'){ // hooded taper, floating
+      g.moveTo(0,-R*0.95); g.quadraticCurveTo(R*0.72,-R*0.2,R*0.5,R*0.7); g.quadraticCurveTo(0,R*0.45,-R*0.5,R*0.7); g.quadraticCurveTo(-R*0.72,-R*0.2,0,-R*0.95);
+    } else if(T==='brute'){ // mass
+      g.ellipse(0,R*0.08,R*0.95,R*0.85,0,0,6.28);
+    } else if(T==='revenant'){ // pauldroned block
+      g.ellipse(0,0,R*0.62,R*0.82,0,0,6.28); g.moveTo(-R*0.95,-R*0.25); g.arc(-R*0.62,-R*0.25,R*0.33,0,6.28); g.moveTo(R*0.95,-R*0.25); g.arc(R*0.62,-R*0.25,R*0.33,0,6.28);
+    } else if(T==='leech'){ // low crawler
+      g.ellipse(0,R*0.2,R*1.0,R*0.45,0,0,6.28);
+    } else if(T==='shooter'||T==='husk'){ // archer + bow crescent
+      g.ellipse(0,0,R*0.6,R*0.85,0,0,6.28); g.fill(); g.beginPath();
+      g.strokeStyle=dark; g.lineWidth=2.2; g.arc(R*0.55,0,R*0.75,-1.15,1.15); g.stroke(); g.beginPath();
+    } else { // shambler and kin
+      g.ellipse(0,0,R*0.8,R*0.9,0,0,6.28);
+    }
+    g.fill();
+    // rim light — the chandeliers catch every shoulder in the crowd
+    g.strokeStyle='rgba(200,215,240,0.22)'; g.lineWidth=1.6;
+    g.beginPath(); g.arc(0,0,R*0.78,-2.6,-0.9); g.stroke();
+    // eyes with a pre-blurred glow (bake-time blur only)
+    g.shadowColor=col; g.shadowBlur=5; g.fillStyle=col;
+    g.beginPath(); g.arc(-R*0.22,-R*0.18,R*0.12,0,6.28); g.arc(R*0.22,-R*0.18,R*0.12,0,6.28); g.fill();
+    _silC.set(key,cv);
+  }
+  return cv;
+}
 function drawEnemy(e){
   const t=gt*4+e.ph, T=e.vt||e.type, r=e.r;
-  if(e._lod){ // cheap distant silhouette: shadow, flat body, glowing eyes
+  if(e._lod){ // distant court: one baked, shaped, rim-lit sprite
     ctx.save(); ctx.translate(e.x,e.y);
     ctx.fillStyle='rgba(0,0,0,0.32)'; ctx.beginPath(); ctx.ellipse(0,r*0.72,r*0.78,r*0.26,0,0,6.28); ctx.fill();
     if(e.flash>0){ const sq=Math.min(0.16,e.flash*1.4); ctx.scale(1+sq,1-sq); }
-    ctx.fillStyle=e.flash>0?'#fff':e.dark; ctx.beginPath(); ctx.ellipse(0,0,r*0.8,r*0.9,0,0,6.28); ctx.fill();
-    ctx.fillStyle=e.col; ctx.beginPath(); ctx.arc(-r*0.22,-r*0.18,r*0.11,0,6.28); ctx.arc(r*0.22,-r*0.18,r*0.11,0,6.28); ctx.fill();
+    const sp=silSprite(T,e.dark,e.col); const dw=r*3.2;
+    ctx.drawImage(sp,-dw/2,-dw/2,dw,dw);
+    if(e.flash>0){ ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=Math.min(0.85,e.flash*3.5); ctx.drawImage(sp,-dw/2,-dw/2,dw,dw); }
     ctx.restore(); return;
   }
   ctx.save(); ctx.translate(e.x,e.y);
@@ -1993,9 +2040,9 @@ function drawEnemy(e){
       ctx.quadraticCurveTo(sd*r*0.9,-r*0.75+wy, wx, wy+r*0.15);
       ctx.quadraticCurveTo(sd*r*1.1, r*0.25+wy*0.4, sd*r*0.75, r*0.28);
       ctx.quadraticCurveTo(sd*r*0.45, r*0.05, sd*r*0.2, r*0.22); ctx.closePath(); ctx.fill();
-      ctx.strokeStyle='rgba(20,10,14,0.8)'; ctx.lineWidth=1;
+      if(!window._dense){ ctx.strokeStyle='rgba(20,10,14,0.8)'; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(sd*r*0.25,0); ctx.quadraticCurveTo(sd*r*0.85,wy*0.6-r*0.2, wx*0.92, wy+r*0.12); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(sd*r*0.25,r*0.1); ctx.quadraticCurveTo(sd*r*0.8,wy*0.3, sd*r*1.05, wy*0.5+r*0.25); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(sd*r*0.25,r*0.1); ctx.quadraticCurveTo(sd*r*0.8,wy*0.3, sd*r*1.05, wy*0.5+r*0.25); ctx.stroke(); }
     }
     const tw=Math.sin(gt*9+e.ph);
     ctx.strokeStyle=e.dark; ctx.lineWidth=1.6; ctx.lineCap='round';
@@ -2027,8 +2074,8 @@ function drawEnemy(e){
     for(const [ex,ey,er] of [[0.44,-0.3,0.085],[0.6,-0.24,0.07],[0.42,-0.12,0.06],[0.56,-0.1,0.05]]){
       ctx.beginPath(); ctx.arc(sway*0.5+r*ex,r*ey,r*er,0,6.28); ctx.fill(); }
     ctx.shadowBlur=0;
-    const dr2=(gt*1.3+e.ph)%1;
-    ctx.fillStyle='rgba(200,230,200,0.5)'; ctx.beginPath(); ctx.arc(sway*0.5+r*0.5, -r*0.02+dr2*r*0.5, 1.4*(1-dr2),0,6.28); ctx.fill();
+    if(!window._dense){ const dr2=(gt*1.3+e.ph)%1;
+    ctx.fillStyle='rgba(200,230,200,0.5)'; ctx.beginPath(); ctx.arc(sway*0.5+r*0.5, -r*0.02+dr2*r*0.5, 1.4*(1-dr2),0,6.28); ctx.fill(); }
   } else if(T==='wraith'){
     // BANSHEE — layered spectral shroud, faint skull, reaching claws
     const hov=Math.sin(t*0.8)*r*0.12;
