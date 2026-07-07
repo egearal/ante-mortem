@@ -1,23 +1,25 @@
 "use strict";
 // cached radial-glow sprites — createRadialGradient per frame per entity is the
 // main canvas cost; draw these with ctx.globalAlpha for per-entity fade
-const _glowCache={};
+const _glowCache={}; let _glowN=0;
 function glowSprite(c0,c1,r){
   const rb=Math.max(8,Math.ceil(r/8)*8), key=c0+'|'+c1+'|'+rb;
   let cv2=_glowCache[key];
   if(!cv2){ cv2=document.createElement('canvas'); cv2.width=cv2.height=rb*2;
     const g2=cv2.getContext('2d'); const gr2=g2.createRadialGradient(rb,rb,0,rb,rb,rb);
     gr2.addColorStop(0,c0); gr2.addColorStop(1,c1); g2.fillStyle=gr2; g2.fillRect(0,0,rb*2,rb*2);
+    if(++_glowN>240){ for(const k9 in _glowCache) delete _glowCache[k9]; _glowN=1; } // the shelf is finite
     _glowCache[key]=cv2; }
   return cv2;
 }
 // cached vertical linear gradients for enemy body parts (local coords after
 // ctx.translate) — keyed by half-height bucket + colors
-const _lgCache={};
+const _lgCache={}; let _lgN=0;
+function _lgCap(){ if(++_lgN>400){ for(const k9 in _lgCache) delete _lgCache[k9]; _lgN=1; } }
 function lgrad(ry,c1,c2,mp,mc){
   const rb=Math.max(0.5,Math.round(ry*2)/2), key=rb+'|'+c1+'|'+c2+(mp?'|'+mp+'|'+mc:'');
   let g=_lgCache[key];
-  if(!g){ g=ctx.createLinearGradient(0,-rb,0,rb); g.addColorStop(0,c1); if(mp) g.addColorStop(mp,mc); g.addColorStop(1,c2); _lgCache[key]=g; }
+  if(!g){ g=ctx.createLinearGradient(0,-rb,0,rb); g.addColorStop(0,c1); if(mp) g.addColorStop(mp,mc); g.addColorStop(1,c2); _lgCap(); _lgCache[key]=g; }
   return g;
 }
 function buildGrain(){

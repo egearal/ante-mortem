@@ -600,6 +600,9 @@ function update(dt){
   tickDebuffs(dt); tickSmites(dt); tickFever(dt); tickTarot(dt); tickMapProps(dt); tickWheelTok(dt); tickCrashTok(dt); tickVaultDoor();
   if(parts.length>GFX.pcap) parts.splice(0,parts.length-GFX.pcap);
   if(coins.length>240) coins.splice(0,coins.length-240);
+  if(texts.length>140) texts.splice(0,texts.length-140);
+  if(rings.length>90) rings.splice(0,rings.length-90);
+  if(sparks.length>320) sparks.splice(0,sparks.length-320);
   if(P.ovT>0){ P.ovAge+=dt;
     P.ovT-=dt*(3.3+P.ovAge*0.35);
     P._ovHb=(P._ovHb||0)-dt; if(P._ovHb<=0){ P._ovHb=Math.max(0.16,(11-P.ovHold)/40); tone(56,0.1,'sine',0.13,44); }
@@ -935,7 +938,7 @@ function drawWallsAndCarpet(){
       const swb=Math.sin(gt*1.1+bi*1.7+wy2)*3, dn=wy2<A/2?1:-1;
       { const bk='bnr'+bx2+'|'+wy2+'|'+dn; let bg2=_lgCache[bk];
         if(!bg2){ bg2=ctx.createLinearGradient(bx2,wy2,bx2,wy2+dn*86);
-          bg2.addColorStop(0,'#6e0f18'); bg2.addColorStop(1,'#2a050a'); _lgCache[bk]=bg2; }
+          bg2.addColorStop(0,'#6e0f18'); bg2.addColorStop(1,'#2a050a'); _lgCap(); _lgCache[bk]=bg2; }
         ctx.fillStyle=bg2; }
       ctx.beginPath();
       ctx.moveTo(bx2-20,wy2); ctx.lineTo(bx2+20,wy2);
@@ -2575,7 +2578,7 @@ function loop(now){
 // freezes at 0:00 there; at 60Hz it also runs SMOOTH, not the 20fps of a slower
 // interval. On a healthy focused tab rAF wins every tick and the dedup guard makes
 // this a no-op, so it never costs a real tab anything.
-setInterval(()=>tick(performance.now()), 15);
+{ let _prk=0; setInterval(()=>{ if(document.hidden&&window._autoPaused){ if((++_prk)%16) return; } tick(performance.now()); }, 15); }
 function frame(now){
   try{
   const dt=Math.min(Math.max((now-last)/1000,0),0.05); last=now;
