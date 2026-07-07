@@ -1322,12 +1322,33 @@ function bulletGrad(kind,r){
   else { g=ctx.createLinearGradient(0,0,-r*4,0); g.addColorStop(0,'rgba(201,139,255,0.85)'); g.addColorStop(0.5,'rgba(140,70,220,0.4)'); g.addColorStop(1,'rgba(90,30,160,0)'); }
   return _bgCache[k]=g;
 }
+// C1 — THE LEDGER OF FRAMES: per-stage profiler. Dark unless ?prof (or __prof.on=true).
+const PROF={ on:/[?&#]prof/.test(location.search+location.hash), t0:0, tS:0, cur:null, frames:0,
+  stages:{}, ring:new Float32Array(600), ri:0, rn:0, spikes25:0, spikes40:0, spikeStage:{}, _worst:0, _worstN:'',
+  frameStart(){ if(!this.on) return; this.t0=performance.now(); this.tS=this.t0; this.cur=null; this._worst=0; this._worstN=''; },
+  mark(n){ if(!this.on) return; const t=performance.now();
+    if(this.cur){ const d=t-this.tS; this.stages[this.cur]=(this.stages[this.cur]||0)+d; if(d>this._worst){ this._worst=d; this._worstN=this.cur; } }
+    this.cur=n; this.tS=t; },
+  frameEnd(){ if(!this.on) return; this.mark(null); const total=performance.now()-this.t0;
+    this.ring[this.ri]=total; this.ri=(this.ri+1)%600; if(this.rn<600) this.rn++;
+    if(total>25){ this.spikes25++; this.spikeStage[this._worstN]=(this.spikeStage[this._worstN]||0)+1; }
+    if(total>40) this.spikes40++;
+    this.frames++; },
+  report(){ const n=this.rn||1; const arr=Array.prototype.slice.call(this.ring,0,this.rn).sort((a,b)=>a-b);
+    let sum=0; for(let i=0;i<arr.length;i++) sum+=arr[i];
+    const st={}; const f=this.frames||1; for(const k in this.stages) st[k]=+(this.stages[k]/f).toFixed(3);
+    return {frames:this.frames, avgMs:+(sum/n).toFixed(2), p95Ms:+((arr[Math.min(n-1,Math.floor(n*0.95))]||0)).toFixed(2),
+      spikes25:this.spikes25, spikes40:this.spikes40, spikeStage:this.spikeStage, stages:st}; },
+  reset(){ this.stages={}; this.ri=0; this.rn=0; this.spikes25=0; this.spikes40=0; this.spikeStage={}; this.frames=0; }
+};
+window.__prof=PROF;
 function render(){
   ctx.save();
   let sx=0,sy=0; if(shake>0){ const sh=shake*0.6; sx=rnd(-sh,sh); sy=rnd(-sh,sh); }
   const cf = 0.9+Math.sin(gt*3)*0.03+Math.sin(gt*7.3)*0.02; // candle flicker
   ctx.fillStyle='#0a0507'; ctx.fillRect(0,0,VW,VH);
   ctx.save(); ctx.translate(-camX+sx,-camY+sy);
+  PROF.mark('floor');
 
   // gothic marble hall floor — tiles baked once per variant, blitted per frame
   const cs=200;
@@ -1373,6 +1394,7 @@ function render(){
   // grand sigil + arena border + arch band
   drawWallsAndCarpet();
   drawSigil(CFG.arena/2,CFG.arena/2);
+  PROF.mark('decals');
   // battlefield gore — blood pools accumulate where the damned fall, then dry
   for(let i=decals.length-1;i>=0;i--){ const dc=decals[i]; dc.t+=1/60;
     if(dc.t>=dc.max){ decals.splice(i,1); continue; }
@@ -1385,6 +1407,7 @@ function render(){
     ctx.beginPath(); ctx.ellipse(-dc.r*0.7,-dc.r*0.35,dc.r*0.3,dc.r*0.2,0,0,6.28); ctx.fill();
     ctx.restore(); }
   ctx.globalAlpha=1;
+  PROF.mark('env');
   // stained-glass window light pools — colored light on the marble
   ctx.save(); ctx.globalCompositeOperation='lighter';
   for(const gp of glassPools){
@@ -1485,6 +1508,7 @@ function render(){
     ctx.drawImage(glowSprite('rgba(232,150,60,0.09)','rgba(232,150,60,0)',190), px-rr, py-rr, rr*2, rr*2); ctx.globalAlpha=1; }
   ctx.restore();
 
+  PROF.mark('ground');
   // shockwave rings
   ctx.save(); ctx.globalCompositeOperation='lighter';
   for(const r of rings){ const a=clamp(r.life*2,0,1);
@@ -1588,11 +1612,13 @@ function render(){
     const cut=ds[LODN-1];
     for(const e of enemies) e._lod = e._d2>cut && !e.boss && !e.elite;
   } else for(const e of enemies) e._lod=false; }
+  PROF.mark('enemies');
   for(const e of enemies){
     if(!e.boss && (e.x<camX-100||e.x>camX+VW+100||e.y<camY-100||e.y>camY+VH+100)) continue; // offscreen court stays unpainted
     drawEnemy(e);
   }
 
+  PROF.mark('bullets');
   // chain lightning — jagged bolts, white core + halo
   ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.lineCap='round';
   for(const s of sparks){
@@ -1708,6 +1734,7 @@ function render(){
   }
   ctx.shadowBlur=0;
 
+  PROF.mark('actors');
   // scythe — crescent blade w/ fading sweep trail + glinting edge
   if(P.wlv.scythe){ const sL=P.wlv.scythe, sR=80+sL*8; ctx.save(); ctx.translate(P.x,P.y); ctx.rotate(P.scytheA);
     ctx.globalCompositeOperation='lighter';
@@ -1742,6 +1769,7 @@ function render(){
   ctx.globalAlpha=1;
   ctx.restore();
 
+  PROF.mark('post');
   // light shafts (screen space, prebaked sprite ×3) — now honors the LIGHT SHAFTS toggle
   if(GFX.shafts && !GFX.lite && vignB){
     ctx.save(); ctx.globalCompositeOperation='screen';
@@ -1811,6 +1839,7 @@ function render(){
     gg3.addColorStop(0,'rgba(60,220,110,'+gp3*0.4+')'); gg3.addColorStop(1,'rgba(40,200,90,'+gp3+')');
     ctx.fillStyle=gg3; ctx.fillRect(0,0,VW,VH); ctx.restore();
   }
+  PROF.mark('hud');
   // FEVER overlay — golden rush
   if(feverOn){
     // the wash is gone — fever is the WRITING, the arena stays true
@@ -1879,8 +1908,13 @@ function render(){
     }
     ctx.restore();
   }
-  if(GFX.fps){ ctx.font="700 11px 'Cinzel',serif"; ctx.textAlign='right'; ctx.fillStyle='#bfae8c';
-    ctx.globalAlpha=0.85; ctx.fillText(Math.round(1000/Math.max(1,frameAvg))+' FPS', VW-12, 64); ctx.globalAlpha=1; }
+  if(GFX.fps||PROF.on){ ctx.font="700 11px 'Cinzel',serif"; ctx.textAlign='right'; ctx.fillStyle='#bfae8c';
+    ctx.globalAlpha=0.85; ctx.fillText(Math.round(1000/Math.max(1,frameAvg))+' FPS', VW-12, 64);
+    if(PROF.on){ if(PROF.frames-(PROF._ovF||0)>=30){ PROF._ovF=PROF.frames; const r=PROF.report();
+        let wk='',wv=0; for(const k in r.stages) if(r.stages[k]>wv){ wv=r.stages[k]; wk=k; }
+        PROF._ovS=r.avgMs+'ms · p95 '+r.p95Ms+' · spikes '+r.spikes25+'/'+r.spikes40+' · '+wk+' '+wv.toFixed(1); }
+      if(PROF._ovS) ctx.fillText(PROF._ovS, VW-12, 78); }
+    ctx.globalAlpha=1; }
   // house dare counter
   if(state==='playing' && dare){
     ctx.font="800 15px 'Cinzel',serif"; ctx.textAlign='center';
@@ -2596,7 +2630,7 @@ function frame(now){
   else if(state==='wheel'){ tickWheel(dt); }
   else if(state==='crash'){ tickCrash(dt); }
   else if(state==='slot'){ tickSlot(dt); }
-  if(P) render();
+  if(P){ PROF.frameStart(); render(); PROF.frameEnd(); }
   }catch(_e){ if(!window._amErr){ window._amErr=1; console.error('[ANTE MORTEM]',_e); } }
 }
 function startGame(){
