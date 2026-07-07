@@ -81,7 +81,10 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
     $('quitBtn').addEventListener('click',()=>quitToMenu());
     $('resumeBtn').addEventListener('click',()=>{ if(state==='paused'){ state='playing'; document.body.classList.remove('paused'); $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); } });
   } }
+function fadeCut(){ let v=document.getElementById('fadeVeil'); if(!v){ v=document.createElement('div'); v.id='fadeVeil'; document.body.appendChild(v); }
+  v.classList.remove('go'); void v.offsetWidth; v.classList.add('go'); }
 function quitToMenu(){
+  try{ fadeCut(); }catch(e){}
   document.body.classList.remove('floor-cellar','floor-chapel','bloodhour','paused');
   const hp=$('howPanel'), pl=$('pauseLayer');
   if(hp) hp.classList.add('hidden'); if(pl) pl.classList.add('hidden');
@@ -233,13 +236,24 @@ function buildGfxPanel(){
 }
 function openGfx(){ buildGfxPanel(); $('gfxPanel').classList.remove('hidden'); SFX.vaultOpen(); }
 let annT=null;
+// announces never overlap — rapid calls stack into a short queue, each gets its moment
+let _annQ=[], _annBusy=false;
 function announce(txt, good){
-  const a=$('announce'); if(!a) return;
-  a.textContent=txt; a.className='ann '+(good?'good':'bad');
-  a.style.animation='none'; void a.offsetWidth; a.style.animation='';
-  a.classList.remove('hidden');
-  tone(good?1760:520,0.07,'sine',0.06);
-  clearTimeout(annT); annT=setTimeout(()=>a.classList.add('hidden'), 2700);
+  _annQ.push([txt,good]); if(_annQ.length>4) _annQ.splice(0,_annQ.length-4);
+  _annPump();
+}
+function _annPump(){
+  if(_annBusy || !_annQ.length) return;
+  const [txt,good]=_annQ.shift(); _annBusy=true;
+  const a=$('announce');
+  if(a){
+    a.textContent=txt; a.className='ann '+(good?'good':'bad');
+    a.style.animation='none'; void a.offsetWidth; a.style.animation='';
+    a.classList.remove('hidden');
+    tone(good?1760:520,0.07,'sine',0.06);
+    clearTimeout(annT); annT=setTimeout(()=>a.classList.add('hidden'), 2700);
+  }
+  setTimeout(()=>{ _annBusy=false; _annPump(); }, _annQ.length?700:120);
 }
 function showStreak(t){ elStreak.textContent=t; elStreak.style.opacity=1; elStreak.style.transition='none'; requestAnimationFrame(()=>{ elStreak.style.transition='opacity .8s'; setTimeout(()=>elStreak.style.opacity=0,500); }); }
 

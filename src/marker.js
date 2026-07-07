@@ -240,7 +240,7 @@ function openBooks(){
     const a=REC10[k]||[];
     return '<div class="bkCol"><div class="bkH">'+names[k]+'</div>'
       +(a.length? a.map((e,i)=>'<div class="bkRow'+(i===0?' top':'')+((tn[k]!==undefined&&e.v===tn[k])?' tonight':'')+'"><b>#'+(i+1)+'</b><i>'+fv(k,e.v)+'</i><span>'+e.d+'</span></div>').join('')
-                : '<div class="bkRow none">no nights recorded</div>')
+                : '<div class="bkRow none">the ink waits — play a night</div>')
       +'</div>';
   }).join('');
   p.classList.remove('hidden'); SFX.uiDing();
