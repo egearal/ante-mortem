@@ -109,6 +109,24 @@ function pressPulse(el){
   if(!el) return;
   el.classList.remove('sp-pop'); void el.offsetWidth; el.classList.add('sp-pop');
 }
+// glyphs fly from where the money was made INTO the counter that holds it
+function flyGlyphs(fromId,toId,glyph,n,col){
+  try{
+    const a=document.getElementById(fromId), b=document.getElementById(toId); if(!a||!b) return;
+    const ra=a.getBoundingClientRect(), rb=b.getBoundingClientRect();
+    if(!ra.width&&!ra.height) return;
+    const x1=rb.left+rb.width/2, y1=rb.top+rb.height/2;
+    for(let i=0;i<n;i++){
+      const s=document.createElement('span'); s.className='flyG'; s.textContent=glyph;
+      s.style.color=col||'#ffd36b';
+      const x0=ra.left+ra.width/2+(Math.random()-0.5)*70, y0=ra.top+ra.height/2+(Math.random()-0.5)*36;
+      s.style.left=x0+'px'; s.style.top=y0+'px';
+      document.body.appendChild(s);
+      setTimeout(()=>{ s.style.transform='translate('+(x1-x0)+'px,'+(y1-y0)+'px) scale(0.45)'; s.style.opacity='0'; }, 30+i*50);
+      setTimeout(()=>{ s.remove(); if(i===n-1){ b.classList.remove('gulp'); void b.offsetWidth; b.classList.add('gulp'); try{ SFX.coinPling(); }catch(e){} } }, 720+i*50);
+    }
+  }catch(e){}
+}
 function bigWin(label,tier){
   if(typeof duckDrone==='function') duckDrone(1400);
   const l=$('jackpotLayer'), t=$('jackpotText'); t.textContent=label; t.className='jackpotText t'+tier;
@@ -116,6 +134,8 @@ function bigWin(label,tier){
   SFX.bigWin(tier); SFX.dingBells(); setTimeout(()=>SFX.dingBells(),240); setTimeout(()=>SFX.dingBells(),520); SFX.cashout(); setTimeout(()=>SFX.cashout(),400);
   coinRain(38+tier*24); excite=1; shake=Math.min(28,shake+18);
   sparkBurst(50+tier*10);
+  if(tier>=4){ let cv=document.getElementById('chromaV'); if(!cv){ cv=document.createElement('div'); cv.id='chromaV'; document.body.appendChild(cv); }
+    cv.classList.remove('flick'); void cv.offsetWidth; cv.classList.add('flick'); } // 238: the world splits at the edges, once
   const cols=['#ffd36b','#8bff9a','#6db4ff','#c98bff','#fff2c0','#ff8a5a'];
   cols.forEach((c,i)=>setTimeout(()=>{ flash(0.42,c); sparkBurst(26); SFX.casinoDing(); },i*90));
   setTimeout(()=>l.classList.add('hidden'), 1600+tier*240);

@@ -267,6 +267,9 @@ function pushCrash(){
       else fr.classList.remove('on','ignite'); } }
   el.textContent=crash.mult.toFixed(2)+'×';
   el.className=crash.mult>=2?'hot':'';
+  el.style.fontWeight=crash.mult>=5?'900':crash.mult>=2.5?'800':'700'; el.style.letterSpacing=crash.mult>=5?'-1px':'0'; // the number gains weight
+  { let eg=document.getElementById('ascEdge'); if(!eg){ eg=document.createElement('div'); eg.id='ascEdge'; $('crashLayer').appendChild(eg); }
+    eg.classList.toggle('on', !!crash.live && crash.mult>=5); } // past 5x the room itself glows mint
   el.style.transform='scale('+(1+Math.min(0.5,0.1+inc*2.2))+')';
   setTimeout(()=>{ if(crash.live) el.style.transform='scale(1.05)'; },80);
   $('crashRocket').style.bottom=Math.min(104, Math.log(crash.mult)*46)+'px';
@@ -414,7 +417,8 @@ function cashCrash(){
   // lower rungs (I/II/III) pay escalating GOLD now — the Ascension lives only at 7.77x
   { const g=Math.round(80*crash.mult); P.coins+=g; LT.coins+=g; coinRain(20);
     ascWinSlam('+'+g+' COINS','TIER '+['','I','II','III'][t]+' — THE HOUSE PAYS GOLD','#ffd36b');
-    announce('◈ CASHED AT '+crash.mult.toFixed(2)+'× — +'+g+' COINS ◈',true); }
+    announce('◈ CASHED AT '+crash.mult.toFixed(2)+'× — +'+g+' COINS ◈',true);
+    try{ flyGlyphs('crashMult','coinCount','◈',8,'#ffd36b'); }catch(e){} }
   $('crashMsg').textContent='CASHED AT '+crash.mult.toFixed(2)+'×';
   if(crash.mult>=3.69) bigWin('×'+crash.mult.toFixed(1)+' — BIG GOLD',3);
   LT.crash=(LT.crash||0)+1; bump('crash',LT.crash);

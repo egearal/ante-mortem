@@ -95,7 +95,7 @@ const SFX={
   bossRoar(){ tone(72,0.9,'sawtooth',0.3,40); tone(110,0.7,'sawtooth',0.2,55); noise(0.7,0.22,600); setTimeout(()=>{ tone(60,0.6,'sine',0.26,36); },260); },
   nearMiss(){ tone(880,0.22,'sine',0.2,660); setTimeout(()=>tone(560,0.3,'sine',0.16,420),140); noise(0.12,0.05,1800); },
   vaultOpen(){ tone(64,0.5,'sine',0.28,50); noise(0.4,0.16,400); setTimeout(()=>{ noise(0.14,0.12,900); tone(96,0.3,'sine',0.2); },240); setTimeout(()=>{ [880,1174,1568].forEach((f,i)=>setTimeout(()=>tone(f,0.24,'sine',0.14),i*70)); },480); },
-  wheelTick(sp){ tone(1400+sp*900,0.045,'square',0.09+sp*0.06); },
+  wheelTick(sp){ tone(2100-sp*1100,0.045+sp*0.05,'square',0.09+sp*0.06); }, // pitch falls + stretches as the wheel dies
   rarSting(t){ // rarity reveal: 0 common · 1 uncommon … 4 legendary, 5 ascension/mythic
     if(t<=0){ tone(880,0.08,'sine',0.07); return; }
     if(t===1){ tone(932,0.09,'sine',0.09); setTimeout(()=>tone(1244,0.08,'sine',0.06),55); return; }

@@ -84,6 +84,7 @@ function buyVault(id){
   window._vConfirm=null;
   gilt-=cost; VAULT.lv[id]=vlv(id)+1;
   saveGilt(); saveAch(); SFX.vaultBuy(); sparkBurst(20);
+  try{ flyGlyphs('vaultPanel','vaultGilt','◈',7,'#ffd36b'); }catch(e){} // the gold visibly changes hands
   LT.seals=(LT.seals||0)+1; bump('seals',LT.seals);
   applySealDelta(id);
   vaultBuys++;

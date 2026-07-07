@@ -154,6 +154,9 @@ function openSlotReady(kind){
   ensureBulbs(); window._slotFF=null;
   slotKind=kind; gamble=null; diceShown=false; const isW=kind==='weapon';
   elSlot.classList.toggle('arsenal', isW);
+  $('machine').classList.toggle('hotdeck', !!(P&&P.hotSlots>0)); // the deck runs red while HOT
+  { const xf=document.getElementById('xpfill'); if(xf){ xf.classList.remove('drain'); void xf.offsetWidth; xf.classList.add('drain'); }
+    const m9=$('machine'); if(m9){ m9.classList.remove('mGlow'); void m9.offsetWidth; m9.classList.add('mGlow'); setTimeout(()=>m9.classList.remove('mGlow'),900); } } // the bar pours into the machine
   $('slotTag').textContent = (lastRites?'☨ THE RED TABLE — YOUR SKILL RIDES ☨':(isW?'⚔ THE ARSENAL WHEEL ⚔':'THE WHEELS OF FATE'))+((P&&P.hotSlots>0)?' · ⚜ HOT DECK':'')+(slotBank>0?' · BANK '+slotBank+'/7':'');
   $('slotTag').title = slotBank>0 ? 'THE BANK — every PAIR banks a chip · 7 chips = a HOUSE VOUCHER (+1 level, spent on your next offer)' : '';
   $('reelsRow').style.display=''; $('diceRow').style.display='none'; $('riskWrap').style.display='none';
@@ -205,7 +208,7 @@ function spinReels(){
     return {el,seq:seqs[i],N,offset:Math.random()*N,speed:19+i*1.8,stopped:false,landedSym:null,symH:63,boxH:189};
   });
   LT.spins++; bump('spins',LT.spins);
-  slotStage='spinning'; reelsStopped=0; stopLock=performance.now()+40;
+  slotStage='spinning'; reelsStopped=0; stopLock=performance.now()+(RUN._pulled?40:780); RUN._pulled=1; // the first pull of the night savors its spin-up
   // the reels sing while they run — a low hum that climbs as each one locks
   clearInterval(window._spinWh);
   window._spinWh=setInterval(()=>{ if(slotStage!=='spinning'||muted){ clearInterval(window._spinWh); return; }
@@ -264,15 +267,22 @@ function stopNextReel(){
   reelsStopped++;
   const box=r.el.parentElement; box.classList.remove('slam'); void box.offsetWidth; box.classList.add('slam');
   { const rd=$('reelDots'); if(rd) rd.textContent='●'.repeat(Math.min(3,reelsStopped))+'○'.repeat(Math.max(0,3-reelsStopped)); }
-  SFX.reelHit(reelsStopped); SFX.dingHit(reelsStopped); setTimeout(()=>SFX.casinoDing(),60); shake=Math.min(12,shake+5); flash(0.25,'#fff0c8'); sparkBurst(14);
+  SFX.reelHit(reelsStopped); SFX.dingHit(reelsStopped); setTimeout(()=>SFX.casinoDing(),60); shake=Math.min(14,shake+3+reelsStopped*2); flash(0.14+reelsStopped*0.08,'#fff0c8'); sparkBurst(8+reelsStopped*6); // each stop kicks harder than the last
   const defs=slotKind==='weapon'?WEAPONS:PASSIVES; const s=defs.find(x=>x.id===r.landedSym);
   if(s){ $('cardName').textContent=s.n; $('cardName').className='r-'+s.rar; $('cardDesc').innerHTML='<div class="ofsub">'+projFx(s, skLevel(s)+1)+'</div>'; }
   if(reelsStopped===2){
     const st=slotReels.filter(x=>x.stopped).map(x=>x.landedSym); const last=slotReels.find(x=>!x.stopped);
-    if(last && st[0]===st[1]){ last.el.parentElement.classList.add('antici'); SFX.tingle(); excite=1; $('gambleMsg').innerHTML='<span style="color:#ffd36b">◈ TWO MATCH ◈</span>'; }
+    if(last && st[0]===st[1]){ last.el.parentElement.classList.add('antici'); SFX.tingle(); excite=1; $('gambleMsg').innerHTML='<span style="color:#ffd36b">◈ TWO MATCH ◈</span>';
+      clearInterval(window._antiHb); window._antiHb=setInterval(()=>{ if(slotStage!=='spinning'||muted){ clearInterval(window._antiHb); return; }
+        tone(50,0.16,'sine',0.28,38); setTimeout(()=>tone(62,0.1,'sine',0.18,44),120); },560); }
   }
   if(reelsStopped>=3){ slotStage='locking'; SFX.reelLock(); shake=Math.min(15,shake+6); flash(0.35,'#e8b64c');
+    clearInterval(window._antiHb);
     let selDelay=300;
+    { // TRIPLE lands with a held breath — the machine swells before the ceremony
+      const l3=slotReels.map(x=>x.landedSym);
+      if(l3[0]===l3[1]&&l3[1]===l3[2]){ selDelay=1050; const m3=$('machine');
+        m3.classList.add('tripleHold'); setTimeout(()=>{ m3.classList.remove('tripleHold'); flash(0.5,'#ffd36b'); shake=Math.min(20,shake+9); },380); } }
     { // near-miss: two matched, and the odd reel stopped ONE row away from completing the triple
       const landed=slotReels.map(x=>x.landedSym);
       const counts={}; landed.forEach(sy=>counts[sy]=(counts[sy]||0)+1);
@@ -281,7 +291,8 @@ function stopNextReel(){
       if(odd && (odd.seq[((odd.landedIdx-1)+odd.N)%odd.N]===pairId || odd.seq[(odd.landedIdx+1)%odd.N]===pairId)){
         selDelay=900; excite=1;
         setTimeout(()=>{ if(slotStage!=='locking') return;
-          flash(0.35,'#8b1620'); SFX.nearMiss(); shake=Math.min(16,shake+7);
+          flash(0.38,'#e8a112'); SFX.nearMiss(); shake=Math.min(16,shake+7);
+          { const pdf=defs.find(x=>x.id===pairId); if(pdf) flarePayRow(pdf.rar); }
           $('gambleMsg').innerHTML='<span style="color:#ff7b7b">◈ ONE ROW OFF ◈</span>';
           const bx=odd.el.parentElement; bx.classList.add('pick'); setTimeout(()=>bx.classList.remove('pick'),640);
         },220);
@@ -370,6 +381,7 @@ function finalizeReward(bestId, matchN){
     for(let t9=0;t9<add9;t9++) setTimeout(()=>{ tone(520+(slotBank+t9)*85,0.09,'sine',0.12); noise(0.05,0.05,3000); }, 250+t9*140);
     slotBank+=add9; }
   if(slotBank>=7){ slotBank-=7; vouchers++; if(vouchers>=3) secret('voucher3','THE HOARDER'); SFX.dingBells(); SFX.chipStack();
+    flyGlyphs('machine','slotTag','◈',7,'#ffd36b'); // the voucher mints before your eyes
     setTimeout(()=>announce('◈ BANK FULL — HOUSE VOUCHER EARNED ◈', true), 200); }
   const defs=slotKind==='weapon'?WEAPONS:PASSIVES; const def=defs.find(x=>x.id===bestId);
   const curLv9 = slotKind==='weapon' ? (P.wlv[def.id]||0) : skLevel(def);
@@ -450,6 +462,7 @@ function openOffer(){
   slotStage='offer'; endSeance(); const g=gamble; showRewardPanel();
   coachMark('offer','TAKE keeps the prize · DICE gambles it one rung higher');
   const deadly = g.round>=3;
+  $('machine').classList.toggle('deadly', deadly); // the blessing is close — the machine breathes red-gold
   if(!deadly && !g.pendingCurse) g.pendingCurse=DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0];
   const curLv=skLevel(g.def);
   const takeLv=Math.min(g.def.max, curLv+g.reward);
@@ -478,7 +491,7 @@ function doRisk(){
   if(slotStage!=='offer' || !gamble) return;
   const g=gamble;
   $('reelsRow').style.display='none'; $('diceRow').style.display='';
-  $('machine').classList.add('dicing');
+  $('machine').classList.add('dicing'); $('machine').classList.remove('deadly');
   if(!diceShown){ dice=[ {el:$('dieL'),val:1+((Math.random()*6)|0),rolling:false,ft:0}, {el:$('dieR'),val:1+((Math.random()*6)|0),rolling:false,ft:0} ]; diceShown=true; }
   dice.forEach(d=>{ d.rolling=true; d.ft=0; d.el.classList.remove('settle','crit','hot'); d.el.classList.add('rolling'); renderDie(d.el,d.val); });
   slotStage='dicing'; stopLock=performance.now()+60;
@@ -517,8 +530,8 @@ function stopDie(){
     g.dL=dice[0].val; g.dR=dice[1].val; slotStage='locking';
     g.win=(g.dL+g.dR)>=g.threshold;
     if(!g.win && P.dmhArmed){ P.dmhArmed=false; g.win=true; g._dmh=true; }
-    SFX.reelLock();
-    setTimeout(resolveRisk, 280);
+    SFX.reelLock(); setTimeout(()=>tone(46,0.14,'sine',0.2,36),280); // the held breath
+    setTimeout(resolveRisk, 540);
   }
 }
 function updateLadderPips(){
@@ -540,6 +553,7 @@ function godLevel(){
   setTimeout(()=>l.classList.add('hidden'), 2400);
 }
 function perfectFlash(){
+  { const gr=document.createElement('div'); gr.className='goldRing'; document.body.appendChild(gr); setTimeout(()=>gr.remove(),950); } // one thin gold ring, the whole screen wide
   const l=$('jackpotLayer'), t=$('jackpotText'); t.textContent='PERFECT'; t.className='jackpotText t4';
   l.classList.remove('hidden'); t.style.animation='none'; void t.offsetWidth; t.style.animation='';
   SFX.dingBells(); SFX.cashout(); setTimeout(()=>SFX.casinoDing(),120); coinRain(26); sparkBurst(44); shake=Math.min(26,shake+15); excite=1;
@@ -556,6 +570,7 @@ function resolveRisk(){
     g._snakes=(g._snakes||0)+1; if(g._snakes>=2) secret('snake2','TWIN SERPENTS'); }
   if(g.win){
     const perfect = sum===12;
+    const onNose = sum===g.threshold && !perfect; if(onNose) SFX.tingle();
     (g.hist=g.hist||[]).push('w'); updateLadderPips();
     coachMark('dicewin','every rung won = +1 LEVEL — a miss curses you instead');
     if(perfect && g.round===1) secret('bornlucky','BORN LUCKY');
@@ -574,7 +589,7 @@ function resolveRisk(){
     const rw=g.reward; SFX.dingBells(); SFX.casinoDing(); if(rw>=4) setTimeout(()=>SFX.cashout(),120); if(rw>=5) setTimeout(()=>SFX.dingBells(),220); coinRain(16+rw*4); flash(0.42,'#8bff9a'); $('machine').classList.add('win'); shake=Math.min(22,shake+7+rw); excite=1; sparkBurst(24+rw*5);
     if(perfect) perfectFlash();
     const nowLv=Math.min(g.def.max, skLevel(g.def)+g.reward);
-    $('cardDesc').innerHTML='<div class="ofbig" style="color:'+(perfect?'#ffe066':'#b8ffbf')+'">'+(perfect?'✦ 12! ✦ ':'')+'WIN — LEVEL '+nowLv+'</div>'
+    $('cardDesc').innerHTML='<div class="ofbig" style="color:'+(perfect?'#ffe066':'#b8ffbf')+'">'+(perfect?'✦ 12! ✦ ':'')+'WIN — LEVEL '+nowLv+(onNose?' <span style="color:#ffd36b">— ON THE NOSE</span>':'')+'</div>'
       +'<div class="ofstat">'+projFx(g.def, nowLv)+'</div>';
     if(g.round>=MAXROLL){
       const fin=()=>{ window._slotFF=null; if(g.rites){ stakeReturns(); houseBlessing(); } let nl; if(g.kind==='weapon'){ nl=grantWeaponLevels(g.def,g.reward); } else { grantSkill(g.def,g.reward); nl=skillLevel(g.def.id); }
@@ -631,6 +646,7 @@ function resolveRisk(){
   }
 }
 function takeReward(){
+  $('machine').classList.remove('deadly');
   if(slotStage!=='offer' || !gamble) return;
   const g=gamble;
   if(g.rites){ stakeReturns(); // TAKE is honest — the stake comes home
@@ -799,6 +815,7 @@ function projFx(def, level){ const f=PROJ_FX[def.id]; const lv=Math.max(1, Math.
 const MAXROLL=4;
 function shinyWord(){ return SHINY[(Math.random()*SHINY.length)|0]; }
 function closeSlot(){
+  clearInterval(window._antiHb); $('machine').classList.remove('deadly','tripleHold');
   endSeance();
   stopDrone();
   document.body.classList.remove('bloodhour');

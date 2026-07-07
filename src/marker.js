@@ -42,9 +42,10 @@ function renderPressMeter(){
   // the number physically GROWS with every press (42 -> 64px) and the bulbs
   // chase faster the closer you get to the cap — ascent-grade escalation
   const fsz=42+Math.min(22, mk.presses*1.2);
+  mk.disp = mk.disp===undefined ? mk.p : mk.disp+(mk.p-mk.disp)*0.30; // the decimals physically spin up
   { const fr9=$('fpRing'); if(fr9) fr9.style.setProperty('--chase', Math.max(0.45, 1.35-((mk.p-mk.base)/(mk.max-mk.base))*0.9).toFixed(2)+'s'); }
   $('jackpotSub').innerHTML=
-    '<div class="fpPct" style="font-size:'+fsz.toFixed(1)+'px">'+(mk.p*100).toFixed(3)+'<i>%</i> TO LIVE</div>'
+    '<div class="fpPct" style="font-size:'+fsz.toFixed(1)+'px">'+(mk.disp*100).toFixed(3)+'<i>%</i> TO LIVE</div>'
     +'<div class="fpBar"><i style="width:'+Math.min(100,(mk.p-mk.base)/(mk.max-mk.base)*100)+'%"></i></div>'
     +'<div class="fpTime"><i style="width:'+(left/mk.window*100)+'%"></i></div>'
     +'<div class="fpHint"><span class="keyhint">SPACE</span> PRESS · PRESS · PRESS</div>';
@@ -76,7 +77,7 @@ function startFlicker(mk){
     t.style.color=green?'#8bff9a':'#ff5560';
     t.classList.remove('tickPop'); void t.offsetWidth; t.classList.add('tickPop');
     SFX.selectorTick(Math.min(6,Math.floor(n/2)+1)); shake=Math.min(14,shake+2); sparkBurstAt('jackpotText','jackpotLayer',6); flash(0.12, green?'#1c4a28':'#4a0a10');
-    if(n<N){ setTimeout(step, 55+n*24); }
+    if(n<N){ setTimeout(step, n===N-1?320:55+n*24); } // one held frame before the verdict
     else {
       mk.resolved=true;
       const win=roll<=pPct;
@@ -196,6 +197,8 @@ async function actuallyDie(){
       +'<div class="rkBar"><i style="width:'+res.pct+'%"></i></div>'
       +'<div class="rkSub">+'+mk9+' MARKS · '+res.have+' / '+res.need+' TO '+(RANKS[RANK.rank]?RANKS[RANK.rank].n:'THE SUMMIT')+(res.up&&res.reward?' · <span class="rkUn">UNLOCKED: '+res.reward+'</span>':'')+'</div>'
       +(RANKS[RANK.rank]&&RANKS[RANK.rank].r?'<div class="rkNext">NEXT: '+RANKS[RANK.rank].r+' — '+(res.need-res.have)+' MARKS AWAY</div>':'');
+    { const st9=Math.max(2,Math.round(res.pct/12)); // the bar sings as it fills
+      for(let i9=0;i9<st9;i9++) setTimeout(()=>tone(240+res.pct*4*((i9+1)/st9),0.06,'sine',0.05),650+i9*95); }
     if(res.up){ SFX.seraph(); SFX.dingBells(); flash(0.5,'#ffd36b'); coinRain(22); }
   }
 }

@@ -13,7 +13,7 @@ const WSEGS=[
  {n:'CURSE', g:'☠', cs:'blue', c:'#640a16', tier:0, w:26, f:()=>{ const dl=applyDebuff(DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0]); SFX.bust(); flash(0.45,'#8b1620'); announce('☠ '+dl+' ☠',false); }},
  // ── RESTRICTED PURPLE (40/200 = 20%)
  {n:'90 COINS', g:'◈', cs:'purple', c:'#e8a112', tier:2, w:12, f:(m)=>{ const g2=90*m; P.coins+=g2; LT.coins+=g2; coinRain(24); SFX.cashout(); SFX.dingBells(); announce('◈ +'+g2+' COINS ◈',true); }},
- {n:'GILT +35', g:'◆', cs:'purple', c:'#96700e', tier:2, w:10, f:(m)=>{ const g3=35*m; gilt+=g3; saveGilt(); SFX.chipStack(); SFX.casinoDing(); announce('◈ +'+g3+' GILT BANKED ◈',true); }},
+ {n:'GILT +35', g:'◆', cs:'purple', c:'#96700e', tier:2, w:10, f:(m)=>{ const g3=35*m; gilt+=g3; saveGilt(); SFX.chipStack(); SFX.casinoDing(); try{ ftext(P.x,P.y-40,'+'+g3+' ◈ GILT','#fff2c0',true); }catch(e){} announce('◈ +'+g3+' GILT BANKED ◈',true); }},
  {n:'FEVER', g:'⚡', cs:'purple', c:'#f2701a', tier:2, w:9, f:()=>{ if(!feverOn){ fever=1; startFever(); } else { feverT=Math.min(12+(P.feverDur||0),feverT+5); announce('⚡ FEVER +5s ⚡',true); SFX.dingBells(); } }},
  {n:'DOUBLE', g:'×2', cs:'purple', c:'#7a3cff', tier:2, w:9, f:null},
  // ── CLASSIFIED PINK (13/200 = 6.5%)
@@ -191,7 +191,7 @@ function tickWheel(dt){
       if(sg) $('tickerBox').style.boxShadow='0 0 0 2px #3a0a10,0 0 56px '+csCol(sg)+',inset 0 0 60px rgba(0,0,0,.85)';
       const mk=$('tickerMarker'); if(mk){ mk.classList.remove('kick'); void mk.offsetWidth; mk.classList.add('kick'); if(sg) mk.style.setProperty('--mc',csCol(sg)); }
       const cEl=el.children[card]; if(cEl){ cEl.classList.remove('pass'); void cEl.offsetWidth; cEl.classList.add('pass'); }
-      if(t>0.82){ wheel.slowTicks++; SFX.dingHit(Math.min(5,wheel.slowTicks)); }
+      if(t>0.82){ wheel.slowTicks++; SFX.dingHit(Math.min(5,wheel.slowTicks)); tone(160,0.12+wheel.slowTicks*0.05,'sine',0.1,90); } // the brake drags
     }
     if(t>0.86){ wheel.hbT-=dt; if(wheel.hbT<=0){ wheel.hbT=0.22+0.3*(1-t); tone(50,0.16,'sine',0.3,38); setTimeout(()=>tone(62,0.1,'sine',0.2,44),120); } }
     if(t>=1){ wheel.phase='settle'; wheel.setT=0; stopWhirr();
@@ -258,6 +258,9 @@ function finishWheel(){
 }
 function landWheel(seg){
   const sg=WSEGS[seg];
+  if(sg.cs==='gold' && !wheel._froze){ wheel._froze=true; stopDrumroll(); // CONTRABAND holds its breath for a beat
+    const bx9=$('tickerBox'); if(bx9){ bx9.classList.add('goldHold'); setTimeout(()=>bx9.classList.remove('goldHold'),340); }
+    setTimeout(()=>landWheel(seg), 340); return; }
   stopDrumroll();
   RUN.wheelCs.push(sg.cs||'blue');
   const gm=wheel.golden?2:1;
@@ -288,7 +291,7 @@ function landWheel(seg){
       return;
     }
   }
-  wheel.done=true;
+  wheel.done=true; wheel._froze=false;
   // CS-tier land ceremony: pink pops, red screams, gold changes the run
   const csc=csCol(sg);
   if(sg.cs==='pink'){ domConfetti(26); flash(0.35,csc); }

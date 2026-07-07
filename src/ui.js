@@ -256,7 +256,12 @@ function updateHUD(){
     if(wv) { const left9=Math.max(0,enemies.filter(e=>!e.boss).length-waveClearTarget);
       let wtxt='WAVE '+wave+(left9>0?' · '+left9+' TO THIN':'');
       if(gt>=720&&gt<780) wtxt='☷ THE HOUSE IN '+Math.ceil(780-gt)+'s ☷'; if(_hud.wv!==wtxt){ _hud.wv=wtxt; wv.textContent=wtxt; } } }
-  _hSet('coinCount',P.coins.toLocaleString());
+  { const tgt=P.coins; if(window._coinDisp===undefined||window._coinDisp>tgt) window._coinDisp=tgt;
+    const dd=tgt-window._coinDisp;
+    if(dd>60){ window._coinDisp+=Math.max(1,Math.ceil(dd*0.16)); // big gains ROLL like an odometer
+      if(!window._coinTk||performance.now()-window._coinTk>70){ window._coinTk=performance.now(); try{ tone(680+Math.random()*240,0.02,'square',0.03); }catch(e){} } }
+    else window._coinDisp=tgt;
+    _hSet('coinCount',Math.round(window._coinDisp).toLocaleString()); }
   const bb=$('bossBar'); const bs=enemies.find(x=>x.boss);
   if(bs){ bb.classList.remove('hidden'); const bp9=Math.max(0,bs.hp/bs.maxhp*100);
     _hSet('bossName',BOSS_DEFS[bs.bossKind].name+' — '+Math.ceil(bp9)+'%'); _hW('bossFill',bp9.toFixed(1)+'%'); }
@@ -397,6 +402,7 @@ window.addEventListener('keydown',e=>{
       P.coins+=cash; LT.coins+=cash; bump('runCoins',P.coins); bump('ltCoins',LT.coins);
       announce('◈ STREAK CASHED ×'+killStreak+' → +'+cash+' COINS ◈', true);
       SFX.cashout(); SFX.dingBells(); coinRain(Math.min(24,cash)); sparkBurst(20);
+      try{ flyGlyphs('combo','coinCount','◈',6,'#8bff9a'); }catch(e){}
       killStreak=0; streakT=0;
     }
     return;
@@ -590,7 +596,7 @@ function openAnteRoom(){
         if(gilt<d.cost){ SFX.bust(); ic.classList.add('deny'); setTimeout(()=>ic.classList.remove('deny'),350); return; }
         gilt-=d.cost; saveGilt(); (IDX.ind=IDX.ind||[]).push(d.id); idxSaveSoon();
         SFX.chipStack(); SFX.dingBells(); coinRain(10); sparkBurst(16);
-        renderAnteRoom(); return; }
+        ic.classList.add('sealFlip'); setTimeout(()=>renderAnteRoom(),430); return; }
     });
   }
   renderAnteRoom();

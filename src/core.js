@@ -134,6 +134,7 @@ function tickMapProps(dt){
           ftext(P.x, P.y-28, '+8 ♥', '#8bff9a');
           tone(700*Math.pow(1.0595,Math.min(12,it._tk)), 0.09, 'sine', 0.11);
           tone(1400*Math.pow(1.0595,Math.min(12,it._tk)), 0.06, 'sine', 0.05);
+          tone(2100*Math.pow(1.0595,Math.min(12,it._tk)), 0.22, 'triangle', 0.028); // harp shimmer
           ring(it.x, it.y, 46, '#c81e2c');
         }
         if(it.res<=0){
@@ -426,6 +427,7 @@ function killEnemy(e,idx){
       gilt+=bounty; saveGilt();
       ftext(e.x,e.y-30,'+'+bounty+' ◈ GILT','#ffd36b',true);
       if(first) setTimeout(()=>announce('✦ FIRST BLOOD BOUNTY +'+bounty+' ◈ ✦', true), 900); }
+    slowT=Math.max(slowT,0.45); flash(0.5,'#ffd36b'); // the fall is savored in slow-motion gold
     bigWin(BOSS_DEFS[e.bossKind].name+' FALLS',4); coinRain(30); stopDrone();
     pending.push({floor:'epic'});
     for(let gi=0;gi<16;gi++) coins.push({x:e.x+rnd(-20,20),y:e.y+rnd(-20,20),r:6,vx:rnd(-150,150),vy:rnd(-150,150)}); }
@@ -445,6 +447,7 @@ function killEnemy(e,idx){
   if(STREAK_MS.includes(killStreak)){
     const big9=killStreak>=100;
     announce('⚔ '+killStreak+' STREAK ⚔', true);
+    if(killStreak===50||killStreak===100){ setTimeout(()=>{ showStreak(killStreak+' STREAK'); tone(392,0.5,'sine',0.045,240); tone(494,0.4,'sine',0.035,300); },1000); } // the big room echoes it back, softer
     LT.milestone=Math.max(LT.milestone||0,killStreak); bump('milestone',killStreak);
     SFX.casinoDing(); if(big9){ SFX.dingBells(); flash(0.3,'#ffd36b'); sparkBurst(16); hitstop=Math.max(hitstop,0.07); ring(P.x,P.y,150,'#ffd36b'); }
     if(killStreak>=500){ secret('streak500','THE FIVE HUNDRED'); bigWin('500 STREAK',4); coinRain(40); }
