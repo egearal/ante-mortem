@@ -8,14 +8,14 @@ function glowSprite(c0,c1,r){
   if(!cv2){ cv2=document.createElement('canvas'); cv2.width=cv2.height=rb*2;
     const g2=cv2.getContext('2d'); const gr2=g2.createRadialGradient(rb,rb,0,rb,rb,rb);
     gr2.addColorStop(0,c0); gr2.addColorStop(1,c1); g2.fillStyle=gr2; g2.fillRect(0,0,rb*2,rb*2);
-    if(++_glowN>240){ for(const k9 in _glowCache) delete _glowCache[k9]; _glowN=1; } // the shelf is finite
+    if(++_glowN>240){ const ks=Object.keys(_glowCache); const cut=ks.length>>2; for(let i=0;i<cut;i++) delete _glowCache[ks[i]]; _glowN=ks.length-cut+1; } // evict the oldest quarter — never a wipe-stutter
     _glowCache[key]=cv2; }
   return cv2;
 }
 // cached vertical linear gradients for enemy body parts (local coords after
 // ctx.translate) — keyed by half-height bucket + colors
 const _lgCache={}; let _lgN=0;
-function _lgCap(){ if(++_lgN>400){ for(const k9 in _lgCache) delete _lgCache[k9]; _lgN=1; } }
+function _lgCap(){ if(++_lgN>400){ const ks=Object.keys(_lgCache); const cut=ks.length>>2; for(let i=0;i<cut;i++) delete _lgCache[ks[i]]; _lgN=ks.length-cut+1; } }
 function lgrad(ry,c1,c2,mp,mc){
   const rb=Math.max(0.5,Math.round(ry*2)/2), key=rb+'|'+c1+'|'+c2+(mp?'|'+mp+'|'+mc:'');
   let g=_lgCache[key];
@@ -83,8 +83,7 @@ function drawSmites(){
     } else {
       const g=1-(s.t-0.42)/0.53;
       ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=Math.max(0,g*0.5);
-      const gr=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,s.rad); gr.addColorStop(0,'rgba(255,220,130,0.8)'); gr.addColorStop(1,'rgba(255,180,60,0)');
-      ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(s.x,s.y,s.rad,0,6.28); ctx.fill(); ctx.restore(); ctx.globalAlpha=1;
+      ctx.drawImage(glowSprite('rgba(255,220,130,0.8)','rgba(255,180,60,0)',48), s.x-s.rad, s.y-s.rad, s.rad*2, s.rad*2); ctx.restore(); ctx.globalAlpha=1;
     }
   }
 }
