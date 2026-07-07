@@ -1329,13 +1329,18 @@ function drawChandelier(cx,cy,r){
 }
 /* prebaked screen-space layers — full-screen gradients cost too much to rebuild every frame */
 let vignB=null;
-function bakeVign(danger,db){
+function bakeVign(danger,db,tb){
+  tb=tb||0;
+  // C6 — THE NIGHT ARC: the grade cools from candle-amber toward bone-and-violet as 13:00
+  // approaches; tb=99 is the HOUSE's hour (coldest). Rebaked ~13x/night, zero per-frame cost.
+  const nf=Math.min(1.35, tb===99?1.35:tb/12);
+  const L=(a,b)=>Math.round(a+(b-a)*Math.min(1,nf));
   const w=Math.max(2,VW>>1), h=Math.max(2,VH>>1);
   const mk=()=>{ const c=document.createElement('canvas'); c.width=w; c.height=h; return c; };
-  const B={w:VW,h:VH,db,grade:GFX.grade};
+  const B={w:VW,h:VH,db,tb,grade:GFX.grade};
   { B.warm=mk(); const x=B.warm.getContext('2d');
     const g=x.createRadialGradient(w/2,h*0.46,0,w/2,h*0.46,Math.max(w,h)*0.5);
-    g.addColorStop(0,'rgba(120,70,30,0.10)'); g.addColorStop(1,'rgba(120,70,30,0)');
+    g.addColorStop(0,'rgba(120,70,30,'+(0.10-Math.min(1,nf)*0.07).toFixed(3)+')'); g.addColorStop(1,'rgba(120,70,30,0)');
     x.fillStyle=g; x.fillRect(0,0,w,h); }
   { B.danger=mk(); const x=B.danger.getContext('2d');
     const g=x.createRadialGradient(w/2,h/2,Math.min(w,h)*(0.5-danger*0.3),w/2,h/2,Math.max(w,h)*0.8);
@@ -1343,7 +1348,7 @@ function bakeVign(danger,db){
     x.fillStyle=g; x.fillRect(0,0,w,h); }
   { B.main=mk(); const x=B.main.getContext('2d');
     const g=x.createRadialGradient(w/2,h/2,Math.min(w,h)*(0.30-danger*0.12),w/2,h/2,Math.max(w,h)*0.74);
-    g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(0.7,'rgba(6,4,10,'+(0.34+danger*0.4)+')'); g.addColorStop(1,'rgba(2,2,8,'+(0.7+danger*0.3)+')');
+    g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(0.7,'rgba('+L(6,9)+','+L(4,6)+','+L(10,22)+','+(0.34+danger*0.4)+')'); g.addColorStop(1,'rgba('+L(2,5)+','+L(2,4)+','+L(8,24)+','+(0.7+danger*0.3)+')');
     x.fillStyle=g; x.fillRect(0,0,w,h); }
   { B.heart=mk(); const x=B.heart.getContext('2d');
     const g=x.createRadialGradient(w/2,h/2,Math.min(w,h)*0.34,w/2,h/2,Math.max(w,h)*0.72);
@@ -1355,7 +1360,7 @@ function bakeVign(danger,db){
     x.fillStyle=g; x.fillRect(0,0,w,h); }
   { B.grd=mk(); const x=B.grd.getContext('2d');
     const g=x.createRadialGradient(w/2,h*0.42,45,w/2,h*0.55,Math.max(w,h)*0.75);
-    g.addColorStop(0,'rgba(255,214,150,0.11)'); g.addColorStop(1,'rgba(12,7,22,0.18)');
+    g.addColorStop(0,'rgba('+L(255,224)+','+L(214,224)+','+L(150,236)+','+(0.11-Math.min(1,nf)*0.02).toFixed(3)+')'); g.addColorStop(1,'rgba('+L(12,7)+','+L(7,6)+','+L(22,30)+','+(0.18+Math.min(1,nf)*0.05).toFixed(3)+')');
     x.fillStyle=g; x.fillRect(0,0,w,h); }
   { B.shaft=mk2(190,Math.max(2,VH>>1)); const x=B.shaft.getContext('2d');
     const g=x.createLinearGradient(0,0,45,B.shaft.height); g.addColorStop(0,'rgba(168,200,255,0.075)'); g.addColorStop(1,'rgba(168,200,255,0)');
@@ -1596,7 +1601,7 @@ function render(){
 
   // stray candlelight pools
   ctx.save(); ctx.globalCompositeOperation='screen';
-  if(!GFX.lite) for(let i=0;i<2;i++){ const px=camX+VW*(0.3+i*0.4)+Math.sin(gt*0.5+i*2)*30; const py=camY+VH*(0.35+i*0.3)+Math.cos(gt*0.4+i)*24; const rr=190+Math.sin(gt*4+i)*14;
+  if(!GFX.lite) for(let i=0;i<2;i++){ const px=camX+VW*(0.3+i*0.4)+Math.sin(gt*0.23+i*2.1)*90+Math.sin(gt*0.11+i)*38; const py=camY+VH*(0.35+i*0.3)+Math.cos(gt*0.17+i*1.3)*70+Math.cos(gt*0.07)*26; const rr=190+Math.sin(gt*4+i)*14; // Lissajous drift — the light wanders like a carried candle
     ctx.globalAlpha=Math.min(1,0.9*cf);
     ctx.drawImage(glowSprite('rgba(232,150,60,0.09)','rgba(232,150,60,0)',190), px-rr, py-rr, rr*2, rr*2); ctx.globalAlpha=1; }
   ctx.restore();
@@ -1747,15 +1752,18 @@ function render(){
     if(!g){ g=ctx.createRadialGradient(0,0,0,0,0,aR); g.addColorStop(0,'rgba(90,190,110,0.02)'); g.addColorStop(0.6,'rgba(90,190,110,0.10)'); g.addColorStop(1,'rgba(60,150,90,0.18)'); window._auraG2[aR|0]=g; }
     ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,aR+Math.sin(gt*3)*4,0,6.28); ctx.fill(); ctx.strokeStyle='rgba(120,220,140,0.14)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(0,0,aR,0,6.28); ctx.stroke(); ctx.restore(); }
 
+  // C6 — one prebuilt color voice per bullet kind: zero per-bullet string garbage
+  window.BULLET_COL=window.BULLET_COL||(function(){ const m={crit:'255,225,140',seeker:'190,130,255',card:'245,240,220',knife:'200,220,255',d:'255,95,70'};
+    const o={}; for(const k in m) o[k]={base:m[k], t1:'rgba('+m[k]+',0.16)', t2:'rgba('+m[k]+',0.55)', h1:'rgba('+m[k]+',1)', h0:'rgba('+m[k]+',0)'}; return o; })();
   // bullet trails — additive glow
   ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.lineCap='round';
-  for(const b of bullets){ const base=b.crit?'255,225,140':(b.kind==='seeker'?'190,130,255':(b.kind==='card'?'245,240,220':(b.kind==='knife'?'200,220,255':'255,95,70')));
-    ctx.strokeStyle='rgba('+base+',0.16)'; ctx.lineWidth=b.r*3.4; ctx.beginPath(); ctx.moveTo(b.px,b.py); ctx.lineTo(b.x,b.y); ctx.stroke();
-    ctx.strokeStyle='rgba('+base+',0.55)'; ctx.lineWidth=b.r*1.1; ctx.beginPath(); ctx.moveTo(b.px,b.py); ctx.lineTo(b.x,b.y); ctx.stroke(); }
+  for(const b of bullets){ const bc=BULLET_COL[b.crit?'crit':b.kind]||BULLET_COL.d;
+    ctx.strokeStyle=bc.t1; ctx.lineWidth=b.r*3.4; ctx.beginPath(); ctx.moveTo(b.px,b.py); ctx.lineTo(b.x,b.y); ctx.stroke();
+    ctx.strokeStyle=bc.t2; ctx.lineWidth=b.r*1.1; ctx.beginPath(); ctx.moveTo(b.px,b.py); ctx.lineTo(b.x,b.y); ctx.stroke(); }
   ctx.restore();
   // bullets by kind
   for(const b of bullets){
-    const base=b.crit?'255,225,140':(b.kind==='seeker'?'190,130,255':(b.kind==='card'?'245,240,220':(b.kind==='knife'?'200,220,255':'255,95,70')));
+    const _bc=BULLET_COL[b.crit?'crit':b.kind]||BULLET_COL.d; const base=_bc.base;
     ctx.save(); ctx.translate(b.x,b.y);
     // additive outer halo
     ctx.globalCompositeOperation='lighter';
@@ -1899,7 +1907,8 @@ function render(){
   // vignette — warm heart, cold edges, darkening with danger (prebaked, alpha-modulated live)
   const danger = Math.min(0.40, ((P.level||1)-1)*0.020 + Math.min(0.12, gt/900));
   { const db=Math.round(danger*20);
-    if(!vignB || vignB.w!==VW || vignB.h!==VH || vignB.db!==db || vignB.grade!==GFX.grade) bakeVign(danger,db);
+    const tb=(typeof houseActive!=='undefined'&&houseActive)?99:Math.min(12,Math.floor(gt/65));
+    if(!vignB || vignB.w!==VW || vignB.h!==VH || vignB.db!==db || vignB.tb!==tb || vignB.grade!==GFX.grade) bakeVign(danger,db,tb);
     ctx.save(); ctx.globalCompositeOperation='screen'; ctx.globalAlpha=0.5+excite*0.5;
     ctx.drawImage(vignB.warm,0,0,VW,VH); ctx.restore();
     if(danger>0.02){ ctx.globalAlpha=danger*(0.6+Math.sin(gt*1.4)*0.15); ctx.drawImage(vignB.danger,0,0,VW,VH); ctx.globalAlpha=1; }
@@ -2590,6 +2599,12 @@ function drawPlayer(){
   ctx.lineTo(8+lean,14);
   ctx.quadraticCurveTo(13+lean+bil*0.6,5,7.5+lean,-6);
   ctx.closePath(); ctx.fill();
+  if(!qLow&&!GFX.lite){ // C6 — velvet: a baked stipple breathed into the coat (path still live for clip)
+    if(!window._velvB){ const c9=document.createElement('canvas'); c9.width=c9.height=24; const g9=c9.getContext('2d');
+      g9.fillStyle='rgba(255,255,255,0.05)'; for(let n9=0;n9<26;n9++) g9.fillRect((Math.random()*24)|0,(Math.random()*24)|0,1,1);
+      g9.fillStyle='rgba(0,0,0,0.07)'; for(let n9=0;n9<20;n9++) g9.fillRect((Math.random()*24)|0,(Math.random()*24)|0,1,1);
+      window._velvB=c9; }
+    ctx.save(); ctx.clip(); ctx.drawImage(window._velvB,-12+lean,-8,24,24); ctx.restore(); }
   // shoulder sheen
   ctx.save(); ctx.globalCompositeOperation='lighter';
   ctx.strokeStyle='rgba(255,200,150,0.16)'; ctx.lineWidth=2;
