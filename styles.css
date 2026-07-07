@@ -1396,3 +1396,9 @@ button[id$="Close"]:active{transform:translateY(1px);}
 #menu h1.shimmer{animation:titleShimmer 2.4s ease;}
 @keyframes titleShimmer{0%{filter:brightness(1);}25%{filter:brightness(1.65) drop-shadow(0 0 26px rgba(255,211,107,.85));}100%{filter:brightness(1);}}
 @media (prefers-reduced-motion: reduce){ #menu h1.shimmer{animation:none;} }
+
+/* ♛ C7 THE BOSS PRESENCE — the plate wears gold */
+#bossName{position:relative;padding-bottom:5px;}
+#bossName::after{content:'';position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:72%;height:2px;
+  background:linear-gradient(90deg,transparent,#e8b64c 18%,#fff2c0 50%,#e8b64c 82%,transparent);opacity:.85;}
+#bossName::before{content:'◆';position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);font-size:7px;color:#e8b64c;}

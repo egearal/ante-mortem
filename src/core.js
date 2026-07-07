@@ -1702,7 +1702,12 @@ function render(){
   // bosses press their menace into the floor
   if(!GFX.lite) for(const e of enemies){ if(!e.boss || !inView(e.x,e.y,200)) continue;
     ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.5+Math.sin(gt*3+e.ph)*0.15;
-    const br9=e.r*2.6; ctx.drawImage(glowSprite('rgba(201,80,120,0.3)','rgba(140,20,40,0)',br9), e.x-br9, e.y-br9*0.7, br9*2, br9*1.4); ctx.restore(); }
+    const br9=e.r*2.6; ctx.drawImage(glowSprite('rgba(201,80,120,0.3)','rgba(140,20,40,0)',br9), e.x-br9, e.y-br9*0.7, br9*2, br9*1.4); ctx.restore();
+    if(!qLow){ // C7 — afterimages: the boss drags three fading ghosts of itself
+      e._tr=e._tr||[]; if(e._trT===undefined||gt-e._trT>0.09||gt<e._trT){ e._trT=gt; e._tr.unshift({x:e.x,y:e.y}); if(e._tr.length>3) e._tr.length=3; }
+      const sp9=silSprite(e.vt||e.type,e.dark,e.col), dw9=e.r*3.2; const als=[0.22,0.14,0.08];
+      for(let g9=e._tr.length-1;g9>=1;g9--){ const p9=e._tr[g9]; ctx.globalAlpha=als[g9]||0.08; ctx.drawImage(sp9,p9.x-dw9/2,p9.y-dw9/2,dw9,dw9); }
+      ctx.globalAlpha=1; } }
   // horde LOD: beyond the nearest N enemies, draw cheap silhouettes (toaster keeps only 24 in full art)
   { const LODN=({low:20,normal:44,high:120,inf:99999})[GFX.lod] || (GFX.lite?20:44);
   if(enemies.length>LODN){
@@ -2112,7 +2117,13 @@ function drawEnemy(e){
   ctx.fillStyle='rgba(0,0,0,'+(fly?0.24:0.38)+')';
   ctx.beginPath(); ctx.ellipse(0,r*0.72,r*(fly?0.6:0.82),r*0.28,0,0,6.28); ctx.fill();
   if(e.boss){ ctx.save(); ctx.rotate(gt*0.8); ctx.strokeStyle='rgba(201,139,255,'+(0.35+Math.sin(gt*3)*0.15)+')'; ctx.lineWidth=2.5; ctx.setLineDash([9,7]);
-    ctx.beginPath(); ctx.arc(0,0,r*1.5,0,6.28); ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
+    ctx.beginPath(); ctx.arc(0,0,r*1.5,0,6.28); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+    if(!qLow&&!GFX.lite){ // C7 — the lair: a counter-ring and a ward of runes breathe around the throne
+      ctx.save(); ctx.rotate(-gt*0.5); ctx.strokeStyle='rgba(232,182,76,'+(0.2+Math.sin(gt*3+e.ph)*0.09)+')'; ctx.lineWidth=1.5; ctx.setLineDash([4,10]);
+      ctx.beginPath(); ctx.arc(0,0,r*1.85+Math.sin(gt*3)*3,0,6.28); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+      if(!window._sigilBk) bakeSigil();
+      ctx.save(); ctx.globalCompositeOperation='screen'; ctx.globalAlpha=0.45+Math.sin(gt*3+e.ph)*0.18; ctx.rotate(gt*0.25);
+      const rw=r*2.4; ctx.drawImage(window._sigilBk.runes,-rw,-rw,rw*2,rw*2); ctx.restore(); } }
   if((e.elite||e.boss)&&!qLow){ // the halo is a baked glow under the body — no blur riding every fill after it
     const gr9=r*(e.boss?2.1:1.7); ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.42;
     ctx.drawImage(glowSprite(e.col,'rgba(0,0,0,0)',48), -gr9, -gr9*0.82, gr9*2, gr9*1.64); ctx.restore(); }
