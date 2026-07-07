@@ -226,7 +226,7 @@ function rouletteBet(rp){
       spawnEnemy('swarm', clamp(rp.x+Math.cos(sa2)*90,20,CFG.arena-20), clamp(rp.y+Math.sin(sa2)*90,20,CFG.arena-20)); } }
 }
 // Prefer the artifact-env storage API; otherwise shim it over localStorage (same keys) so local play keeps progress
-const store = (typeof window!=='undefined' && window.storage) ? window.storage : (function(){
+const _storeRaw = (typeof window!=='undefined' && window.storage) ? window.storage : (function(){
   try{ localStorage.setItem('am_probe','1'); localStorage.removeItem('am_probe'); }catch(e){ return null; }
   return {
     get: async(k)=>{ try{ const v=localStorage.getItem(k); return v==null?null:{value:v}; }catch(e){ return null; } },
@@ -234,6 +234,41 @@ const store = (typeof window!=='undefined' && window.storage) ? window.storage :
     delete: async(k)=>{ try{ localStorage.removeItem(k); }catch(e){} }
   };
 })();
+// THE IRON LEDGER — every clean read mirrors to <key>__bak (additive; primaries never renamed).
+// A corrupt primary silently restores from carbon. A full disk warns once, never crashes.
+const store = _storeRaw && (function(raw){
+  let _quotaWarned=false;
+  return {
+    get: async function(k,x){
+      let r=null; try{ r=await raw.get(k,x); }catch(e){ r=null; }
+      if(r&&r.value){
+        try{ JSON.parse(r.value); try{ raw.set(k+'__bak', r.value, false); }catch(e){} return r; }
+        catch(e){ /* the primary is corrupt — reach for carbon */ }
+      }
+      try{ const b=await raw.get(k+'__bak',x);
+        if(b&&b.value){ try{ JSON.parse(b.value);
+          try{ raw.set(k, b.value, false); }catch(e){}
+          window._ledgerRestored=true; return b; }catch(e2){} } }catch(e){}
+      return (r&&r.value)?null:r;
+    },
+    set: async function(k,v,x){ try{ await raw.set(k,v,x); }
+      catch(e){ if(!_quotaWarned){ _quotaWarned=true; try{ announce('◈ THE LEDGER CANNOT WRITE — STORAGE FULL ◈',false); }catch(e2){} } } },
+    delete: function(k){ try{ return raw.delete(k); }catch(e){} }
+  };
+})(_storeRaw);
+// 316: the night NEVER dies to a script error — one toast per 30s, and a burst of
+// errors mid-run walks the player safely back to the menu instead of a dead screen
+let _errLast=0,_errBurst=0;
+function _amPanic(){
+  const now=Date.now();
+  _errBurst = now-_errLast<5000 ? _errBurst+1 : 1; _errLast=now;
+  if(now-(window._errToastT||0)>30000){ window._errToastT=now; try{ announce('◈ THE HOUSE STUMBLED — RECOVERED ◈', false); }catch(e){} }
+  if(_errBurst>=4 && typeof state!=='undefined' && state!=='menu' && typeof quitToMenu==='function'){ _errBurst=0; try{ quitToMenu(); }catch(e){} }
+}
+window.addEventListener('error',()=>{ try{ _amPanic(); }catch(e){} });
+window.addEventListener('unhandledrejection',()=>{ try{ _amPanic(); }catch(e){} });
+// 320: closing the tab mid-run asks first (only when a real night is at stake)
+window.addEventListener('beforeunload',(e)=>{ try{ if(typeof state!=='undefined'&&state!=='menu'&&state!=='dead'&&typeof gt!=='undefined'&&gt>60){ e.preventDefault(); e.returnValue=''; } }catch(x){} });
 const owned = new Set();
 // per-run fortune ledger — feeds THE LEDGER and the LUCK verdict at death
 let RUN={};

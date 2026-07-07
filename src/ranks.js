@@ -341,8 +341,10 @@ function recCheck(key,value,label){
   }
 }
 function achSaveSoon(){ clearTimeout(achSaveT); achSaveT=setTimeout(saveAch, 1500); }
-async function saveAch(){ try{ if(!store)return; await store.set(ACH_KEY,JSON.stringify({u:[...unlocked],LT,REC,V:VAULT.lv,S:[...SEC],SP:secPaid,R10:REC10}),false); }catch(e){} }
+async function saveAch(){ try{ if(!store)return; await store.set(ACH_KEY,JSON.stringify({v:3,u:[...unlocked],LT,REC,V:VAULT.lv,S:[...SEC],SP:secPaid,R10:REC10}),false); }catch(e){} }
 async function loadAch(){ try{ if(!store)return; const r=await store.get(ACH_KEY,false); if(r&&r.value){ const o=JSON.parse(r.value); unlocked=new Set(o.u||[]); Object.assign(LT,o.LT||{}); Object.assign(REC,o.REC||{}); VAULT.lv=o.V||{}; (o.S||[]).forEach(x=>SEC.add(x)); secPaid=!!o.SP; REC10=o.R10||{};
+  for(const k9 in REC10){ if(Array.isArray(REC10[k9])) REC10[k9]=REC10[k9].slice(0,10); else delete REC10[k9]; } // 326: ledgers hold ten nights, no matter what was pasted in
+  ['runs','coins','deaths','minutes','spins','kills'].forEach(k9=>{ if(LT[k9]!==undefined) LT[k9]=+LT[k9]||0; }); // 324: a bad payload cannot NaN the HUD
   if(!secPaid && SEC.size){ gilt+=25*SEC.size; saveGilt(); secPaid=true; achSaveSoon(); } // one-time bounty sweep for whispers already answered
   else if(!secPaid){ secPaid=true; achSaveSoon(); } } }catch(e){} }
 function openAchPanel(){
@@ -641,10 +643,10 @@ const RANKS=buildRanks();
 function rkStep(k){ return Math.round(135*Math.pow(k,0.875)); }
 function rkCum(n){ let t=0; for(let k=1;k<n;k++) t+=rkStep(k); return t; }
 function rankFromMarks(m){ let r=1; while(r<RANKS.length && m>=rkCum(r+1)) r++; return r; }
-async function loadRank(){ try{ if(!store)return; const v=await store.get(RANK_KEY); if(v&&v.value){ const o=JSON.parse(v.value); RANK.marks=o.marks||0; RANK.rank=o.rank||1; } }catch(e){}
+async function loadRank(){ try{ if(!store)return; const v=await store.get(RANK_KEY); if(v&&v.value){ const o=JSON.parse(v.value); RANK.marks=Math.max(0,+o.marks||0); RANK.rank=Math.max(1,Math.min(100,Math.round(+o.rank)||1)); } }catch(e){}
   // new curve, never a demotion: old saves land at whichever is HIGHER
   RANK.rank=Math.min(RANKS.length, Math.max(RANK.rank, rankFromMarks(RANK.marks))); }
-async function saveRank(){ try{ if(!store)return; await store.set(RANK_KEY,JSON.stringify({marks:RANK.marks,rank:RANK.rank}),false); }catch(e){} }
+async function saveRank(){ try{ if(!store)return; await store.set(RANK_KEY,JSON.stringify({v:3,marks:RANK.marks,rank:RANK.rank}),false); }catch(e){} }
 function awardMarks(m){
   RANK.marks+=m; let up=false, reward='';
   while(RANK.rank<RANKS.length && RANK.marks>=rkCum(RANK.rank+1)){

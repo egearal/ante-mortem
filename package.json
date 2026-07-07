@@ -2,10 +2,10 @@
   "name": "ante-mortem",
   "private": true,
   "version": "1.0.0",
-  "description": "ANTE MORTEM — casino-of-death survivors game",
+  "description": "ANTE MORTEM \u2014 casino-of-death survivors game",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts-check.js && vite build",
     "preview": "vite preview"
   },
   "devDependencies": {

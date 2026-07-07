@@ -1,6 +1,6 @@
 "use strict";
 /* gilt persistence (personal) */
-async function loadGilt(){ try{ if(!store)return; const r=await store.get(GILT_KEY,false); if(r&&r.value){ const o=JSON.parse(r.value); gilt=o.gilt||0; best=o.best||0; } }catch(e){} }
+async function loadGilt(){ try{ if(!store)return; const r=await store.get(GILT_KEY,false); if(r&&r.value){ const o=JSON.parse(r.value); gilt=Math.max(0,+o.gilt||0); best=Math.max(0,+o.best||0); } }catch(e){} }
 const VAULT={ lv:{} };
 const VAULT_DEFS=[
  {id:'hp',    n:'BLOODLINE',      d:'+5% max blood per seal',                    max:5, base:216, icon:'hp'},
@@ -141,4 +141,4 @@ function tickVaultDoor(){
   if(vaultProp && vaultLocked>0 && gt<vaultLocked){ window._vlr=(window._vlr||0)+1;
     if(window._vlr%240===0) ftext(vaultProp.x,vaultProp.y-96,'RESTS '+Math.ceil((vaultLocked-gt)/60)+' MIN','#8f8371'); }
 }
-async function saveGilt(){ try{ if(!store)return; await store.set(GILT_KEY,JSON.stringify({gilt,best}),false); }catch(e){} }
+async function saveGilt(){ try{ if(!store)return; await store.set(GILT_KEY,JSON.stringify({v:3,gilt,best}),false); }catch(e){} }

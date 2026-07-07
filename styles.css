@@ -1325,3 +1325,10 @@ button[id$="Close"]:active{transform:translateY(1px);}
 @keyframes fadeCutA{0%{opacity:0;}45%{opacity:1;}100%{opacity:0;}}
 #gameover .btn{display:block;width:min(330px,80vw);margin:6px auto 0;}
 @media (prefers-reduced-motion: reduce){ #fadeVeil.go{animation:none;} }
+
+/* ☒ G6 THE IRON LEDGER */
+#noLedger{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-family:var(--disp);font-size:10px;letter-spacing:.22em;color:#8a6a4a;}
+#seatVeil{position:fixed;inset:0;z-index:9700;background:rgba(5,2,4,.94);display:flex;align-items:center;justify-content:center;}
+#seatVeil .svCard{text-align:center;padding:38px 44px;border:1px solid var(--gold);border-radius:12px;background:linear-gradient(180deg,rgba(26,11,15,.98),rgba(9,4,6,.99));box-shadow:var(--shadow-panel);}
+#seatVeil .svT{font-family:var(--disp);font-size:20px;letter-spacing:.22em;color:var(--gold-bright);margin-bottom:8px;}
+#seatVeil .svS{font-family:var(--disp);font-size:11px;letter-spacing:.14em;color:#9a8f7e;margin-bottom:20px;}

@@ -215,3 +215,9 @@ function stopDrumroll(){
   try{ _drumGain.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+0.25); _drumSrc.stop(AC.currentTime+0.3);}catch(e){}
   _drumSrc=null; _drumGain=null;
 }
+
+// 318: iOS/Safari hold the AudioContext hostage — the first three gestures demand it back
+{ let _acTries=0;
+  const _acKick=()=>{ try{ if(AC&&AC.state==='suspended') AC.resume().catch(()=>{}); }catch(e){}
+    if(++_acTries>=3){ ['pointerdown','keydown','touchstart'].forEach(ev=>window.removeEventListener(ev,_acKick)); } };
+  ['pointerdown','keydown','touchstart'].forEach(ev=>window.addEventListener(ev,_acKick)); }

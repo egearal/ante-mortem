@@ -83,6 +83,34 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
   } }
 function fadeCut(){ let v=document.getElementById('fadeVeil'); if(!v){ v=document.createElement('div'); v.id='fadeVeil'; document.body.appendChild(v); }
   v.classList.remove('go'); void v.offsetWidth; v.classList.add('go'); }
+// 313: the whole soul — all five ledgers — leaves as one sealed string
+async function exportSave(){
+  try{
+    if(!store){ announce('✕ NO LEDGER TO EXPORT ✕',false); return; }
+    const keys=[RANK_KEY,ACH_KEY,GILT_KEY,GFX_KEY,IDX_KEY]; const out={_am:'v3', t:Date.now()};
+    for(const k of keys){ const r=await store.get(k,false); if(r&&r.value) out[k]=r.value; }
+    const blob='AMSAVE1.'+btoa(unescape(encodeURIComponent(JSON.stringify(out))));
+    try{ await navigator.clipboard.writeText(blob); announce('◈ YOUR SOUL, PORTABLE — COPIED ◈',true); SFX.chipStack(); }
+    catch(e){ prompt('COPY YOUR SOUL:', blob); }
+  }catch(e){ announce('✕ THE EXPORT FAILED ✕',false); }
+}
+// 314: a pasted soul is inspected (schema + parse of every ledger) before it may sit down
+async function importSave(){
+  try{
+    if(!store){ announce('✕ NO LEDGER TONIGHT ✕',false); return; }
+    const s=prompt('PASTE YOUR SOUL (AMSAVE1.…):'); if(!s) return;
+    const m=s.trim(); if(m.indexOf('AMSAVE1.')!==0) throw 0;
+    const o=JSON.parse(decodeURIComponent(escape(atob(m.slice(8)))));
+    if(!o || !o._am) throw 0;
+    const keys=[RANK_KEY,ACH_KEY,GILT_KEY,GFX_KEY,IDX_KEY]; let found=0;
+    for(const k of keys){ if(typeof o[k]==='string'){ JSON.parse(o[k]); found++; } }
+    if(!found) throw 0;
+    if(!confirm('OVERWRITE this ledger with the pasted soul? ('+found+' of 5 books present)')) return;
+    for(const k of keys){ if(typeof o[k]==='string') await store.set(k,o[k],false); }
+    announce('◈ THE SOUL TAKES ITS SEAT — RELOADING ◈',true);
+    setTimeout(()=>location.reload(),900);
+  }catch(e){ announce('✕ THAT SOUL IS COUNTERFEIT ✕',false); SFX.bust&&SFX.bust(); }
+}
 function quitToMenu(){
   try{ fadeCut(); }catch(e){}
   try{ stopAmbience(); }catch(e){}
@@ -111,7 +139,7 @@ window.addEventListener('keydown',e=>{ if(e.key.toLowerCase()==='f' && !e.repeat
   try{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }catch(x){} } });
 // right-click stays native in menus, silent in the pit
 window.addEventListener('contextmenu',e=>{ if(state==='playing'||state==='slot'||state==='wheel'||state==='dead') e.preventDefault(); });
-$('mute').addEventListener('click',()=>{ muted=!muted; try{ setMasterVol(true); }catch(e){} $('mute').textContent=muted?'♩':'♪'; $('mute').style.color=muted?'#5a4a3a':''; }); let tabHold=false;
+$('mute').addEventListener('click',()=>{ muted=!muted; GFX.muted=muted; try{ saveGfx(); }catch(e){} try{ setMasterVol(true); }catch(e){} $('mute').textContent=muted?'♩':'♪'; $('mute').style.color=muted?'#5a4a3a':''; }); let tabHold=false;
 function showTab(){
   let tp=$('tabPanel');
   if(!tp){ tp=document.createElement('div'); tp.id='tabPanel'; document.body.appendChild(tp); }
@@ -163,7 +191,9 @@ function gfxDerivePreset(){
     if(Object.keys(p).every(k=>GFX[k]===p[k])) return name; }
   return 'custom';
 }
-async function loadGfx(){ try{ const r=await store.get(GFX_KEY,false); if(r&&r.value) Object.assign(GFX,JSON.parse(r.value)); }catch(e){} GFX.preset=gfxDerivePreset(); applyGfxSide(); }
+async function loadGfx(){ try{ if(store){ const r=await store.get(GFX_KEY,false); if(r&&r.value) Object.assign(GFX,JSON.parse(r.value)); } }catch(e){}
+  if(GFX.muted){ muted=true; const mb=$('mute'); if(mb){ mb.textContent='♩'; mb.style.color='#5a4a3a'; } } // 328: silence is remembered
+  GFX.preset=gfxDerivePreset(); applyGfxSide(); }
 function saveGfx(){ try{ store.set(GFX_KEY,JSON.stringify(GFX),false); }catch(e){} }
 function applyGfxSide(){
   // the volume knob is real: master gain follows it (perceptual x^2 curve, faded)
@@ -213,6 +243,7 @@ function buildGfxPanel(){
     +GFX_DEFS.filter(d=>d.k!=='vol').map(d=>'<div class="gxRow"><span class="gxName">'+d.n+'</span><button class="gxBtn" data-k="'+d.k+'">'+gfxLabel(d)+'</button></div>').join('')
     +'<div class="gxRow"><span class="gxName">FULLSCREEN</span><button class="gxBtn" id="gxFull">F — TOGGLE</button></div>'
     +'<div class="gxRow"><span class="gxName">EVERYTHING</span><button class="gxBtn" id="gxReset">RESET TO DEFAULTS</button></div>'
+    +'<div class="gxRow"><span class="gxName">YOUR SOUL, PORTABLE</span><span><button class="gxBtn" id="gxExport">EXPORT</button> <button class="gxBtn" id="gxImport">IMPORT</button></span></div>'
     +'<button class="gxBtn gxClose" id="gfxClose">CLOSE</button></div>';
   document.body.appendChild(p);
   p.querySelectorAll('.gxPre').forEach(b=>b.addEventListener('click',()=>{ applyGfxPreset(b.dataset.pre); SFX.casinoDing(); }));
@@ -225,6 +256,8 @@ function buildGfxPanel(){
     b.textContent=gfxLabel(d); applyGfxSide(); saveGfx(); SFX.uiDing();
   }));
   $('gfxClose').addEventListener('click',()=>{ p.classList.add('hidden'); SFX.casinoDing(); });
+  { const ex=p.querySelector('#gxExport'); if(ex) ex.addEventListener('click',()=>exportSave());
+    const im=p.querySelector('#gxImport'); if(im) im.addEventListener('click',()=>importSave()); }
   { const gf=p.querySelector('#gxFull'); if(gf) gf.addEventListener('click',()=>{ try{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }catch(x){} SFX.uiDing(); }); }
   { const gr=p.querySelector('#gxReset'); if(gr) gr.addEventListener('click',()=>{
       applyGfxPreset('medium'); GFX.vol=1; GFX.cb=false; GFX.fps=false; applyGfxSide(); saveGfx();
@@ -674,7 +707,7 @@ function estatePct(){
     const feats=unlocked.size/Math.max(1,ACH_TOTAL);
     const souls=SOULS.filter(s=>s.u()).length/SOULS.length;
     const floors=FLOORS.filter(f=>f.u()).length/FLOORS.length;
-    return Math.round((ranks*0.30 + wsp*0.15 + idx*0.20 + pages*0.10 + feats*0.15 + (souls+floors)/2*0.10)*100);
+    return Math.max(0,Math.min(100,Math.round((ranks*0.30 + wsp*0.15 + idx*0.20 + pages*0.10 + feats*0.15 + (souls+floors)/2*0.10)*100)));
   }catch(e){ return 0; }
 }
 // ✒ THE FIRST NIGHT — the House explains itself exactly once per lesson (LT.coach, additive)
@@ -754,11 +787,25 @@ function menuStar(){
   { const today=new Date().toDateString();
     if(LT.lastDay!==today){
       LT.dayStreak=(LT.lastDay && (Date.now()-new Date(LT.lastDay).getTime())<172800000)?(LT.dayStreak||0)+1:1;
+      LT.dayStreak=Math.max(1,Math.min(+LT.dayStreak||1,3650)); // 323: a moved clock can never mint a broken streak
       LT.lastDay=today; const bonus=25+LT.dayStreak*5;
       gilt+=bonus; saveGilt(); achSaveSoon();
       window._daily='DAILY BLESSING +'+bonus+' ◈ · DAY '+LT.dayStreak;
     } }
   if(!RANK._ld){ RANK._ld=1; await loadRank(); }
+  if(window._ledgerRestored) setTimeout(()=>announce('◈ THE LEDGER WAS RESTORED FROM CARBON ◈', true), 900);
+  if(!store){ const b9=document.createElement('div'); b9.id='noLedger'; b9.textContent='☒ THE LEDGER CANNOT REMEMBER TONIGHT — SAVES ARE OFF'; const m9=$('menu'); if(m9) m9.appendChild(b9); }
+  try{ // 321: the House seats one — a second tab is offered the chair, not a crash
+    const K9='am_seat_v1', me9=Math.random().toString(36).slice(2);
+    const cur9=localStorage.getItem(K9); const p9=cur9?JSON.parse(cur9):null;
+    if(p9 && Date.now()-p9.t<4000){
+      const v9=document.createElement('div'); v9.id='seatVeil';
+      v9.innerHTML='<div class="svCard"><div class="svT">♠ THE HOUSE SEATS ONE ♠</div><div class="svS">this table is already dealt in another tab</div><button class="btn" id="svTake">TAKE THE SEAT</button></div>';
+      document.body.appendChild(v9);
+      document.getElementById('svTake').addEventListener('click',()=>{ v9.remove(); window._seatMine=true; SFX.casinoDing&&SFX.casinoDing(); });
+    } else window._seatMine=true;
+    setInterval(()=>{ try{ if(window._seatMine!==false && document.getElementById('seatVeil')===null) localStorage.setItem(K9,JSON.stringify({id:me9,t:Date.now()})); }catch(e){} },1500);
+  }catch(e){}
   renderChips();
   menuStar();
   requestAnimationFrame(loop);
