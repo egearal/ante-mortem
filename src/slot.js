@@ -274,7 +274,7 @@ function stopNextReel(){
     const st=slotReels.filter(x=>x.stopped).map(x=>x.landedSym); const last=slotReels.find(x=>!x.stopped);
     if(last && st[0]===st[1]){ last.el.parentElement.classList.add('antici'); SFX.tingle(); excite=1; $('gambleMsg').innerHTML='<span style="color:#ffd36b">◈ TWO MATCH ◈</span>';
       clearInterval(window._antiHb); window._antiHb=setInterval(()=>{ if(slotStage!=='spinning'||muted){ clearInterval(window._antiHb); return; }
-        tone(50,0.16,'sine',0.28,38); setTimeout(()=>tone(62,0.1,'sine',0.18,44),120); },560); }
+        window._hbDuck=performance.now()+700; tone(50,0.16,'sine',0.28,38); setTimeout(()=>tone(62,0.1,'sine',0.18,44),120); },560); }
   }
   if(reelsStopped>=3){ slotStage='locking'; SFX.reelLock(); shake=Math.min(15,shake+6); flash(0.35,'#e8b64c');
     clearInterval(window._antiHb);

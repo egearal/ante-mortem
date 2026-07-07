@@ -193,7 +193,7 @@ function tickWheel(dt){
       const cEl=el.children[card]; if(cEl){ cEl.classList.remove('pass'); void cEl.offsetWidth; cEl.classList.add('pass'); }
       if(t>0.82){ wheel.slowTicks++; SFX.dingHit(Math.min(5,wheel.slowTicks)); tone(160,0.12+wheel.slowTicks*0.05,'sine',0.1,90); } // the brake drags
     }
-    if(t>0.86){ wheel.hbT-=dt; if(wheel.hbT<=0){ wheel.hbT=0.22+0.3*(1-t); tone(50,0.16,'sine',0.3,38); setTimeout(()=>tone(62,0.1,'sine',0.2,44),120); } }
+    if(t>0.86){ wheel.hbT-=dt; if(wheel.hbT<=0){ wheel.hbT=0.22+0.3*(1-t); window._hbDuck=performance.now()+700; tone(50,0.16,'sine',0.3,38); setTimeout(()=>tone(62,0.1,'sine',0.2,44),120); } }
     if(t>=1){ wheel.phase='settle'; wheel.setT=0; stopWhirr();
       noise(0.09,0.16,3800); tone(1180,0.12,'square',0.1); tone(64,0.3,'sine',0.26,42); // SHINK + felt thump
       setTimeout(()=>tone(330,0.15,'sine',0.12,180),100); }

@@ -263,7 +263,7 @@ function spawnGuard(x,y){ // nothing materializes on top of the gambler
   const s=260/d; return {x:clamp(P.x+dx*s,20,CFG.arena-20), y:clamp(P.y+dy*s,20,CFG.arena-20)};
 }
 function startWave(){
-  if(wave>0 && P){ showStreak('WAVE '+wave+' THINNED'); }
+  if(wave>0 && P){ showStreak('WAVE '+wave+' THINNED'); noise(0.12,0.07,2400); tone(1046,0.08,'sine',0.05); }
   wave++;
   bump('wave',wave); recCheck('wave',wave,'Wave');
   if(wave>1){ SFX.casinoDing(); ftext(P.x,P.y-40,'WAVE '+wave,'#e8b64c',true); ring(P.x,P.y,64,'#e8b64c'); }
@@ -2463,7 +2463,7 @@ function spawnBoss(){
   spawnEnemy(kind,x,y);
   try{ bossPlate(BOSS_DEFS[kind].name); }catch(e){}
   const b=enemies[enemies.length-1]; if(b){ b.boss=true; if(contractDone('pallbearer')){ b.hp*=0.9; b.maxhp=(b.maxhp||b.hp)*0.9; } b.bossKind=kind; b.vt=BOSS_DEFS[kind].vt; b.bstate='stalk'; b.bt=2; b.spiralA=0; }
-  showStreak('⚜ '+BOSS_DEFS[kind].name+' APPROACHES ⚜'); SFX.bossRoar(); flash(0.5,'#c98bff'); shake=Math.min(20,shake+12); startDrone();
+  showStreak('⚜ '+BOSS_DEFS[kind].name+' APPROACHES ⚜'); SFX.bossRoar(Math.min(1,dd/900)); flash(0.5,'#c98bff'); shake=Math.min(20,shake+12); startDrone();
 }
 function bossAI(e,dt,dx,dy,d){
   const k=e.bossKind;
@@ -2564,6 +2564,7 @@ function frame(now){
 function startGame(){
   try{ fadeCut(); }catch(e){}
   initAudio(); houseActive=false;
+  try{ startAmbience(); }catch(e){}
   setTimeout(()=>{ try{ if(AC&&AC.state==='suspended') coachMark('audio','the browser holds the music hostage — click once and the House sings'); }catch(e){} },2000); keyProp=null; vaultBuys=0; vaultLocked=0; if(AC&&AC.state==='suspended')AC.resume();
   P={ x:CFG.arena/2, y:CFG.arena/2, aim:0, moving:false, inv:0, coins:0, kills:0,
     hp:CFG.player.maxHp, maxHp:CFG.player.maxHp, speed:CFG.player.speed, radius:CFG.player.radius, pickup:CFG.player.pickup,
@@ -2887,6 +2888,6 @@ function houseSpeak(txt){
   { const vt=vl.firstChild; let ci=0;
     clearInterval(vl._tw); vl._tw=setInterval(()=>{ if(ci>=txt.length){ clearInterval(vl._tw); return; }
       vt.textContent+=txt[ci++]; if(ci%3===0) tone(1100+Math.random()*300,0.015,'square',0.03); }, 28); }
-  tone(52,2.2,'sine',0.22,30); setTimeout(()=>SFX.murmur(),300); setTimeout(()=>tone(44,1.4,'sine',0.16,26),900);
+  tone(52,2.2,'sine',0.22,30); tone(40,2.4,'sine',0.1,26); setTimeout(()=>SFX.murmur(),300); setTimeout(()=>tone(44,1.4,'sine',0.16,26),900);
   clearTimeout(vl._t); vl._t=setTimeout(()=>{ vl.innerHTML=''; }, 7000);
 }

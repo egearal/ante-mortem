@@ -343,6 +343,7 @@ function grantAscPassive(m){
   return pd;
 }
 function jackpotOffer(){
+  try{ SFX.ascMotif(); }catch(e){}
   LT.crash=(LT.crash||0)+1; bump('crash',LT.crash);
   secret('icarus','ICARUS ASCENDANT');
   const lite=GFX.lite;

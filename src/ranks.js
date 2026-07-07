@@ -181,7 +181,11 @@ function secret(id,name){
   if(SEC.has(id)) return; SEC.add(id); achSaveSoon();
   gilt+=25; saveGilt(); // every whisper answered pays
   announce('🗝 SECRET — '+name+' · +25 GILT 🗝', true);
-  SFX.secretFound(); sparkBurst(26); flash(0.3,'#c98bff'); coinRain(8);
+  { const wt=((typeof WHISPERS!=='undefined'&&WHISPERS[id])||[])[3]; // motifs rise with the whisper's tier
+    if(wt==='vr'){ SFX.secretFound(); setTimeout(()=>SFX.dingBells(),320); }
+    else if(wt){ SFX.seraph(); SFX.secretFound(); setTimeout(()=>SFX.dingBells(),420); }
+    else SFX.secretFound(); }
+  sparkBurst(26); flash(0.3,'#c98bff'); coinRain(8);
   LT.secrets=SEC.size; bump('secrets',SEC.size);
   // the card-flip reveal: the riddle burns, the truth stands in gold
   try{ const w=WHISPERS[id];

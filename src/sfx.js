@@ -1,49 +1,87 @@
 "use strict";
 /* ---------- audio (synth casino SFX) ---------- */
 let AC=null, master=null, muted=false, drone=null, droneGain=null;
+let _voices=0, _comp=null, _amb=null, _ambG=null;
+// 295: the knob maps perceptually (x^2) — mid-slider FEELS mid-loud
+function _masterTarget(){ return 0.8*Math.pow((typeof GFX!=='undefined'&&GFX.vol!==undefined)?GFX.vol:1, 2); }
+// 286: volume never hard-cuts — it fades over 120ms
+function setMasterVol(fade){
+  if(!master||!AC){ return; }
+  const tgt = muted?0.0001:Math.max(0.0001,_masterTarget());
+  try{ master.gain.cancelScheduledValues(AC.currentTime);
+    master.gain.setValueAtTime(Math.max(0.0001,master.gain.value), AC.currentTime);
+    master.gain.linearRampToValueAtTime(tgt, AC.currentTime+(fade?0.12:0.02)); }
+  catch(e){ master.gain.value=tgt; }
+}
 function initAudio(){
   if(AC) return;
   try{ AC = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return; }
   master = AC.createGain();
-  master.gain.value = 0.8*((typeof GFX!=='undefined'&&GFX.vol!==undefined)?GFX.vol:1);
-  master.connect(AC.destination);
+  master.gain.value = _masterTarget();
+  // 276: a compressor rides the bus — stacked ceremonies swell, never clip
+  try{ _comp=AC.createDynamicsCompressor();
+    _comp.threshold.value=-18; _comp.ratio.value=4; _comp.knee.value=12; _comp.attack.value=0.004; _comp.release.value=0.18;
+    master.connect(_comp); _comp.connect(AC.destination); }
+  catch(e){ master.connect(AC.destination); }
+}
+// 281: room tone — a whisper of casino air, far below everything
+function startAmbience(){
+  if(!AC||_amb||muted) return;
+  if(typeof GFX!=='undefined'&&GFX.amb===false) return;
+  try{
+    const n=AC.sampleRate*2, buf=AC.createBuffer(1,n,AC.sampleRate), d=buf.getChannelData(0);
+    for(let i=0;i<n;i++) d[i]=Math.random()*2-1;
+    _amb=AC.createBufferSource(); _amb.buffer=buf; _amb.loop=true;
+    const f=AC.createBiquadFilter(); f.type='lowpass'; f.frequency.value=220;
+    _ambG=AC.createGain(); _ambG.gain.value=0.0001;
+    _amb.connect(f); f.connect(_ambG); _ambG.connect(master);
+    _amb.start(); _ambG.gain.linearRampToValueAtTime(0.025, AC.currentTime+1.2);
+  }catch(e){ _amb=null; }
+}
+function stopAmbience(){ try{ if(_amb){ const a=_amb; _amb=null; if(_ambG) _ambG.gain.linearRampToValueAtTime(0.0001,AC.currentTime+0.4); setTimeout(()=>{try{a.stop();}catch(e){}},450); _ambG=null; } }catch(e){ _amb=null; _ambG=null; }
 }
 function tone(freq,dur,type,vol,slideTo){
   if(!AC||muted) return;
+  if(_voices>=14 && (vol||0.2)<0.1) return; // the pool is full — soft voices yield to loud ones
+  _voices++;
   const t=AC.currentTime, o=AC.createOscillator(), g=AC.createGain();
   o.type=type||'square'; o.frequency.setValueAtTime(freq,t);
   if(slideTo) o.frequency.exponentialRampToValueAtTime(Math.max(20,slideTo), t+dur);
   g.gain.setValueAtTime(0.0001,t);
   g.gain.exponentialRampToValueAtTime(vol||0.2, t+0.008);
   g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  o.onended=()=>{ _voices=Math.max(0,_voices-1); };
   o.connect(g); g.connect(master); o.start(t); o.stop(t+dur+0.02);
 }
 function noise(dur,vol,lp){
   if(!AC||muted) return;
+  if(_voices>=14 && (vol||0.2)<0.1) return;
+  _voices++;
   const t=AC.currentTime, n=Math.floor(AC.sampleRate*dur), buf=AC.createBuffer(1,n,AC.sampleRate), d=buf.getChannelData(0);
   for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-i/n);
   const s=AC.createBufferSource(); s.buffer=buf;
   const f=AC.createBiquadFilter(); f.type='lowpass'; f.frequency.value=lp||1400;
   const g=AC.createGain(); g.gain.value=vol||0.2;
+  s.onended=()=>{ _voices=Math.max(0,_voices-1); };
   s.connect(f); f.connect(g); g.connect(master); s.start(); s.stop(t+dur);
 }
 const SFX={
   shoot(){ tone(220+Math.random()*40,0.06,'square',0.05,140); },
   hit(){ const v=Math.random()*60; tone(300+v,0.05,'square',0.07,190); tone(120+v*0.4,0.06,'sine',0.09,60); noise(0.03,0.05,2600); },
-  coin(){ tone(880,0.05,'square',0.14); setTimeout(()=>tone(1320,0.07,'square',0.13),40); },
-  xp(){ tone(520,0.05,'triangle',0.07); },
+  coin(){ const dk=(window._hbDuck&&performance.now()<window._hbDuck)?0.6:1; tone(880,0.05,'square',0.10*dk); setTimeout(()=>tone(1320,0.07,'square',0.09*dk),40); }, // bright square ping
+  xp(){ tone(520,0.05,'sine',0.05); }, // soft sine blip — never confused with gold
   level(){ [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,0.5,'sine',0.16),i*70)); },
-  tick(){ tone(1200+Math.random()*300,0.03,'square',0.09); },
+  tick(){ tone(1200+Math.random()*300,0.03,'square',0.05); }, // UI trimmed -6dB under the game
   jackpot(){ [523,659,784,1047,1318,1568].forEach((f,i)=>setTimeout(()=>tone(f,0.4,'sine',0.2),i*70)); noise(0.5,0.12,3000); },
   dice(){ for(let i=0;i<6;i++) setTimeout(()=>noise(0.04,0.14,2200),i*70); },
   win(){ [659,988,1319].forEach((f,i)=>setTimeout(()=>tone(f,0.35,'triangle',0.2),i*80)); },
   lose(){ tone(300,0.5,'sawtooth',0.16,90); },
   hurt(){ noise(0.14,0.2,700); tone(150,0.18,'sawtooth',0.14,70); },
-  death(){ [400,320,240,160].forEach((f,i)=>setTimeout(()=>tone(f,0.5,'sawtooth',0.18,f*0.6),i*130)); },
+  death(){ [400,320,240,160].forEach((f,i)=>setTimeout(()=>tone(f,0.5,'sawtooth',0.13,f*0.6),i*130)); },
   cheer(){ noise(0.6,0.16,2600); tone(660,0.4,'triangle',0.08); },
   murmur(){ noise(0.4,0.06,900); },
   reelStop(){ tone(140,0.09,'sine',0.15,60); noise(0.05,0.1,1200); },
-  reelHit(step){ const base=[300,440,620][Math.min(2,(step||1)-1)]||300;
+  reelHit(step){ const base=[349,440,523][Math.min(2,(step||1)-1)]||349; // F-A-C — three stops form a chord
     tone(base,0.06,'square',0.32,base*0.35);
     tone(base*3,0.15,'sine',0.28);
     tone(base*4.8,0.12,'sine',0.2);
@@ -57,7 +95,7 @@ const SFX={
   card(){ tone(520,0.06,'triangle',0.13,1000); noise(0.05,0.06,2800); },
   nova(){ tone(120,0.34,'sawtooth',0.22,52); [200,320,440].forEach((f,i)=>setTimeout(()=>tone(f,0.24,'sine',0.14),i*55)); noise(0.34,0.2,1600); },
   seeker(){ tone(420,0.24,'sine',0.12,1100); noise(0.06,0.05,3000); },
-  reelTick(){ tone(900+Math.random()*400,0.02,'square',0.06); },
+  reelTick(){ tone(900+Math.random()*400,0.02,'square',0.03); },
   riser(){ tone(240,0.55,'sawtooth',0.1,900); },
   winDing(){ [1568,1568,2093].forEach((f,i)=>setTimeout(()=>tone(f,0.32,'sine',0.2),i*140)); noise(0.4,0.08,3200); },
   bust(){ tone(240,0.5,'sawtooth',0.16,70); setTimeout(()=>tone(150,0.42,'square',0.12,58),120); },
@@ -66,7 +104,7 @@ const SFX={
   leverWind(){ for(let i=0;i<7;i++) setTimeout(()=>tone(300+i*40,0.03,'square',0.1),i*32); },
   leverSlam(){ tone(90,0.18,'sine',0.3,40); noise(0.1,0.22,1400); tone(420,0.06,'square',0.14,120); },
   anteUp(){ tone(400,0.12,'square',0.14,560); setTimeout(()=>tone(600,0.18,'sine',0.14),110); noise(0.05,0.1,1500); },
-  coinPling(){ tone(1200+Math.random()*500,0.05,'square',0.1); },
+  coinPling(){ const dk=(window._hbDuck&&performance.now()<window._hbDuck)?0.6:1; tone(1200+Math.random()*500,0.05,'square',0.08*dk); }, // 282: ducks while the heart beats
   levelDing(){ tone(1046,0.14,'sine',0.3); setTimeout(()=>tone(1568,0.16,'sine',0.32),120); setTimeout(()=>tone(2093,0.22,'sine',0.2),240); noise(0.18,0.05,7000); for(let i=0;i<4;i++) setTimeout(()=>tone(2400+i*260,0.05,'triangle',0.06),300+i*45); },
   levelUp(){
     tone(131,0.7,'sine',0.32,98);
@@ -92,9 +130,13 @@ const SFX={
   hotSix(){ tone(480,0.34,'sawtooth',0.16,1500); [760,1020,1320,1620].forEach((f,i)=>setTimeout(()=>tone(f,0.13,'square',0.14),i*70)); noise(0.12,0.07,3200); },
   achieve(){ tone(1318,0.16,'sine',0.16); setTimeout(()=>tone(1760,0.28,'sine',0.18),90); },
   record(){ [1046,1318,1568,2093].forEach((f,i)=>setTimeout(()=>tone(f,0.3,'sine',0.2),i*80)); noise(0.2,0.06,6000); },
-  bossRoar(){ tone(72,0.9,'sawtooth',0.3,40); tone(110,0.7,'sawtooth',0.2,55); noise(0.7,0.22,600); setTimeout(()=>{ tone(60,0.6,'sine',0.26,36); },260); },
+  bossRoar(dist){ // dist 0..1 — far roars arrive muffled through the walls
+    const dm=1-0.45*Math.min(1,dist||0);
+    tone(72,0.9,'sawtooth',0.3*dm,40); tone(110,0.7,'sawtooth',0.2*dm*dm,55); noise(0.7,0.22*dm,600-320*Math.min(1,dist||0)); setTimeout(()=>{ tone(60,0.6,'sine',0.26,36); },260); },
+  ascMotif(){ // 288: five notes owned by the ascension alone
+    [587,880,1174,1568,2349].forEach((f,i)=>setTimeout(()=>{ tone(f,0.34,'triangle',0.16); tone(f*2,0.2,'sine',0.06); },i*110)); noise(0.6,0.05,6400); },
   nearMiss(){ tone(880,0.22,'sine',0.2,660); setTimeout(()=>tone(560,0.3,'sine',0.16,420),140); noise(0.12,0.05,1800); },
-  vaultOpen(){ tone(64,0.5,'sine',0.28,50); noise(0.4,0.16,400); setTimeout(()=>{ noise(0.14,0.12,900); tone(96,0.3,'sine',0.2); },240); setTimeout(()=>{ [880,1174,1568].forEach((f,i)=>setTimeout(()=>tone(f,0.24,'sine',0.14),i*70)); },480); },
+  vaultOpen(){ tone(46,0.85,'sine',0.34,28); noise(0.55,0.2,260); setTimeout(()=>{ noise(0.14,0.12,900); tone(96,0.3,'sine',0.2); },260); setTimeout(()=>{ [1046,1568,2093].forEach((f,i)=>setTimeout(()=>tone(f,0.28,'sine',0.12),i*80)); },520); }, // heavy stone, then the gold inside catches light
   wheelTick(sp){ tone(2100-sp*1100,0.045+sp*0.05,'square',0.09+sp*0.06); }, // pitch falls + stretches as the wheel dies
   rarSting(t){ // rarity reveal: 0 common · 1 uncommon … 4 legendary, 5 ascension/mythic
     if(t<=0){ tone(880,0.08,'sine',0.07); return; }
@@ -104,7 +146,7 @@ const SFX={
     [1319,1760,2217,2637].forEach((f,i)=>setTimeout(()=>{ tone(f,0.16,'sine',0.13); tone(f/2,0.14,'triangle',0.05); },i*80));
     SFX.dingBells(); if(t>=5) setTimeout(()=>SFX.seraph(),220);
   },
-  uiDing(){ tone(2093,0.09,'sine',0.08); tone(2637,0.07,'sine',0.05); },
+  uiDing(){ tone(2093,0.09,'sine',0.06); tone(2637,0.07,'sine',0.04); },
   // universal press-click: felt-tick under every interactive SPACE, throttled
   // so mashers never clip the mix
   press(){ const n9=performance.now(); if(n9-(SFX._pressT||0)<60) return; SFX._pressT=n9;

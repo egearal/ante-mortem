@@ -32,12 +32,12 @@ function startFever(){
   P.godT=3; P.inv=Math.max(P.inv||0,3);
   P._fvRate=P.fireRate; P.fireRate*=1.7; P._fvCoin=P.coinMult; P.coinMult+=1;
   bigWin('FEVER',2); announce('☘ UNTOUCHABLE — YOUR TOUCH IS DEATH · 3s ☘', true);
-  SFX.dingBells(); SFX.cashout(); SFX.seraph(); coinRain(20); excite=1; flash(0.45,'#8bff9a');
+  SFX.dingBells(); SFX.cashout(); SFX.seraph(); tone(1568,0.3,'sine',0.1); setTimeout(()=>tone(2093,0.26,'sine',0.08),90); coinRain(20); excite=1; flash(0.45,'#8bff9a');
   LT.fevers=(LT.fevers||0)+1; bump('fevers',LT.fevers);
 }
 function endFever(){
   feverOn=false; fever=0; feverT=0;
-  [880,660,440].forEach((f,i)=>setTimeout(()=>tone(f,0.12,'sine',0.06),i*90)); // the fire sighs out
+  [880,660,440].forEach((f,i)=>setTimeout(()=>tone(f,0.14,'sine',0.04),i*110)); // the fire sighs out, gently
   window._feverLock=gt+60; // the pit cools for a minute — grants bypass this
   if(P._fvRate!==undefined){ P.fireRate=P._fvRate; P._fvRate=undefined; }
   if(P._fvCoin!==undefined){ P.coinMult=P._fvCoin; P._fvCoin=undefined; }

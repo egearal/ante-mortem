@@ -85,6 +85,7 @@ function fadeCut(){ let v=document.getElementById('fadeVeil'); if(!v){ v=documen
   v.classList.remove('go'); void v.offsetWidth; v.classList.add('go'); }
 function quitToMenu(){
   try{ fadeCut(); }catch(e){}
+  try{ stopAmbience(); }catch(e){}
   document.body.classList.remove('floor-cellar','floor-chapel','bloodhour','paused');
   const hp=$('howPanel'), pl=$('pauseLayer');
   if(hp) hp.classList.add('hidden'); if(pl) pl.classList.add('hidden');
@@ -110,7 +111,7 @@ window.addEventListener('keydown',e=>{ if(e.key.toLowerCase()==='f' && !e.repeat
   try{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }catch(x){} } });
 // right-click stays native in menus, silent in the pit
 window.addEventListener('contextmenu',e=>{ if(state==='playing'||state==='slot'||state==='wheel'||state==='dead') e.preventDefault(); });
-$('mute').addEventListener('click',()=>{ muted=!muted; if(master) master.gain.value=muted?0:0.8; $('mute').textContent=muted?'♩':'♪'; $('mute').style.color=muted?'#5a4a3a':''; }); let tabHold=false;
+$('mute').addEventListener('click',()=>{ muted=!muted; try{ setMasterVol(true); }catch(e){} $('mute').textContent=muted?'♩':'♪'; $('mute').style.color=muted?'#5a4a3a':''; }); let tabHold=false;
 function showTab(){
   let tp=$('tabPanel');
   if(!tp){ tp=document.createElement('div'); tp.id='tabPanel'; document.body.appendChild(tp); }
@@ -165,9 +166,9 @@ function gfxDerivePreset(){
 async function loadGfx(){ try{ const r=await store.get(GFX_KEY,false); if(r&&r.value) Object.assign(GFX,JSON.parse(r.value)); }catch(e){} GFX.preset=gfxDerivePreset(); applyGfxSide(); }
 function saveGfx(){ try{ store.set(GFX_KEY,JSON.stringify(GFX),false); }catch(e){} }
 function applyGfxSide(){
-  // the volume knob is real: master gain follows it
-  if(typeof master!=='undefined' && master && typeof muted!=='undefined' && !muted)
-    master.gain.value=0.8*(GFX.vol!==undefined?GFX.vol:1);
+  // the volume knob is real: master gain follows it (perceptual x^2 curve, faded)
+  try{ setMasterVol(true); }catch(e){}
+  try{ if(GFX.amb===false) stopAmbience(); else if(typeof state!=='undefined'&&state==='playing') startAmbience(); }catch(e){}
 }
 const GFX_DEFS=[
  {k:'vol',  n:'MASTER VOLUME',  opts:[[1,'FULL'],[0.7,'70%'],[0.4,'40%'],[0.15,'15%'],[0,'MUTE']]},
@@ -182,8 +183,10 @@ const GFX_DEFS=[
  {k:'fps',   n:'FPS COUNTER',   opts:[[false,'OFF'],[true,'ON']]},
  {k:'cb',   n:'COLORBLIND PIPS', opts:[[false,'OFF'],[true,'SHAPES']]},
  {k:'tabT', n:'TAB CODEX',      opts:[[false,'HOLD'],[true,'TOGGLE']]},
- {k:'coach',n:'COACH MARKS',    opts:[[true,'ON'],[false,'OFF'],['reset','RESET']]}
+ {k:'coach',n:'COACH MARKS',    opts:[[true,'ON'],[false,'OFF'],['reset','RESET']]},
+ {k:'amb',  n:'AMBIENCE',       opts:[[true,'ON'],[false,'OFF']]}
 ];
+if(GFX.amb===undefined) GFX.amb=true;
 if(GFX.coach===undefined) GFX.coach=true;
 function gfxLabel(d){ const o=d.opts.find(o=>o[0]===GFX[d.k]); return o?o[1]:String(GFX[d.k]); }
 function applyGfxPreset(name){
@@ -230,7 +233,7 @@ function buildGfxPanel(){
       SFX.casinoDing(); }); }
   { const gv=p.querySelector('#gxVol'); if(gv){
       gv.addEventListener('input',()=>{ GFX.vol=parseFloat(gv.value); applyGfxSide();
-        if(!gv._tk||performance.now()-gv._tk>120){ gv._tk=performance.now(); try{ tone(880,0.04,'sine',0.08); }catch(x){} } });
+        if(!gv._tk||performance.now()-gv._tk>160){ gv._tk=performance.now(); try{ tone(523,0.12,'sine',0.09); tone(659,0.12,'sine',0.07); tone(784,0.14,'sine',0.07); }catch(x){} } });
       gv.addEventListener('change',()=>{ saveGfx(); }); } }
   syncPresetRow();
 }
@@ -250,7 +253,7 @@ function _annPump(){
     a.textContent=txt; a.className='ann '+(good?'good':'bad');
     a.style.animation='none'; void a.offsetWidth; a.style.animation='';
     a.classList.remove('hidden');
-    tone(good?1760:520,0.07,'sine',0.06);
+    tone(good?1760:520,0.07,'sine',0.06); tone(98,0.5,'sine',0.032,80); // the room leans in
     clearTimeout(annT); annT=setTimeout(()=>a.classList.add('hidden'), 2700);
   }
   setTimeout(()=>{ _annBusy=false; _annPump(); }, _annQ.length?700:120);
