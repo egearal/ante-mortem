@@ -307,3 +307,57 @@ boot → ante → full night → death/marker → books → re-ante. Zero _amErr
 - [x] FAKE currency only — verified in credits copy too
 - Known-good: Chromium (headless-verified live); Safari/iOS audio-resume retry wired
 - Known cosmetic: mid-spin window resize can land a reel a few px off-center (self-heals next spin)
+
+## Batch 16 — THE FINAL CUT (v4.0): stable, fast, dressed, publishable
+Nine commits. All render-side: zero balance changes, zero save-format changes (verified
+by localStorage key-diff across a full QA night: the same 5 primaries, additive only).
+
+**C1** per-stage frame profiler (?prof): ring buffer, p95, spike counter with owning
+stage, __prof.report() as the batch's verification backbone.
+**C2 THE SHADOW PURGE** — 30+ world shadowBlur sites removed (the elite/boss body halo
+left blur ACTIVE across every subsequent fill — the single biggest whale; now a baked
+elliptical glow). 13 per-frame gradient sites cached/baked. Caches evict oldest-quarter
+instead of wiping (stutter class dead). Carpet glyphs culled; LOD sort de-allocated.
+Pinned A/B: storm-300 −19%, storm-500 −18% CPU; real GPU gains larger (blur rasterizes on paint).
+**C3 THE COURT REDRAWN** — verdict: near enemies stay hand-drawn vector (the parametric
+animation IS the look; sprite-sheeting = quantized motion + cache explosion). Far-LOD
+silhouettes now BAKED per type: shaped (winged/spider/hooded/mass/pauldron/crawler/archer),
+rim-lit, pre-blurred eyes — one drawImage each. Pinned A/B at 500-storm: enemies stage −31%.
+Storms read as a court of the damned, and cost less.
+**C4 THE GORE LEDGER** — the floor remembers the whole night: 3×3-tiled offscreen blood
+canvas, kills stamp once (~20/s cap), a staggered wash dries old blood toward black-brown,
+per frame only visible sub-rects blit. Whole system: +0.17ms. Found+fixed: the stamp
+rate-cap window survived across runs and silently rejected every stamp of the next night.
+**C5 THE HALL DRESSED** — sigil baked to 4 sprites + a NEW orbiting rune ward
+(♠♥♦♣☠◈†♛⚜◆✦♞) + view cull (it used to draw ~110 strokes even off-screen); beveled
+wainscot paneling strip; woven herringbone damask runner; gilt portrait corner
+flourishes; engraved vault notch ring; fringed banners. Dressed AND cheaper (floor
+stage at sigil center: 0.17ms).
+**C6 THE NIGHT ARC** — the vignette grade cools candle-amber → bone-violet across 12
+hour-buckets as 13:00 nears; the HOUSE's arrival snaps to the coldest grade (tb=99).
+~13 half-res rebakes/night, zero per-frame cost, verified 1 bake per bucket. Candle
+pools wander on Lissajous paths. One BULLET_COL voice per kind (no per-bullet string
+garbage). Velvet stipple in the coat. CAMERA SMOOTHING REJECTED BY DESIGN: lookahead
+moves aim mid-motion — a gameplay change this batch is forbidden to make.
+**C7 THE BOSS PRESENCE** — 3 fading afterimages (90ms trail), counter-rotating lair
+ring, breathing rune ward (reuses the sigil bake re-tinted), gold-filigreed nameplate.
+All shed on low/lite. Cost below measurement noise.
+**C8 THE IRON NIGHT** — the auto-quality FLAP ENGINE is dead: every flip called
+resize(), whose slow frame re-fed the EMA. Now: 5s dwell, 45-consecutive-good-frame
+upgrades, 30-frame amnesty after any flip/state change. Violent-oscillation test:
+0 flips (was ~1 per 40 frames). Fonts pre-warmed at boot (first-raster hitch gone).
+2000-event input fuzz across state churn: clean. 500-storm: stable, 452 silhouetted.
+**C9** — head meta (description/og/theme-color, FAKE-currency-safe copy), v4.0 — FINAL
+stamp sweep (menu/pause/death), this record, and the QA gate below.
+
+### v4.0 FINAL — QA gate (run on the BUILT single file)
+- Night 1 (fresh save): boot → ante → died fighting at 7:56 → death ledger → BOOKS → re-ante. Clean.
+- Night 2 (rank-20 sim): full arc → cold snap → HOUSE at 13:00 → reaped 13:06. Clean.
+- Night 3 (rank-90 + seals): full arc → HOUSE → 13:03. Clean.
+- Zero _amErr across all three. Heap flat (5MB at the last death). Gore ledger alive at night's end.
+- localStorage before/after: {am_rank_v1, antemortem_ach_v2, antemortem_gilt_v1,
+  antemortem_gfx_v1(on options touch), am_index_v1} — additive only, plus __bak carbons on load.
+- Bundle: 951KB raw / 401KB gzip, one file, zero network, fonts embedded (OFL).
+- Measurement honesty: all ms are hidden-tab CPU under a pinned protocol (q=high, fixed
+  viewport, fixed storm seeds). Visible-tab GPU gains exceed these — shadowBlur's true
+  cost is paid at raster, which the hidden tab never does.

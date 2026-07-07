@@ -436,7 +436,7 @@ window.addEventListener('keydown',e=>{
     if(state==='playing'){ state='paused'; document.body.classList.add('paused'); $('pauseLayer').classList.remove('hidden'); SFX.thud(); window._pzT=performance.now();
       { const pt=document.querySelector('.pauseCard .pz'); if(pt) pt.textContent='◈ PAUSED ◈'; }
       $('pauseStats').innerHTML='<div class="ps"><b>'+P.kills+'</b><i>KILLS</i></div><div class="ps"><b>'+P.level+'</b><i>LEVEL</i></div><div class="ps"><b>'+P.coins+'</b><i>COINS</i></div><div class="ps"><b>'+wave+'</b><i>WAVE</i></div><div class="ps"><b>'+Math.floor(gt/60)+':'+String(Math.floor(gt%60)).padStart(2,'0')+'</b><i>TIME</i></div>'+'<div style="flex-basis:100%;text-align:center;font-family:var(--disp);font-size:10px;letter-spacing:.08em;color:#9a8f7e;margin-top:8px">◈ COINS — the House&#39;s gold, this run · ⚜ XP — level charge, wagered in the Ascent · GILT — eternal Vault currency</div>'; if(P){ P._pauses=(P._pauses||0)+1; if(P._pauses>=13) secret('coldfeet','COLD FEET'); }
-      { let pf=$('pzFoot'); if(!pf){ pf=document.createElement('div'); pf.id='pzFoot'; $('pauseStats').parentNode.appendChild(pf); } pf.textContent='NIGHT №'+(LT.runs||0)+' · v3.0 — GOLD'; } }
+      { let pf=$('pzFoot'); if(!pf){ pf=document.createElement('div'); pf.id='pzFoot'; $('pauseStats').parentNode.appendChild(pf); } pf.textContent='NIGHT №'+(LT.runs||0)+' · v4.0 — FINAL'; } }
     else if(state==='paused'){
       if(performance.now()-(window._pzT||0)<500){ quitToMenu(); return; } // ESC·ESC — straight to the door
       state='playing'; document.body.classList.remove('paused'); $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); }
