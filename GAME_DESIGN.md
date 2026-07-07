@@ -244,3 +244,66 @@ Verdicts (296–310):
   as directed ("the 13th minute reaper"). The red table is the sanctioned second chance;
   the min-13 whisper stays the crown jewel.
 - 308 marker press EV: base 35%+2%/press to cap 50–60% (5 seals) — documented.
+
+## Batch 15 — GOLD MASTER (v3.0): the finished-game audit
+Ten commits, ~150 verified items (lifetime QoL ledger → ~350 of the director's 1000; the
+road continues in future iterations). Every commit: edit → syntax-gated build → headless
+verify in a live browser → commit.
+
+**G1 THE FIRST NIGHT** — 10 one-time coach marks (LT.coach flags; gold-edge toast, any key
+dismisses; OPTIONS: COACH MARKS ON/OFF/RESET). Fresh saves see "YOUR FIRST NIGHT — PRESS
+SPACE" and no empty-stat chips. Also fixed a TDZ bug that silently killed menu chips.
+**G2 THE DOPAMINE MIX** — 30 concentrated hits: escalating reel stops, two-match heartbeat,
+TRIPLE hold-then-slam, coin odometer, amber near-miss + paytable flare, dice held-breath
+verdict, PERFECT gold ring, ON THE NOSE tag, rung-4 machine breathing, wheel brake-drag
+ticks + CONTRABAND freeze-then-eruption, ascent number weight + mint edges past 5x,
+flyGlyphs (coins visibly fly into counters: ascent cash, combo cash, vault buys, voucher
+mint), death rank-bar rising tone, streak echo, boss slow-mo gold, fountain harp, chroma
+edge flick on t4 ceremonies, indulgence seal-flip, hot-deck red tint, first-pull savor.
+**G3 SLEEK & MODERN** — easing/shadow tokens, 6px gold scrollbars, tabular-nums on all
+counters, ::selection, :focus-visible rings, hover/active on every control, unified hint
+text + progress bars + close buttons, pause veil blur, announce QUEUE (never overlap),
+fade-through-black on every menu↔game transition, books empty-state flavor.
+**G4 THE MASTER BUS** — DynamicsCompressor (-18dB/4:1) on everything; 14-voice pool
+(soft voices yield); UI -6dB / pickup -3dB trims; xp=sine vs coins=square; heartbeat ducks
+coin pings 40%; room-tone ambience (OPTIONS toggle); F-A-C reel triad; perceptual x²
+volume; 120ms mute fades; distance-muffled boss roars; ascension's private 5-note motif;
+tiered whisper motifs; sub-bass under the House's voice; heavier vault door.
+**G5 THE CURVE** — (table above). One tune: late xpNeed 1.5→1.3 per lv².
+**G6 THE IRON LEDGER** — every clean load mirrors to <key>__bak; corrupt primaries restore
+from carbon ("THE LEDGER WAS RESTORED FROM CARBON"); EXPORT/IMPORT SAVE (AMSAVE1 blob,
+validated, confirm-overwrite); v:3 payload stamps; global error boundary (1 toast/30s,
+error-burst → safe menu); quota warn-once; private-mode banner; beforeunload guard past
+1:00; THE HOUSE SEATS ONE second-tab veil; daily-streak clock-skew clamp; NaN coercion on
+all loads; REC10 capped; mute persisted; build now refuses unparseable src (scripts-check).
+**G7 THE EXTERMINATION** — goldhold owns SPACE during the CONTRABAND freeze (respin
+regression); run-seq + state fences on death-roll verdicts; startGame resets slot
+machinery; closeSlot drops skip handles; empty-stake red-table guard; unmute restores
+ambience. Panel×ESC matrix (7 panels), pause/resume/quit paths all verified.
+**G8 THE SOAK** — heap flat (6→5MB) across 3 straight full nights; gradient/glow caches
+capped (240/400, incl. coordinate-keyed banner gradients — a real slow leak); texts/rings/
+sparks hard caps; parked-tab ticker drops to ~240ms; 0 zombie timers; DOM stable across
+50 panel cycles (0 nodes/open × 4 panels); ~0.4ms/frame at 61 enemies; **fonts embedded**
+(Cinzel + Cormorant latin, OFL, base64) — zero network requests, truly ONE file.
+Bundle: 933KB raw / 394KB gzip (grew past the 650KB note by carrying its own type — accepted).
+**G9 THE FURNITURE** — CREDITS behind the clickable v3.0 — GOLD stamp (menu/pause/death all
+stamped); INDEX header "you hold N% of everything the House owns"; one-time THE COMPLEAT
+PATRON ceremony at 100%; attract v2 (90s idle → title shimmer + house whisper); death
+screen MENU pill; SPACE resumes pause; favicon ♠→☠ with your fortunes; keyboard map in
+OPTIONS; NIGHT № on the pause card.
+**G10 GOLD QA** — three scripted nights on the final build (fresh · rank-20 · rank-90+seals):
+boot → ante → full night → death/marker → books → re-ante. Zero _amErr. Ship gate: PASSED.
+
+### Ship checklist (v3.0 — GOLD)
+- [x] One self-contained file, zero network (fonts embedded, OFL)
+- [x] Build syntax gate (node --check × 13 scripts) before every bundle
+- [x] Save integrity: carbon backups, corrupt-restore, export/import, NaN guards
+- [x] Error boundary: no script error can dead-screen a night
+- [x] 3 full scripted nights clean on final build; heap flat; 0 zombie timers
+- [x] Onboarding: 10 coach marks, resettable, off-switch
+- [x] Audio mastered: compressor, voice pool, perceptual volume, trims
+- [x] All 5 persistent keys unchanged (am_rank_v1, antemortem_ach_v2,
+      antemortem_gilt_v1, antemortem_gfx_v1, am_index_v1) — additive fields only
+- [x] FAKE currency only — verified in credits copy too
+- Known-good: Chromium (headless-verified live); Safari/iOS audio-resume retry wired
+- Known cosmetic: mid-spin window resize can land a reel a few px off-center (self-heals next spin)
