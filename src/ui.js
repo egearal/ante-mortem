@@ -815,6 +815,10 @@ function openCredits(){
     if(performance.now()-(window._lastInput||0)>90000){ window._attracted=true;
       const h1=document.querySelector('#menu h1'); if(h1){ h1.classList.remove('shimmer'); void h1.offsetWidth; h1.classList.add('shimmer'); }
       try{ houseSpeak(_idle9[(Math.random()*_idle9.length)|0]); }catch(e){} } },5000); }
+// C8 — pre-warm the display face: the first raster of each Cinzel size used to hitch mid-run
+{ try{ const wc=document.createElement('canvas'); wc.width=wc.height=8; const wg=wc.getContext('2d');
+  ["700 11px 'Cinzel',serif","800 15px 'Cinzel',serif","700 13px 'Cinzel',serif","600 17px 'Cinzel',serif","800 26px 'Cinzel',serif"].forEach(f=>{ wg.font=f; wg.fillText('◈',0,7); });
+}catch(e){} }
 /* boot */
 (async function boot(){
   buildAch(); await loadAch(); await loadGilt(); await loadGfx(); await idxLoad();

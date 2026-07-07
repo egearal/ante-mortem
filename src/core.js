@@ -2792,9 +2792,25 @@ function frame(now){
   try{
   const dt=Math.min(Math.max((now-last)/1000,0),0.05); last=now;
   if(loopPrev){ frameAvg=frameAvg*0.93+(now-loopPrev)*0.07; } loopPrev=now;
-  { const was=qLow; qLow = GFX.q==='low' ? true : GFX.q==='high' ? false : (qLow ? (frameAvg>15.5) : (frameAvg>19));
+  { // C8 — hysteresis: quality changes at most once per 5s dwell; upgrading demands 45
+    // consecutive good frames; the ~30 frames after any flip/resize/state change are
+    // amnestied (the flip itself causes a slow frame — the old code fed on its own wake).
+    const was=qLow;
+    if(GFX.q==='low') qLow=true;
+    else if(GFX.q==='high') qLow=false;
+    else {
+      const nw9=now;
+      if(window._qGrace===undefined) window._qGrace=0;
+      if(state!==window._qState){ window._qState=state; window._qGrace=30; }
+      if(window._qGrace>0){ window._qGrace--; window._qGood=0; }
+      else if(nw9-(window._qFlipT||0)>5000){
+        if(!qLow && frameAvg>19){ qLow=true; window._qFlipT=nw9; }
+        else if(qLow){ if(frameAvg<15.5) window._qGood=(window._qGood||0)+1; else window._qGood=0;
+          if(window._qGood>=45){ qLow=false; window._qFlipT=nw9; window._qGood=0; } }
+      }
+    }
     if(qLow&&!was&&state==='playing'&&!window._smoothT9){ window._smoothT9=true; showStreak('✦ THE HOUSE SMOOTHS THE FELT ✦'); setTimeout(()=>window._smoothT9=false,30000); } }
-  if(qLow!==window._qPrev){ window._qPrev=qLow; resize(); }
+  if(qLow!==window._qPrev){ window._qPrev=qLow; window._qGrace=30; resize(); }
   if(GFX.shake===0) shake=0; else if(GFX.shake<1) shake*=0.8;
   document.body.classList.toggle('gamble', state==='slot'||state==='wheel'||state==='crash'||state==='marker');
   if(state==='playing'){
