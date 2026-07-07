@@ -212,3 +212,35 @@ Director's third iteration sheet. 15 commits.
 - **THE HUNDRED CHAPTERS**: STORY_PAGES → 100 rank-gated chapters in ten acts (THE DEBT → THE SEAT: the lost morning, the mill, the seventeen, the architect's wound, the foreclosure of heaven) + 3 whisper interludes; act-grouped panel with spine bar; allpages secret at 20 reads.
 - **THE HUNDRED-AND-ONE WHISPERS**: 101 total; whisperSweep() threshold engine (5s cadence) + death hooks; 10 VERY RARE (violet tiles) + 1 MYTHIC — DEATHLESS: survive THE HOUSE 13:00→15:00 untouched, pays 1,000 gilt (obsidian tile). Unfound riddles blurred (hover half-clears); WHISPER HINTS: 500 gilt buys the first word.
 - **QoL 101–200 packs**: reel hum climbs per lock, felt-brush close, dice dust, bank/voucher chips on the paytable, boss name-plates, elite double-rings, distinct bomber/revenant deaths, gilded gold-flood, HOUSE lines typewriter, foreclosure breath-hold, wave-thinned flicks, estate weight tooltip, soul stat-pips, BEST NIGHT under PLAY, rank-bar glow near rank-up, OPTIONS reset, books highlight tonight, fever exit motif, relief beat + drone that leans in as you bleed, coinRain loudness scaling, blur clears keys + grace i-frames on return, ESC mid-hand refusal, hold-R re-ante, TAB toggle mode, streak best-ghost, HOUSE countdown in the wave line, ascent token expiry ring, vault rest label, case brake pressflash, ♠ favicon + flavored title, reduced-motion respect, selection guards, hit-area minimums, night fingerprint + numbered nights, daily streak, estate-100 menu stamp, misclick confirms.
+
+## Batch 15 — G5 THE CURVE (measured 2026-07-07, fast-forward headless probes)
+Probe: autoplay bot (orbit-kite, orb magnet, aims nearest, cashes rage, auto-takes slots,
+skips dice/ascent rides) — a FLOOR on player power. Human play adds dice levels, ascent
+rides, contracts; expect ~2-3× these numbers.
+
+| gt (min) | FRESH lv/coins/kills | RANK 20 lv/coins/kills | RANK 90+seals lv/coins/kills |
+|---|---|---|---|
+| 3  | 4 / 106 / 122 | 3 / 100 / 116 | 3 / 92 / 125 |
+| 6  | 5 / ~200 / 230 | 5 / 207 / 211 | 5 / 170 / 201 |
+| 9  | 6 / ~300 / 300 | 6 / 333 / 271 | 5 / 196 / 221 |
+| 12 | 7 / ~400 / 390 | 6 / 419 / 339 | 6 / 318 / 256 |
+| 13:05 | ☠ THE HOUSE | ☠ THE HOUSE | ☠ THE HOUSE |
+
+Verdicts (296–310):
+- 296 ✓ first level at 0:48 (target 0:45–1:10) — no tune.
+- 297 ✓ minutes 8–13 pressure real but survivable: deepest hp 54–56% on mid save.
+- 298 ✓ coin faucet 430–500/night floor ≈ one mid vault seal per decent night.
+- 299 ◐ gilt floor ~235/night (score/40). Good human nights est. 700–1500. 25k contract
+  slot = a deliberate long-term chase; left untuned by design.
+- 300 ✗→✓ TUNED: xpNeed quadratic 1.5→1.3 per level² (lv10 240→220, lv15 457→412).
+  Probes showed 3.0–3.5-min level droughts past level 7; target ≤3 min. Early curve
+  unchanged (lv2 gate 28 xp both before/after).
+- 301 red-table trigger: bot never dipped <20% naturally; reaches the death roll only
+  via the HOUSE. Humans hit it via bursts — leave as the drama valve it is.
+- 302 ✓ ascent tokens: 11 spawns/13 min for a bot that deletes them instantly; riding
+  consumes clock → effective human cadence 6–9/night as designed.
+- 305 ✓ HOT DECK math: RED_W epic+legendary = 28% vs base 10% — worth its 150 gilt.
+- 306 THE HOUSE (spd 385 > player, 300/touch): NOT kiteable in open field — working
+  as directed ("the 13th minute reaper"). The red table is the sanctioned second chance;
+  the min-13 whisper stays the crown jewel.
+- 308 marker press EV: base 35%+2%/press to cap 50–60% (5 seals) — documented.

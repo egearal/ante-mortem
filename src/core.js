@@ -1111,7 +1111,7 @@ function gainXP(n){
     tone(520*Math.pow(1.0595,P._xpCombo),0.05,'triangle',0.07+P._xpCombo*0.003);
     if(P._xpCombo===14 && !P._xpPeak){ P._xpPeak=true; SFX.tingle(); setTimeout(()=>P._xpPeak=false,3000); } }
   while(P.xp>=P.xpNext){ if(!P._ovPass && state==='playing' && P.hp>=P.maxHp*0.2){ startOvercharge(); break; } P._ovPass=false;
-    P.xp-=P.xpNext; P.level++; P.xpNext=Math.floor(20+P.level*7+P.level*P.level*1.5); pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); { const lv9=$('level'); if(lv9){ lv9.classList.remove('pop'); void lv9.offsetWidth; lv9.classList.add('pop'); } } ring(P.x,P.y,120,'#c81e2c'); ring(P.x,P.y,70,'#ffd36b'); burst(P.x,P.y,16,'#e8b64c'); for(let i=0;i<16;i++){ parts.push({x:P.x+rnd(-10,10),y:P.y+rnd(-4,4),vx:rnd(-14,14),vy:-rnd(90,220),life:rnd(.4,.8),col:i%3?'#ffd36b':'#fff2c0',r:rnd(1.6,3.2)}); } flash(0.25,'#c81e2c'); }
+    P.xp-=P.xpNext; P.level++; P.xpNext=Math.floor(20+P.level*7+P.level*P.level*1.3); /* G5: late levels eased 1.5->1.3 - probes showed 3.5-min droughts past level 7 */ pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); { const lv9=$('level'); if(lv9){ lv9.classList.remove('pop'); void lv9.offsetWidth; lv9.classList.add('pop'); } } ring(P.x,P.y,120,'#c81e2c'); ring(P.x,P.y,70,'#ffd36b'); burst(P.x,P.y,16,'#e8b64c'); for(let i=0;i<16;i++){ parts.push({x:P.x+rnd(-10,10),y:P.y+rnd(-4,4),vx:rnd(-14,14),vy:-rnd(90,220),life:rnd(.4,.8),col:i%3?'#ffd36b':'#fff2c0',r:rnd(1.6,3.2)}); } flash(0.25,'#c81e2c'); }
   if(pending.length && state==='playing') openNextSlot();
 }
 
