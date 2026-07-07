@@ -437,7 +437,8 @@ function killEnemy(e,idx){
   P.kills++;
   if(P.onKillHeal) P.hp=Math.min(P.maxHp,P.hp+P.onKillHeal);
   LT.kills++; bump('ltKills',LT.kills); P.noDmgStreak=(P.noDmgStreak||0)+1; bump('noDmg',P.noDmgStreak);
-  if(decals.length<(GFX.lite?8:40)) decals.push({x:e.x+rnd(-4,4),y:e.y+rnd(-2,6),r:e.r*(0.8+Math.random()*0.6),a:rnd(0,6.28),t:0,max:14+Math.random()*8}); bump('runKills',P.kills); recCheck('kills',P.kills,'Kills');
+  goreStamp(e.x+rnd(-4,4), e.y+rnd(-2,6), e.r*(0.8+Math.random()*0.6));
+  if(decals.length<(GFX.lite?4:14)) decals.push({x:e.x+rnd(-4,4),y:e.y+rnd(-2,6),r:e.r*(0.7+Math.random()*0.5),a:rnd(0,6.28),t:0,max:1.5}); // the wet glisten, briefly bump('runKills',P.kills); recCheck('kills',P.kills,'Kills');
   LT.killsBy[e.type]=(LT.killsBy[e.type]||0)+1; bump('ek_'+e.type, LT.killsBy[e.type]);
   if(e.type==='bomber'){ ring(e.x,e.y,74,'#ff8a2c'); burst(e.x,e.y,16,'#ff8a2c'); SFX.nova(); shake=Math.min(14,shake+5);
     if(Math.hypot(P.x-e.x,P.y-e.y)<74) hurtPlayer(e.dmg*1.4);
@@ -1321,6 +1322,34 @@ function bulletGrad(kind,r){
   else { g=ctx.createLinearGradient(0,0,-r*4,0); g.addColorStop(0,'rgba(201,139,255,0.85)'); g.addColorStop(0.5,'rgba(140,70,220,0.4)'); g.addColorStop(1,'rgba(90,30,160,0)'); }
   return _bgCache[k]=g;
 }
+// C4 — THE GORE LEDGER: the floor remembers the whole night. Kills stamp ONCE into a
+// 1/3-scale offscreen canvas; a slow wash dries old blood toward black-brown; per frame
+// the visible sub-rect is ONE drawImage. Strictly cheaper than the old 40-ellipse loop.
+// Tiled 3x3 so a stamp only dirties (and re-uploads) one ~467px tile, never the whole arena.
+let goreT=null, _goreDryI=0, _goreDryT=0, _goreWinT=0, _goreWinN=0;
+const GORE_S=1/3, GORE_N=3;
+function goreTile(i){
+  if(!goreT) goreT=new Array(GORE_N*GORE_N).fill(null);
+  let t=goreT[i];
+  if(!t){ const w=Math.ceil(CFG.arena*GORE_S/GORE_N); t={cv:document.createElement('canvas')}; t.cv.width=t.cv.height=w; t.g=t.cv.getContext('2d'); goreT[i]=t; }
+  return t;
+}
+function goreStamp(x,y,r){
+  if(Math.abs(gt-_goreWinT)>0.1){ _goreWinT=gt; _goreWinN=0; } // abs: a fresh night's gt=0 must never sit behind a stale window
+  if(++_goreWinN>2) return; // a nova massacre cannot spike the ledger (~20 stamps/s)
+  const tw=CFG.arena/GORE_N;
+  const ti=Math.min(GORE_N-1,Math.max(0,(x/tw)|0)), tj=Math.min(GORE_N-1,Math.max(0,(y/tw)|0));
+  const t=goreTile(tj*GORE_N+ti);
+  const g=t.g, R=Math.max(1.6,r*GORE_S), lx=(x-ti*tw)*GORE_S, ly=(y-tj*tw)*GORE_S;
+  g.save(); g.translate(lx,ly); g.rotate(Math.random()*6.28);
+  g.fillStyle='rgba(74,13,20,0.55)';
+  g.beginPath(); g.ellipse(0,0,R*1.2,R*0.8,0,0,6.28); g.fill();
+  if(!GFX.lite){
+    g.beginPath(); g.ellipse(R*0.8,R*0.3,R*0.4,R*0.26,0,0,6.28); g.fill();
+    g.beginPath(); g.ellipse(-R*0.7,-R*0.35,R*0.3,R*0.2,0,0,6.28); g.fill();
+  }
+  g.restore();
+}
 // C1 — THE LEDGER OF FRAMES: per-stage profiler. Dark unless ?prof (or __prof.on=true).
 const PROF={ on:/[?&#]prof/.test(location.search+location.hash), t0:0, tS:0, cur:null, frames:0,
   stages:{}, ring:new Float32Array(600), ri:0, rn:0, spikes25:0, spikes40:0, spikeStage:{}, _worst:0, _worstN:'',
@@ -1394,7 +1423,22 @@ function render(){
   drawWallsAndCarpet();
   drawSigil(CFG.arena/2,CFG.arena/2);
   PROF.mark('decals');
-  // battlefield gore — blood pools accumulate where the damned fall, then dry
+  // battlefield gore — the permanent ledger first: only the visible tiles, one blit each
+  if(goreT){
+    if(gt-_goreDryT>0.7){ _goreDryT=gt; // dry ONE tile per beat, round-robin — never a whole-ledger wash
+      const t=goreT[(_goreDryI++)%(GORE_N*GORE_N)];
+      if(t){ t.g.save(); t.g.globalCompositeOperation='source-atop'; t.g.fillStyle='rgba(20,8,6,0.055)'; t.g.fillRect(0,0,t.cv.width,t.cv.height); t.g.restore(); } }
+    const tw=CFG.arena/GORE_N;
+    const i0=Math.max(0,(camX/tw)|0), i1=Math.min(GORE_N-1,((camX+VW)/tw)|0);
+    const j0=Math.max(0,(camY/tw)|0), j1=Math.min(GORE_N-1,((camY+VH)/tw)|0);
+    for(let j=j0;j<=j1;j++) for(let i=i0;i<=i1;i++){ const t=goreT[j*GORE_N+i]; if(!t) continue;
+      // only the visible sliver of each tile — dest area is exactly the viewport, never more
+      const wx0=Math.max(i*tw,camX), wx1=Math.min((i+1)*tw,camX+VW);
+      const wy0=Math.max(j*tw,camY), wy1=Math.min((j+1)*tw,camY+VH);
+      if(wx1<=wx0||wy1<=wy0) continue;
+      ctx.drawImage(t.cv, (wx0-i*tw)*GORE_S,(wy0-j*tw)*GORE_S,(wx1-wx0)*GORE_S,(wy1-wy0)*GORE_S, wx0,wy0,wx1-wx0,wy1-wy0); }
+  }
+  // …then tonight's freshest kills glisten wet for a heartbeat
   for(let i=decals.length-1;i>=0;i--){ const dc=decals[i]; dc.t+=1/60;
     if(dc.t>=dc.max){ decals.splice(i,1); continue; }
     const fa2=dc.t<1? dc.t : (1-Math.max(0,(dc.t-dc.max*0.55))/(dc.max*0.45));
@@ -2705,7 +2749,7 @@ function startGame(){
   waves=[]; guils=[]; gpools=[]; gstakes=[];
   owned.clear();
   window._runSeq=(window._runSeq||0)+1; slotStage='idle'; gamble=null; window._slotFF=null; try{ clearInterval(window._antiHb); }catch(e){}
-  gt=0; shake=0; hitstop=0; killStreak=0; streakT=0; excite=0; fireAcc=0; pending=[]; LT.runs++; bump('runs',LT.runs); fever=0; feverOn=false; feverT=0; tarots=[]; tarotT=14; decals=[]; wheelTok=null; wheelTokT=40; crashTok=null; crashTokT=50; bounty=null; bountyT=34; slotBank=0; vouchers=0; bountyStk=0; goldenT=0; ovBonusNext=false; slowT=0; prevHp=0; dare=null; dareT=46; ascTime=7; ascPend=0;
+  gt=0; shake=0; hitstop=0; killStreak=0; streakT=0; goreT=null; _goreDryT=0; _goreDryI=0; _goreWinT=0; _goreWinN=0; excite=0; fireAcc=0; pending=[]; LT.runs++; bump('runs',LT.runs); fever=0; feverOn=false; feverT=0; tarots=[]; tarotT=14; decals=[]; wheelTok=null; wheelTokT=40; crashTok=null; crashTokT=50; bounty=null; bountyT=34; slotBank=0; vouchers=0; bountyStk=0; goldenT=0; ovBonusNext=false; slowT=0; prevHp=0; dare=null; dareT=46; ascTime=7; ascPend=0;
   if(!RANK._ld){ RANK._ld=1; loadRank(); }
   applyRankPerks(); recToasted=new Set(); applyVault(); applyAchPerks();
   // the soul at the table speaks last — then the floor, then the ink
