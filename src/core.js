@@ -913,10 +913,36 @@ function update(dt){
 }
 function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
 function inView(x,y,pad){ return P && Math.abs(x-P.x)<VW/2+pad && Math.abs(y-P.y)<VH/2+pad; }
+function bakeWain(){ // one 256x26 beveled panel strip — repeated along every wall
+  const c=document.createElement('canvas'); c.width=256; c.height=26; const g=c.getContext('2d');
+  g.fillStyle='#0a0509'; g.fillRect(0,0,256,26);
+  g.fillStyle='rgba(30,18,12,0.9)'; g.fillRect(0,3,256,2); // top bevel catch-light
+  g.fillStyle='rgba(0,0,0,0.5)'; g.fillRect(0,22,256,4);
+  for(let x=0;x<256;x+=64){ g.strokeStyle='rgba(60,40,26,0.8)'; g.lineWidth=1.6; g.strokeRect(x+6,6,52,15);
+    g.strokeStyle='rgba(232,182,76,0.14)'; g.lineWidth=1; g.strokeRect(x+9,8,46,11); }
+  g.fillStyle='rgba(232,182,76,0.35)'; for(let x=32;x<256;x+=64) g.fillRect(x-1,12,2,2);
+  window._wainB=c;
+}
+function bakeWeave(){ // one 110x140 damask carpet tile — herringbone + medallion
+  const c=document.createElement('canvas'); c.width=110; c.height=140; const g=c.getContext('2d');
+  g.strokeStyle='rgba(212,160,80,0.055)'; g.lineWidth=1.2;
+  for(let y=-10;y<150;y+=10){ g.beginPath(); g.moveTo(10,y); g.lineTo(55,y+8); g.lineTo(100,y); g.stroke(); }
+  g.strokeStyle='rgba(120,24,34,0.5)'; g.lineWidth=1; g.strokeRect(14,10,82,120);
+  g.fillStyle='rgba(232,182,76,0.16)'; g.font='16px serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText('\u2756',55,70);
+  window._weaveB=c;
+}
 function drawWallsAndCarpet(){
   const A=CFG.arena, C0=A/2;
   // perimeter wall — dark wainscot band + gold rail
   ctx.fillStyle='#0a0509'; ctx.fillRect(0,0,A,26); ctx.fillRect(0,A-26,A,26); ctx.fillRect(0,0,26,A); ctx.fillRect(A-26,0,26,A);
+  { // C5: beveled paneling over the flat band — only the walls the camera can see
+    if(!window._wainB) bakeWain();
+    const wb=window._wainB, x0=Math.floor(camX/256)*256, x1=camX+VW, y0=Math.floor(camY/256)*256, y1=camY+VH;
+    if(camY<40) for(let x=x0;x<x1;x+=256) ctx.drawImage(wb,x,0);
+    if(camY+VH>A-40){ ctx.save(); ctx.translate(0,A); ctx.scale(1,-1); for(let x=x0;x<x1;x+=256) ctx.drawImage(wb,x,0); ctx.restore(); }
+    if(camX<40){ ctx.save(); ctx.rotate(Math.PI/2); ctx.translate(0,-26); for(let y=y0;y<y1;y+=256) ctx.drawImage(wb,y,0); ctx.restore(); }
+    if(camX+VW>A-40){ ctx.save(); ctx.translate(A,0); ctx.rotate(Math.PI/2); for(let y=y0;y<y1;y+=256) ctx.drawImage(wb,y,0); ctx.restore(); }
+  }
   ctx.strokeStyle='rgba(232,182,76,0.28)'; ctx.lineWidth=2; ctx.strokeRect(28,28,A-56,A-56);
   ctx.strokeStyle='rgba(90,20,30,0.5)'; ctx.lineWidth=6; ctx.strokeRect(13,13,A-26,A-26);
   // torch sconces along the walls
@@ -952,6 +978,8 @@ function drawWallsAndCarpet(){
       ctx.fillText('♦', bx2+swb*0.6, wy2+dn*44);
       ctx.fillStyle='#caa64e';
       ctx.beginPath(); ctx.arc(bx2-20,wy2,2.4,0,6.28); ctx.arc(bx2+20,wy2,2.4,0,6.28); ctx.fill();
+      ctx.strokeStyle='rgba(202,166,78,0.5)'; ctx.lineWidth=1; // worn gold fringe on the hem
+      for(let f9=0;f9<5;f9++){ const fx9=bx2-14+f9*7+swb*0.8; ctx.beginPath(); ctx.moveTo(fx9,wy2+dn*(74+Math.abs(f9-2)*4)); ctx.lineTo(fx9,wy2+dn*(80+Math.abs(f9-2)*4)); ctx.stroke(); }
     }
   }
   // gilt-framed portraits of the House's founders along east & west walls
@@ -970,6 +998,8 @@ function drawWallsAndCarpet(){
       ctx.fillStyle='rgba(60,55,70,0.55)';
       ctx.beginPath(); ctx.arc(px3,py3-8,6,0,6.28); ctx.fill();
       ctx.beginPath(); ctx.ellipse(px3,py3+12,9,12,0,3.14,6.28); ctx.fill();
+      { const fx0=wx2-2*inn-(inn>0?0:26); ctx.strokeStyle='rgba(232,182,76,0.4)'; ctx.lineWidth=1; // gilt corner flourishes
+        ctx.beginPath(); ctx.arc(fx0+4,py3-30,3,3.14,4.71); ctx.arc(fx0+22,py3-30,3,4.71,6.28); ctx.arc(fx0+22,py3+30,3,0,1.57); ctx.arc(fx0+4,py3+30,3,1.57,3.14); ctx.stroke(); }
       const wk=Math.sin(gt*0.9+pi2*2.4+wx2)>0.93;
       if(wk){ ctx.fillStyle='rgba(255,80,80,0.75)';
         ctx.beginPath(); ctx.arc(px3-2,py3-9,0.9,0,6.28); ctx.arc(px3+2,py3-9,0.9,0,6.28); ctx.fill(); }
@@ -981,8 +1011,10 @@ function drawWallsAndCarpet(){
   ctx.fillStyle='rgba(60,8,14,0.5)'; ctx.fillRect(C0-cw/2,26,8,A-52); ctx.fillRect(C0+cw/2-8,26,8,A-52);
   ctx.strokeStyle='rgba(232,182,76,0.35)'; ctx.lineWidth=2;
   ctx.beginPath(); ctx.moveTo(C0-cw/2+12,26); ctx.lineTo(C0-cw/2+12,A-26); ctx.moveTo(C0+cw/2-12,26); ctx.lineTo(C0+cw/2-12,A-26); ctx.stroke();
-  { ctx.fillStyle='rgba(232,182,76,0.16)'; ctx.font='16px serif'; ctx.textAlign='center';
-    for(let y=70;y<A-40;y+=140){ if(y<camY-40||y>camY+VH+40) continue; ctx.fillText('❖',C0,y); } }
+  { // C5: the runner is WOVEN — herringbone damask tiles down the visible span
+    if(!window._weaveB) bakeWeave();
+    const wv=window._weaveB, ty0=Math.max(26,Math.floor((camY-140)/140)*140), ty1=Math.min(A-26,camY+VH+140);
+    for(let y=ty0;y<ty1;y+=140) ctx.drawImage(wv,C0-55,y); }
 }
 function drawLandmarks(){
   // THE VAULT — colossal circular door at the north wall
@@ -995,6 +1027,8 @@ function drawLandmarks(){
     for(let k2=0;k2<8;k2++){ const va=k2*0.785+gt*0.05;
       ctx.strokeStyle='rgba(232,182,76,0.6)'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(Math.cos(va)*24,Math.sin(va)*24); ctx.lineTo(Math.cos(va)*54,Math.sin(va)*54); ctx.stroke();
       ctx.fillStyle='#caa64e'; ctx.beginPath(); ctx.arc(Math.cos(va)*68,Math.sin(va)*68,4,0,6.28); ctx.fill(); }
+    ctx.strokeStyle='rgba(232,182,76,0.3)'; ctx.lineWidth=1.4; // engraved notch ring between the seals
+    for(let n9=0;n9<24;n9++){ const na9=n9*0.2618; ctx.beginPath(); ctx.moveTo(Math.cos(na9)*60,Math.sin(na9)*60); ctx.lineTo(Math.cos(na9)*(n9%3===0?68:64),Math.sin(na9)*(n9%3===0?68:64)); ctx.stroke(); }
     ctx.fillStyle='#e8b64c'; ctx.beginPath(); ctx.arc(0,0,14,0,6.28); ctx.fill();
     ctx.fillStyle='#171008'; ctx.font='700 13px serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('◈',0,1);
     ctx.save(); ctx.globalCompositeOperation='lighter';
@@ -1200,35 +1234,51 @@ function resetEmbers(){
   fogPuffs=[];
   for(let i=0;i<8;i++) fogPuffs.push({ x:Math.random()*VW, y:Math.random()*VH, r:rnd(190,360), vx:rnd(-7,7), vy:rnd(-4,4), a:rnd(0.03,0.07), warm:Math.random()<0.5 });
 }
+// C5 — the sigil is BAKED: four half-res sprites (static, spokes, petals, runes) replace
+// ~110 live strokes; layers rotate as whole images; a view-cull skips it entirely when
+// the arena's heart is off-screen (which is most of the night).
+function bakeSigil(){
+  const mk=()=>{ const c=document.createElement('canvas'); c.width=c.height=728; const g=c.getContext('2d'); g.translate(364,364); g.scale(0.5,0.5); return [c,g]; };
+  const bk={};
+  { const [c,g]=mk(); bk.stat=c;
+    const gg=g.createRadialGradient(0,0,0,0,0,720); gg.addColorStop(0,'rgba(60,24,12,0.10)'); gg.addColorStop(1,'rgba(0,0,0,0)');
+    g.fillStyle=gg; g.beginPath(); g.arc(0,0,720,0,6.283); g.fill();
+    g.strokeStyle='rgba(232,182,76,0.09)';
+    [700,560,420,300,180].forEach((rr,i)=>{ g.lineWidth=((i===0||i===2)?2.6:1.2)*2; g.beginPath(); g.arc(0,0,rr,0,6.283); g.stroke(); });
+    g.strokeStyle='rgba(232,182,76,0.18)'; g.lineWidth=4; g.beginPath();
+    for(let i=0;i<16;i++){ const a=i/16*6.283-Math.PI/2; const rr=(i%2)?84:196; const x=Math.cos(a)*rr,y=Math.sin(a)*rr; if(i===0)g.moveTo(x,y); else g.lineTo(x,y); }
+    g.closePath(); g.stroke(); }
+  { const [c,g]=mk(); bk.spokes=c;
+    g.strokeStyle='rgba(232,182,76,0.08)'; g.lineWidth=2;
+    for(let i=0;i<36;i++){ const a=i/36*6.283; g.beginPath(); g.moveTo(Math.cos(a)*300,Math.sin(a)*300); g.lineTo(Math.cos(a)*560,Math.sin(a)*560); g.stroke(); }
+    for(let i=0;i<48;i++){ const a=i/48*6.283, r2=(i%4===0)?604:582; g.beginPath(); g.moveTo(Math.cos(a)*560,Math.sin(a)*560); g.lineTo(Math.cos(a)*r2,Math.sin(a)*r2); g.stroke(); } }
+  { const [c,g]=mk(); bk.petals=c;
+    g.strokeStyle='rgba(232,182,76,0.13)'; g.lineWidth=4;
+    for(let i=0;i<12;i++){ const a=i/12*6.283; g.beginPath(); g.ellipse(Math.cos(a)*205,Math.sin(a)*205,118,44,a,0,6.283); g.stroke(); } }
+  { const [c,g]=mk(); bk.runes=c; // the House's suits stand watch around the seal
+    g.fillStyle='rgba(232,182,76,0.14)'; g.font='700 52px serif'; g.textAlign='center'; g.textBaseline='middle';
+    const RG=['♠','♥','♦','♣','☠','◈','†','♛','⚜','◆','✦','♞'];
+    for(let i=0;i<12;i++){ const a=i/12*6.283-Math.PI/2; g.save(); g.translate(Math.cos(a)*640,Math.sin(a)*640); g.rotate(a+Math.PI/2); g.fillText(RG[i],0,0); g.restore(); } }
+  window._sigilBk=bk;
+}
 function drawSigil(cx,cy){
+  if(!inView(cx,cy,780)) return; // the heart of the arena sleeps off-screen
+  if(!window._sigilBk) bakeSigil();
+  const bk=window._sigilBk;
   ctx.save(); ctx.translate(cx,cy);
-  // faint ground disc
-  ctx.save(); ctx.globalCompositeOperation='screen';
-  if(!window._sigilG){ const gg=ctx.createRadialGradient(0,0,0,0,0,720); gg.addColorStop(0,'rgba(60,24,12,0.10)'); gg.addColorStop(1,'rgba(0,0,0,0)'); window._sigilG=gg; }
-  ctx.fillStyle=window._sigilG; ctx.beginPath(); ctx.arc(0,0,720,0,6.283); ctx.fill(); ctx.restore();
-  // concentric rings
-  ctx.strokeStyle='rgba(232,182,76,0.09)';
-  [700,560,420,300,180].forEach((rr,i)=>{ ctx.lineWidth=(i===0||i===2)?2.6:1.2; ctx.beginPath(); ctx.arc(0,0,rr,0,6.283); ctx.stroke(); });
-  // rotating spoke + rune ring
-  ctx.save(); ctx.rotate(gt*0.03); ctx.strokeStyle='rgba(232,182,76,0.08)'; ctx.lineWidth=1;
-  for(let i=0;i<36;i++){ const a=i/36*6.283; ctx.beginPath(); ctx.moveTo(Math.cos(a)*300,Math.sin(a)*300); ctx.lineTo(Math.cos(a)*560,Math.sin(a)*560); ctx.stroke(); }
-  for(let i=0;i<48;i++){ const a=i/48*6.283, r2=(i%4===0)?604:582; ctx.beginPath(); ctx.moveTo(Math.cos(a)*560,Math.sin(a)*560); ctx.lineTo(Math.cos(a)*r2,Math.sin(a)*r2); ctx.stroke(); }
+  ctx.save(); ctx.beginPath(); ctx.rect(camX-cx,camY-cy,VW,VH); ctx.clip(); // never rasterize past the viewport
+  ctx.drawImage(bk.stat,-728,-728,1456,1456);
+  ctx.save(); ctx.rotate(gt*0.03); ctx.drawImage(bk.spokes,-728,-728,1456,1456); ctx.restore();
+  ctx.save(); ctx.rotate(-gt*0.05); ctx.drawImage(bk.petals,-728,-728,1456,1456); ctx.restore();
+  ctx.save(); ctx.globalCompositeOperation='screen'; ctx.rotate(gt*0.015); ctx.drawImage(bk.runes,-728,-728,1456,1456); ctx.restore();
   ctx.restore();
-  // rose-window petals (counter-rotating)
-  ctx.save(); ctx.rotate(-gt*0.05); ctx.strokeStyle='rgba(232,182,76,0.13)'; ctx.lineWidth=2;
-  for(let i=0;i<12;i++){ const a=i/12*6.283; ctx.beginPath(); ctx.ellipse(Math.cos(a)*205,Math.sin(a)*205,118,44,a,0,6.283); ctx.stroke(); }
-  ctx.restore();
-  // inner 8-point star
-  ctx.strokeStyle='rgba(232,182,76,0.18)'; ctx.lineWidth=2; ctx.beginPath();
-  for(let i=0;i<16;i++){ const a=i/16*6.283-Math.PI/2; const rr=(i%2)?84:196; const x=Math.cos(a)*rr,y=Math.sin(a)*rr; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }
-  ctx.closePath(); ctx.stroke();
-  // slow blood ring
+  // slow blood ring — one live stroke keeps the pulse organic
   ctx.save(); ctx.rotate(gt*0.02); ctx.strokeStyle='rgba(200,30,44,0.12)'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(0,0,648,0,6.283); ctx.stroke(); ctx.restore();
-  // pulsing center glow
+  // pulsing center glow — deepens with the night's danger
   ctx.save(); ctx.globalCompositeOperation='screen';
-  const pv=0.13+Math.sin(gt*2)*0.035;
+  const pv=(0.13+Math.sin(gt*2)*0.035)*(1+Math.min(0.5,gt/900));
   if(!window._sigilG2){ const cg=ctx.createRadialGradient(0,0,0,0,0,130); cg.addColorStop(0,'rgba(232,150,60,0.165)'); cg.addColorStop(1,'rgba(232,150,60,0)'); window._sigilG2=cg; }
-  ctx.globalAlpha=pv/0.165; ctx.fillStyle=window._sigilG2; ctx.beginPath(); ctx.arc(0,0,130,0,6.283); ctx.fill(); ctx.restore();
+  ctx.globalAlpha=Math.min(1.6,pv/0.165); ctx.fillStyle=window._sigilG2; ctx.beginPath(); ctx.arc(0,0,130,0,6.283); ctx.fill(); ctx.restore();
   ctx.restore();
 }
 function drawPillar(px,py,r){
