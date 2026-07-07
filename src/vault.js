@@ -129,7 +129,7 @@ function renderVault(){
   grid.innerHTML=html;
   grid.querySelectorAll('.vBuy[data-vid]').forEach(b=>b.addEventListener('click',()=>buyVault(b.dataset.vid)));
 }
-function openVault(){ renderVault(); $('vaultPanel').classList.remove('hidden'); SFX.vaultOpen(); }
+function openVault(){ coachMark('vault','SEALS ARE FOREVER — bought once, owned every night after'); renderVault(); $('vaultPanel').classList.remove('hidden'); SFX.vaultOpen(); }
 function vaultWindowOpen(){ return !!P && gt>=180 && !(vaultLocked>0 && gt<vaultLocked); } // the door manifests at 3:00 — five seals a night
 function tickVaultDoor(){
   if(vaultLocked>0 && gt>=vaultLocked){ vaultLocked=0; vaultBuys=0;

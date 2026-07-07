@@ -725,6 +725,7 @@ function update(dt){
       startDrone(); SFX.bossRoar(); shake=Math.min(28,shake+18); flash(0.5,'#8b1620');
       LT.houseMet=(LT.houseMet||0)+1; achSaveSoon();
       houseSpeak(HOUSE_LINES[Math.min(HOUSE_LINES.length-1, (LT.houseMet||1)-1)]);
+      if((LT.houseMet||0)===1) setTimeout(()=>coachMark('house','you have met the HOUSE — outrun the reign · the MIDNIGHT contract is watching'),3000);
     }, 1400);
   }
   // 15:00 — FORECLOSURE. Not death; repossession. The final press does not apply.
@@ -842,7 +843,7 @@ function update(dt){
     const o=orbs[i], dx=P.x-o.x, dy=P.y-o.y, d=Math.hypot(dx,dy);
     o.vx*=0.9; o.vy*=0.9; o.x+=o.vx*dt; o.y+=o.vy*dt;
     if(d<P.pickup){ const pull = d>44 ? 175 : 340; o.x+=dx/d*pull*dt; o.y+=dy/d*pull*dt; }
-    if(d<P.radius+6){ gainXP(o.xp); orbs.splice(i,1); }
+    if(d<P.radius+6){ gainXP(o.xp); orbs.splice(i,1); coachMark('orb','SOULS FEED THE RED BAR — fill it and the reels appear'); }
   }
   // coins
   for(let i=coins.length-1;i>=0;i--){
@@ -2558,7 +2559,8 @@ function frame(now){
   }catch(_e){ if(!window._amErr){ window._amErr=1; console.error('[ANTE MORTEM]',_e); } }
 }
 function startGame(){
-  initAudio(); houseActive=false; keyProp=null; vaultBuys=0; vaultLocked=0; if(AC&&AC.state==='suspended')AC.resume();
+  initAudio(); houseActive=false;
+  setTimeout(()=>{ try{ if(AC&&AC.state==='suspended') coachMark('audio','the browser holds the music hostage — click once and the House sings'); }catch(e){} },2000); keyProp=null; vaultBuys=0; vaultLocked=0; if(AC&&AC.state==='suspended')AC.resume();
   P={ x:CFG.arena/2, y:CFG.arena/2, aim:0, moving:false, inv:0, coins:0, kills:0,
     hp:CFG.player.maxHp, maxHp:CFG.player.maxHp, speed:CFG.player.speed, radius:CFG.player.radius, pickup:CFG.player.pickup,
     damage:CFG.player.damage, fireRate:CFG.player.fireRate, projectiles:CFG.player.projectiles, pierce:CFG.player.pierce,

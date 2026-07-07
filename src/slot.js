@@ -81,6 +81,7 @@ function endSeance(){
 function openNextSlot(){
   if(!pending.length) return;
   const p=pending.shift();
+  coachMark('slot','SPACE stops each reel — match three for the strongest pulls');
   slotFloor=p.floor||null;
   state='slot';
   // RED TABLE v5: below twenty the table turns red on its own — no lever,
@@ -447,6 +448,7 @@ function stakeReturns(){
 function missShort(g){ return g.round>=3 ? 'BUST + SCAR' : 'CURSE'; }
 function openOffer(){
   slotStage='offer'; endSeance(); const g=gamble; showRewardPanel();
+  coachMark('offer','TAKE keeps the prize · DICE gambles it one rung higher');
   const deadly = g.round>=3;
   if(!deadly && !g.pendingCurse) g.pendingCurse=DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0];
   const curLv=skLevel(g.def);
@@ -555,6 +557,7 @@ function resolveRisk(){
   if(g.win){
     const perfect = sum===12;
     (g.hist=g.hist||[]).push('w'); updateLadderPips();
+    coachMark('dicewin','every rung won = +1 LEVEL — a miss curses you instead');
     if(perfect && g.round===1) secret('bornlucky','BORN LUCKY');
     if(perfect && g._lastPerfect) secret('dblperfect','DOUBLE PERFECTION');
     g._lastPerfect=perfect;

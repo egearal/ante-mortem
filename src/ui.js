@@ -178,8 +178,10 @@ const GFX_DEFS=[
  {k:'lod',  n:'CHUNK DISTANCE', opts:[['low','LOW — 20 IN FULL ART'],['normal','NORMAL — 44'],['high','HIGH — 120'],['inf','INFINITE — ALL']]},
  {k:'fps',   n:'FPS COUNTER',   opts:[[false,'OFF'],[true,'ON']]},
  {k:'cb',   n:'COLORBLIND PIPS', opts:[[false,'OFF'],[true,'SHAPES']]},
- {k:'tabT', n:'TAB CODEX',      opts:[[false,'HOLD'],[true,'TOGGLE']]}
+ {k:'tabT', n:'TAB CODEX',      opts:[[false,'HOLD'],[true,'TOGGLE']]},
+ {k:'coach',n:'COACH MARKS',    opts:[[true,'ON'],[false,'OFF'],['reset','RESET']]}
 ];
+if(GFX.coach===undefined) GFX.coach=true;
 function gfxLabel(d){ const o=d.opts.find(o=>o[0]===GFX[d.k]); return o?o[1]:String(GFX[d.k]); }
 function applyGfxPreset(name){
   const p=GFX_PRESETS[name]; if(!p) return;
@@ -212,6 +214,7 @@ function buildGfxPanel(){
     const d=GFX_DEFS.find(x=>x.k===b.dataset.k);
     const i=d.opts.findIndex(o=>o[0]===GFX[d.k]);
     GFX[d.k]=d.opts[(i+1)%d.opts.length][0];
+    if(d.k==='coach'&&GFX.coach==='reset'){ GFX.coach=true; try{ LT.coach={}; achSaveSoon(); announce('✒ THE HOUSE FORGETS — LESSONS RESET ✒',true); }catch(e){} }
     GFX.preset=gfxDerivePreset(); syncPresetRow();
     b.textContent=gfxLabel(d); applyGfxSide(); saveGfx(); SFX.uiDing();
   }));
@@ -651,14 +654,30 @@ function estatePct(){
     return Math.round((ranks*0.30 + wsp*0.15 + idx*0.20 + pages*0.10 + feats*0.15 + (souls+floors)/2*0.10)*100);
   }catch(e){ return 0; }
 }
+// ✒ THE FIRST NIGHT — the House explains itself exactly once per lesson (LT.coach, additive)
+function coachMark(id, txt){
+  try{
+    if(GFX.coach===false) return;
+    LT.coach=LT.coach||{}; if(LT.coach[id]) return; LT.coach[id]=1;
+    if(typeof achSaveSoon==='function') achSaveSoon();
+    let c=document.getElementById('coachToast');
+    if(!c){ c=document.createElement('div'); c.id='coachToast'; document.body.appendChild(c);
+      window.addEventListener('keydown',()=>{ if(c.classList.contains('go')&&performance.now()-(c._born||0)>600) c.classList.remove('go'); }); }
+    c.innerHTML='✒ '+txt; c._born=performance.now();
+    c.classList.remove('go'); void c.offsetWidth; c.classList.add('go');
+    try{ SFX.tingle&&SFX.tingle(); }catch(e){}
+    clearTimeout(c._t); c._t=setTimeout(()=>c.classList.remove('go'), 4600);
+  }catch(e){}
+}
 function renderChips(){
+  const _est=estatePct();
   try{ storyPulse(); }catch(e){}
   try{ menuMotion(); }catch(e){}
   // the loadout line — who, where, and on what terms
   { let ln9=$('lastNight');
-    if(!ln9 && best>0){ ln9=document.createElement('div'); ln9.id='lastNight';
+    if(!ln9 && (best>0||(LT.runs||0)===0)){ ln9=document.createElement('div'); ln9.id='lastNight';
       const sb=$('startBtn'); if(sb) sb.parentNode.insertBefore(ln9, sb); }
-    if(ln9) ln9.textContent = best>0 ? ('BEST NIGHT — '+best.toLocaleString()) : ''; }
+    if(ln9) ln9.textContent = best>0 ? ('BEST NIGHT — '+best.toLocaleString()) : ((LT.runs||0)===0?'✦ YOUR FIRST NIGHT — PRESS SPACE ✦':''); }
   { if(_est>=100){ const tg=document.querySelector('#menu .tag'); if(tg && !tg.dataset.owned){ tg.dataset.owned='1'; tg.textContent='THE HOUSE IS YOURS'; } } }
   { let ll=$('loadoutLine');
     if(!ll){ ll=document.createElement('div'); ll.id='loadoutLine';
@@ -680,12 +699,11 @@ function renderChips(){
       rb.innerHTML='<div class="mrTop">⚜ RANK '+RANK.rank+' — '+RANKS[RANK.rank-1].n+'</div>'
         +'<div class="mrBar"><i style="width:'+pct+'%"></i></div>'
         +'<div class="mrSub">'+(RANK.marks-base)+' / '+(next-base)+' MARKS TO RANK '+(RANK.rank+1)+'</div>'; } }
-  const _est=estatePct();
   const chips=[
     best>0?['🏆',best.toLocaleString(),'#ffd36b']:null,
-    ['📖',idxPct()+'%','#c98bff'],
-    ['✦',SEC.size+'/'+WHISPER_TOTAL,'#8bffd0'],
-    ['🏛',_est+'% OF THE HOUSE — ranks 30 · index 20 · whispers 15 · feats 15 · pages 10 · souls&floors 10','#e8b64c'],
+    idxPct()>0?['📖',idxPct()+'%','#c98bff']:null,
+    SEC.size>0?['✦',SEC.size+'/'+WHISPER_TOTAL,'#8bffd0']:null,
+    _est>0?['🏛',_est+'% OF THE HOUSE — ranks 30 · index 20 · whispers 15 · feats 15 · pages 10 · souls&floors 10','#e8b64c']:null,
     (LT.minutes||0)>=30?['⏱',((LT.minutes||0)/60).toFixed(1)+'h AT THE TABLE','#9adcff']:null,
     ...(function(){ const nx=nextArmUnlock(); if(!nx) return []; const wd=WEAPONS.find(x=>x.id===nx.id);
       return wd?[['🗡','NEXT ARM: '+wd.n.toUpperCase()+' · RANK '+nx.thr,'#ff9a3c']]:[]; })(),

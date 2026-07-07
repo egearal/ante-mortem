@@ -13,6 +13,7 @@ async function die(){
 /* THE FINAL PRESS — no gold at the door. 35% to live; mash SPACE for 3.2 seconds, every press buys +0.5-1.5%, cap 50%. */
 function markerSpin(){
   state='marker'; stopDrone(); try{ keys.clear(); }catch(e){}
+  coachMark('red','THE RED TABLE — hammer SPACE to raise your odds before the wheel decides');
   const l=$('jackpotLayer'), t=$('jackpotText');
   l.classList.remove('hidden');
   const base=Math.min(0.46, 0.35+(P.pressBase||0));
@@ -99,6 +100,7 @@ function startFlicker(mk){
 }
 async function actuallyDie(){
   if(state==='dead') return;
+  setTimeout(()=>coachMark('death','every night pays MARKS toward your RANK — HOW TO PLAY waits on the menu'),2600);
   // the door opens FIRST — no recap decoration may ever stand between a corpse and its ledger
   state='dead'; try{ keys.clear(); }catch(e){}
   elGO.classList.remove('hidden');

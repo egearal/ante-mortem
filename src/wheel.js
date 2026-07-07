@@ -117,6 +117,7 @@ function buildTickerStrip(){
 function tkX(x){ $('tickerStrip').style.transform='translate3d('+x+'px,0,-0px)'; }
 function tkCenter(i){ return i*TK_STEP+TK_CARD/2; }
 function openWheel(){
+  coachMark('wheel','SPACE snaps the chains — CONTRABAND is the finest shelf');
   buildWheelDom(); state='wheel';
   wheel={x:0, phase:'sealed', mult:1, lastSeg:-1, done:false, windT:0, setT:0, toAscent:false,
     golden:Math.random()<(0.05+(P.goldenBoost||0)), windK:0, slowTicks:0, hbT:0, strip:[], tIdx:0, jit:0, rigSeg:(wheel&&wheel.rigSeg)||null};

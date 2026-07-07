@@ -38,6 +38,7 @@ function spawnAscentGate(){
   const a=Math.random()*6.283, d=260+Math.random()*220;
   crashTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:30, ph:Math.random()*6.28, blessed:true};
   announce('▲ THE ASCENT HAS MANIFESTED — SEEK THE GATE ▲', true);
+  coachMark('ascent','the GREEN GATE stakes your LEVEL — ride the multiplier, cash before the crash');
   SFX.dingBells(); SFX.casinoDing(); ring(crashTok.x,crashTok.y,120,'#8bff9a'); ring(crashTok.x,crashTok.y,70,'#fff2c0');
 }
 function rageDrop(){
@@ -432,6 +433,7 @@ function tickCrashTok(dt){
       const a=Math.random()*6.283, d=300+Math.random()*300;
       crashTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:20, ph:Math.random()*6.28};
       announce('▲ THE ASCENT BECKONS ▲', true); SFX.dingBells();
+      coachMark('ascent','the GREEN GATE stakes your LEVEL — ride the multiplier, cash before the crash');
       [988,1318,1760].forEach((f,i)=>setTimeout(()=>tone(f,0.14,'sine',0.08),i*110)); // come-play beckon
       ring(crashTok.x,crashTok.y,90,'#8bffd0'); ring(crashTok.x,crashTok.y,54,'#fff2c0'); }
   } else {

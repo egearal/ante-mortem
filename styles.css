@@ -1256,3 +1256,15 @@ body.paused #hud{z-index:25;}
 /* the floors tint the night */
 body.floor-cellar canvas{filter:hue-rotate(46deg) saturate(0.92) brightness(0.94);}
 body.floor-chapel canvas{filter:sepia(.22) saturate(1.15) brightness(1.07);}
+
+/* ✒ THE FIRST NIGHT — coach marks: the House explains itself exactly once */
+#coachToast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,14px);z-index:9500;
+  max-width:min(540px,86vw);padding:10px 20px 11px;text-align:center;
+  font-family:var(--disp);font-size:12.5px;letter-spacing:.14em;color:#ffe9b0;
+  background:linear-gradient(180deg,rgba(24,14,8,.96),rgba(13,8,5,.97));
+  border:1px solid #b98a2e;border-radius:10px;
+  box-shadow:0 0 22px rgba(255,211,107,.2),0 8px 26px rgba(0,0,0,.65);
+  opacity:0;pointer-events:none;transition:opacity .3s ease,transform .32s cubic-bezier(.2,.9,.25,1.18);}
+#coachToast.go{opacity:1;transform:translate(-50%,0);}
+#coachToast::before{content:'THE HOUSE EXPLAINS';display:block;font-size:8.5px;letter-spacing:.3em;color:#b98a2e;margin-bottom:3px;}
+@media (prefers-reduced-motion: reduce){ #coachToast{transition:opacity .2s ease;} }
