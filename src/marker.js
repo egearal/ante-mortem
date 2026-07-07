@@ -104,7 +104,7 @@ async function actuallyDie(){
   if(state==='dead') return;
   setTimeout(()=>coachMark('death','every night pays MARKS toward your RANK — HOW TO PLAY waits on the menu'),2600);
   // the door opens FIRST — no recap decoration may ever stand between a corpse and its ledger
-  state='dead'; try{ keys.clear(); }catch(e){}
+  state='dead'; try{ keys.clear(); }catch(e){} try{ setFav('☠'); }catch(e){}
   elGO.classList.remove('hidden');
   if(P.coins===0) secret('broke','BROKE AT THE END');
   { const g6=Math.floor(gt); if(g6>=425&&g6<=427) secret('sixsix',"THE BEAST'S HOUR"); }
@@ -169,7 +169,7 @@ async function actuallyDie(){
     tick(); };
   { const fp9=((P.kills*7+Math.round(gt)*13+P.level*101+score)>>>0).toString(16).toUpperCase().slice(0,6);
     let fpEl=$('goSeed'); if(!fpEl){ fpEl=document.createElement('div'); fpEl.id='goSeed'; $('goStats').parentNode.insertBefore(fpEl,$('goStats')); }
-    fpEl.textContent='NIGHT №'+(LT.runs||0)+' · LEDGER '+fp9; }
+    fpEl.textContent='NIGHT №'+(LT.runs||0)+' · LEDGER '+fp9+' · v3.0 GOLD'; }
   countUp($('goScore'), score, 1200);
   countUp($('goGilt'), giltEarned, 900); $('goGiltTotal').textContent=gilt;
   // THE LEDGER — the whole run at a glance: wave, arsenal, skills, wounds, the dice record, the best pull

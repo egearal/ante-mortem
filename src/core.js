@@ -2600,7 +2600,7 @@ function frame(now){
   }catch(_e){ if(!window._amErr){ window._amErr=1; console.error('[ANTE MORTEM]',_e); } }
 }
 function startGame(){
-  try{ fadeCut(); }catch(e){}
+  try{ fadeCut(); }catch(e){} try{ setFav('♠'); }catch(e){}
   initAudio(); houseActive=false;
   try{ startAmbience(); }catch(e){}
   setTimeout(()=>{ try{ if(AC&&AC.state==='suspended') coachMark('audio','the browser holds the music hostage — click once and the House sings'); }catch(e){} },2000); keyProp=null; vaultBuys=0; vaultLocked=0; if(AC&&AC.state==='suspended')AC.resume();

@@ -111,8 +111,9 @@ async function importSave(){
     setTimeout(()=>location.reload(),900);
   }catch(e){ announce('✕ THAT SOUL IS COUNTERFEIT ✕',false); SFX.bust&&SFX.bust(); }
 }
+function setFav(g){ try{ const l=document.querySelector('link[rel="icon"]'); if(l) l.href='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><text y=%2226%22 font-size=%2226%22>'+encodeURIComponent(g)+'</text></svg>'; }catch(e){} }
 function quitToMenu(){
-  try{ fadeCut(); }catch(e){}
+  try{ fadeCut(); }catch(e){} setFav('♠');
   try{ stopAmbience(); }catch(e){}
   document.body.classList.remove('floor-cellar','floor-chapel','bloodhour','paused');
   const hp=$('howPanel'), pl=$('pauseLayer');
@@ -243,6 +244,7 @@ function buildGfxPanel(){
     +GFX_DEFS.filter(d=>d.k!=='vol').map(d=>'<div class="gxRow"><span class="gxName">'+d.n+'</span><button class="gxBtn" data-k="'+d.k+'">'+gfxLabel(d)+'</button></div>').join('')
     +'<div class="gxRow"><span class="gxName">FULLSCREEN</span><button class="gxBtn" id="gxFull">F — TOGGLE</button></div>'
     +'<div class="gxRow"><span class="gxName">EVERYTHING</span><button class="gxBtn" id="gxReset">RESET TO DEFAULTS</button></div>'
+    +'<div class="gxKeys">⌨ WASD walk · SPACE every bet · ENTER cash the ascent · ESC pause · TAB codex · M mute · R (hold) re-ante</div>'
     +'<div class="gxRow"><span class="gxName">YOUR SOUL, PORTABLE</span><span><button class="gxBtn" id="gxExport">EXPORT</button> <button class="gxBtn" id="gxImport">IMPORT</button></span></div>'
     +'<button class="gxBtn gxClose" id="gfxClose">CLOSE</button></div>';
   document.body.appendChild(p);
@@ -433,12 +435,14 @@ window.addEventListener('keydown',e=>{
     if(state==='vault'){ $('vaultPanel').classList.add('hidden'); state='playing'; SFX.casinoDing(); return; }
     if(state==='playing'){ state='paused'; document.body.classList.add('paused'); $('pauseLayer').classList.remove('hidden'); SFX.thud(); window._pzT=performance.now();
       { const pt=document.querySelector('.pauseCard .pz'); if(pt) pt.textContent='◈ PAUSED ◈'; }
-      $('pauseStats').innerHTML='<div class="ps"><b>'+P.kills+'</b><i>KILLS</i></div><div class="ps"><b>'+P.level+'</b><i>LEVEL</i></div><div class="ps"><b>'+P.coins+'</b><i>COINS</i></div><div class="ps"><b>'+wave+'</b><i>WAVE</i></div><div class="ps"><b>'+Math.floor(gt/60)+':'+String(Math.floor(gt%60)).padStart(2,'0')+'</b><i>TIME</i></div>'+'<div style="flex-basis:100%;text-align:center;font-family:var(--disp);font-size:10px;letter-spacing:.08em;color:#9a8f7e;margin-top:8px">◈ COINS — the House&#39;s gold, this run · ⚜ XP — level charge, wagered in the Ascent · GILT — eternal Vault currency</div>'; if(P){ P._pauses=(P._pauses||0)+1; if(P._pauses>=13) secret('coldfeet','COLD FEET'); } }
+      $('pauseStats').innerHTML='<div class="ps"><b>'+P.kills+'</b><i>KILLS</i></div><div class="ps"><b>'+P.level+'</b><i>LEVEL</i></div><div class="ps"><b>'+P.coins+'</b><i>COINS</i></div><div class="ps"><b>'+wave+'</b><i>WAVE</i></div><div class="ps"><b>'+Math.floor(gt/60)+':'+String(Math.floor(gt%60)).padStart(2,'0')+'</b><i>TIME</i></div>'+'<div style="flex-basis:100%;text-align:center;font-family:var(--disp);font-size:10px;letter-spacing:.08em;color:#9a8f7e;margin-top:8px">◈ COINS — the House&#39;s gold, this run · ⚜ XP — level charge, wagered in the Ascent · GILT — eternal Vault currency</div>'; if(P){ P._pauses=(P._pauses||0)+1; if(P._pauses>=13) secret('coldfeet','COLD FEET'); }
+      { let pf=$('pzFoot'); if(!pf){ pf=document.createElement('div'); pf.id='pzFoot'; $('pauseStats').parentNode.appendChild(pf); } pf.textContent='NIGHT №'+(LT.runs||0)+' · v3.0 — GOLD'; } }
     else if(state==='paused'){
       if(performance.now()-(window._pzT||0)<500){ quitToMenu(); return; } // ESC·ESC — straight to the door
       state='playing'; document.body.classList.remove('paused'); $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); }
     return;
   }
+  if(k===' ' && state==='paused' && !e.repeat){ e.preventDefault(); state='playing'; document.body.classList.remove('paused'); $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); return; }
   if(k==='q' && state==='paused'){ e.preventDefault(); quitToMenu(); return; }
   if(state==='playing' && k===' '){
     e.preventDefault();
@@ -545,6 +549,7 @@ $('startBtn').addEventListener('click',startGame);
   $('startBtn').addEventListener('click',()=>fadeVeil());
   $('againBtn').addEventListener('click',()=>fadeVeil());
 $('booksBtn').addEventListener('click',()=>{ openBooks(); });
+{ const gm=$('goMenuBtn'); if(gm) gm.addEventListener('click',()=>quitToMenu()); }
 }
 window.addEventListener('blur',()=>{ keys.clear(); touch.active=false; tabHold=false; hideTab(); }); // blur clears input only — it must NEVER pause (fires constantly in embeds/iframes)
 window.addEventListener('error',ev=>{ if(!window._amErr){ window._amErr=1; console.error('[ANTE MORTEM]',ev.error||ev.message); } });
@@ -734,7 +739,9 @@ function renderChips(){
     if(!ln9 && (best>0||(LT.runs||0)===0)){ ln9=document.createElement('div'); ln9.id='lastNight';
       const sb=$('startBtn'); if(sb) sb.parentNode.insertBefore(ln9, sb); }
     if(ln9) ln9.textContent = best>0 ? ('BEST NIGHT — '+best.toLocaleString()) : ((LT.runs||0)===0?'✦ YOUR FIRST NIGHT — PRESS SPACE ✦':''); }
-  { if(_est>=100){ const tg=document.querySelector('#menu .tag'); if(tg && !tg.dataset.owned){ tg.dataset.owned='1'; tg.textContent='THE HOUSE IS YOURS'; } } }
+  { if(_est>=100){ const tg=document.querySelector('#menu .tag'); if(tg && !tg.dataset.owned){ tg.dataset.owned='1'; tg.textContent='THE HOUSE IS YOURS';
+      if(!LT.compleat){ LT.compleat=1; achSaveSoon();
+        setTimeout(()=>{ try{ bigWin('THE COMPLEAT PATRON',4); domConfetti(60); announce('♛ 100% — THE HOUSE IS YOURS ♛',true); }catch(e){} },700); } } } }
   { let ll=$('loadoutLine');
     if(!ll){ ll=document.createElement('div'); ll.id='loadoutLine';
       const sb=$('startBtn'); if(sb) sb.parentNode.insertBefore(ll, sb.nextSibling);
@@ -781,6 +788,33 @@ function menuStar(){
     $('menu').appendChild(s); setTimeout(()=>s.remove(),1500);
   }, 6000+Math.random()*8000);
 }
+// 356: CREDITS — the house was built by
+function openCredits(){
+  let p=$('creditsPanel');
+  if(!p){ p=document.createElement('div'); p.id='creditsPanel'; p.className='layer hidden';
+    p.innerHTML='<div class="panel" style="max-width:min(480px,92vw)">'
+      +'<div class="tag">◈ the house was built by ◈</div>'
+      +'<div class="crRow big">THE DIRECTOR — EGE</div>'
+      +'<div class="crRow">THE ARCHITECT — CLAUDE · ANTHROPIC</div>'
+      +'<div class="crRow dim">RAISED ON — HTML5 CANVAS · WEB AUDIO · VITE</div>'
+      +'<div class="crRow dim">SET IN — CINZEL &amp; CORMORANT GARAMOND (OFL, CARRIED IN-HOUSE)</div>'
+      +'<div class="crThanks">with thanks to the seventeen — the pit boss · the croupier · the collector · the dealer with no thumbs · the chandelier winder · the fountain keeper · the wheel greaser · the chain smith · the bone polisher · the ledger scratch · the whisper catcher · the velvet brusher · the candle counter · the door that knows you · the voice in the vents · the last patron · and the House, for losing gracefully once</div>'
+      +'<div class="crRow dim">FAKE CURRENCY ONLY — the house pays in nothing you can spend</div>'
+      +'<button class="btn" id="creditsClose">Back</button></div>';
+    document.body.appendChild(p);
+    $('creditsClose').addEventListener('click',()=>{ p.classList.add('hidden'); SFX.casinoDing(); }); }
+  p.classList.remove('hidden'); SFX.uiDing();
+}
+{ const vs=$('verStamp'); if(vs) vs.addEventListener('click',()=>openCredits());
+  const cl=$('creditLine'); if(cl) cl.addEventListener('click',()=>openCredits()); }
+// 360: attract v2 — 90 idle seconds on the menu and the House leans in
+{ const _idle9=['the seat is still warm.','the reels dream of you.','the door was never locked.','the house counts nothing but time.','come lose beautifully.'];
+  window._lastInput=performance.now();
+  ['pointerdown','keydown','wheel','mousemove'].forEach(ev=>window.addEventListener(ev,()=>{ window._lastInput=performance.now(); window._attracted=false; },{passive:true}));
+  setInterval(()=>{ if(state!=='menu'||window._attracted) return;
+    if(performance.now()-(window._lastInput||0)>90000){ window._attracted=true;
+      const h1=document.querySelector('#menu h1'); if(h1){ h1.classList.remove('shimmer'); void h1.offsetWidth; h1.classList.add('shimmer'); }
+      try{ houseSpeak(_idle9[(Math.random()*_idle9.length)|0]); }catch(e){} } },5000); }
 /* boot */
 (async function boot(){
   buildAch(); await loadAch(); await loadGilt(); await loadGfx(); await idxLoad();

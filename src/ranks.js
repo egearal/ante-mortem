@@ -362,7 +362,7 @@ function openAchPanel(){
 function openIndexPanel(){
   const p=$('indexPanel'), list=$('idxList'); if(!p) return;
   const seen=idxSeen(), tot=idxTotal();
-  $('idxCount').textContent=seen+' / '+tot+' CATALOGUED  ·  '+idxPct()+'%';
+  $('idxCount').textContent=seen+' / '+tot+' CATALOGUED — you hold '+idxPct()+'% of everything the House owns';
   $('idxProg').style.width=(seen/tot*100).toFixed(1)+'%';
   const tile=(got,g,n,c)=>{ let tip=''; const bar=n.indexOf('|');
     if(bar>=0){ tip=n.slice(bar+1); n=n.slice(0,bar); }
