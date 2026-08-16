@@ -361,3 +361,37 @@ stamp sweep (menu/pause/death), this record, and the QA gate below.
 - Measurement honesty: all ms are hidden-tab CPU under a pinned protocol (q=high, fixed
   viewport, fixed storm seeds). Visible-tab GPU gains exceed these — shadowBlur's true
   cost is paid at raster, which the hidden tab never does.
+
+## Appendix — how to test this game headlessly (for future development sessions)
+Knowledge earned across sixteen batches; without it, verification is slow and flaky.
+
+1. **The fast-forward harness.** Own the clock: stub `window.setTimeout/setInterval/
+   clearTimeout` into a queue keyed on a virtual clock, then drive frames with
+   `tick(vt+=16.7)` and flush due timers each step. A full 15:00 night runs in ~15
+   real seconds. NEVER run long synchronous eval loops against REAL timers — your
+   loop blocks the event loop, ceremony setTimeouts never fire, and slots hang.
+2. **Set `window._noAutoPause=true`** or the visibility auto-pause flips state to
+   'paused' mid-test. Set `muted=true` to skip audio nodes.
+3. **The autoplay bot** (probes/QA): orbit-kite around arena center, flee vector from
+   enemies <220px, aim at nearest enemy every frame (position writes bypass the input
+   path, so P.aim goes stale otherwise), magnet orbs/coins within 420px (the bot never
+   walks over its kills), `cashRage()` whenever `P.ovT>0` (XP fills an overcharge that
+   wants SPACE — without it the bot never levels), `slotTap()` with `stopLock=0` every
+   ~6 ticks in slot state, SPACE-mash in marker state.
+4. **Hidden-tab physics:** requestAnimationFrame never fires (the 15ms fallback ticker
+   drives the loop); real setTimeout clamps to ~1s; the compositor never presents the
+   canvas (screenshots show black — sample pixels with getImageData instead); the tab
+   gets progressively CPU-throttled, so absolute profiler numbers drift — only
+   within-run A/B deltas and pinned back-to-back build comparisons are trustworthy.
+   Pin `GFX.q='high'` during measurement or auto-quality (fed garbage by the throttle)
+   will resize the canvas mid-probe.
+5. **The profiler:** load with `?prof`, read `window.__prof.report()` — avg/p95/
+   spikes25/spikes40/per-stage ms. Reset with `__prof.reset()`.
+6. **Cross-run leaks bite twice a batch.** Anything keyed on `gt` or real timestamps
+   must be reset in startGame (see: the gore rate-cap and the marker death-roll timers,
+   both of which survived into the next night before being fenced by `_runSeq`).
+7. **Build gate:** `npm run build` runs `node --check` on all 13 scripts first — a
+   `//` comment pasted into a single-line block once commented out a closing brace and
+   shipped a blank game through a "successful" build. Trust the gate, not the bundler.
+8. **gzip check:** `dist/ante-mortem.html` must stay self-contained — zero network
+   requests (fonts are embedded base64, OFL-licensed). Verify with the network tab.
