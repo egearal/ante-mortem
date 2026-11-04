@@ -43,6 +43,7 @@ async function snap(page, name) {
     // run() returns at once after a death (the bot records it), so step the clock directly:
     // ~4s of virtual time lets the ledger's rows, tally and rank bar actually write themselves
     await page.evaluate(() => { for (let k = 0; k < 240; k++) window.__vc.step(16.7); });
+    await page.waitForTimeout(700); // the ledger's cascade-in runs on real time
     await snap(page, 'd5_death');
     errs.push(...errors);
     await browser.close();

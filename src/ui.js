@@ -955,11 +955,15 @@ function a2Lane(){
   let availW=Math.min(W-24, 980);
   if(dead){
     const p=_a2vis(go&&go.querySelector('.panel'));
-    const side = p && (W-p.right) >= 300;
+    const side = p && (W-p.right) >= 240;
+    // A3's share plaque is pinned top-right of the death layer — the column always starts below it
+    const sh=_a2vis(document.querySelector('#a3Share .a3ShareBtn')||$('a3Share'));
+    const top0 = sh ? Math.round(sh.bottom+10) : (side?18:10);
+    n.style.top=top0+'px';
     if(side){ n.classList.add('a2deadSide'); n.style.left=Math.round(p.right+18)+'px'; n.style.width=Math.round(Math.min(380, W-p.right-32))+'px'; availW=Math.min(380, W-p.right-32); }
     else { n.classList.add('a2deadTop'); }
     a2FitAnn(an, availW);
-    if(go){ const hN = side?0:n.getBoundingClientRect().height; go.style.paddingTop = hN>4 ? Math.round(hN+16)+'px' : ''; }
+    if(go){ const hN = side?0:n.getBoundingClientRect().height; go.style.paddingTop = hN>4 ? Math.round(top0+hN+12)+'px' : ''; }
     A2L.lastDead=true; return;
   }
   if(A2L.lastDead && go){ go.style.paddingTop=''; A2L.lastDead=false; }

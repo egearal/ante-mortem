@@ -1604,8 +1604,8 @@ button[id$="Close"]:active{transform:translateY(1px);}
 #a2Notes.a2play{left:50%;top:92px;transform:translateX(-50%);width:max-content;}
 #a2Notes.a2above,#a2Notes.a2below,#a2Notes.a2top{left:50%;transform:translateX(-50%);width:max-content;}
 #a2Notes.a2side,#a2Notes.a2deadSide{align-items:stretch;}
-#a2Notes.a2deadSide{top:18px;}
-#a2Notes.a2deadTop{left:50%;top:10px;transform:translateX(-50%);width:min(560px,calc(100vw - 20px));align-items:stretch;}
+
+#a2Notes.a2deadTop{left:50%;transform:translateX(-50%);width:min(560px,calc(100vw - 20px));align-items:stretch;}
 /* the banner: an engraved bar with brass rules, wraps instead of clipping */
 #a2Notes #announce{position:relative;top:auto;left:auto;transform:none;z-index:auto;max-width:min(980px,calc(100vw - 20px));
   white-space:nowrap;line-height:1.18;padding:8px 34px 9px;border-radius:2px;
