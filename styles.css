@@ -1916,3 +1916,62 @@ body.touchUI #howBtnRow{bottom:calc(76px + var(--sab));gap:8px;white-space:nowra
   body.touchUI #pauseLayer .pauseCard{transform-origin:50% 0;}
   body.touchUI #howBtnRow{bottom:calc(64px + var(--sab));}
 }
+
+/* ==== B3 ==== HANDS AND DIALS — the settings panel, the pad focus ring, the pad bar, reduce-flashing */
+#b3Dials{position:fixed;inset:0;z-index:65;display:flex;align-items:center;justify-content:center;background:rgba(4,2,5,.84);backdrop-filter:blur(3px);}
+#b3Dials.hidden{display:none;}
+#b3Card{position:relative;width:min(560px,94vw);max-height:min(92vh,92dvh);overflow-y:auto;box-sizing:border-box;padding:20px 24px 18px;border-radius:14px;
+  background:linear-gradient(170deg,#1c0e15 0%,#0d0609 60%,#120910 100%);border:1px solid rgba(232,182,76,.6);
+  box-shadow:0 0 0 4px #0a0507,0 0 0 5px rgba(232,182,76,.28),0 0 70px rgba(0,0,0,.85),0 0 34px rgba(232,182,76,.14),inset 0 1px 0 rgba(255,242,192,.12);
+  animation:panelIn .17s ease-out;scrollbar-width:thin;scrollbar-color:#8a5a10 transparent;}
+#b3Card.b3Shk{animation:b3Shake .32s cubic-bezier(.36,.07,.19,.97);}
+@keyframes b3Shake{10%,90%{transform:translate(calc(var(--b3sh) * -.4),0);}20%,80%{transform:translate(var(--b3sh),calc(var(--b3sh) * .3));}30%,50%,70%{transform:translate(calc(var(--b3sh) * -1),calc(var(--b3sh) * -.4));}40%,60%{transform:translate(var(--b3sh),0);}}
+#b3Card .b3Title{font-family:var(--disp);font-weight:800;letter-spacing:.24em;text-align:center;font-size:18px;color:#fff2c0;
+  background:linear-gradient(180deg,#fff2c0,#ffd36b 55%,#e8b64c);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 10px rgba(232,182,76,.45));}
+#b3Card .b3Sub{font-family:var(--disp);font-size:10px;letter-spacing:.42em;text-align:center;color:#9a8466;margin:4px 0 6px;}
+#b3Card .b3Sec{font-family:var(--disp);font-size:11px;font-weight:800;letter-spacing:.3em;color:#e8b64c;margin:14px 0 4px;padding-bottom:4px;
+  border-bottom:1px solid transparent;border-image:linear-gradient(90deg,rgba(232,182,76,.7),rgba(232,182,76,0)) 1;}
+#b3Card .b3Row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0;border-bottom:1px solid rgba(232,182,76,.1);}
+#b3Card .b3N{font-family:var(--disp);font-size:12px;letter-spacing:.14em;color:#e6d9c2;}
+#b3Card .b3Ctl{display:flex;align-items:center;gap:10px;}
+#b3Card .b3V{font-family:var(--disp);font-size:12px;letter-spacing:.06em;color:#ffd36b;min-width:44px;text-align:right;}
+.b3Rng{-webkit-appearance:none;appearance:none;width:min(190px,38vw);height:5px;border-radius:4px;background:linear-gradient(90deg,#3a1d0e,#8a5a10 30%,#ffd36b);outline:none;cursor:pointer;}
+.b3Rng::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff2c0,#ffd36b 45%,#a8761c);border:2px solid #231407;box-shadow:0 0 10px rgba(255,211,107,.6);cursor:grab;}
+.b3Rng::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#ffd36b;border:2px solid #231407;box-shadow:0 0 10px rgba(255,211,107,.6);cursor:grab;}
+#b3Card .b3Tg{min-width:120px;}
+#b3Card .b3Tg.on{color:#1a0a10;background:linear-gradient(180deg,#fff2c0,#ffd36b 55%,#e8b64c);border-color:#fff2c0;box-shadow:0 0 12px rgba(255,211,107,.4);}
+#b3Card .b3Note{font-family:var(--disp);font-size:10px;letter-spacing:.1em;line-height:1.6;color:#9a8f7e;margin:6px 0 2px;text-align:center;}
+#b3Card .b3Note i{font-style:normal;}
+#b3Card .b3Note i.y{color:#8bffd0;} #b3Card .b3Note i.n{color:#5d4f43;}
+#b3Card .b3Note.b3Pad{color:#c9b78e;margin-top:10px;} #b3Card .b3Note.b3Pad b{color:#ffd36b;font-weight:400;}
+#b3Binds{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin-top:6px;}
+.b3Bind{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px 6px 12px;border-radius:8px;cursor:pointer;
+  background:rgba(30,14,20,.88);border:1px solid rgba(232,182,76,.32);font-family:var(--disp);color:#e6d9c2;}
+.b3Bind:hover{border-color:rgba(255,211,107,.7);}
+.b3Bind .b3BN{font-size:11px;letter-spacing:.12em;}
+.b3Bind .b3Cap{min-width:38px;padding:3px 9px;border-radius:5px;font-size:12px;font-weight:800;letter-spacing:.08em;text-align:center;color:#1a0a10;
+  background:linear-gradient(180deg,#f3e9d4,#cbbd9f);box-shadow:inset 0 -2px 0 #8d7c5c,0 2px 0 #0a0507;}
+.b3Bind.moved .b3Cap{background:linear-gradient(180deg,#fff2c0,#ffd36b 60%,#e8b64c);box-shadow:inset 0 -2px 0 #a8761c,0 2px 0 #0a0507,0 0 10px rgba(255,211,107,.45);}
+.b3Bind.cap{border-color:#ffd36b;animation:b3Listen .7s ease-in-out infinite alternate;}
+.b3Bind.cap .b3Cap{background:#2a0f16;color:#ffd36b;box-shadow:inset 0 0 0 1px #ffd36b;}
+@keyframes b3Listen{from{box-shadow:0 0 0 rgba(255,211,107,0);}to{box-shadow:0 0 16px rgba(255,211,107,.55);}}
+#b3Card .b3Btns{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:10px;}
+#b3Card .gxClose{display:block;margin:14px auto 0;}
+#b3BindMsg{min-height:16px;}
+/* the pad's gilt focus ring — shown only while a pad is the hand in use */
+body.padUI .b3Focus{outline:2px solid #ffd36b !important;outline-offset:3px;border-radius:8px;
+  box-shadow:0 0 0 5px rgba(10,5,7,.85),0 0 0 6px rgba(255,242,192,.35),0 0 26px 6px rgba(255,211,107,.5) !important;animation:b3Ring 1.1s ease-in-out infinite alternate !important;}
+body.padUI input.b3Focus{outline-offset:7px;}
+@keyframes b3Ring{from{outline-color:#e8b64c;}to{outline-color:#fff2c0;}}
+#b3PadBar{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom,0px));transform:translate(-50%,12px);z-index:9600;display:flex;gap:16px;
+  padding:6px 16px;border-radius:999px;background:rgba(10,5,7,.88);border:1px solid rgba(232,182,76,.45);box-shadow:0 0 18px rgba(0,0,0,.6);
+  font-family:var(--disp);font-size:10.5px;letter-spacing:.16em;color:#c9b78e;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;}
+#b3PadBar.on{opacity:1;transform:translate(-50%,0);}
+#b3PadBar b{color:#ffd36b;font-weight:800;margin-right:4px;}
+body.padUI #b3Card{max-height:calc(min(92vh,92dvh) - 48px);margin-bottom:40px;}
+body.padUI #menu .controls{visibility:hidden;} /* the pad bar speaks for the hand instead */
+/* reduce flashing: no strobes, no colour washes, no chroma flicker */
+body.b3calm #crashStrobe,body.b3calm #chromaV{display:none !important;}
+body.b3calm[class*="rw-"] canvas{filter:none !important;}
+body.b3calm .jackpotText,body.b3calm #jkMarq span,body.b3calm h1{animation-duration:2.4s !important;}
+@media (max-width:520px){ #b3Binds{grid-template-columns:1fr;} #b3PadBar{gap:10px;font-size:9.5px;} #b3Card{padding:16px 14px;} }

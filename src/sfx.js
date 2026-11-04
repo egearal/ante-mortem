@@ -2,6 +2,9 @@
 /* ---------- audio (synth casino SFX) ---------- */
 let AC=null, master=null, muted=false, drone=null, droneGain=null;
 let _voices=0, _comp=null, _amb=null, _ambG=null;
+// B3: two buses ride under the master — every synth voice goes to sfxBus, the score to musicBus
+let sfxBus=null, musicBus=null;
+function _sfxOut(){ return sfxBus||master; }
 // 295: the knob maps perceptually (x^2) — mid-slider FEELS mid-loud
 function _masterTarget(){ return 0.8*Math.pow((typeof GFX!=='undefined'&&GFX.vol!==undefined)?GFX.vol:1, 2); }
 // 286: volume never hard-cuts — it fades over 120ms
@@ -23,6 +26,8 @@ function initAudio(){
     _comp.threshold.value=-18; _comp.ratio.value=4; _comp.knee.value=12; _comp.attack.value=0.004; _comp.release.value=0.18;
     master.connect(_comp); _comp.connect(AC.destination); }
   catch(e){ master.connect(AC.destination); }
+  try{ sfxBus=AC.createGain(); sfxBus.gain.value=(typeof b3SfxTarget==='function')?b3SfxTarget():1; sfxBus.connect(master);
+    musicBus=AC.createGain(); musicBus.gain.value=1; musicBus.connect(master); }catch(e){ sfxBus=null; musicBus=null; }
 }
 // 281: room tone — a whisper of casino air, far below everything
 function startAmbience(){
@@ -34,7 +39,7 @@ function startAmbience(){
     _amb=AC.createBufferSource(); _amb.buffer=buf; _amb.loop=true;
     const f=AC.createBiquadFilter(); f.type='lowpass'; f.frequency.value=220;
     _ambG=AC.createGain(); _ambG.gain.value=0.0001;
-    _amb.connect(f); f.connect(_ambG); _ambG.connect(master);
+    _amb.connect(f); f.connect(_ambG); _ambG.connect(_sfxOut());
     _amb.start(); _ambG.gain.linearRampToValueAtTime(0.025, AC.currentTime+1.2);
   }catch(e){ _amb=null; }
 }
@@ -51,7 +56,7 @@ function tone(freq,dur,type,vol,slideTo){
   g.gain.exponentialRampToValueAtTime(vol||0.2, t+0.008);
   g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
   o.onended=()=>{ _voices=Math.max(0,_voices-1); };
-  o.connect(g); g.connect(master); o.start(t); o.stop(t+dur+0.02);
+  o.connect(g); g.connect(_sfxOut()); o.start(t); o.stop(t+dur+0.02);
 }
 function noise(dur,vol,lp){
   if(!AC||muted) return;
@@ -63,7 +68,7 @@ function noise(dur,vol,lp){
   const f=AC.createBiquadFilter(); f.type='lowpass'; f.frequency.value=lp||1400;
   const g=AC.createGain(); g.gain.value=vol||0.2;
   s.onended=()=>{ _voices=Math.max(0,_voices-1); };
-  s.connect(f); f.connect(g); g.connect(master); s.start(); s.stop(t+dur);
+  s.connect(f); f.connect(g); g.connect(_sfxOut()); s.start(); s.stop(t+dur);
 }
 const SFX={
   shoot(){ tone(220+Math.random()*40,0.06,'square',0.05,140); },
@@ -160,7 +165,7 @@ function startDrone(){
   drone.type='sine'; drone.frequency.value=55;
   droneGain.gain.setValueAtTime(0.0001,AC.currentTime);
   droneGain.gain.exponentialRampToValueAtTime(0.14,AC.currentTime+0.6);
-  drone.connect(droneGain); droneGain.connect(master); drone.start();
+  drone.connect(droneGain); droneGain.connect(_sfxOut()); drone.start();
 }
 // big paydays HUSH the room — the drone ducks so the sting can sing
 function duckDrone(ms){
@@ -187,7 +192,7 @@ function startWhirr(){
   _whirFilt=AC.createBiquadFilter(); _whirFilt.type='bandpass'; _whirFilt.frequency.value=1400; _whirFilt.Q.value=1.6;
   _whirGain=AC.createGain(); _whirGain.gain.setValueAtTime(0.0001,AC.currentTime);
   _whirGain.gain.exponentialRampToValueAtTime(0.09,AC.currentTime+0.15);
-  _whirSrc.connect(_whirFilt); _whirFilt.connect(_whirGain); _whirGain.connect(master); _whirSrc.start();
+  _whirSrc.connect(_whirFilt); _whirFilt.connect(_whirGain); _whirGain.connect(_sfxOut()); _whirSrc.start();
 }
 function whirrSpeed(t){ // t: roll progress 0→1; the whirr sinks as the strip slows
   if(!_whirFilt||!AC) return;
@@ -208,7 +213,7 @@ function startDrumroll(){
   const f=AC.createBiquadFilter(); f.type='bandpass'; f.frequency.value=2400; f.Q.value=0.8;
   _drumGain=AC.createGain(); _drumGain.gain.setValueAtTime(0.0001,AC.currentTime);
   _drumGain.gain.exponentialRampToValueAtTime(0.12,AC.currentTime+0.3);
-  _drumSrc.connect(f); f.connect(_drumGain); _drumGain.connect(master); _drumSrc.start();
+  _drumSrc.connect(f); f.connect(_drumGain); _drumGain.connect(_sfxOut()); _drumSrc.start();
 }
 function stopDrumroll(){
   if(!_drumSrc) return;
@@ -221,3 +226,99 @@ function stopDrumroll(){
   const _acKick=()=>{ try{ if(AC&&AC.state==='suspended') AC.resume().catch(()=>{}); }catch(e){}
     if(++_acTries>=3){ ['pointerdown','keydown','touchstart'].forEach(ev=>window.removeEventListener(ev,_acKick)); } };
   ['pointerdown','keydown','touchstart'].forEach(ev=>window.addEventListener(ev,_acKick)); }
+
+/* ==== B3 — THE HOUSE BAND ====
+   Volume dials for the synth bus, and a music channel that plays the
+   director's tracks from assets/music/ when they exist beside the page.
+   The build bakes the list of present files into window.__AM_MUSIC, so an
+   absent file is never even requested (no 404 noise, no console errors).
+   A raw index.html (no build) only looks for tracks when SEEK is switched
+   on in THE DIALS. Contexts crossfade; big SFX moments duck the band. */
+function b3Dial(k,dflt){ return (typeof DIALS!=='undefined' && DIALS && DIALS[k]!=null) ? DIALS[k] : dflt; }
+function b3SfxTarget(){ return Math.max(0.0001, Math.pow(b3Dial('sfx',1),2)); }
+function b3SetBusVols(){
+  if(!AC||!sfxBus) return;
+  try{ const t=AC.currentTime; sfxBus.gain.cancelScheduledValues(t); sfxBus.gain.setValueAtTime(Math.max(0.0001,sfxBus.gain.value),t);
+    sfxBus.gain.linearRampToValueAtTime(b3SfxTarget(), t+0.1); }catch(e){ try{ sfxBus.gain.value=b3SfxTarget(); }catch(x){} }
+}
+const MUSIC_CTX=['menu','run','boss','ascent','house'];
+const MUSIC_CHAIN={ menu:['menu'], run:['run'], boss:['boss','run'], ascent:['ascent','run'], house:['house','boss','run'] };
+const MUSIC={ found:{}, decks:[], want:null, track:null, duck:1, duckTo:1, duckUntil:0, unlocked:false, seeking:false, lastT:0 };
+function musicType(u){ return /\.ogg$/i.test(u)?'audio/ogg; codecs="vorbis"':/\.mp3$/i.test(u)?'audio/mpeg':/\.m4a$/i.test(u)?'audio/mp4':''; }
+function musicCanPlay(u){ try{ const t=musicType(u); return !!(t && document.createElement('audio').canPlayType(t)); }catch(e){ return false; } }
+function musicInit(){
+  const m=window.__AM_MUSIC;
+  if(m && typeof m==='object') for(const k of MUSIC_CTX){ const list=m[k]||[]; const u=list.find(musicCanPlay); if(u) MUSIC.found[k]=u; }
+  if(b3Dial('seek',false)) musicSeek();
+}
+// SEEK: knock on each door beside the page. An absent file costs one quiet
+// "not found" line in the browser log — only ever when the player asked.
+function musicSeek(){
+  if(MUSIC.seeking) return; MUSIC.seeking=true;
+  const tryOne=(k,exts)=>{
+    if(MUSIC.found[k] || !exts.length) return;
+    const u='assets/music/'+k+'.'+exts[0];
+    if(!musicCanPlay(u)){ tryOne(k,exts.slice(1)); return; }
+    try{ const a=new Audio(); a.preload='metadata';
+      a.addEventListener('loadedmetadata',()=>{ MUSIC.found[k]=u; try{ if(typeof b3DialsMusicLine==='function') b3DialsMusicLine(); }catch(e){} },{once:true});
+      a.addEventListener('error',()=>tryOne(k,exts.slice(1)),{once:true});
+      a.src=u; a.load(); }catch(e){}
+  };
+  MUSIC_CTX.forEach((k,i)=>setTimeout(()=>tryOne(k,['ogg','mp3','m4a']),i*120));
+}
+function musicWanted(){
+  if(typeof state==='undefined') return 'menu';
+  if(state==='menu') return 'menu';
+  if(state==='marker') return null;                         // the death roll plays to silence and a heartbeat
+  if(state==='dead') return window._recapDone ? 'menu' : null;
+  if(state==='crash') return 'ascent';
+  try{ if(typeof enemies!=='undefined' && enemies.length){
+      let boss=false; for(const e of enemies){ if(e.boss){ if(e.bossKind==='housegod') return 'house'; boss=true; } }
+      if(boss) return 'boss'; } }catch(e){}
+  return 'run';
+}
+function musicTrackFor(ctx){ if(!ctx) return null; for(const k of (MUSIC_CHAIN[ctx]||[])) if(MUSIC.found[k]) return MUSIC.found[k]; return null; }
+function musicDuck(ms,depth){ MUSIC.duckTo=Math.min(MUSIC.duckTo, depth==null?0.3:depth); MUSIC.duckUntil=Math.max(MUSIC.duckUntil, performance.now()+(ms||1200)); }
+function musicDeck(src){
+  const el=new Audio(); el.loop=true; el.preload='auto'; el.src=src;
+  const d={el, src, vol:0, target:1, g:null};
+  // over http(s) the band plays through the Web Audio master (iOS ignores element.volume);
+  // from file:// the element is opaque to Web Audio, so it rides element.volume instead
+  if(AC && musicBus && /^https?:$/.test(location.protocol)){
+    try{ const n=AC.createMediaElementSource(el); d.g=AC.createGain(); d.g.gain.value=0; n.connect(d.g); d.g.connect(musicBus); }catch(e){ d.g=null; }
+  }
+  el.volume=0;
+  try{ const pr=el.play(); if(pr&&pr.catch) pr.catch(()=>{ d.blocked=true; }); }catch(e){ d.blocked=true; }
+  return d;
+}
+function musicTick(){
+  const now=performance.now(); const dt=Math.min(0.25,Math.max(0,(now-(MUSIC.lastT||now))/1000)); MUSIC.lastT=now;
+  if(!MUSIC.unlocked) return;
+  const tr=musicTrackFor(musicWanted());
+  if(tr!==MUSIC.track){ MUSIC.track=tr;
+    for(const d of MUSIC.decks) d.target=0;
+    if(tr){ const old=MUSIC.decks.find(d=>d.src===tr); if(old) old.target=1; else { try{ MUSIC.decks.push(musicDeck(tr)); }catch(e){} } } }
+  if(!MUSIC.decks.length) return;
+  if(now>MUSIC.duckUntil) MUSIC.duckTo=1;
+  MUSIC.duck += (MUSIC.duckTo-MUSIC.duck)*Math.min(1, dt*(MUSIC.duckTo<MUSIC.duck?14:1.6)); // snap down, breathe back up
+  let lvl=Math.pow(b3Dial('music',0.8),2);
+  if(typeof state!=='undefined'){ if(state==='paused') lvl*=0.45; else if(typeof tabHold!=='undefined'&&tabHold) lvl*=0.6; }
+  const mute=(typeof muted!=='undefined'&&muted);
+  for(let i=MUSIC.decks.length-1;i>=0;i--){ const d=MUSIC.decks[i];
+    d.vol += Math.sign(d.target-d.vol)*Math.min(Math.abs(d.target-d.vol), dt/1.6); // 1.6s crossfade
+    if(d.blocked && d.target>0){ d.blocked=false; try{ const pr=d.el.play(); if(pr&&pr.catch) pr.catch(()=>{ d.blocked=true; }); }catch(e){} }
+    const v=Math.max(0,Math.min(1, d.vol*lvl*MUSIC.duck));
+    try{ if(d.g){ d.g.gain.setTargetAtTime(v, AC.currentTime, 0.05); d.el.volume=1; }
+      else d.el.volume = mute?0:Math.max(0,Math.min(1, v*Math.pow((typeof GFX!=='undefined'&&GFX.vol!=null)?GFX.vol:1,2))); }catch(e){}
+    if(d.vol<=0 && d.target===0){ try{ d.el.pause(); d.el.removeAttribute('src'); d.el.load(); if(d.g) d.g.disconnect(); }catch(e){} MUSIC.decks.splice(i,1); }
+  }
+}
+setInterval(musicTick,50);
+{ const unlock=()=>{ MUSIC.unlocked=true; };
+  ['pointerdown','keydown','touchend'].forEach(ev=>window.addEventListener(ev,unlock,{capture:true,passive:true})); }
+// big moments hush the band so the sting can sing
+{ const DUCKS=[['jackpot',1700,0.22],['bigWin',1900,0.22],['dingBells',1100,0.4],['seraph',1500,0.32],['levelUp',1500,0.35],
+    ['cashout',1200,0.4],['vaultOpen',1500,0.3],['bossRoar',1300,0.4],['death',2400,0.12],['reelLock',900,0.4],['secretFound',1300,0.4],['record',1000,0.45]];
+  for(const [k,ms,dp] of DUCKS){ const f=SFX[k]; if(typeof f!=='function') continue;
+    SFX[k]=function(){ try{ musicDuck(ms,dp); }catch(e){} return f.apply(SFX,arguments); }; }
+  const _dd=duckDrone; duckDrone=function(ms){ try{ musicDuck((ms||1200)+200,0.3); }catch(e){} return _dd(ms); }; }
