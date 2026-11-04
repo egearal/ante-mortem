@@ -1,0 +1,23 @@
+{
+ "render": {
+  "p50": 3.4,
+  "p95": 319.9,
+  "avg": 76.6,
+  "cpuP50": 3,
+  "cpuP95": 5.4,
+  "cpuAvg": 3.33,
+  "flush": 95
+ },
+ "drawEnemyLoop": {
+  "p50": 1.5,
+  "p95": 314.6,
+  "avg": 53.38,
+  "cpuP50": 1.4,
+  "cpuP95": 2.6,
+  "cpuAvg": 1.64,
+  "flush": 66
+ },
+ "enemies": 300,
+ "q": "high",
+ "qLow": false
+}

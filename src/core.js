@@ -1719,6 +1719,7 @@ function render(){
       ctx.moveTo(-46,-150+f9*120); ctx.lineTo(46,-150+f9*120); ctx.lineTo(46,-60+f9*120); ctx.lineTo(0,-30+f9*120); ctx.lineTo(-46,-60+f9*120); ctx.closePath(); ctx.fill();
       ctx.fillStyle='#8a1620'; ctx.fillRect(-46,-154+f9*120,92,6); }
     ctx.restore(); } ctx.globalAlpha=1; }
+  arsenalGround(); // E1 — bubbling pools, the guillotine's scaffold, cracks in the marble
   if((P.wlv.candelabra||0)>0){ ctx.save(); ctx.globalCompositeOperation='lighter';
     for(let ci=0;ci<3;ci++){ const ca=gt*1.4+ci*2.094, cx9=P.x+Math.cos(ca)*52, cy9=P.y+Math.sin(ca)*52-14;
       ctx.drawImage(glowSprite('rgba(255,220,130,0.7)','rgba(255,180,60,0)',14),cx9-14,cy9-18,28,28);
@@ -1779,6 +1780,7 @@ function render(){
     if(!e.boss && (e.x<camX-100||e.x>camX+VW+100||e.y<camY-100||e.y>camY+VH+100)) continue; // offscreen court stays unpainted
     drawEnemy(e);
   }
+  drawCorpses(); // E1 — bursts, crumbles, dissolves
 
   PROF.mark('bullets');
   // chain lightning — jagged bolts, white core + halo
@@ -1816,12 +1818,13 @@ function render(){
     const o={}; for(const k in m) o[k]={base:m[k], t1:'rgba('+m[k]+',0.16)', t2:'rgba('+m[k]+',0.55)', h1:'rgba('+m[k]+',1)', h0:'rgba('+m[k]+',0)'}; return o; })();
   // bullet trails — additive glow
   ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.lineCap='round';
-  for(const b of bullets){ const bc=BULLET_COL[b.crit?'crit':b.kind]||BULLET_COL.d;
+  for(const b of bullets){ if(arsenalTrail(b)) continue; /* E1 — per-weapon trails */ const bc=BULLET_COL[b.crit?'crit':b.kind]||BULLET_COL.d;
     ctx.strokeStyle=bc.t1; ctx.lineWidth=b.r*3.4; ctx.beginPath(); ctx.moveTo(b.px,b.py); ctx.lineTo(b.x,b.y); ctx.stroke();
     ctx.strokeStyle=bc.t2; ctx.lineWidth=b.r*1.1; ctx.beginPath(); ctx.moveTo(b.px,b.py); ctx.lineTo(b.x,b.y); ctx.stroke(); }
   ctx.restore();
   // bullets by kind
   for(const b of bullets){
+    if(arsenalDraw(b)) continue; // E1 — the arsenal paints its own; other kinds fall through
     const _bc=BULLET_COL[b.crit?'crit':b.kind]||BULLET_COL.d; const base=_bc.base;
     ctx.save(); ctx.translate(b.x,b.y);
     // additive outer halo
@@ -1900,6 +1903,7 @@ function render(){
     ctx.restore();
   }
   ctx.shadowBlur=0;
+  arsenalOver(); // E1 — crit glints, scythe smear, bell rings, gramophone notes
 
   PROF.mark('actors');
   // scythe — crescent blade w/ fading sweep trail + glinting edge
@@ -2204,6 +2208,7 @@ const _EYE={ swarm:[[-0.18,-0.14],[0.18,-0.14]], stalker:[[0.5,-0.22]], wraith:[
   revenant:[[0,-0.68]], brute:[[-0.12,-0.64],[0.12,-0.64]], shooter:[[-0.11,-0.75],[0.11,-0.75]], husk:[[-0.14,-0.71],[0.14,-0.71]], _:[[0.21,-0.66]] };
 const _EYEC={ swarm:'255,90,90', stalker:'255,223,90', wraith:'120,170,255', hexer:'201,255,122', revenant:'255,77,77', brute:'255,77,77', shooter:'255,206,90', husk:'255,170,80' };
 function drawEnemy(e){
+  if(!e.boss && courtDraw(e)) return; // E1 — the regular court is baked and animated (fx.js); lords keep this painter
   const t=gt*4+e.ph, T=e.vt||e.type, r=e.r;
   if(e._lod){ // distant court: one baked, shaped, rim-lit sprite
     if(!(e.flash>0)){ const dw=r*3.2; ctx.drawImage(lodSprite(T,e.dark,e.col),e.x-dw/2,e.y-dw/2,dw,dw); return; } // B4: shadow baked in, no save/translate/path per body
