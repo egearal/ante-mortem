@@ -28,7 +28,7 @@ const which = opt('src', false) ? 'src' : 'dist';
     const frames = Math.ceil(MAXMIN * 60 / 1.71 / 0.0167) + 3000;
     await run(page, frames);
     const r = await page.evaluate(() => ({
-      res: window.__bot.res,
+      res: window.__bot.res, stall: window.__bot.stall || null,
       alive: !window.__bot.res, clock: typeof gt === 'number' ? fmt(gt) : null, gt,
       level: P && P.level, maxLevel: window.__bot.maxLevel, kills: P && P.kills,
       stake: P && P.stake, won: !!window._b2won, endless: !!(P && P._endless), endlessSec: (P && P._endless) ? Math.round(gt - P._endT0) : null, scoreMult: (typeof b2ScoreMult === 'function') ? b2ScoreMult() : null, peakEnemies: window.__bot.peakE || 0,
@@ -39,7 +39,9 @@ const which = opt('src', false) ? 'src' : 'dist';
     r.realSec = Math.round((Date.now() - t0) / 100) / 10;
     r.errors = errors.slice(0, 5);
     allErrors = allErrors.concat(errors);
+    if (r.stall) allErrors.push('stall: ' + JSON.stringify(r.stall)); // a frozen night fails the probe
     results.push(r);
+    if (r.stall) console.error('  STALL ' + JSON.stringify(r.stall));
     console.error(`night ${n + 1}: ${r.res ? 'died ' + r.res.clock + ' lvl ' + r.res.level + ' kills ' + r.res.kills : 'alive at ' + r.clock + ' lvl ' + r.level}${r.stake ? ' · stake ' + r.stake : ''}${r.won ? ' · WON' : ''}${r.endless ? ' · endless +' + r.endlessSec + 's ×' + r.scoreMult : ''} · ${r.realSec}s real · errors ${errors.length}`);
     await browser.close();
   }

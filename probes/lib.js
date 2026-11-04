@@ -75,8 +75,23 @@ const BOT = `(()=>{
     let ne=null, nd=1e9; for(const e of enemies){ const d=Math.hypot(e.x-P.x,e.y-P.y); if(d<nd){ nd=d; ne=e; } }
     if(ne) P.aim=Math.atan2(ne.y-P.y, ne.x-P.x);
   }
+  // stall detector: if the game clock hasn't moved for ~20 virtual seconds outside the menu/ledger,
+  // snapshot what the night is doing so a freeze can be diagnosed (reported as __bot.stall)
+  B._lgt=-1; B._lgtN=0;
+  function stallCheck(){
+    if(state==='menu'||state==='dead'||typeof gt!=='number') { B._lgtN=0; return; }
+    if(gt!==B._lgt){ B._lgt=gt; B._lgtN=0; return; }
+    if(++B._lgtN===1200 && !B.stall){
+      const vis=[...document.querySelectorAll('.layer:not(.hidden),[id$=Layer]:not(.hidden),[id$=Panel]:not(.hidden)')].map(e=>e.id||e.className).slice(0,12);
+      B.stall={ state, gt, clock:fmt(gt), hitstop, tabHold:typeof tabHold!=='undefined'?tabHold:null, slotStage:typeof slotStage!=='undefined'?slotStage:null,
+        slotBusy:typeof slotBusy!=='undefined'?slotBusy:null, pending:(typeof pending!=='undefined'&&pending)?pending.length:null, hp:P&&P.hp, ovT:P&&P.ovT,
+        layers:vis, autoPaused:!!window._autoPaused };
+      console.warn('[probe] STALL '+JSON.stringify(B.stall));
+    }
+  }
   B.step=function(){
     B.n++;
+    try{ stallCheck(); }catch(e){}
     B.states[state]=(B.states[state]||0)+1;
     if(state==='menu'){ if(!B.startedAt){ B.startedAt=B.n; try{ startGame(); }catch(e){ console.error('[bot startGame]', e && e.stack || e); } } return; }
     if(state==='paused'){ if(B.pauseHold) return; try{ document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true})); }catch(e){} return; }

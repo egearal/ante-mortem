@@ -3118,6 +3118,7 @@ function update(dt){
       noise(0.4,0.3,300); tone(70,0.5,'sine',0.3,40); SFX.reelLock();
     } else if(g9.fell && g9.t<=0){ guils.splice(i,1); } }
 
+  if(window._fmods&&window._fmods.ballroom&&typeof balUpdate==='function') balUpdate(dt); // D3: THE BALLROOM's waltz, chandeliers, mirrors
   // waves — the House suffers no other guests after 13:00
   if(!houseActive){
     if(enemies.length<=waveClearTarget){ waveGap-=dt;
@@ -3853,19 +3854,20 @@ function render(){
     }
     window._tileC.set(key,sp); return sp;
   };
+  const _bR=!!(window._fmods&&window._fmods.ballroom&&typeof balTile==='function'); // D3: THE BALLROOM bakes its own mirror floor
   const cx0=Math.floor(camX/cs), cy0=Math.floor(camY/cs);
   const cxn=Math.ceil((camX+VW)/cs), cyn=Math.ceil((camY+VH)/cs);
   for(let gx=cx0;gx<=cxn;gx++) for(let gy=cy0;gy<=cyn;gy++){
     const dark=(((gx+gy)&1)===0);
     const h=((gx*73856093)^(gy*19349663))>>>0;
-    ctx.drawImage(tileSprite(dark,h%24), gx*cs, gy*cs);
+    ctx.drawImage(_bR?balTile(dark,h%24):tileSprite(dark,h%24), gx*cs, gy*cs);
   }
   ctx.strokeStyle='rgba(0,0,0,0.45)'; ctx.lineWidth=2;
   for(let gx=cx0;gx<=cxn;gx++){ ctx.beginPath(); ctx.moveTo(gx*cs,camY-cs); ctx.lineTo(gx*cs,camY+VH+cs); ctx.stroke(); }
   for(let gy=cy0;gy<=cyn;gy++){ ctx.beginPath(); ctx.moveTo(camX-cs,gy*cs); ctx.lineTo(camX+VW+cs,gy*cs); ctx.stroke(); }
   // grand sigil + arena border + arch band
   drawWallsAndCarpet();
-  drawSigil(CFG.arena/2,CFG.arena/2);
+  if(_bR) balMedallion(CFG.arena/2,CFG.arena/2); else drawSigil(CFG.arena/2,CFG.arena/2);
   PROF.mark('decals');
   // battlefield gore — the permanent ledger first: only the visible tiles, one blit each
   if(goreT){
@@ -3955,7 +3957,7 @@ function render(){
   }
   ctx.restore();
   // gargoyle statues — hunched sentinels on plinths
-  for(const gg of gargoyles){
+  for(const gg of (_bR?BAL_NONE:gargoyles)){
     if(!inView(gg.x,gg.y,120)) continue;
     ctx.save(); ctx.translate(gg.x,gg.y);
     ctx.fillStyle='rgba(0,0,0,0.45)'; ctx.beginPath(); ctx.ellipse(0,16,20,7,0,0,6.28); ctx.fill();
@@ -3973,7 +3975,7 @@ function render(){
   }
   // hellish cracks radiating from the sigil (red glow)
   ctx.save(); ctx.globalCompositeOperation='screen'; const C2=CFG.arena/2, cpv=0.055+Math.sin(gt*1.5)*0.02;
-  for(const cr of floorCracks){ const first=cr.pts[0]; if(!((first.x>camX-400&&first.x<camX+VW+400)||(cr.pts[5].x>camX-400&&cr.pts[5].x<camX+VW+400))) continue;
+  for(const cr of (_bR?BAL_NONE:floorCracks)){ const first=cr.pts[0]; if(!((first.x>camX-400&&first.x<camX+VW+400)||(cr.pts[5].x>camX-400&&cr.pts[5].x<camX+VW+400))) continue;
     ctx.strokeStyle='rgba(255,70,55,0.03)'; ctx.lineWidth=7; ctx.beginPath(); ctx.moveTo(C2,C2); for(const p of cr.pts) ctx.lineTo(p.x,p.y); ctx.stroke();
     ctx.strokeStyle='rgba(220,50,55,'+cpv+')'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(C2,C2); for(const p of cr.pts) ctx.lineTo(p.x,p.y); ctx.stroke(); }
   ctx.restore();
@@ -3994,6 +3996,7 @@ function render(){
     ctx.globalAlpha=Math.min(1,0.20*cf);
     ctx.drawImage(lightSprite(255,150,70), px-rr, py-rr*0.8, rr*2, rr*1.6); }
   ctx.globalAlpha=1; ctx.restore();
+  if(_bR) balGround(); // D3: waltz current, chandelier telegraphs, wrecks, mirror seams
 
   PROF.mark('ground');
   // shockwave rings
@@ -4274,6 +4277,7 @@ function render(){
 
   drawPlayer();
   try{ b2DrawAdorn(); }catch(e){}
+  if(_bR) balSky(); // D3: the chandelier hanging over its circle, then falling
 
   // particles
   for(const p of parts){ ctx.globalAlpha=clamp(p.life*(p.ash?0.9:1.6),0,1); ctx.fillStyle=p.col; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,6.28); ctx.fill(); }
@@ -9223,6 +9227,11 @@ function openIndexPanel(){
    +sec('♟','THE COURT','#c22ca0', Object.keys(CFG.enemy).filter(k=>!BOSS_DEFS[k]).map(k=>[IDX.e.indexOf(k)>=0, '♟', k.toUpperCase(), CFG.enemy[k].col||'#c98bff']))
    +sec('♛','THE BOSSES','#ffd36b', Object.keys(BOSS_DEFS).map(k=>[IDX.b.indexOf(k)>=0, '♛', BOSS_DEFS[k].name, '#ffd36b']))
    +(typeof soulIdxRows==='function'?sec('♠','THE SEATS','#e6d9c2', soulIdxRows()):'') // D1
+   +(typeof FLOORS!=='undefined'?sec('♕','THE FLOORS','#d9a3c0', FLOORS.map(f=>[f.u(), f.g, f.n+'|'+f.d, f.col]) // D3: floors + the Ballroom's hazards
+      .concat((()=>{ const b=FLOORS.find(f=>f.id==='ballroom'), on=!!(b&&b.u()); return [
+        [on,'♫','THE WALTZ|Every 90s on THE BALLROOM the floor turns for 16s. Everything drifts around the spot where the music found you — ride the current to outrun them, or fight against it.','#cdd5e8'],
+        [on,'✦','THE CHANDELIER|A shadow and a red ring mark the drop; 2.6s later the crystal comes down. Everything under it dies — you too. The wreck pays 3 coins + 1 per two bodies. THE HOUSE is only staggered.','#e6ecff'],
+        [on,'◇','MIRROR TWINS|An edge of the screen silvers over and reflections of the court step out of it — half the blood, glass bones.','#9fb2e6'] ]; })())):'')
    +('<div class="idxSec" style="--sc:#e8b64c"><div class="idxSecH"><b>⚜ THE LADDER</b><span>RANK '+RANK.rank+' / 100 · <i class="ldBooks">📖 THE BOOKS</i></span></div><div class="ldWrap">'
      +RANKS.map((e,i)=>{ const r=i+1;
         const cls=r===RANK.rank?' now':(r>RANK.rank&&r<=RANK.rank+3?' soon':(r<RANK.rank?' done':''));
@@ -10596,9 +10605,268 @@ const FLOORS=[
  {id:'cellar', n:'THE CELLAR', g:'♣', col:'#8fd977', d:'Below the tables. The swarm owns it — hordes +40%, no shooters, coins +15%.',
    u:()=>RANK.rank>=20, uTxt:'REACH HOUSE RANK 20', mods:{horde:1.4, noRanged:true, coin:1.15, tint:'cellar'}},
  {id:'chapel', n:'THE CHAPEL', g:'☨', col:'#fff2c0', d:'Where the House prays to itself. Everything runs 10% faster. XP +10%, tarot twice as often.',
-   u:()=>(LT.houseMet||0)>=3, uTxt:'MEET THE HOUSE 3 TIMES', mods:{spd:1.1, xp:1.1, tarot:2, tint:'chapel'}}
+   u:()=>(LT.houseMet||0)>=3, uTxt:'MEET THE HOUSE 3 TIMES', mods:{spd:1.1, xp:1.1, tarot:2, tint:'chapel'}},
+ {id:'ballroom', n:'THE BALLROOM', g:'♕', col:'#d9a3c0', d:'A mirrored floor under the great chandelier. Every 90s the floor WALTZES (a turning current). Chandeliers fall — everything under one dies, you too — and leave coins. Mirrors at the edges send reflections.',
+   u:()=>(REC.minutes||0)>=10 || (LT.houseMet||0)>=1 || !!(typeof stakeCleared==='function'&&stakeCleared(1)), uTxt:'SURVIVE 10:00 (OR CLEAR STAKE 1)', mods:{ballroom:true}}
 ];
-function curFloor(){ if(DLY_RNG && typeof dlyFloor==='function') return dlyFloor(); const f=FLOORS.find(x=>x.id===(IDX.fl||'pit')); return (f&&f.u())?f:FLOORS[0]; }
+function curFloor(){ if(DLY_RNG && typeof dlyFloor==='function') return dlyFloor(); const pf=window.__probeFloor, f=FLOORS.find(x=>x.id===(pf||IDX.fl||'pit')); return (f&&(pf||f.u()))?f:FLOORS[0]; } // __probeFloor: headless harness only (probes --floor)
+/* ==== D3 — THE BALLROOM ====================================================
+   The fourth floor. A mirrored dance floor under a vast chandelier.
+   · every 90s THE WALTZ — a slow rotating current carries the court (and you)
+   · CHANDELIER CRASH — a telegraphed circle; everything under it dies (you too),
+     a pile of coins is left in the glass
+   · MIRROR TWINS — a view edge silvers over and the court's reflections step out
+   All state lives in BAL (reset per run via _runSeq). Hooks in core.js: balUpdate (update),
+   balTile / balMedallion / balGround / balSky (render). Art is baked once (Batch 16).
+   ========================================================================== */
+const BAL={seq:-1, crashes:[], wreck:[], mirrors:[], stuns:[]}, BAL_NONE=[];
+function balOn(){ return !!(window._fmods&&window._fmods.ballroom); }
+function balReset(){
+  BAL.seq=window._runSeq;
+  BAL.waltzAt=(Math.floor(gt/90)+1)*90; BAL.waltz=null; BAL.dir=-1;
+  BAL.chandAt=gt+48; BAL.crashes=[]; BAL.wreck=[]; BAL.stuns=[];
+  BAL.mirAt=gt+72; BAL.seam=null; BAL.mirrors=[]; BAL.mirChk=0;
+  BAL.beatAcc=0; BAL.bi=0; BAL.tinkT=6; BAL.shatT=0; BAL.crushed=0;
+  window.__hazards=BAL.crashes; // the probe bot reads the telegraphs like a player would
+}
+// ---- sound: all synthesized ----
+const BAL_SFX={
+  swell(){ [220,277,330,440,554,659].forEach((f,i)=>setTimeout(()=>tone(f,0.9,'triangle',0.07),i*90)); tone(110,1.6,'sine',0.16,112); noise(0.9,0.05,5200); },
+  settle(){ [659,554,440,330].forEach((f,i)=>setTimeout(()=>tone(f,0.5,'sine',0.05),i*110)); },
+  creak(){ tone(62,0.9,'sawtooth',0.07,48); tone(95,0.7,'sawtooth',0.04,80); noise(0.5,0.05,600); for(let i=0;i<4;i++) setTimeout(()=>tone(2600+Math.random()*1800,0.08,'sine',0.04),120+i*140); },
+  tinkle(){ for(let i=0;i<6;i++) setTimeout(()=>tone(3000+Math.random()*2200,0.09,'sine',0.05),i*55); },
+  snap(){ tone(1800,0.05,'square',0.10,600); noise(0.08,0.16,4200); tone(180,0.25,'sawtooth',0.08,90); },
+  crash(big){ noise(0.9,0.42,5200); noise(0.5,0.3,900); tone(52,0.9,'sine',0.34,28); tone(96,0.5,'triangle',0.2,40);
+    for(let i=0;i<(big?14:9);i++) setTimeout(()=>tone(2200+Math.random()*3600,0.14+Math.random()*0.2,'sine',0.07),40+i*38+Math.random()*30); },
+  shatter(){ noise(0.14,0.10,6000); tone(3200+Math.random()*1600,0.12,'sine',0.06); tone(4800+Math.random()*900,0.08,'sine',0.04); },
+  mirror(){ for(let i=0;i<5;i++) setTimeout(()=>tone(880*Math.pow(1.26,i),0.4,'sine',0.05),i*70); noise(0.6,0.05,7000); tone(220,0.8,'triangle',0.06,440); }
+};
+// THE BALLROOM'S OWN AIR — a distant music box in 3/4 (A minor), swelling into the waltz
+const BAL_CH=[[110,[220,261.6,329.6]],[82.4,[207.7,246.9,329.6]],[110,[220,261.6,329.6]],[73.4,[220,293.7,349.2]],
+              [110,[220,261.6,329.6]],[82.4,[207.7,246.9,293.7]],[110,[261.6,329.6,440]],[82.4,[246.9,329.6,415.3]]];
+const BAL_MEL=[659,523,440, 659,494,415, 587,523,440, 698,587,440, 659,523,440, 587,494,415, 523,659,880, 831,659,494];
+function balMusic(dt){
+  BAL.beatAcc+=dt; if(BAL.beatAcc<0.46) return; BAL.beatAcc-=0.46; if(BAL.beatAcc>0.46) BAL.beatAcc=0;
+  const w=BAL.waltz, env=w?balEnv(w):0;
+  const bed=(typeof GFX!=='undefined'&&GFX.amb===false)?0:1;
+  if(!bed && env<=0.05) { BAL.bi++; return; }
+  const v=0.018*bed+0.05*env, i=BAL.bi++, ch=BAL_CH[((i/3)|0)%8], b=i%3;
+  if(b===0) tone(ch[0],0.44,'sine',v*1.5);
+  else { tone(ch[1][b],0.2,'triangle',v*0.55); tone(ch[1][b===1?0:2],0.2,'triangle',v*0.45); }
+  if(env>0.15) tone(BAL_MEL[i%24],0.42,'sine',0.055*env);
+  BAL.tinkT-=0.46; if(BAL.tinkT<=0 && bed){ BAL.tinkT=7+Math.random()*7; for(let k=0;k<3;k++) setTimeout(()=>tone(3400+Math.random()*1800,0.12,'sine',0.014),k*90); }
+}
+function balEnv(w){ return Math.max(0,Math.min(1, w.t/2, (w.dur-w.t)/2.5)); }
+// ---- the night's machinery ----
+function balUpdate(dt){
+  if(BAL.seq!==window._runSeq) balReset();
+  if(typeof state!=='undefined' && state!=='playing') return;
+  balMusic(dt);
+  // ♫ THE WALTZ — every 90s the floor turns
+  if(!BAL.waltz && gt>=BAL.waltzAt){ BAL.waltzAt+=90; BAL.dir=-BAL.dir;
+    BAL.waltz={x:P.x,y:P.y,t:0,dur:16,dir:BAL.dir};
+    announce('♫ THE FLOOR WALTZES — '+(BAL.dir>0?'TURNING SUNWISE':'TURNING WIDDERSHINS')+' ♫', true);
+    BAL_SFX.swell(); flash(0.22,'#cdd5e8'); ring(P.x,P.y,260,'#cdd5e8'); ring(P.x,P.y,180,'#a03050'); shake=Math.min(10,shake+4); }
+  if(BAL.waltz){ const w=BAL.waltz; w.t+=dt;
+    if(w.t>=w.dur){ BAL.waltz=null; showStreak('♫ THE MUSIC SETTLES ♫'); BAL_SFX.settle(); }
+    else { const S=92*balEnv(w)*w.dir*dt, cx=w.x, cy=w.y, A=CFG.arena;
+      const drift=(o,k)=>{ const dx=o.x-cx, dy=o.y-cy, d=Math.sqrt(dx*dx+dy*dy); if(d<1||d>1150) return;
+        const f=Math.min(1,d/220)*(d>820?Math.max(0,1-(d-820)/330):1)*k; o.x-=dy/d*S*f; o.y+=dx/d*S*f; };
+      for(const e of enemies) drift(e, e.boss?0.5:1);
+      drift(P,0.5); P.x=clamp(P.x,14,A-14); P.y=clamp(P.y,14,A-14);
+      for(const c of coins) drift(c,0.8); for(const o of orbs) drift(o,0.8); } }
+  // ✦ CHANDELIER CRASH — telegraphed, lethal, generous
+  if(gt>=BAL.chandAt && BAL.crashes.length<(houseActive?2:1)){
+    BAL.chandAt=gt+(houseActive?11+Math.random()*4:26+Math.random()*12); balDrop(); }
+  for(let i=BAL.crashes.length-1;i>=0;i--){ const c=BAL.crashes[i]; const pt=c.t; c.t+=dt;
+    if(pt<1.1 && c.t>=1.1) BAL_SFX.tinkle();
+    if(pt<c.tel-0.45 && c.t>=c.tel-0.45) BAL_SFX.snap();
+    if(c.t>=c.tel){ BAL.crashes.splice(i,1); balImpact(c); } }
+  for(let i=BAL.wreck.length-1;i>=0;i--){ if((BAL.wreck[i].t+=dt)>20) BAL.wreck.splice(i,1); }
+  for(let i=BAL.stuns.length-1;i>=0;i--){ const s=BAL.stuns[i]; s.t-=dt;
+    if(s.t<=0||enemies.indexOf(s.e)<0){ s.e.spd=s.spd; s.e._balStun=false; BAL.stuns.splice(i,1); } }
+  // ◇ MIRROR TWINS — the edge of the floor silvers, and the court's reflections step out of it
+  if(!houseActive && !BAL.seam && gt>=BAL.mirAt){ BAL.mirAt=gt+24+Math.random()*10;
+    BAL.seam={side:(Math.random()*4)|0, t:0, done:false}; showStreak('◇ THE MIRRORS STIR ◇'); BAL_SFX.mirror(); }
+  if(BAL.seam){ const s=BAL.seam; s.t+=dt; if(!s.done && s.t>=1.1){ s.done=true; if(!houseActive) balReflect(s.side); } if(s.t>2.4) BAL.seam=null; }
+  for(let i=BAL.mirrors.length-1;i>=0;i--){ const m=BAL.mirrors[i];
+    if(m.hp<=0){ BAL.mirrors.splice(i,1);
+      for(let k=0;k<7;k++){ const a=Math.random()*6.283, s=rnd(60,220); parts.push({x:m.x,y:m.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:rnd(.3,.6),col:k%2?'#e6ecff':'#9aa6c8',r:rnd(1.2,2.6)}); }
+      if(gt-BAL.shatT>0.09){ BAL.shatT=gt; BAL_SFX.shatter(); } } }
+  if((BAL.mirChk+=dt)>1){ BAL.mirChk=0; for(let i=BAL.mirrors.length-1;i>=0;i--) if(enemies.indexOf(BAL.mirrors[i])<0) BAL.mirrors.splice(i,1); }
+}
+function balDrop(){
+  const R=houseActive?120:140; let tx, ty;
+  if(houseActive){ tx=P.x+rnd(-50,50); ty=P.y+rnd(-50,50); }
+  else { const vis=[]; for(const e of enemies){ if(!e.boss && e.x>camX+70&&e.x<camX+VW-70&&e.y>camY+70&&e.y<camY+VH-70) vis.push(e); }
+    let best=null, bn=-1;
+    for(let k=0;k<Math.min(14,vis.length);k++){ const a=vis[(Math.random()*vis.length)|0]; let n=0;
+      for(const b of vis){ const dx=a.x-b.x, dy=a.y-b.y; if(dx*dx+dy*dy<R*R) n++; } if(n>bn){ bn=n; best=a; } }
+    if(best){ // lead the target: the court walks toward you, so the glass lands where they WILL be
+      let mx=0, my=0, ms=0, mn=0; for(const b of vis){ const dx=best.x-b.x, dy=best.y-b.y; if(dx*dx+dy*dy<R*R){ mx+=b.x; my+=b.y; ms+=b.spd; mn++; } }
+      mx/=mn; my/=mn; ms/=mn; const ddx=P.x-mx, ddy=P.y-my, dd=Math.hypot(ddx,ddy)||1, lead=Math.min(dd*0.55, ms*2.0, 260);
+      tx=mx+ddx/dd*lead; ty=my+ddy/dd*lead;
+      // the House's own drops hunt you; the night's drops are a gift you must not walk into
+      const px=tx-P.x, py=ty-P.y, pd=Math.hypot(px,py)||1; if(pd<R+30){ tx=P.x+px/pd*(R+30); ty=P.y+py/pd*(R+30); } } else { const a=Math.random()*6.283, d=rnd(170,280); tx=P.x+Math.cos(a)*d; ty=P.y+Math.sin(a)*d; } }
+  const A=CFG.arena; tx=clamp(tx,R,A-R); ty=clamp(ty,R,A-R);
+  BAL.crashes.push({x:tx,y:ty,r:R,t:0,tel:2.6,ph:Math.random()*6.283});
+  showStreak('✦ THE CHANDELIER SWAYS — STAND CLEAR ✦'); BAL_SFX.creak();
+}
+function balImpact(c){
+  const R=c.r; let k=0;
+  for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; if(!e) continue; const dx=e.x-c.x, dy=e.y-c.y, rr=R+e.r;
+    if(dx*dx+dy*dy>rr*rr) continue;
+    if(e.boss){ e.flash=0.3;
+      if(e.unkillable||e.bossKind==='housegod'){ if(!e._balStun){ e._balStun=true; BAL.stuns.push({e,t:2.6,spd:e.spd}); e.spd*=0.08; ftext(e.x,e.y-50,'STAGGERED','#e6ecff',true); } }
+      else { const dm=e.maxhp*0.12; e.hp=Math.max(1,e.hp-dm); trackDmg(dm); ftext(e.x,e.y-40,Math.round(dm),'#e6ecff',true); }
+      continue; }
+    e.hp=0; killEnemy(e,i); k++; }
+  BAL.crushed+=k;
+  // the glass pays — a pile of coins in the wreck
+  const n=Math.min(20, 3+Math.ceil(k/2));
+  for(let i=0;i<n;i++){ const a=Math.random()*6.283, d=Math.random()*R*0.55; coins.push({x:c.x+Math.cos(a)*d,y:c.y+Math.sin(a)*d,r:6,vx:rnd(-70,70),vy:rnd(-70,70)}); }
+  BAL.wreck.push({x:c.x,y:c.y,t:0,a:Math.random()*6.283});
+  ring(c.x,c.y,R*1.5,'#ffffff'); ring(c.x,c.y,R*1.1,'#cdd5e8'); ring(c.x,c.y,R*0.7,'#a03050');
+  for(let i=0;i<34;i++){ const a=Math.random()*6.283, s=rnd(120,420); parts.push({x:c.x+Math.cos(a)*R*0.3,y:c.y+Math.sin(a)*R*0.3,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:rnd(.4,.9),col:i%3===0?'#ffffff':(i%3===1?'#cdd5e8':'#8fa0d0'),r:rnd(1.4,3.4)}); }
+  shake=Math.min(26,shake+16); hitstop=Math.max(hitstop||0,0.06); flash(0.45,'#e6ecff');
+  BAL_SFX.crash(k>=12);
+  ftext(c.x,c.y-30,'+'+n+' ◈','#ffd36b',true);
+  if(k>=25) bigWin('CRYSTAL MASSACRE ×'+k,3);
+  else if(k>=14) bigWin('CHANDELIER ×'+k,2);
+  else if(k>=7) bigWin('CHANDELIER ×'+k,1);
+  else { coinRain(6); sparkBurst(12); }
+  announce('✦ THE CHANDELIER FALLS — '+(k?k+' CRUSHED':'THE FLOOR IS SPARED')+' ✦', k>0);
+  // the player stood under it
+  const pdx=P.x-c.x, pdy=P.y-c.y;
+  if(pdx*pdx+pdy*pdy<(R*0.9)*(R*0.9) && !(window.__bot&&window.__bot.god)){ announce('☠ CRUSHED UNDER THE CHANDELIER ☠', false); hurtPlayer(99999); }
+}
+function balReflect(side){
+  const E=side===0?camX:side===1?camX+VW:side===2?camY:camY+VH, vert=side<2, A=CFG.arena;
+  const N=Math.min(10, 3+Math.floor(gt/120));
+  const pool=[]; for(const e of enemies){ if(e.boss||e.mirror) continue; if(e.x>camX&&e.x<camX+VW&&e.y>camY&&e.y<camY+VH) pool.push(e); }
+  let made=0;
+  for(let k=0;k<N && enemies.length<CFG.spawn.max;k++){
+    let t='husk', x, y;
+    if(pool.length){ const src=pool.splice((Math.random()*pool.length)|0,1)[0]; t=src.type;
+      if(t==='elite'||t==='gilded'||t==='housegod'||!CFG.enemy[t]||BOSS_DEFS[t]) t='wraith';
+      x=vert?2*E-src.x:src.x; y=vert?src.y:2*E-src.y; }
+    else { const u=Math.random(); x=vert?E+(side===0?-60:60):camX+u*VW; y=vert?camY+u*VH:E+(side===2?-60:60); t=Math.random()<0.5?'husk':'shambler'; }
+    x=clamp(x,20,A-20); y=clamp(y,20,A-20);
+    spawnEnemy(t,x,y); const m=enemies[enemies.length-1]; if(!m) continue;
+    m.mirror=true; m.hp*=0.5; m.maxhp*=0.5; m.col='#cdd5e8'; m.dark='#3c4258'; BAL.mirrors.push(m); made++; }
+  if(made){ showStreak('◇ '+made+' REFLECTIONS STEP OUT ◇'); }
+}
+// ---- art: baked once ----
+const _balTC=new Map();
+function balTile(dark,variant){
+  const key=(dark?1:0)*24+variant; let sp=_balTC.get(key); if(sp) return sp;
+  const cs=200; sp=document.createElement('canvas'); sp.width=cs; sp.height=cs; const x=sp.getContext('2d');
+  const vh=((variant+13)*2654435761)>>>0;
+  // smoked mirror glass: violet-black, the darkest thing on screen (law 2)
+  x.fillStyle=dark?'#09070c':'#0e0a11'; x.fillRect(0,0,cs,cs);
+  { const g=x.createLinearGradient(0,0,cs,cs); g.addColorStop(0,'rgba(190,200,230,0.035)'); g.addColorStop(0.45,'rgba(0,0,0,0)'); g.addColorStop(0.62,'rgba(205,213,232,0.045)'); g.addColorStop(1,'rgba(60,10,30,0.05)');
+    x.fillStyle=g; x.fillRect(0,0,cs,cs); }
+  // reflection streaks — the mirror catches the chandeliers
+  x.strokeStyle='rgba(205,213,232,0.035)'; x.lineWidth=1;
+  for(let s=0;s<2;s++){ const o=((vh>>(s*6))&63)/63*cs; x.beginPath(); x.moveTo(o-40,cs); x.lineTo(o+40,0); x.stroke(); }
+  // silver-gilt inlay frame and wine corner diamonds (four quarters meet at each grout cross)
+  x.strokeStyle='rgba(205,213,232,0.05)'; x.lineWidth=1.2; x.strokeRect(7,7,cs-14,cs-14);
+  x.fillStyle='rgba(74,14,34,0.40)';
+  for(const [ux,uy] of [[0,0],[cs,0],[0,cs],[cs,cs]]){ x.beginPath(); x.moveTo(ux,uy-22); x.lineTo(ux+22,uy); x.lineTo(ux,uy+22); x.lineTo(ux-22,uy); x.closePath(); x.fill(); }
+  x.strokeStyle='rgba(205,213,232,0.06)'; x.lineWidth=1;
+  for(const [ux,uy] of [[0,0],[cs,0],[0,cs],[cs,cs]]){ x.beginPath(); x.moveTo(ux,uy-22); x.lineTo(ux+22,uy); x.lineTo(ux,uy+22); x.lineTo(ux-22,uy); x.closePath(); x.stroke(); }
+  if(vh%5===0){ // an inlaid eight-point star, silver on smoke
+    x.save(); x.translate(cs/2,cs/2); x.fillStyle='rgba(205,213,232,0.035)'; x.beginPath();
+    for(let i=0;i<16;i++){ const a=i/16*6.283, rr=i%2?14:44; x.lineTo(Math.cos(a)*rr,Math.sin(a)*rr); } x.closePath(); x.fill();
+    x.strokeStyle='rgba(160,48,80,0.08)'; x.stroke(); x.restore(); }
+  _balTC.set(key,sp); return sp;
+}
+let _balMed=null, _balCh=null, _balWr=null;
+function balMedallion(cx,cy){ // the dance-floor rosette under the great chandelier (replaces the sigil)
+  const R=460;
+  if(!inView(cx,cy,R+300)) return;
+  if(!_balMed){ const c=document.createElement('canvas'); c.width=c.height=R*2; const x=c.getContext('2d'); x.translate(R,R);
+    x.fillStyle='rgba(60,10,28,0.22)'; x.beginPath(); x.arc(0,0,R*0.96,0,6.283); x.fill();
+    for(const [rr,a,w] of [[R*0.96,0.10,3],[R*0.9,0.05,1.5],[R*0.62,0.08,2],[R*0.3,0.07,1.5]]){ x.strokeStyle='rgba(205,213,232,'+a+')'; x.lineWidth=w; x.beginPath(); x.arc(0,0,rr,0,6.283); x.stroke(); }
+    x.fillStyle='rgba(205,213,232,0.035)'; x.beginPath();
+    for(let i=0;i<32;i++){ const a=i/32*6.283, rr=i%2?R*0.2:(i%4===0?R*0.88:R*0.6); x.lineTo(Math.cos(a)*rr,Math.sin(a)*rr); } x.closePath(); x.fill();
+    x.strokeStyle='rgba(205,213,232,0.06)'; x.lineWidth=1; x.stroke();
+    x.fillStyle='rgba(120,24,56,0.18)';
+    for(let i=0;i<24;i++){ const a=i/24*6.283; x.save(); x.rotate(a); x.beginPath(); x.moveTo(R*0.74,0); x.lineTo(R*0.78,-9); x.lineTo(R*0.82,0); x.lineTo(R*0.78,9); x.closePath(); x.fill(); x.restore(); }
+    _balMed=c; }
+  ctx.drawImage(_balMed,cx-R,cy-R);
+}
+function balChSprite(){ // a silver-gilt chandelier, crystals and candles — seen from below
+  if(_balCh) return _balCh; const S=320, c=document.createElement('canvas'); c.width=c.height=S; const x=c.getContext('2d'); x.translate(S/2,S/2);
+  x.fillStyle='rgba(0,0,0,0.35)'; x.beginPath(); x.arc(0,0,128,0,6.283); x.fill();
+  x.lineCap='round';
+  for(const [rr,w,col] of [[118,6,'#1c1a24'],[118,3,'#b9c0d6'],[74,5,'#1c1a24'],[74,2.4,'#dfe4f2'],[30,8,'#1c1a24'],[30,4,'#cdd5e8']]){ x.strokeStyle=col; x.lineWidth=w; x.beginPath(); x.arc(0,0,rr,0,6.283); x.stroke(); }
+  for(let i=0;i<12;i++){ const a=i/12*6.283; x.strokeStyle='#1c1a24'; x.lineWidth=5; x.beginPath(); x.moveTo(Math.cos(a)*30,Math.sin(a)*30); x.quadraticCurveTo(Math.cos(a+0.25)*80,Math.sin(a+0.25)*80,Math.cos(a)*118,Math.sin(a)*118); x.stroke();
+    x.strokeStyle='#aab2ca'; x.lineWidth=2; x.stroke(); }
+  for(let i=0;i<36;i++){ const a=i/36*6.283, rr=i%2?98:132; const px=Math.cos(a)*rr, py=Math.sin(a)*rr;
+    x.fillStyle=i%3?'#e6ecff':'#9fb2e6'; x.beginPath(); x.moveTo(px,py-6); x.lineTo(px+3,py); x.lineTo(px,py+6); x.lineTo(px-3,py); x.closePath(); x.fill(); }
+  for(let i=0;i<12;i++){ const a=i/12*6.283+0.26, px=Math.cos(a)*118, py=Math.sin(a)*118;
+    const g=x.createRadialGradient(px,py,0,px,py,16); g.addColorStop(0,'rgba(255,236,190,0.9)'); g.addColorStop(1,'rgba(255,200,120,0)'); x.fillStyle=g; x.fillRect(px-16,py-16,32,32);
+    x.fillStyle='#fff2c0'; x.beginPath(); x.arc(px,py,3,0,6.283); x.fill(); }
+  x.fillStyle='#e6ecff'; x.beginPath(); x.arc(0,0,10,0,6.283); x.fill();
+  _balCh=c; return c;
+}
+function balWrSprite(){ // the wreck: bent rings, glass everywhere
+  if(_balWr) return _balWr; const S=320, c=document.createElement('canvas'); c.width=c.height=S; const x=c.getContext('2d'); x.translate(S/2,S/2);
+  x.lineCap='round';
+  for(let i=0;i<5;i++){ const a0=i*1.3, r=60+i*14; x.strokeStyle='rgba(20,18,26,0.9)'; x.lineWidth=6; x.beginPath(); x.arc(i*4-8,i*3-6,r,a0,a0+1.6+i*0.2); x.stroke();
+    x.strokeStyle='rgba(170,178,202,0.55)'; x.lineWidth=2; x.stroke(); }
+  for(let i=0;i<70;i++){ const a=Math.random()*6.283, d=Math.pow(Math.random(),0.7)*140, px=Math.cos(a)*d, py=Math.sin(a)*d, s=1+Math.random()*3;
+    x.fillStyle=i%4?'rgba(214,224,250,0.55)':'rgba(255,255,255,0.8)'; x.beginPath(); x.moveTo(px,py-s); x.lineTo(px+s*0.6,py); x.lineTo(px,py+s); x.lineTo(px-s*0.6,py); x.closePath(); x.fill(); }
+  _balWr=c; return c;
+}
+// world-space, under the court: the great chandelier's pool, the waltz current, wrecks, telegraphs, mirror seams
+function balGround(){
+  if(BAL.seq!==window._runSeq) return;
+  const A=CFG.arena, C=A/2;
+  ctx.save(); ctx.globalCompositeOperation='lighter';
+  if(!GFX.lite && inView(C,C,700)){ ctx.globalAlpha=0.16+Math.sin(gt*0.9)*0.02; ctx.drawImage(lightSprite(205,213,240),C-560,C-430,1120,860); }
+  // mirror twins shimmer — a silver ghost under each reflection
+  if(!qLow){ ctx.globalAlpha=0.85; const gs=glowSprite('rgba(205,213,240,0.6)','rgba(205,213,240,0)',24); let n=0;
+    for(const m of BAL.mirrors){ if(n>40) break; if(!inView(m.x,m.y,40)) continue; n++; const rr=m.r*1.9; ctx.drawImage(gs,m.x-rr,m.y-rr*0.7,rr*2,rr*1.4); } }
+  ctx.restore(); ctx.globalAlpha=1;
+  for(const w of BAL.wreck){ if(!inView(w.x,w.y,200)) continue; ctx.save(); ctx.globalAlpha=Math.min(1,(20-w.t)/4)*0.85; ctx.translate(w.x,w.y); ctx.rotate(w.a); ctx.drawImage(balWrSprite(),-160,-160); ctx.restore(); }
+  if(BAL.waltz){ const w=BAL.waltz, env=balEnv(w);
+    ctx.save(); ctx.translate(w.x,w.y); ctx.lineCap='round';
+    for(const [rr,sp] of [[200,0.9],[440,0.6],[720,0.42]]){ if(!inView(w.x,w.y,rr+60)) continue;
+      ctx.strokeStyle='rgba(205,213,232,'+(0.16*env).toFixed(3)+')'; ctx.lineWidth=3; ctx.setLineDash([26,22]); ctx.lineDashOffset=-gt*sp*60*w.dir;
+      ctx.beginPath(); ctx.arc(0,0,rr,0,6.283); ctx.stroke(); }
+    ctx.setLineDash([]);
+    ctx.strokeStyle='rgba(176,52,88,'+(0.34*env).toFixed(3)+')'; ctx.lineWidth=3;
+    for(let i=0;i<14;i++){ const a=i/14*6.283+gt*0.6*w.dir, rr=i%2?320:580; ctx.save(); ctx.rotate(a); ctx.translate(rr,0); if(w.dir<0) ctx.scale(1,-1);
+      ctx.beginPath(); ctx.moveTo(-8,-10); ctx.lineTo(4,0); ctx.lineTo(-8,10); ctx.stroke(); ctx.restore(); }
+    ctx.restore(); }
+  for(const c of BAL.crashes){ const p=Math.min(1,c.t/c.tel), R=c.r, late=p>0.7;
+    ctx.fillStyle='rgba(0,0,0,'+(0.18+0.5*p).toFixed(3)+')'; ctx.beginPath(); ctx.arc(c.x,c.y,R*(0.55+0.45*p),0,6.283); ctx.fill();
+    const pulse=0.55+0.45*Math.sin(gt*(late?34:16));
+    ctx.strokeStyle='rgba(230,236,255,'+(0.5+0.4*pulse).toFixed(3)+')'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.arc(c.x,c.y,R,0,6.283); ctx.stroke();
+    ctx.strokeStyle='rgba(200,40,70,'+(0.45+0.4*pulse).toFixed(3)+')'; ctx.lineWidth=4; ctx.setLineDash([14,10]); ctx.lineDashOffset=gt*40;
+    ctx.beginPath(); ctx.arc(c.x,c.y,R*(1.7-0.7*p),0,6.283); ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle='rgba(230,236,255,0.35)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(c.x-18,c.y); ctx.lineTo(c.x+18,c.y); ctx.moveTo(c.x,c.y-18); ctx.lineTo(c.x,c.y+18); ctx.stroke(); }
+  if(BAL.seam){ const s=BAL.seam, a=Math.max(0,Math.min(1,s.t/0.5,(2.4-s.t)/0.8)), W=34;
+    ctx.save(); ctx.globalCompositeOperation='lighter';
+    const vx=s.side===0?camX:s.side===1?camX+VW-W:camX, vy=s.side===2?camY:s.side===3?camY+VH-W:camY;
+    const ww=s.side<2?W:VW, hh=s.side<2?VH:W;
+    ctx.fillStyle='rgba(205,213,240,'+(0.17*a).toFixed(3)+')'; ctx.fillRect(vx,vy,ww,hh); ctx.fillStyle='rgba(205,213,240,'+(0.08*a).toFixed(3)+')'; ctx.fillRect(s.side===0?vx+W:s.side===1?vx-W:vx, s.side===2?vy+W:s.side===3?vy-W:vy, ww, hh);
+    ctx.fillStyle='rgba(235,240,255,'+(0.85*a).toFixed(3)+')';
+    if(s.side<2) ctx.fillRect(s.side===0?camX+W-3:camX+VW-W,camY,3,VH); else ctx.fillRect(camX,s.side===2?camY+W-3:camY+VH-W,VW,3);
+    ctx.restore(); }
+}
+// world-space, over the court: the chandelier hanging above its circle, then falling
+function balSky(){
+  if(BAL.seq!==window._runSeq || !BAL.crashes.length) return;
+  const sp=balChSprite();
+  for(const c of BAL.crashes){ const fall=c.tel-0.45, R=c.r;
+    let q=0, sc=1.35, a=0.42, oy=-30; if(c.t>fall){ q=(c.t-fall)/0.45; sc=1.35-0.35*q; a=0.42+0.58*q; oy=-30*(1-q*q); }
+    const sw=c.t<fall?Math.sin(gt*5+c.ph)*0.06*(c.t/fall):0;
+    ctx.save(); ctx.globalAlpha=a; ctx.translate(c.x+Math.sin(gt*5+c.ph)*6*(1-q),c.y+oy); ctx.rotate(sw+c.ph); ctx.scale(sc*R/140,sc*R/140); ctx.drawImage(sp,-160,-160); ctx.restore(); }
+  ctx.globalAlpha=1;
+}
 /* THE CONTRACTS — sign up to two; each pays ×1.25 marks & gilt at the ledger */
 const RUN_CONTRACTS=[
  {id:'glass',    g:'♡', n:'GLASS SOUL',     d:'Max blood halved. Every touch is a sentence.', u:()=>RANK.rank>=15, uTxt:'HOUSE RANK 15', ap:()=>{ P.maxHp=Math.max(20,Math.round(P.maxHp*0.5)); P.hp=P.maxHp; }},
