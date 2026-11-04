@@ -604,6 +604,7 @@ function update(dt){
   if(rings.length>90) rings.splice(0,rings.length-90);
   if(sparks.length>320) sparks.splice(0,sparks.length-320);
   fnTick(dt); // A3 first night: first blood, first RAGE lesson + forgiveness
+  if(typeof soulTick==='function') soulTick(dt); // D1: the seat's own rules (martyr/magpie/banker)
   if(P.ovT>0){ P.ovAge+=dt;
     P.ovT-=dt*(3.3+P.ovAge*0.35);
     P._ovHb=(P._ovHb||0)-dt; if(P._ovHb<=0){ P._ovHb=Math.max(0.16,(11-P.ovHold)/40); tone(56,0.1,'sine',0.13,44); }
@@ -893,7 +894,7 @@ function update(dt){
     c.vx*=0.9; c.vy*=0.9; c.x+=c.vx*dt; c.y+=c.vy*dt;
     const range=P.lode?9999:P.pickup;
     if(d<range){ const pull=P.lode?520:400; c.x+=dx/d*pull*dt; c.y+=dy/d*pull*dt; }
-    if(d<P.radius+7){ if(P.ovT>0){ coins.splice(i,1); P.ovT=Math.min(100,P.ovT+2.5*(P.ovFeed||1)); tone(600+P.ovT*9,0.06,'sine',0.1); flash(0.06,'#ffd36b'); ftext(P.x,P.y-12,'+FUEL','#ffd36b'); burst(P.x,P.y,3,'#ff9a3c'); continue; } const gain=Math.max(1,Math.round(P.comboMult)); P.coins+=gain; LT.coins+=gain; if(P.coins===777) secret('sevens','TRIPLE SEVENS'); bump('runCoins',P.coins); bump('ltCoins',LT.coins); if(P.midas)P.midasStacks=Math.min(25,P.midasStacks+1); coins.splice(i,1);
+    if(d<P.radius+7){ if(c.gold&&typeof magpieChip==='function') magpieChip(c); if(P.ovT>0){ coins.splice(i,1); P.ovT=Math.min(100,P.ovT+2.5*(P.ovFeed||1)); tone(600+P.ovT*9,0.06,'sine',0.1); flash(0.06,'#ffd36b'); ftext(P.x,P.y-12,'+FUEL','#ffd36b'); burst(P.x,P.y,3,'#ff9a3c'); continue; } const gain=Math.max(1,Math.round(P.comboMult)); P.coins+=gain; LT.coins+=gain; if(P.coins===777) secret('sevens','TRIPLE SEVENS'); bump('runCoins',P.coins); bump('ltCoins',LT.coins); if(P.midas)P.midasStacks=Math.min(25,P.midasStacks+1); coins.splice(i,1);
       { const n8=performance.now(); P._coinCombo=(n8-(P._coinT||0)<800)?(P._coinCombo||0)+1:0; P._coinT=n8;
         tone(700*Math.pow(2,(P._coinCombo%12)/12)*(P._coinCombo>=12?1.5:1),0.06,'sine',0.07);
         if(P._coinCombo>0 && P._coinCombo%10===0){ SFX.casinoDing(); sparkBurst(8); ftext(P.x,P.y-40,'COIN RUSH ×'+P._coinCombo,'#ffd36b'); }
@@ -1633,6 +1634,7 @@ function render(){
     ctx.fillStyle='#e8b64c'; ctx.beginPath(); ctx.ellipse(c.x,c.y,cw,c.r,0,0,6.28); ctx.fill(); ctx.stroke();
     ctx.fillStyle='#ffd36b'; ctx.beginPath(); ctx.ellipse(c.x,c.y,cw*0.62,c.r*0.62,0,0,6.28); ctx.fill();
     if(sp>0.5){ ctx.fillStyle='#fff2c0'; ctx.fillRect(c.x-cw*0.35,c.y-c.r*0.45,Math.max(1,cw*0.3),c.r*0.3); } }
+  if(typeof soulDrawWorld==='function') soulDrawWorld(); // D1: golden chips, the martyr's halo
 
   // aura visual
   if(auraRadius()>0){ const aR=auraRadius(); ctx.save(); ctx.globalCompositeOperation='screen'; ctx.translate(P.x,P.y);

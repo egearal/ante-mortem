@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// npm run probe [-- --nights 5 --src --god --mobile --rank 20 --minutes 14]
+// npm run probe [-- --nights 5 --src --god --mobile --rank 20 --minutes 14 --soul martyr]
 // Plays N full nights with the autoplay bot on a virtual clock and prints a
 // JSON report. Exit code 1 on any runtime error.
 'use strict';
@@ -16,6 +16,9 @@ const which = opt('src', false) ? 'src' : 'dist';
     const { browser, page, errors } = await launch({ which, mobile, viewport: mobile ? { width: 390, height: 844 } : { width: 1280, height: 720 } });
     const rank = opt('rank', null);
     await page.evaluate(({ god, rank }) => { window.__bot.god = god; if (rank) { try { RANK.rank = +rank; RANK._ld = 1; } catch (e) {} } }, { god: !!opt('god', false), rank });
+    // --soul <id>: seat a soul for the night (D1) — unseals it for this page only
+    const soul = opt('soul', null);
+    if (soul) await page.evaluate((id) => { const s = SOULS.find(x => x.id === id); if (!s) throw new Error('no soul ' + id); s.u = () => true; IDX.sl = id; }, soul);
     const t0 = Date.now();
     // virtual frames: gt runs at 1.71x, so MAXMIN game-minutes ≈ MAXMIN*60/1.71 s
     const frames = Math.ceil(MAXMIN * 60 / 1.71 / 0.0167) + 3000;
@@ -25,6 +28,7 @@ const which = opt('src', false) ? 'src' : 'dist';
       alive: !window.__bot.res, clock: typeof gt === 'number' ? fmt(gt) : null, gt,
       level: P && P.level, maxLevel: window.__bot.maxLevel, kills: P && P.kills,
       states: window.__bot.states, amErr: !!window._amErr, timerErr: window.__timerErr || 0,
+      soulFx: P ? { mSt: P._mSt || 0, chips: LT.chips || 0, bkPaid: P._bkPaid || 0, coins: P.coins } : null,
       heapMB: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) : null,
     }));
     r.realSec = Math.round((Date.now() - t0) / 100) / 10;
@@ -37,7 +41,7 @@ const which = opt('src', false) ? 'src' : 'dist';
   const deaths = results.filter(r => r.res).map(r => r.res.gt).sort((a, b) => a - b);
   const med = deaths.length ? deaths[deaths.length >> 1] : null;
   const fmt = s => s == null ? null : Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
-  const summary = { nights: NIGHTS, deaths: deaths.length, medianDeath: fmt(med), errors: allErrors.length, which };
+  const summary = { nights: NIGHTS, deaths: deaths.length, medianDeath: fmt(med), errors: allErrors.length, which, soul: opt('soul', null) };
   console.log(JSON.stringify({ summary, results }, null, 1));
   process.exit(allErrors.length ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(2); });
