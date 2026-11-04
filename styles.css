@@ -2165,3 +2165,15 @@ body.touchUI #hud #combo s{display:none;}
 @media (max-width:1180px){ body:not(.touchUI) #howBtnRow{bottom:78px;} }
 /* the ascension card the keyboard / pad will take (◀ ▶ walk it, SPACE / Ⓐ takes it) */
 .jkCard.b4sel{transform:translateY(-8px) scale(1.05);border-color:#8bffd0;box-shadow:0 0 0 1px #8bffd0,0 0 34px rgba(139,255,208,.5);}
+/* B2 × A2 — the stake surfaces wear the House's brass */
+#hud #b2Mult:not(:empty){padding:3px 11px 4px;border-radius:7px;background:linear-gradient(180deg,rgba(26,10,14,.80),rgba(8,3,5,.84));
+  box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(184,134,42,.55),0 0 0 3px rgba(20,10,3,.6),inset 0 1px 0 rgba(255,236,170,.14),inset 0 -2px 3px rgba(0,0,0,.55),0 3px 8px rgba(0,0,0,.45);}
+body.b2endless #hud #b2Mult{box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(154,92,255,.65),0 0 0 3px rgba(20,10,3,.6),inset 0 1px 0 rgba(230,200,255,.14),0 0 16px rgba(154,92,255,.35);}
+.stakeCard{border:2px solid transparent;background:var(--a2-velvet) padding-box,var(--a2-bronze) border-box;
+  box-shadow:0 0 0 1px #140a03,inset 0 1px 0 rgba(255,236,170,.08),0 4px 14px rgba(0,0,0,.5);}
+.stakeCard.on{background:linear-gradient(170deg,rgba(38,22,28,.96),rgba(16,8,12,.97)) padding-box,var(--a2-brass) border-box;
+  box-shadow:0 0 0 1px #140a03,0 0 22px color-mix(in srgb,var(--sc) 50%,transparent);}
+.stakeCard.locked{border:2px dashed rgba(168,118,46,.45);background:var(--a2-velvet);}
+.b2gCard{border:6px solid transparent;background:linear-gradient(170deg,rgba(38,18,24,.97),rgba(12,6,10,.98)) padding-box,var(--a2-brass) border-box;
+  box-shadow:0 0 0 1px #140a03,0 0 60px rgba(255,211,107,.25),inset 0 0 0 1px rgba(255,236,170,.12);}
+@media (max-width:480px){ .b2row{grid-template-columns:repeat(2,minmax(0,1fr));} .stakeCard .soulD{font-size:10.5px;} .b2gCard{padding:16px 12px 14px;} .b2gR .btn{flex-basis:100%;} }
