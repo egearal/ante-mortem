@@ -1438,3 +1438,377 @@ button[id$="Close"]:active{transform:translateY(1px);}
 @media (max-width:600px){ #a3Share{right:calc(40px + env(safe-area-inset-right,0px));top:calc(10px + env(safe-area-inset-top,0px));}
   #a3Share .a3ShareBtn{font-size:10.5px;padding:8px 11px;letter-spacing:.14em;} }
 @media (prefers-reduced-motion: reduce){ #a3Share .a3ShareOut.go .a3ShareSheet,#a3Share .a3ShareBtn{animation:none;} }
+
+/* ==== A2 ==== */
+/* GILT NOIR — THE MACHINE AND THE HALL. Every DOM surface is a physical object:
+   cast brass, engraved plaques, velvet, glass. One block, appended; overrides only.
+   Perf law: transforms/opacity for anything that loops; no filters on big layers. */
+:root{
+  --a2-brass:linear-gradient(135deg,#fff2c0 0%,#d9a441 11%,#6e4a12 25%,#c8922e 38%,#fff2c0 49%,#b8862a 60%,#5a3a10 76%,#e8b64c 89%,#fff2c0 100%);
+  --a2-brass-v:linear-gradient(180deg,#fff2c0 0%,#e8b64c 18%,#8a5f18 48%,#c8922e 70%,#5a3a10 100%);
+  --a2-chrome:linear-gradient(90deg,#3a3a42 0%,#9a9aa4 22%,#f6f6fa 42%,#b4b4be 58%,#5a5a64 80%,#2a2a30 100%);
+  --a2-velvet:linear-gradient(180deg,#2a0f16 0%,#1a0a10 58%,#10060a 100%);
+  --a2-ink:#0d0507;
+  --a2-bronze:linear-gradient(135deg,#e8c890 0%,#a8762e 12%,#4a2e0c 26%,#8a5f22 40%,#d8b070 49%,#7a5420 60%,#3a2408 76%,#a8762e 89%,#e8c890 100%);
+}
+
+/* ---------- THE MACHINE: a cast-brass cabinet ---------- */
+#slot .machine{
+  border:9px solid transparent;border-radius:24px;padding:10px 20px 14px;
+  background:
+    radial-gradient(130% 55% at 50% -4%,rgba(232,182,76,.16),transparent 62%) padding-box,
+    radial-gradient(90% 40% at 50% 104%,rgba(139,22,32,.32),transparent 70%) padding-box,
+    var(--a2-velvet) padding-box,
+    var(--a2-brass) border-box;
+  box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(255,236,170,.18),0 0 54px rgba(232,182,76,.22),0 30px 80px rgba(0,0,0,.88),
+    inset 0 0 0 1px rgba(0,0,0,.85),inset 0 2px 0 1px rgba(255,236,170,.10),inset 0 0 60px rgba(0,0,0,.5);
+}
+/* the engraved inner lip (replaces the old painted sheen) */
+#slot .machine::before{inset:2px;border-radius:14px;border:1px solid rgba(255,226,150,.30);background:none;animation:none;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.55),0 0 0 1px rgba(0,0,0,.35);}
+/* fleurons cast into the top rail */
+#slot .machine::after{top:-11px;left:22px;right:22px;font-size:12px;color:#3a2408;text-shadow:0 1px 0 rgba(255,240,192,.55);}
+.a2Bolt{position:absolute;width:11px;height:11px;border-radius:50%;z-index:7;pointer-events:none;
+  background:radial-gradient(circle at 35% 30%,#fffbe8 0%,#f0cf7a 28%,#8a5f18 70%,#3a2408 100%);
+  box-shadow:0 1px 1px rgba(0,0,0,.7),inset 0 -1px 1px rgba(0,0,0,.4);}
+.a2Bolt::after{content:'';position:absolute;left:2px;right:2px;top:50%;height:1.5px;margin-top:-.75px;background:rgba(58,36,8,.85);transform:rotate(-35deg);border-radius:1px;}
+.a2Bolt.tl{left:-7px;top:-7px;} .a2Bolt.tr{right:-7px;top:-7px;} .a2Bolt.bl{left:-7px;bottom:-7px;} .a2Bolt.br{right:-7px;bottom:-7px;}
+.a2Bolt.tr::after{transform:rotate(25deg);} .a2Bolt.bl::after{transform:rotate(70deg);}
+
+/* the marquee: a backlit glass sign in a brass frame */
+#slot .marquee{position:relative;margin:2px 4px 12px;padding:9px 12px 8px;border-radius:10px;font-size:13.5px;letter-spacing:.28em;
+  background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,0) 46%),
+    radial-gradient(120% 140% at 50% 120%,rgba(139,22,32,.75),rgba(30,6,10,.95) 62%,#0a0204);
+  box-shadow:0 0 0 1px #000,0 0 0 3px #b8862a,0 0 0 4px #3a2408,0 0 0 5px rgba(255,236,170,.22),inset 0 0 22px rgba(232,182,76,.22),inset 0 -6px 14px rgba(0,0,0,.6);
+  transition:color .2s;}
+#slot .marquee.a2strobe{animation:a2Strobe .16s steps(2) 8;}
+@keyframes a2Strobe{0%{color:#fff;text-shadow:0 0 26px #fff,0 0 40px var(--gold);}100%{color:var(--gold-bright);}}
+
+/* the reel window: a recess cut into the brass, trimmed with a bevel ring */
+#slot .cabinet{border:none;border-radius:16px;padding:20px 24px;
+  background:radial-gradient(120% 90% at 50% 50%,#160910 0%,#070304 70%);
+  box-shadow:0 0 0 1px #000,0 0 0 3px #8a5f18,0 0 0 4px #e8b64c,0 0 0 5px #3a2408,0 2px 0 5px rgba(255,236,170,.14),
+    inset 0 8px 18px rgba(0,0,0,.95),inset 0 -3px 10px rgba(0,0,0,.85);}
+#slot .bulb{width:8px;height:8px;background:radial-gradient(circle at 40% 35%,#fff,#f6d98f 45%,#a06a12);
+  box-shadow:0 0 0 2px #3a2408,0 0 0 3px rgba(232,182,76,.5),0 0 8px #e8b64c;}
+#slot .bulb.chase{animation-name:a2BulbChase;}
+@keyframes a2BulbChase{0%,72%,100%{opacity:.4;box-shadow:0 0 0 2px #3a2408,0 0 0 3px rgba(232,182,76,.4),0 0 2px #a06a12;}
+  80%{opacity:1;box-shadow:0 0 0 2px #3a2408,0 0 0 3px rgba(255,236,170,.8),0 0 16px #ffe9a8,0 0 6px #fff;transform:translate(-50%,-50%) scale(1.35);}}
+
+/* reels: lacquered drums — cylinder shading, brass hoops, a seam of light */
+#slot .reelsRow{gap:7px;}
+#slot .reelbox{border:1px solid #000;border-radius:7px;
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.6),rgba(0,0,0,0) 16%,rgba(0,0,0,0) 84%,rgba(0,0,0,.6)),
+    linear-gradient(180deg,#040102 0%,#1b0a10 20%,#33141c 50%,#1b0a10 80%,#040102 100%);
+  box-shadow:0 0 0 1px rgba(232,182,76,.32),0 0 0 2px #1a0e04,inset 0 0 0 1px rgba(255,236,170,.06),inset 0 0 18px rgba(0,0,0,.55);}
+#slot .reelbox::before,#slot .reelbox::after{height:38%;}
+#slot .reelbox::before{background:linear-gradient(180deg,rgba(3,1,2,.97) 0%,rgba(3,1,2,.82) 32%,rgba(3,1,2,.35) 70%,transparent);}
+#slot .reelbox::after{background:linear-gradient(0deg,rgba(3,1,2,.97) 0%,rgba(3,1,2,.82) 32%,rgba(3,1,2,.35) 70%,transparent);}
+#slot .reelsRow.sweeping .reelbox::before{background:linear-gradient(180deg,#030102 46%,rgba(3,1,2,.85) 78%,rgba(3,1,2,.35));}
+#slot .reelsRow.sweeping .reelbox::after{background:linear-gradient(0deg,#030102 46%,rgba(3,1,2,.85) 78%,rgba(3,1,2,.35));}
+#slot .reelbox.slam{animation:a2Clunk .3s cubic-bezier(.2,1.5,.4,1);}
+@keyframes a2Clunk{0%{transform:translateY(0);filter:brightness(1.7);}22%{transform:translateY(4px);}55%{transform:translateY(-1.5px);}100%{transform:translateY(0);filter:brightness(1);}}
+#slot .reelbox.a2creep{box-shadow:0 0 0 1px var(--gold-bright),0 0 0 2px #1a0e04,0 0 26px 4px rgba(255,211,107,.55),inset 0 0 18px rgba(0,0,0,.55);}
+
+/* the payline: twin brass rails, and the arrows are cast pointers */
+#slot .payline{left:-6px;right:-6px;border-top:1px solid rgba(255,226,150,.85);border-bottom:1px solid rgba(255,226,150,.85);
+  background:linear-gradient(180deg,rgba(255,236,170,.06),transparent 30%,transparent 70%,rgba(255,236,170,.06));
+  box-shadow:0 -1px 0 rgba(0,0,0,.7),0 1px 0 rgba(0,0,0,.7),0 0 14px rgba(232,182,76,.28);animation:none;}
+#slot .payArrow{color:#ffd36b;text-shadow:0 0 8px rgba(255,211,107,.8),0 1px 0 #3a2408;font-size:15px;}
+#slot .payArrow.l{left:-19px;} #slot .payArrow.r{right:-19px;}
+#slot .reelsRow.a2tease .payline{animation:a2Gasp .26s ease-out 1;border-color:#fff2c0;}
+#slot .reelsRow.a2tease .payArrow{animation:a2ArrowJab .26s ease-out 1;}
+@keyframes a2Gasp{0%{box-shadow:0 0 0 rgba(255,211,107,0);}40%{box-shadow:0 0 34px 6px rgba(255,211,107,.85),inset 0 0 26px rgba(255,236,170,.4);}100%{box-shadow:0 0 14px rgba(232,182,76,.28);}}
+@keyframes a2ArrowJab{50%{transform:translateY(-50%) scale(1.6);color:#fff;}}
+#slot .reelsRow[class*="a2pay"] .payline{--payc:#ffd36b;border-color:var(--payc);animation:a2PayFlash .22s steps(2) 6;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--payc) 30%,transparent) 20%,color-mix(in srgb,var(--payc) 30%,transparent) 80%,transparent);}
+#slot .reelsRow.a2pay1 .payline{animation-iteration-count:2;}
+#slot .reelsRow.a2pay3 .payline{animation-iteration-count:12;}
+@keyframes a2PayFlash{0%{box-shadow:0 0 40px 8px var(--payc),inset 0 0 30px var(--payc);}100%{box-shadow:0 0 10px rgba(0,0,0,0);}}
+#slot .reelsRow[class*="a2pay"] .payArrow{color:var(--payc,#ffd36b);animation:a2ArrowJab .22s ease-out 4;}
+
+/* the glass: a curved pane with a resting reflection and a sweep on every pull */
+.a2Glass{position:absolute;inset:-2px;z-index:6;pointer-events:none;border-radius:8px;overflow:hidden;
+  background:linear-gradient(172deg,rgba(255,250,235,.13) 0%,rgba(255,250,235,.04) 18%,rgba(255,250,235,0) 34%),
+    linear-gradient(8deg,rgba(255,250,235,.05) 0%,rgba(255,250,235,0) 16%);
+  box-shadow:inset 0 1px 0 rgba(255,250,235,.16);}
+.a2Glass::after{content:'';position:absolute;top:-20%;bottom:-20%;left:0;width:26%;
+  background:linear-gradient(100deg,transparent,rgba(255,250,235,.16) 45%,rgba(255,250,235,.28) 50%,rgba(255,250,235,.16) 55%,transparent);
+  transform:translateX(-140%) skewX(-18deg);animation:a2GlassIdle 7s ease-in-out 1.2s infinite;}
+.a2Glass.sweep::after{animation:a2GlassSweep .7s cubic-bezier(.3,.1,.3,1) 1;}
+@keyframes a2GlassIdle{0%,78%{transform:translateX(-140%) skewX(-18deg);}100%{transform:translateX(520%) skewX(-18deg);}}
+@keyframes a2GlassSweep{0%{transform:translateX(-140%) skewX(-18deg);}100%{transform:translateX(520%) skewX(-18deg);}}
+
+/* the stamp — PAIR / TRIPLE pressed onto the glass */
+.a2Stamp{position:absolute;left:50%;top:50%;z-index:8;pointer-events:none;opacity:0;white-space:nowrap;
+  font-family:var(--disp);font-weight:800;font-size:30px;letter-spacing:.2em;color:#fff2c0;
+  transform:translate(-50%,-50%) scale(2.4) rotate(-6deg);
+  text-shadow:0 0 18px var(--payc,#ffd36b),0 0 40px var(--payc,#ffd36b),0 3px 0 #3a2408;}
+.a2Stamp.go{animation:a2Stamp 1.5s cubic-bezier(.2,1.4,.35,1) forwards;}
+.a2Stamp.go.t3{font-size:38px;animation-duration:2.2s;}
+@keyframes a2Stamp{0%{opacity:0;transform:translate(-50%,-50%) scale(2.6) rotate(-6deg);}
+  14%{opacity:1;transform:translate(-50%,-50%) scale(.94) rotate(-6deg);}22%{transform:translate(-50%,-50%) scale(1.04) rotate(-6deg);}
+  80%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-6deg);}100%{opacity:0;transform:translate(-50%,-62%) scale(1.06) rotate(-6deg);}}
+
+/* the LEVER — chrome rod, blood-glass ball, a brass hub bolted to the cabinet */
+#slot .lever{right:-46px;bottom:26%;width:26px;height:122px;z-index:8;cursor:pointer;pointer-events:auto;}
+#slot .leverSlot{position:absolute;left:9px;bottom:-4px;width:8px;height:30px;border-radius:4px;background:#050203;
+  box-shadow:inset 0 2px 4px #000,0 0 0 1px rgba(232,182,76,.35);}
+#slot .leverHub{position:absolute;left:-1px;bottom:-14px;width:28px;height:28px;border-radius:50%;z-index:2;
+  background:radial-gradient(circle at 36% 30%,#fff2c0 0%,#e8b64c 30%,#7a5418 72%,#2a1a06 100%);
+  box-shadow:0 0 0 1px #140a03,0 3px 8px rgba(0,0,0,.7),inset 0 -2px 3px rgba(0,0,0,.45);}
+#slot .leverHub::after{content:'';position:absolute;inset:8px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#b8862a,#3a2408);box-shadow:inset 0 1px 2px rgba(0,0,0,.8);}
+#slot .leverArm{left:9px;bottom:0;width:8px;height:96px;border-radius:4px;z-index:1;background:var(--a2-chrome);
+  box-shadow:0 0 0 1px rgba(0,0,0,.55),2px 2px 5px rgba(0,0,0,.5);transition:none;}
+#slot .leverBall{left:-1px;top:-14px;width:28px;height:28px;z-index:3;transition:none;
+  background:radial-gradient(circle at 34% 28%,#fff 0%,#ff9a9a 9%,#d4212f 34%,#8b1620 64%,#2a0408 100%);
+  box-shadow:0 0 0 1px rgba(0,0,0,.6),0 4px 10px rgba(0,0,0,.6),0 0 16px rgba(212,33,47,.55),inset 0 -3px 6px rgba(0,0,0,.4);}
+#slot .lever:hover .leverBall{box-shadow:0 0 0 1px rgba(0,0,0,.6),0 4px 10px rgba(0,0,0,.6),0 0 26px rgba(255,70,80,.85),inset 0 -3px 6px rgba(0,0,0,.4);}
+#slot .lever.a2pull .leverArm{animation:a2ArmPull .66s cubic-bezier(.3,.05,.3,1) 1;}
+#slot .lever.a2pull .leverBall{animation:a2BallPull .66s cubic-bezier(.3,.05,.3,1) 1;}
+@keyframes a2ArmPull{0%{transform:scaleY(1);}30%{transform:scaleY(-.62);}44%{transform:scaleY(-.55);}100%{transform:scaleY(1);}}
+@keyframes a2BallPull{0%{transform:translateY(0) scale(1);}30%{transform:translateY(156px) scale(1.22);}44%{transform:translateY(150px) scale(1.2);}100%{transform:translateY(0) scale(1);}}
+#slot #payTable{left:calc(100% + 38px);}
+@media (max-width:1060px){ #slot #payTable{left:calc(100% + 16px);} }
+@media (max-width:520px){ #slot .lever{display:none;} #slot .machine{border-width:7px;padding:10px 12px 14px;} #slot .cabinet{padding:18px 14px;} }
+
+/* the readout: an engraved name plate under the glass */
+#slot .readout{margin:10px 6px 0;padding:6px 10px 5px;border-radius:10px;
+  background:linear-gradient(180deg,rgba(0,0,0,.42),rgba(0,0,0,.22));
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.8),inset 0 0 0 1px rgba(232,182,76,.16),0 1px 0 rgba(255,236,170,.08);}
+#slot .prizeTag{color:#b89a5e;letter-spacing:.32em;}
+#slot #slotBtns .btn{border-radius:9px;
+  box-shadow:0 0 0 1px #2a1a06,0 5px 0 #6e4a12,0 6px 0 1px #2a1a06,0 10px 22px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.55),inset 0 -2px 4px rgba(110,74,18,.35);}
+#slot #slotBtns .btn:active{transform:translateY(4px);box-shadow:0 0 0 1px #2a1a06,0 1px 0 #6e4a12,0 3px 8px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.4);}
+/* the odds card: brass-framed */
+#slot #payTable{border:none;border-radius:14px;
+  background:linear-gradient(170deg,rgba(26,12,18,.97),rgba(10,5,9,.98)) padding-box,var(--a2-brass) border-box;border:3px solid transparent;
+  box-shadow:0 0 0 1px #140a03,0 12px 40px rgba(0,0,0,.7),0 0 26px rgba(232,182,76,.16),inset 0 0 0 1px rgba(0,0,0,.7);}
+
+/* the red table: the brass goes to blood-copper */
+#slot.lastrites .machine{border-color:transparent;
+  background:radial-gradient(130% 55% at 50% -4%,rgba(212,33,47,.22),transparent 62%) padding-box,
+    linear-gradient(180deg,#2a070c 0%,#16040a 60%,#0c0205 100%) padding-box,
+    linear-gradient(135deg,#ffb0a0 0%,#b8402e 12%,#4a0a10 26%,#a8302a 40%,#ffd0b8 49%,#8b1620 62%,#3a0608 78%,#c8503a 90%,#ffb0a0 100%) border-box;}
+#slot.lastrites .cabinet{box-shadow:0 0 0 1px #000,0 0 0 3px #6e1018,0 0 0 4px #d4212f,0 0 0 5px #2a0408,inset 0 8px 18px rgba(0,0,0,.95);}
+#slot.lastrites .marquee{box-shadow:0 0 0 1px #000,0 0 0 3px #8b1620,0 0 0 4px #2a0408,inset 0 0 22px rgba(212,33,47,.35);}
+/* the arsenal: gunmetal and copper */
+#slot.arsenal .machine{border-color:transparent;
+  background:radial-gradient(130% 55% at 50% -4%,rgba(255,154,60,.14),transparent 62%) padding-box,var(--a2-velvet) padding-box,
+    linear-gradient(135deg,#ffe0b8 0%,#d07a34 12%,#5a2a0c 26%,#b8642a 40%,#ffe0b8 49%,#a85a22 60%,#4a2208 76%,#ff9a3c 89%,#ffe0b8 100%) border-box;}
+
+/* ---------- THE LANES — one column for every notice, parked clear of the open table ---------- */
+#a2Notes{position:fixed;z-index:89;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;
+  max-width:calc(100vw - 16px);}
+#a2Notes.a2play{left:50%;top:92px;transform:translateX(-50%);width:max-content;}
+#a2Notes.a2above,#a2Notes.a2below,#a2Notes.a2top{left:50%;transform:translateX(-50%);width:max-content;}
+#a2Notes.a2side,#a2Notes.a2deadSide{align-items:stretch;}
+
+#a2Notes.a2deadTop{left:50%;transform:translateX(-50%);width:min(560px,calc(100vw - 20px));align-items:stretch;}
+/* the banner: an engraved bar with brass rules, wraps instead of clipping */
+#a2Notes #announce{position:relative;top:auto;left:auto;transform:none;z-index:auto;max-width:min(980px,calc(100vw - 20px));
+  white-space:nowrap;line-height:1.18;padding:8px 34px 9px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,rgba(8,3,5,.9) 10%,rgba(14,6,9,.92) 50%,rgba(8,3,5,.9) 90%,transparent);
+  animation:a2AnnIn .42s cubic-bezier(.2,1.5,.4,1), a2AnnOut .5s ease 2.2s forwards;}
+#a2Notes #announce.a2wrap{white-space:normal;text-wrap:balance;}
+#a2Notes #announce::before,#a2Notes #announce::after{content:'';position:absolute;left:12%;right:12%;height:1px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,currentColor 30%,currentColor 70%,transparent);opacity:.35;}
+#a2Notes #announce::before{top:3px;} #a2Notes #announce::after{bottom:3px;}
+#a2Notes.a2side #announce,#a2Notes.a2deadSide #announce,#a2Notes.a2deadTop #announce{white-space:normal;text-wrap:balance;padding:9px 18px;
+  background:linear-gradient(180deg,rgba(14,6,9,.94),rgba(8,3,5,.94));border-radius:8px;border:1px solid;}
+@keyframes a2AnnIn{from{transform:scale(.6) rotate(-1.2deg);opacity:0;}60%{transform:scale(1.05) rotate(.3deg);opacity:1;}to{transform:none;opacity:1;}}
+@keyframes a2AnnOut{to{opacity:0;transform:translateY(-10px);}}
+/* the secret card rides in the same column */
+#a2Notes #secretReveal{position:relative;inset:auto;z-index:auto;padding:0;display:flex;justify-content:center;}
+#a2Notes #secretReveal.hidden{display:none;}
+#a2Notes .srCard{max-width:min(440px,calc(100vw - 24px));}
+/* tips and feats, docked while a table or the ledger is open */
+#a2Notes #coachToast{position:relative;left:auto;bottom:auto;transform:translateY(10px);z-index:auto;max-width:min(520px,calc(100vw - 24px));}
+#a2Notes #coachToast.go{transform:none;}
+#a2Notes #coachToast:not(.go){display:none;}
+#a2Notes #achToasts{position:relative;left:auto;bottom:auto;z-index:auto;align-items:center;}
+#a2Notes.a2side #achToasts,#a2Notes.a2deadSide #achToasts,#a2Notes.a2deadTop #achToasts{align-items:stretch;}
+#a2Notes .achToast{max-width:min(360px,calc(100vw - 24px));}
+#gameover{overflow-y:auto;transition:padding-top .25s ease;}
+#gameover .panel{margin:auto 0;}
+
+/* ---------- THE DEATH LEDGER — a brass-bound page: verdict, tally, the night in plaques, what's next ---------- */
+#gameover .panel{max-width:min(700px,96vw);width:100%;padding:20px 26px 16px;border:4px solid transparent;border-radius:18px;
+  display:grid;grid-template-columns:1fr 1fr;column-gap:22px;align-items:start;
+  background:radial-gradient(120% 40% at 50% -6%,rgba(139,22,32,.42),transparent 62%) padding-box,
+    linear-gradient(180deg,rgba(28,11,16,.98),rgba(10,4,7,.99)) padding-box,var(--a2-bronze) border-box;
+  box-shadow:0 0 0 1px #140a03,0 30px 90px rgba(0,0,0,.85),0 0 40px rgba(139,22,32,.3),inset 0 0 0 1px rgba(0,0,0,.8),inset 0 0 60px rgba(0,0,0,.45);}
+#gameover .panel::before,#gameover .panel::after{border-color:rgba(255,226,150,.5);}
+#gameover .panel>*{grid-column:1/-1;min-width:0;}
+#gameover .panel>#goResult{grid-row:1;}
+#gameover .panel>#goSub{grid-row:2;}
+#gameover .panel>#a2Epitaph{grid-row:3;}
+#gameover .panel>.a2scoreLbl{grid-column:1;grid-row:4;}
+#gameover .panel>#goScore{grid-column:1;grid-row:5;}
+#gameover .panel>.gilt{grid-column:1;grid-row:6;}
+#gameover .panel>#goLuck{grid-column:1;grid-row:7;}
+#gameover .panel>#goSeed{grid-column:1;grid-row:8;}
+#gameover .panel>#goStats{grid-column:2;grid-row:4 / span 5;}
+#gameover .panel>#goLedger{grid-row:9;}
+#gameover .panel>#goRank{grid-row:10;}
+#gameover .panel>#againBtn{grid-row:11;}
+#gameover .panel>#a3Share{grid-row:12;}
+#gameover .panel>#booksBtn{grid-column:1;grid-row:13;}
+#gameover .panel>#goMenuBtn{grid-column:2;grid-row:13;}
+#gameover .panel>.soon{grid-row:14;}
+/* 1 — the verdict */
+#gameover .result{font-size:26px;letter-spacing:.24em;margin:0;line-height:1.15;text-shadow:0 0 22px rgba(212,33,47,.55),0 2px 0 #000;}
+#gameover .subline{font-size:14px;font-style:italic;margin:2px 0 6px;letter-spacing:.06em;color:#a8998a;}
+#a2Epitaph{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 10px;margin:0 auto 12px;padding:7px 14px;border-radius:9px;max-width:560px;
+  font-family:var(--disp);font-size:11px;letter-spacing:.2em;color:#bfae8c;
+  background:linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,.25));box-shadow:inset 0 1px 3px rgba(0,0,0,.85),inset 0 0 0 1px rgba(139,22,32,.45),0 1px 0 rgba(255,236,170,.07);}
+#a2Epitaph b{color:#ffe9a8;font-weight:800;font-size:13px;letter-spacing:.12em;}
+#a2Epitaph .a2epBy b{color:#ff6b74;text-shadow:0 0 10px rgba(255,85,96,.45);}
+#a2Epitaph span+span::before{content:'·';margin-right:10px;color:#6f5a3a;}
+/* 2 — the tally and what it paid */
+.a2scoreLbl{font-family:var(--disp);font-size:9.5px;letter-spacing:.42em;color:#9a7d4a;margin-top:6px;}
+#gameover .scoreBig{font-size:54px;line-height:1;margin:2px 0 4px;font-weight:800;
+  background:linear-gradient(180deg,#fff2c0 10%,#ffd36b 48%,#b8862a 78%,#fff2c0 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 2px 0 #3a2408) drop-shadow(0 0 14px rgba(232,182,76,.35));}
+#gameover .gilt{margin:4px auto;padding:5px 12px;border-radius:20px;display:inline-block;justify-self:center;font-family:var(--disp);font-size:12px;letter-spacing:.12em;
+  background:rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(232,182,76,.35);}
+#gameover #goLuck{font-size:15px;margin:6px 0 2px;min-height:20px;}
+#gameover #goSeed{margin:4px 0 0;}
+/* 3 — the night, in engraved plaques */
+#gameover #goStats{display:grid;grid-template-columns:1fr 1fr;gap:6px;min-height:0;max-width:none;margin:6px 0 0;align-content:start;}
+#gameover .gsRow{position:relative;display:grid;grid-template-columns:auto 1fr;grid-template-areas:"ic lb" "vl vl";align-items:center;gap:1px 6px;
+  padding:6px 9px 5px;border-radius:8px;border:none;text-align:left;
+  background:linear-gradient(180deg,rgba(0,0,0,.42),rgba(20,8,12,.55));box-shadow:inset 0 1px 3px rgba(0,0,0,.85),inset 0 0 0 1px rgba(232,182,76,.22),0 1px 0 rgba(255,236,170,.06);}
+#gameover .gsRow b{grid-area:ic;font-size:12px;width:auto;opacity:.9;}
+#gameover .gsRow span{grid-area:lb;font-size:9px;letter-spacing:.2em;}
+#gameover .gsRow i{grid-area:vl;font-size:19px;line-height:1.15;}
+#gameover .gsRow .rk10{position:absolute;bottom:7px;right:6px;margin:0;font-size:7.5px;padding:1px 5px;vertical-align:0;}
+#gameover .gsSum{grid-column:1/-1;margin-top:2px;font-size:10.5px;}
+#gameover #goLedger{margin:10px 0 0;max-width:none;padding:6px 10px;border-radius:9px;background:rgba(0,0,0,.22);box-shadow:inset 0 0 0 1px rgba(232,182,76,.14);}
+#gameover .glRow{padding:2px 0;}
+/* 4 — what's next */
+#gameover #goRank{margin:10px auto 2px;max-width:none;width:100%;}
+#gameover .rkTop{font-size:12px;}
+#gameover .rkNext{display:inline-block;padding:3px 12px;border-radius:12px;background:rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(255,211,107,.35);}
+#gameover .btn{width:100%;margin:8px 0 0;}
+#gameover #againBtn{font-size:16px;padding:14px 20px;color:#1a0b0f;text-shadow:0 1px 0 rgba(255,240,192,.5);
+  background:linear-gradient(180deg,#fff2c0 0%,#ffd36b 42%,#e8b64c 70%,#b8862a 100%);border:1px solid #8a5f18;
+  box-shadow:0 0 0 1px #2a1a06,0 5px 0 #6e4a12,0 6px 0 1px #2a1a06,0 12px 28px rgba(0,0,0,.6),0 0 30px rgba(255,211,107,.25),inset 0 1px 0 rgba(255,255,255,.7);}
+#gameover #againBtn::after{background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);}
+#gameover #againBtn:active{transform:translateY(4px);box-shadow:0 0 0 1px #2a1a06,0 1px 0 #6e4a12,0 3px 8px rgba(0,0,0,.5);}
+#gameover #booksBtn,#gameover #goMenuBtn{font-size:11.5px;padding:10px 8px;opacity:1;}
+#gameover .soon{font-size:11px;margin-top:8px;opacity:.75;}
+@media (max-width:640px){
+  #gameover .panel{padding:16px 14px 14px;column-gap:10px;}
+  #gameover .panel>.a2scoreLbl,#gameover .panel>#goScore,#gameover .panel>.gilt,#gameover .panel>#goLuck,#gameover .panel>#goSeed,#gameover .panel>#goStats{grid-column:1/-1;grid-row:auto;}
+  #gameover .panel>.a2scoreLbl{grid-row:4;} #gameover .panel>#goScore{grid-row:5;} #gameover .panel>.gilt{grid-row:6;}
+  #gameover .panel>#goStats{grid-row:7;} #gameover .panel>#goLuck{grid-row:8;} #gameover .panel>#goSeed{grid-row:9;}
+  #gameover .panel>#goLedger{grid-row:10;} #gameover .panel>#goRank{grid-row:11;} #gameover .panel>#againBtn{grid-row:12;}
+  #gameover .panel>#a3Share{grid-row:13;}
+  #gameover .panel>#booksBtn,#gameover .panel>#goMenuBtn{grid-row:14;} #gameover .panel>.soon{grid-row:15;}
+  #gameover .result{font-size:21px;} #gameover .scoreBig{font-size:44px;}
+}
+
+/* ---------- THE HUD — engraved brass plaques (visual only: positions stay with the layout owners) ---------- */
+#hud .stat{padding:4px 12px 4px 10px;border-radius:7px;font-size:14px;color:#f2e7c8;
+  background:linear-gradient(180deg,rgba(26,10,14,.80),rgba(8,3,5,.84));
+  box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(184,134,42,.55),0 0 0 3px rgba(20,10,3,.6),inset 0 1px 0 rgba(255,236,170,.14),inset 0 -2px 3px rgba(0,0,0,.55),0 3px 8px rgba(0,0,0,.45);
+  text-shadow:0 1px 0 #000,0 0 6px rgba(0,0,0,.8);font-variant-numeric:tabular-nums;}
+#hud .stat .ico{font-size:14px;filter:drop-shadow(0 0 4px currentColor);}
+#hud #timer{padding:1px 16px 2px;border-radius:8px;font-size:21px;font-weight:800;font-variant-numeric:tabular-nums;
+  background:linear-gradient(180deg,rgba(26,10,14,.82),rgba(8,3,5,.86));
+  box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(232,182,76,.7),0 0 0 3px rgba(20,10,3,.7),inset 0 1px 0 rgba(255,236,170,.16),inset 0 -2px 4px rgba(0,0,0,.6),0 4px 12px rgba(0,0,0,.5);
+  text-shadow:0 1px 0 #2a1a06,0 0 12px rgba(232,182,76,.45);}
+#hud #waveInfo{color:#a8946c;text-shadow:0 1px 0 #000;}
+#hud #xpbar{background:linear-gradient(180deg,#040102,#120509);box-shadow:inset 0 1px 2px #000,0 1px 0 rgba(184,134,42,.28),0 -1px 0 rgba(184,134,42,.18);}
+/* blood in a brass vial */
+#hud #hpwrap{position:relative;}
+#hud #hpwrap::before{content:'♥';position:absolute;left:-6px;top:50%;margin-top:-21px;width:34px;height:34px;border-radius:50%;z-index:2;
+  display:flex;align-items:center;justify-content:center;font-size:16px;color:#ff4d5c;text-shadow:0 0 8px rgba(255,60,80,.8),0 1px 0 #000;
+  background:radial-gradient(circle at 50% 40%,#2a080d,#0a0204 70%) padding-box,var(--a2-brass) border-box;border:2px solid transparent;
+  box-shadow:0 0 0 1px #140a03,0 3px 8px rgba(0,0,0,.6),inset 0 2px 4px rgba(0,0,0,.8);}
+#hud #hpbar{margin-left:20px;height:26px;border:2px solid transparent;border-radius:14px;
+  background:linear-gradient(180deg,#070204,#14060a) padding-box,var(--a2-brass) border-box;
+  box-shadow:0 0 0 1px #140a03,0 4px 14px rgba(0,0,0,.6),0 0 18px rgba(139,22,32,.32),inset 0 3px 6px rgba(0,0,0,.9);}
+#hud #hpfill{border-radius:12px;background:linear-gradient(180deg,#ff6a76 0%,#d4212f 32%,#8b1620 72%,#4a0a12 100%);box-shadow:inset 0 -2px 3px rgba(0,0,0,.35),2px 0 8px rgba(255,60,80,.35);}
+#hud #hpbar::after{left:6px;right:6px;top:2px;height:6px;border-radius:5px;background:linear-gradient(180deg,rgba(255,255,255,.28),transparent);}
+#hud #hptext{font-family:var(--disp);font-weight:800;font-size:11px;letter-spacing:.18em;text-shadow:0 1px 0 #000,0 0 6px rgba(0,0,0,.9);}
+/* level plate + relic sockets */
+#hud #level{display:inline-block;padding:2px 10px 3px;border-radius:6px;font-weight:800;color:var(--gold-bright);
+  background:linear-gradient(180deg,rgba(26,10,14,.8),rgba(8,3,5,.85));box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(184,134,42,.5),inset 0 1px 0 rgba(255,236,170,.12);text-shadow:0 1px 0 #000;}
+#hud .relicTag{color:#a8946c;text-shadow:0 1px 0 #000;}
+#hud .relic{background:radial-gradient(circle at 50% 32%,rgba(52,20,26,.95),rgba(10,4,6,.96) 75%);}
+#hud .relic::before{content:'';position:absolute;inset:-3px;border-radius:9px;pointer-events:none;
+  box-shadow:0 0 0 1px rgba(184,134,42,.6),0 0 0 2px rgba(20,10,3,.85),inset 0 0 0 1px rgba(0,0,0,.5);}
+#hud .relic::after{content:'';position:absolute;left:3px;right:3px;top:2px;height:38%;border-radius:5px 5px 10px 10px;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,250,235,.12),transparent);}
+#debuffs .debuff{border-radius:6px;padding:3px 9px;background:linear-gradient(180deg,rgba(40,8,12,.82),rgba(14,3,5,.86));text-shadow:0 1px 0 #000;}
+#debuffs .debuff.buff{background:linear-gradient(180deg,rgba(10,40,20,.82),rgba(4,14,8,.86));}
+
+/* ---------- THE HALL (main menu) — never clipped, the doors stand to the right, every door a gilded plaque ---------- */
+#menu .panel{justify-content:safe center;overflow-y:auto;overflow-x:hidden;}
+@media (min-width:900px){
+  #menu .panel{display:grid;grid-template-columns:minmax(0,1fr) 290px;column-gap:4vw;align-content:safe center;justify-content:stretch;justify-items:start;}
+  #menu .panel>*{grid-column:1;}
+  #menu .panel>#menuRow2{grid-column:2;grid-row:1 / span 12;align-self:center;justify-self:stretch;width:auto;margin:0;}
+  #menu .panel>.controls,#menu .panel>#verStamp{grid-column:auto;}
+  #menu h1{font-size:clamp(56px,7.4vw,96px);}
+}
+@media (min-width:900px) and (max-height:760px){
+  #menu .panel{padding-top:3vh;padding-bottom:7vh;}
+  #menu h1{font-size:clamp(50px,6.6vw,84px);margin:2px 0 10px;}
+  #menu #startBtn{margin:16px 0 8px;}
+}
+/* the doors: engraved plaques with a brass rim, a velvet face, a lit edge on hover */
+#menuRow2 .btn.msm{border:1px solid transparent;border-radius:9px;color:#f2e7c8;
+  background:linear-gradient(180deg,rgba(40,16,22,.94),rgba(16,6,9,.96)) padding-box,var(--a2-bronze) border-box;
+  box-shadow:0 0 0 1px #140a03,0 4px 10px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,236,170,.14),inset 0 -3px 7px rgba(0,0,0,.55);}
+#menuRow2 .btn.msm::before{border-color:rgba(255,226,150,.14);}
+#menuRow2 .btn.msm:hover{color:#fff2c0;background:linear-gradient(180deg,rgba(58,22,30,.96),rgba(22,8,12,.97)) padding-box,var(--a2-brass) border-box;
+  box-shadow:-4px 0 0 rgba(255,211,107,.85),0 0 0 1px #140a03,0 0 24px rgba(255,211,107,.22),inset 0 1px 0 rgba(255,236,170,.2);}
+/* the hero plaque: struck gold, beveled, with a dark keyline */
+#menu #startBtn{border:1px solid #8a5f18;color:#1a0b0f;text-shadow:0 1px 0 rgba(255,240,192,.6);
+  background:linear-gradient(180deg,#fff2c0 0%,#ffd36b 40%,#e8b64c 68%,#b8862a 100%);}
+#menu #startBtn::before{border-color:rgba(90,58,16,.45);}
+#menu .mChip{background:linear-gradient(180deg,rgba(24,10,14,.9),rgba(10,4,6,.92));box-shadow:inset 0 1px 0 rgba(255,236,170,.1),0 0 10px color-mix(in srgb,var(--cc,#e8b64c) 16%,transparent);}
+
+/* ---------- the other tables wear the same brass ---------- */
+#menu .flavor{margin-left:0;margin-right:0;}
+#wheelLayer #tickerBox{border:4px solid transparent;
+  background:linear-gradient(180deg,rgba(16,8,12,.97),rgba(8,4,7,.98)) padding-box,var(--a2-brass) border-box;
+  box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(255,236,170,.16),0 0 44px rgba(232,182,76,.3),0 24px 60px rgba(0,0,0,.7),inset 0 0 0 1px rgba(0,0,0,.8),inset 0 0 60px rgba(0,0,0,.85);}
+#wheelLegend,#crashLayer .wheelShell #crashHist{border-radius:12px;}
+/* every ledger panel (feats, index, vault, books, house ledger, options) gets a bronze binding */
+#achPanel .panel,#indexPanel .panel,#storyPanel .panel,#vaultPanel .panel,#booksPanel .panel,#gfxPanel .panel{border:3px solid transparent;
+  background:radial-gradient(120% 50% at 50% -6%,rgba(139,22,32,.3),transparent 60%) padding-box,
+    linear-gradient(180deg,rgba(26,11,15,.98),rgba(9,4,6,.99)) padding-box,var(--a2-bronze) border-box;
+  box-shadow:0 0 0 1px #140a03,0 30px 90px rgba(0,0,0,.8),0 0 26px rgba(139,22,32,.3),inset 0 0 0 1px rgba(0,0,0,.7),inset 0 0 60px rgba(139,22,32,.12);}
+#pauseLayer .pauseCard{padding:22px 34px;border-radius:16px;border:3px solid transparent;
+  background:linear-gradient(180deg,rgba(24,10,14,.92),rgba(8,3,5,.94)) padding-box,var(--a2-bronze) border-box;box-shadow:0 0 0 1px #140a03,0 24px 70px rgba(0,0,0,.75);}
+#slot .machine.pressflash::after{top:-6px;left:-6px;right:-6px;bottom:-6px;}
+/* the crown medallion: the House's seal on top of the cabinet (♠ house · ☠ red table · ⚔ arsenal) */
+.a2Crest{position:absolute;left:50%;top:-30px;width:44px;height:44px;margin-left:-22px;border-radius:50%;z-index:9;pointer-events:none;
+  border:3px solid transparent;background:radial-gradient(circle at 50% 42%,#3a0a10,#12030a 72%) padding-box,var(--a2-brass) border-box;
+  box-shadow:0 0 0 1px #140a03,0 4px 10px rgba(0,0,0,.65),0 0 22px rgba(232,182,76,.35),inset 0 2px 5px rgba(0,0,0,.8);
+  display:flex;align-items:center;justify-content:center;}
+.a2Crest::before{content:'♠';font-size:21px;line-height:1;color:#ffd36b;text-shadow:0 0 10px rgba(255,211,107,.7),0 1px 0 #3a2408;}
+#slot.lastrites .a2Crest::before{content:'☠';color:#ff6b74;text-shadow:0 0 12px rgba(255,60,80,.8),0 1px 0 #2a0408;}
+#slot.arsenal .a2Crest::before{content:'⚔';color:#ffb070;text-shadow:0 0 10px rgba(255,154,60,.7);}
+#slot .machine.jackpot .a2Crest{animation:a2CrestBeat .32s ease-in-out 6;}
+@keyframes a2CrestBeat{50%{transform:scale(1.18);box-shadow:0 0 0 1px #140a03,0 0 40px rgba(255,236,170,.95);}}
+@media (max-width:520px){ .a2Crest{top:-24px;width:36px;height:36px;margin-left:-18px;} .a2Crest::before{font-size:17px;} }
+@media (max-width:640px){ #a2Epitaph span+span::before{display:none;} #a2Epitaph{gap:4px 14px;} }
+/* the red table's wider cabinet: the drums fill the window, so the glass never hangs over empty felt */
+#slot.lastrites .reelbox{max-width:none;}
+
+/* A3's share plaque, seated under ANTE UP as a bronze plaque (A3's node + handler, only re-housed) */
+#gameover .panel>#a3Share{position:static;top:auto;right:auto;z-index:auto;margin-top:8px;animation:none;} /* no transform on its ancestors: A3's card overlay is position:fixed */
+#gameover .panel>#a3Share .a3ShareBtn{display:block;width:100%;padding:10px 12px;font-size:11.5px;letter-spacing:.22em;color:#ffe9b0;border-radius:9px;
+  border:1px solid transparent;background:linear-gradient(180deg,rgba(58,14,22,.95),rgba(24,6,10,.97)) padding-box,var(--a2-bronze) border-box;
+  box-shadow:0 0 0 1px #140a03,0 4px 10px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,236,170,.14),inset 0 -3px 7px rgba(0,0,0,.55);}
+#gameover .panel>#a3Share .a3ShareBtn:hover{background:linear-gradient(180deg,rgba(74,18,28,.96),rgba(30,8,12,.97)) padding-box,var(--a2-brass) border-box;}
+#gameover .panel>#a3Share .a3ShareBtn.done{color:#8bffd0;}
+/* the stale 'Soon: Cloakroom' footnote yields its line on short screens */
+@media (max-height:760px){ #gameover .panel>.soon{display:none;} }
+body:has(#a3Share .a3ShareOut.go) #a2Notes{opacity:.12;transition:opacity .2s;}

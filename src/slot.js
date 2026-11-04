@@ -261,13 +261,23 @@ function stopNextReel(){
       idx=((target % r.N)+r.N)%r.N;
     } }
   r.landedSym=r.seq[idx]; r.landedIdx=idx;
+  // A2: a nudge back past row 0 used to park the payline on the EMPTY space above
+  // the strip (a blank reel). The strip is the sequence twice — ride the second copy.
+  if(target<2){ target+=r.N; r.el.style.transition='none'; r.el.style.transform='translateY('+(-(((r.offset%r.N)+r.N)*r.symH))+'px)'; void r.el.offsetWidth; }
   const tyFinal=-((target-centerBias)*r.symH);
-  r.el.style.transition='transform .16s cubic-bezier(.34,1.7,.5,1)';
-  r.el.style.transform='translateY('+(tyFinal-10)+'px)';
-  setTimeout(()=>{ if(r.el){ r.el.style.transform='translateY('+tyFinal+'px)'; setTimeout(()=>{ if(r.el)r.el.style.transition='none'; },170); } },90);
+  // ◈ A2 THE CLUNK — the strip overshoots a hair, the latch catches, it settles.
+  // On the LAST reel with two already matched, the House teases: the reel creeps,
+  // drags the matching symbol across the payline, hangs — and clicks one row past
+  // (or, born a triple, crawls home). Presentation only: landedSym is already dealt.
+  const teaseMs=a2ReelStop(r, target, centerBias, tyFinal);
   reelsStopped++;
-  const box=r.el.parentElement; box.classList.remove('slam'); void box.offsetWidth; box.classList.add('slam');
+  if(reelsStopped>=3){ slotStage='locking'; clearInterval(window._antiHb); }
   { const rd=$('reelDots'); if(rd) rd.textContent='●'.repeat(Math.min(3,reelsStopped))+'○'.repeat(Math.max(0,3-reelsStopped)); }
+  const _rn=reelsStopped;
+  const _land=()=>{
+  const reelsStopped=_rn;
+  const box=r.el.parentElement; box.classList.remove('slam'); void box.offsetWidth; box.classList.add('slam');
+  try{ SFX.a2Clunk(reelsStopped); }catch(e){}
   SFX.reelHit(reelsStopped); SFX.dingHit(reelsStopped); setTimeout(()=>SFX.casinoDing(),60); shake=Math.min(14,shake+3+reelsStopped*2); flash(0.14+reelsStopped*0.08,'#fff0c8'); sparkBurst(8+reelsStopped*6); // each stop kicks harder than the last
   const defs=slotKind==='weapon'?WEAPONS:PASSIVES; const s=defs.find(x=>x.id===r.landedSym);
   if(s){ $('cardName').textContent=s.n; $('cardName').className='r-'+s.rar; $('cardDesc').innerHTML='<div class="ofsub">'+projFx(s, skLevel(s)+1)+'</div>'; }
@@ -300,6 +310,8 @@ function stopNextReel(){
       } }
     setTimeout(startSelector,selDelay); }
   else showSlotButtons();
+  };
+  if(teaseMs>0) setTimeout(_land, teaseMs); else _land();
 }
 function ceremony(matchN, def){
   if(matchN>=3){ bigWin(shinyWord()+' — MAX LEVEL',4); flash(0.55,RARC[def.rar]||'#e8b64c'); SFX.dingBells(); SFX.seraph(); coinRain(20); sparkBurst(36); }
@@ -831,4 +843,114 @@ function closeSlot(){
   if(P&&P.hotSlots>0) P.hotSlots--; // the HIGH ROLLER deck cools one slot at a time
   if(pending.length){ setTimeout(openNextSlot,250); }
   else { state='playing'; last=performance.now(); }
+}
+
+/* ============================================================
+   ◈ A2 — GILT NOIR: THE MACHINE (presentation only — odds, fate and
+   flow are untouched; everything here dresses what the slot already decided)
+   ============================================================ */
+Object.assign(SFX, {
+  // the latch catches: a dull iron thud under the existing chord, a brass click on top
+  a2Clunk(n){ n=n||1; tone(78-n*6,0.12,'sine',0.26,46); noise(0.05,0.16,700); setTimeout(()=>{ tone(2400+n*180,0.018,'square',0.035); noise(0.02,0.07,6000); },18); },
+  // the reel drags across the payline — a ratchet that slows as it creeps
+  a2Ratchet(i){ tone(1900-i*110,0.022,'square',0.05); noise(0.015,0.05,5200); },
+  // the arm goes down: spring stretch, a ratchet rattle, the hub knocks
+  a2Pull(){ tone(220,0.22,'sawtooth',0.035,120); for(let i=0;i<6;i++) setTimeout(()=>{ tone(1500-i*120,0.02,'square',0.045); noise(0.012,0.04,5000); },40+i*34); setTimeout(()=>{ tone(64,0.16,'sine',0.26,40); noise(0.07,0.12,500); },250); },
+  // the payline lights: a rising brass glissando, more rungs per tier
+  a2Payline(t){ const n=3+t*2; for(let i=0;i<n;i++) setTimeout(()=>tone(660*Math.pow(1.122,i),0.12,'triangle',0.07+t*0.015),i*55); }
+});
+// one-time dressing: cast-brass bolts, the glass, the lever hub, the stamp
+function a2Dress(){
+  const m=$('machine'); if(!m || m._a2) return; m._a2=true;
+  ['tl','tr','bl','br'].forEach(k=>{ const b=document.createElement('i'); b.className='a2Bolt '+k; m.appendChild(b); });
+  { const cr=document.createElement('div'); cr.className='a2Crest'; m.appendChild(cr); } // the House's seal, cast into the crown
+  const rr=$('reelsRow');
+  if(rr){ const g=document.createElement('div'); g.className='a2Glass'; rr.appendChild(g);
+    const st=document.createElement('div'); st.className='a2Stamp'; st.id='a2Stamp'; rr.appendChild(st); }
+  const lv=$('lever');
+  if(lv){ const hub=document.createElement('div'); hub.className='leverHub'; lv.insertBefore(hub, lv.firstChild);
+    const slot9=document.createElement('div'); slot9.className='leverSlot'; lv.insertBefore(slot9, lv.firstChild);
+    lv.title='pull (SPACE)'; } // a click anywhere on the table already pulls (ui.js) — the lever just wears it
+}
+function a2LeverPull(){
+  const m=$('machine'), lv=$('lever'); if(!m||!lv) return;
+  lv.classList.remove('a2pull'); void lv.offsetWidth; lv.classList.add('a2pull');
+  setTimeout(()=>lv.classList.remove('a2pull'), 720);
+  try{ SFX.a2Pull(); }catch(e){}
+  const g=document.querySelector('#reelsRow .a2Glass'); if(g){ g.classList.remove('sweep'); void g.offsetWidth; g.classList.add('sweep'); }
+}
+// the stop itself. Returns ms until the reel is truly at rest (0 = clunk now).
+function a2ReelStop(r, target, centerBias, tyFinal){
+  const el=r.el, H=r.symH;
+  const tyAt=t=>-((t-centerBias)*H);
+  const done=slotReels.filter(x=>x.stopped);
+  const tease = done.length===3 && done[0].landedSym===done[1].landedSym;
+  if(!tease){
+    el.style.transition='transform .1s cubic-bezier(.3,.7,.6,1)';
+    el.style.transform='translateY('+(tyFinal-Math.min(16,H*0.24))+'px)';
+    setTimeout(()=>{ if(!el) return; el.style.transition='transform .26s cubic-bezier(.22,1.65,.42,1)'; el.style.transform='translateY('+tyFinal+'px)';
+      setTimeout(()=>{ el.style.transition='none'; },280); },95);
+    return 0;
+  }
+  const want=done[0].landedSym, hit=r.landedSym===want;
+  let tyTease=null;
+  if(!hit){ for(const d of [-1,1,-2,2]){ if(r.seq[(((r.landedIdx+d)%r.N)+r.N)%r.N]===want){ tyTease=tyAt(target+d); break; } } }
+  const box=el.parentElement;
+  if(box) box.classList.add('a2creep');
+  // the creep: decelerate onto the payline from one row out, ratchet ticking slower each notch
+  const from = hit ? tyFinal+H*0.85 : (tyTease!==null ? tyTease+H*0.7 : tyFinal+H*0.9);
+  el.style.transition='transform .14s cubic-bezier(.2,.8,.4,1)'; el.style.transform='translateY('+from+'px)';
+  for(let i=0;i<5;i++) setTimeout(()=>{ try{ SFX.a2Ratchet(i); }catch(e){} }, 150+i*(70+i*28));
+  const toEl=(ty,tr,ms)=>setTimeout(()=>{ el.style.transition=tr; el.style.transform='translateY('+ty+'px)'; }, ms);
+  if(hit){
+    toEl(tyFinal+H*0.12,'transform .62s cubic-bezier(.15,.75,.3,1)',150);   // crawls toward home…
+    toEl(tyFinal,'transform .2s cubic-bezier(.3,1.9,.45,1)',860);            // …and the latch DROPS
+    setTimeout(()=>{ el.style.transition='none'; if(box) box.classList.remove('a2creep'); }, 1080);
+    return 880;
+  }
+  if(tyTease!==null){
+    toEl(tyTease,'transform .5s cubic-bezier(.15,.75,.3,1)',150);           // the match rides INTO the payline
+    setTimeout(()=>{ const rw=$('reelsRow'); if(rw){ rw.classList.remove('a2tease'); void rw.offsetWidth; rw.classList.add('a2tease'); }
+      tone(1046,0.12,'sine',0.1); tone(1568,0.1,'sine',0.06); }, 640);           // the room gasps
+    toEl(tyFinal,'transform .24s cubic-bezier(.45,1.7,.5,1)',900);           // …and the wobble carries it past
+    setTimeout(()=>{ el.style.transition='none'; if(box) box.classList.remove('a2creep'); const rw=$('reelsRow'); if(rw) rw.classList.remove('a2tease'); }, 1180);
+    return 960;
+  }
+  toEl(tyFinal,'transform .6s cubic-bezier(.15,.75,.3,1.2)',150);
+  setTimeout(()=>{ el.style.transition='none'; if(box) box.classList.remove('a2creep'); }, 800);
+  return 720;
+}
+// the payline pays: rails light in the landed color, the glass stamps the hand
+function a2Payline(matchN, def){
+  const rw=$('reelsRow'); if(!rw) return;
+  const col=(def&&RARC[def.rar])||'#ffd36b', t=matchN>=3?3:(matchN===2?2:1);
+  rw.style.setProperty('--payc', col);
+  rw.classList.remove('a2pay1','a2pay2','a2pay3'); void rw.offsetWidth; rw.classList.add('a2pay'+t);
+  setTimeout(()=>rw.classList.remove('a2pay'+t), t===3?2600:1700);
+  try{ SFX.a2Payline(t); }catch(e){}
+  if(t>=2){
+    const st=$('a2Stamp');
+    if(st){ st.textContent=t===3?'♛ TRIPLE ♛':'◆ PAIR ◆'; st.style.setProperty('--payc',col);
+      st.className='a2Stamp go t'+t; setTimeout(()=>{ st.className='a2Stamp'; }, t===3?2200:1500); }
+    const lite=typeof GFX!=='undefined'&&GFX.lite;
+    domConfetti(t===3?(lite?20:44):(lite?8:18),'slot');
+    const m=$('machine'); const mq=$('slotTag');
+    if(mq){ mq.classList.remove('a2strobe'); void mq.offsetWidth; mq.classList.add('a2strobe'); setTimeout(()=>mq.classList.remove('a2strobe'),t===3?2400:1300); }
+    if(t===3 && m){ m.classList.add('jackpot'); setTimeout(()=>m.classList.remove('jackpot'),2400);
+      setTimeout(()=>{ sparkBurst(lite?14:30); flash(0.32,'#fff2c0'); SFX.dingBells(); }, 420);
+      setTimeout(()=>{ coinRain(lite?10:24); domConfetti(lite?10:24,'slot'); }, 820); }
+  }
+}
+{ // wire the dressing into the existing flow without touching its logic
+  const _open=openSlotReady;
+  openSlotReady=function(kind){ a2Dress(); const r=_open.apply(this, arguments);
+    const rw=$('reelsRow'); if(rw) rw.classList.remove('a2pay1','a2pay2','a2pay3','a2tease');
+    document.querySelectorAll('.reelbox').forEach(b=>b.classList.remove('a2creep'));
+    return r; };
+  const _spin=spinReels;
+  spinReels=function(){ const was=slotStage; const r=_spin.apply(this, arguments); if(was==='ready' && slotStage==='spinning') a2LeverPull(); return r; };
+  const _cer=ceremony;
+  ceremony=function(matchN, def){ const r=_cer.apply(this, arguments); try{ a2Payline(matchN, def); }catch(e){} return r; };
+  const _red=enterRedTable;
+  enterRedTable=function(){ a2Dress(); const r=_red.apply(this, arguments); try{ setTimeout(a2LeverPull, 60); }catch(e){} return r; };
 }

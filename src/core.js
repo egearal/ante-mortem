@@ -1975,9 +1975,7 @@ function render(){
     if(rage) P._xpDisp=1; else P._ovDisp=0;
     const f=Math.max(0,Math.min(1,P[key]));
     ctx.save();
-    ctx.fillStyle='rgba(6,3,5,0.82)'; roundRect(xx-4,xy-4,xw+8,bh+8,7); ctx.fill();
-    ctx.strokeStyle='rgba(232,182,76,0.85)'; ctx.lineWidth=1.6; roundRect(xx-4,xy-4,xw+8,bh+8,7); ctx.stroke();
-    ctx.strokeStyle='rgba(90,20,30,0.9)'; ctx.lineWidth=1; roundRect(xx-2,xy-2,xw+4,bh+4,5); ctx.stroke();
+    a2GaugeFrame(xx,xy,xw,bh); // A2: the gauge sits in a cast-brass frame (ui.js)
     ctx.fillStyle='rgba(232,182,76,0.2)';
     for(let ti=1;ti<10;ti++) ctx.fillRect(xx+xw*ti/10-0.5,xy+2,1,bh-4);
     { const mode=rage?(P.ovT>=90?'a':(P.ovT<25?'l':'m')):'n';
