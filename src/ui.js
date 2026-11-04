@@ -137,7 +137,7 @@ $('idxClose').addEventListener('click',()=>{ $('indexPanel').classList.add('hidd
   const hp9=$('howPanel'); if(hp9){ hp9.classList.remove('hidden'); if(typeof window._howShow==='function') window._howShow(window._howTab||0); SFX.uiDing(); } }); }
 // F — the whole window belongs to the House
 window.addEventListener('keydown',e=>{ if(e.key.toLowerCase()==='f' && !e.repeat && (state==='menu'||state==='playing'||state==='paused')){
-  try{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }catch(x){} } });
+  try{ const fp=document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(); if(fp&&fp.catch) fp.catch(()=>{}); }catch(x){} } });
 // right-click stays native in menus, silent in the pit
 window.addEventListener('contextmenu',e=>{ if(state==='playing'||state==='slot'||state==='wheel'||state==='dead') e.preventDefault(); });
 $('mute').addEventListener('click',()=>{ muted=!muted; GFX.muted=muted; try{ saveGfx(); }catch(e){} try{ setMasterVol(true); }catch(e){} try{ if(!muted&&state==='playing') startAmbience(); else if(muted) stopAmbience(); }catch(e){} $('mute').textContent=muted?'♩':'♪'; $('mute').style.color=muted?'#5a4a3a':''; }); let tabHold=false;
@@ -260,7 +260,7 @@ function buildGfxPanel(){
   $('gfxClose').addEventListener('click',()=>{ p.classList.add('hidden'); SFX.casinoDing(); });
   { const ex=p.querySelector('#gxExport'); if(ex) ex.addEventListener('click',()=>exportSave());
     const im=p.querySelector('#gxImport'); if(im) im.addEventListener('click',()=>importSave()); }
-  { const gf=p.querySelector('#gxFull'); if(gf) gf.addEventListener('click',()=>{ try{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }catch(x){} SFX.uiDing(); }); }
+  { const gf=p.querySelector('#gxFull'); if(gf) gf.addEventListener('click',()=>{ try{ const fp=document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(); if(fp&&fp.catch) fp.catch(()=>{}); }catch(x){} SFX.uiDing(); }); }
   { const gr=p.querySelector('#gxReset'); if(gr) gr.addEventListener('click',()=>{
       applyGfxPreset('medium'); GFX.vol=1; GFX.cb=false; GFX.fps=false; applyGfxSide(); saveGfx();
       const gv2=p.querySelector('#gxVol'); if(gv2) gv2.value=1;
