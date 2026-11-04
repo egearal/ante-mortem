@@ -127,6 +127,8 @@ async function heapNow(cdp) {
   const per = Math.ceil(EVENTS / PROFILES.length);
   for (const pf of PROFILES) {
     const { browser, page, errors } = await launch({ which, mobile: pf.mobile, viewport: pf.viewport });
+    // B3's DIALS → SEEK knocks on assets/music/{ctx}.{ogg,mp3,m4a} when the player asks: those 404s are by design
+    let musicMiss = 0; page.on('requestfailed', rq => { if (/assets\/music\//.test(rq.url())) musicMiss++; });
     await page.evaluate(FUZZ);
     await page.evaluate(seed => { window.__fz.seed(seed); window.__bot.god = true; }, SEED + pf.name.length * 101);
     const t0 = Date.now();
@@ -155,6 +157,7 @@ async function heapNow(cdp) {
     const fz = await page.evaluate(() => ({ errs: window.__fz.errs, log: window.__fz.log.slice(0, 20), maxArr: window.__fz.maxArr, counts: window.__fz.counts, visits: window.__fz.visits }));
     Object.assign(R, fz);
     R.recoverMaxVt = Math.max(0, ...R.recover); delete R.recover;
+    for (let k = errors.length - 1; k >= 0 && musicMiss > 0; k--) if (/Failed to load resource: net::ERR_FILE_NOT_FOUND/.test(errors[k])) { errors.splice(k, 1); musicMiss--; }
     R.errors = errors.slice(0, 10); R.errorCount = errors.length;
     R.realSec = Math.round((Date.now() - t0) / 1000);
     for (const k in BOUNDS) if (fz.maxArr[k] > BOUNDS[k]) report.fail.push(`${pf.name}: ${k} reached ${fz.maxArr[k]} (bound ${BOUNDS[k]})`);
