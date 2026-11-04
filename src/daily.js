@@ -169,7 +169,7 @@ function dlyBand(res, pay, pb){
   const wide=(typeof matchMedia==='function') && matchMedia('(min-width: 1100px)').matches;
   if(wide){ if(b.parentNode!==go) go.appendChild(b); }
   else if(b.parentNode!==pn) pn.insertBefore(b, pn.firstChild);
-  go.classList.toggle('dly', !wide);
+  if(go.classList.contains('dly')!==!wide) go.classList.toggle('dly', !wide);
   const t=DLY.terms, d=DLY.data, rec=d.days[DLY.day]||{};
   const trk=DLY.track.map(s=>'<i style="color:'+(DLY_MARK_COL[s]||'#e6d9c2')+'">'+s+'</i>').join('');
   b.className=(DLY.scored?'scored':'practice')+(wide?' side':'');
@@ -274,7 +274,7 @@ if(typeof actuallyDie==='function'){ const _ad=actuallyDie;
     try{ if(was!=='dead') dlyDeath(); }catch(e){ console.error('[daily death]',e); }
     return r; }; }
 // a normal corpse never wears the daily band
-try{ new MutationObserver(()=>{ const go=$('gameover'); if(go && !go.classList.contains('hidden') && !(DLY_RNG&&DLY.on)){ const b=$('dlyBand'); if(b) b.remove(); go.classList.remove('dly'); } })
+try{ new MutationObserver(()=>{ const go=$('gameover'); if(go && !go.classList.contains('hidden') && !(DLY_RNG&&DLY.on)){ const b=$('dlyBand'); if(b) b.remove(); if(go.classList.contains('dly')) go.classList.remove('dly'); } /* guarded: an unconditional classList write re-fires this observer forever */ })
   .observe($('gameover'),{attributes:true, attributeFilter:['class']}); }catch(e){}
 if(typeof renderChips==='function'){ const _rc=renderChips;
   renderChips=function(){ const r=_rc.apply(this, arguments); try{ dlyPlaque(); }catch(e){} return r; }; }
