@@ -38,7 +38,7 @@ async function snap(page, name) {
     await page.tap('#gfxBtn').catch(() => {});
     await page.waitForTimeout(400);
     await page.screenshot({ path: path.join(OUT, 'p_' + vn + '_2options.jpg'), type: 'jpeg', quality: 80 }); console.error('  ✓ ' + vn + ' options');
-    await page.evaluate(() => { const p = document.getElementById('gfxPanel'); if (p) p.classList.add('hidden'); });
+    await page.evaluate(() => { for (const id of ['gfxPanel', 'b3Dials']) { const p = document.getElementById(id); if (p) p.classList.add('hidden'); } }); // B3: OPTIONS opens THE DIALS
     // start the night by tapping PLAY
     await page.evaluate(() => { window.__bot.god = true; window.__bot.noSlotTap = true; window.__bot.startedAt = 1; });
     await page.tap('#startBtn');
