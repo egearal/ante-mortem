@@ -318,7 +318,8 @@ function startWave(){
   wave++;
   bump('wave',wave); recCheck('wave',wave,'Wave');
   if(wave>1){ SFX.casinoDing(); ftext(P.x,P.y-40,'WAVE '+wave,'#e8b64c',true); ring(P.x,P.y,64,'#e8b64c'); }
-  if(wave>=10 && wave%10===0) spawnBoss();
+  if(P&&P._endless){ try{ b2WaveStart(); }catch(e){} }
+  else if(wave>=10 && wave%10===0) spawnBoss();
   if(wave>0 && wave%7===0){ announce('✦ GOLDEN WAVE — THE GILDED WALK ✦', true); SFX.dingBells();
     for(let gw=0;gw<2;gw++){ const ga2=rng('spawn')*6.283, gd2=Math.max(VW,VH)*0.5;
       spawnEnemy('gilded', clamp(P.x+Math.cos(ga2)*gd2,20,CFG.arena-20), clamp(P.y+Math.sin(ga2)*gd2,20,CFG.arena-20)); } }
@@ -332,7 +333,7 @@ function startWave(){
   const W=CFG.wave;
   // every wave rolls a little differently — the dealer shuffles, never repeats
   const size=Math.min(W.cap, Math.round((W.first + (wave-1)*W.grow)*(P&&P.crowd?1.3:1)*rrnd('spawn',0.85,1.2)*fnEase()));
-  const eliteWave = wave % W.eliteEvery === 0;
+  const eliteWave = wave % ((P&&P._endless)?2:W.eliteEvery) === 0;
   const wflav = (wave>=4 && rng('spawn')<0.15) ? ['husk','wraith','stalker','swarm','brute'][(rng('spawn')*5)|0] : null;
   for(let i=0;i<size && enemies.length<CFG.spawn.max;i++){
     const a=rng('spawn')*6.283, d=Math.max(VW,VH)*0.6+rrnd('spawn',30,220);
@@ -349,6 +350,7 @@ function startWave(){
     if(wave>=3 && roll>=0.90 && roll<0.955) t='brute';
     if(wave>=8 && roll>=0.955) t='revenant';
     if(wflav && rng('spawn')<0.22) t=wflav;
+    if(P&&P._endless) t=b2CourtType(t);
     spawnEnemy(t,x,y);
   }
   // HORDE: a fast swarm pours in from one flank
@@ -361,10 +363,11 @@ function startWave(){
     setTimeout(()=>{ if(state==='playing'){ showStreak('HORDE INCOMING'); SFX.murmur(); } }, 260);
   }
   if(eliteWave){
-    const n=(1+Math.floor(wave/8))*((P&&P.noMercy)?2:1);
-    for(let k=0;k<n;k++){ const a=rng('elite')*6.283, d=Math.max(VW,VH)*0.6;
+    const n=(1+Math.floor(wave/8))*((P&&P.noMercy&&P.b2pairs)?3:((P&&(P.noMercy||P.b2pairs))?2:1)); // B2 OBSIDIAN: elites walk in pairs
+    const nE=(P&&P._endless)?b2EliteCap(n):n;
+    for(let k=0;k<nE;k++){ const a=rng('elite')*6.283, d=Math.max(VW,VH)*0.6;
       const ex9=clamp(P.x+Math.cos(a)*d,20,CFG.arena-20), ey9=clamp(P.y+Math.sin(a)*d,20,CFG.arena-20);
-      spawnEnemy('elite',ex9,ey9); ring(ex9,ey9,160,'#c98bff'); ring(ex9,ey9,90,'#e8ccff'); }
+      spawnEnemy('elite',ex9,ey9); if(P&&P._endless) b2ScaleElite(enemies[enemies.length-1]); ring(ex9,ey9,160,'#c98bff'); ring(ex9,ey9,90,'#e8ccff'); }
     showStreak('WAVE '+wave+' · ELITE'); SFX.murmur(); flash(0.3,'#c98bff');
   } else {
     showStreak('WAVE '+wave);
@@ -373,7 +376,9 @@ function startWave(){
   waveGap=W.gap*rrnd('spawn',0.9,1.15);
 }
 function enemyShoot(e){
-  const base=Math.atan2(P.y-e.y,P.x-e.x), sp=200;
+  const sp=200; let tx9=P.x, ty9=P.y;
+  if(P.b2lead && P._b2vx!==undefined){ const tt9=Math.min(2.2,Math.hypot(P.x-e.x,P.y-e.y)/sp)*0.9; tx9+=P._b2vx*tt9; ty9+=P._b2vy*tt9; } // B2 CRIMSON: they shoot where you are going
+  const base=Math.atan2(ty9-e.y,tx9-e.x);
   const shots = e.type==='hexer'?3:1, spread=0.34;
   for(let i=0;i<shots;i++){
     const ang=base+(shots>1?(i-(shots-1)/2)*spread:0);
@@ -674,7 +679,7 @@ function update(dt){
     try{ whisperSweep(); }catch(e){}
   }
   // 12:00 — one minute before the purge, the clock bleeds
-  if(gt>=720 && !P._stirred){ P._stirred=true; announce('☷ THE HOUSE STIRS — ONE MINUTE ☷', false); SFX.murmur(); flash(0.3,'#8b1620');
+  if(gt>=((typeof b2HouseAt==='function')?b2HouseAt():780)-60 && !P._stirred && !P._endless){ P._stirred=true; announce('☷ THE HOUSE STIRS — ONE MINUTE ☷', false); SFX.murmur(); flash(0.3,'#8b1620');
     const tm9=$('timer'); if(tm9) tm9.classList.add('stirs'); }
   // queued slots never wait for an XP pickup
   if(pending.length && state==='playing' && !houseActive) openNextSlot();
@@ -771,8 +776,9 @@ function update(dt){
     CFG.scale.hp+=0.06;
     showStreak('☷ THE FLOOR RISES ☷'); SFX.murmur(); flash(0.35,'#8b1620'); shake=Math.min(18,shake+8);
   }
+  try{ b2Tick(dt); }catch(e){} // B2 — stakes + the endless floor
   // ☷ THE HOUSE — at 13:00 the pit empties and the landlord walks the floor
-  if(!houseActive && gt>=780){
+  if(!houseActive && gt>=((typeof b2HouseAt==='function')?b2HouseAt():780) && !P._endless){
     houseActive=true;
     enemies.length=0; ebullets.length=0; bounty=null; tarots.length=0;
     wheelTok=null; crashTok=null; eggProp=null;
@@ -794,6 +800,7 @@ function update(dt){
   }
   // 15:00 — FORECLOSURE. Not death; repossession. The final press does not apply.
   if(houseActive && gt>=900 && state==='playing'){
+    if(typeof b2NightWon==='function' && b2NightWon()) return; // B2: standing at 15:00 = the night is won
     hitstop=Math.max(hitstop,0.5); // half a second of held breath
     announce('☷ THE HOUSE FORECLOSES ☷', false);
     P.markerUsed=true; P.hp=0; actuallyDie();
@@ -1373,7 +1380,11 @@ function bakeVign(danger,db,tb){
   { B.main=mk(); const x=B.main.getContext('2d');
     const g=x.createRadialGradient(w/2,h/2,Math.min(w,h)*(0.30-danger*0.12),w/2,h/2,Math.max(w,h)*0.74);
     g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(0.45,'rgba('+L(6,9)+','+L(3,5)+','+L(8,18)+','+(0.12+danger*0.2)+')'); g.addColorStop(0.75,'rgba('+L(6,9)+','+L(4,6)+','+L(10,22)+','+(0.5+danger*0.35)+')'); g.addColorStop(1,'rgba('+L(2,5)+','+L(2,4)+','+L(8,24)+','+Math.min(1,0.86+danger*0.3)+')'); // A1: edges fall into dark
-    x.fillStyle=g; x.fillRect(0,0,w,h); }
+    x.fillStyle=g; x.fillRect(0,0,w,h);
+    if(tb>=100){ // B2 — THE ENDLESS FLOOR: below the House's hour the grade sinks into blood-violet, deeper each minute
+      const ab=Math.min(1,(tb-99)/9), g2=x.createRadialGradient(w/2,h/2,Math.min(w,h)*(0.36-ab*0.14),w/2,h/2,Math.max(w,h)*0.7);
+      g2.addColorStop(0,'rgba(40,0,30,0)'); g2.addColorStop(0.6,'rgba(52,4,40,'+(0.18+ab*0.22).toFixed(3)+')'); g2.addColorStop(1,'rgba(20,0,18,'+(0.35+ab*0.35).toFixed(3)+')');
+      x.fillStyle=g2; x.fillRect(0,0,w,h); } }
   { B.heart=mk(); const x=B.heart.getContext('2d');
     const g=x.createRadialGradient(w/2,h/2,Math.min(w,h)*0.34,w/2,h/2,Math.max(w,h)*0.72);
     g.addColorStop(0,'rgba(140,10,20,0)'); g.addColorStop(1,'rgba(140,10,20,1)');
@@ -1905,6 +1916,7 @@ function render(){
     ctx.restore(); } }
 
   drawPlayer();
+  try{ b2DrawAdorn(); }catch(e){}
 
   // particles
   for(const p of parts){ ctx.globalAlpha=clamp(p.life*(p.ash?0.9:1.6),0,1); ctx.fillStyle=p.col; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,6.28); ctx.fill(); }
@@ -1946,7 +1958,7 @@ function render(){
   // vignette — warm heart, cold edges, darkening with danger (prebaked, alpha-modulated live)
   const danger = Math.min(0.40, ((P.level||1)-1)*0.020 + Math.min(0.12, gt/900));
   { const db=Math.round(danger*20);
-    const tb=(typeof houseActive!=='undefined'&&houseActive)?99:Math.min(12,Math.floor(gt/65));
+    const tb=(P&&P._endless)?100+Math.min(8,Math.floor((gt-P._endT0)/60)):(typeof houseActive!=='undefined'&&houseActive)?99:Math.min(12,Math.floor(gt/65));
     if(!vignB || vignB.w!==VW || vignB.h!==VH || vignB.db!==db || vignB.tb!==tb || vignB.grade!==GFX.grade) bakeVign(danger,db,tb);
     ctx.save(); ctx.globalCompositeOperation='screen'; ctx.globalAlpha=0.5+excite*0.5;
     ctx.drawImage(vignB.warm,0,0,VW,VH); ctx.restore();
@@ -2763,9 +2775,9 @@ function bossPlate(name){
   bp.innerHTML='<b>♛</b> '+name+' <b>♛</b>'; bp.classList.remove('go'); void bp.offsetWidth; bp.classList.add('go');
   SFX.bossRoar&&SFX.bossRoar(); setTimeout(()=>bp.classList.remove('go'),2600);
 }
-function spawnBoss(){
+function spawnBoss(kindOverride){
   const order=['pitboss','croupier','collector','thehouse'];
-  const kind=order[(Math.floor(wave/10)-1)%order.length];
+  const kind=kindOverride||order[(Math.floor(wave/10)-1)%order.length];
   const a=rng('spawn')*6.283, dd=Math.max(VW,VH)*0.55;
   const x=clamp(P.x+Math.cos(a)*dd,40,CFG.arena-40), y=clamp(P.y+Math.sin(a)*dd,40,CFG.arena-40);
   spawnEnemy(kind,x,y);
@@ -2937,6 +2949,7 @@ function startGame(){
       LT.dayStreak=(LT.lastDay===y)?(LT.dayStreak||0)+1:1;
       LT.lastDay=today; gilt+=15; saveGilt(); if(typeof achSaveSoon==='function') achSaveSoon();
       setTimeout(()=>announce('☀ FIRST ANTE OF THE DAY — +15 GILT'+((LT.dayStreak||1)>1?' · '+LT.dayStreak+' NIGHTS RUNNING':'')+' ☀', true), 3000); } }
+  try{ b2Start(); }catch(e){ console.warn('[B2 start]',e); }
   window._gt0=gt; // the night's true zero (contracts may shift the clock)
   P._idle=0; P._sigT=0; P._corners=new Set(); P._chestsRun=0; P._roulRun=0; P._pauses=0; P._1313=false;
   resetRun();

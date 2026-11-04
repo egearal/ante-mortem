@@ -731,3 +731,319 @@ function fnFirstLevel(){
   try{ SFX.seraph(); coinRain(14); flash(0.3,'#ffd36b'); ring(P.x,P.y,170,'#ffd36b'); ring(P.x,P.y,110,'#fff2c0');
     setTimeout(()=>{ try{ if(state==='slot') domConfetti(24,'slot'); }catch(e){} }, 60); }catch(e){}
 }
+
+/* ==== B2 — THE STAKES + THE ENDLESS FLOOR ====
+   Beat the night (be standing at 15:00 when the House's reign ends) and the
+   deck ladder opens: CRIMSON → OBSIDIAN → IVORY → BONE → GILT, each keeping the
+   last one's cruelty and adding its own. Every win then offers PRESS ON — the
+   ENDLESS FLOOR past 15:00: court-themed waves, scaled elites, a champion every
+   3:00, and a score multiplier that climbs every 30s. Persistence lives ONLY in
+   the new additive key am_stakes_v1 (no existing key is touched).             */
+const B2_KEY='am_stakes_v1';
+let STK={v:1, won:0, best:{}, sel:0, first:{}, cos:'', clears:{}, endless:{best:0, score:0, stake:0, soul:'', mult:1}};
+const STAKES=[
+ {n:0, id:'house',    name:'THE HOUSE DECK', g:'♠', col:'#c9b78e', mult:1,    mod:'The night as the House deals it. No extra cruelty.'},
+ {n:1, id:'crimson',  name:'CRIMSON DECK',   g:'♦', col:'#ff2a3c', mult:1.25, mod:'SHARPSHOOTERS — shooters and hexers lead their shots: they fire where you are GOING, not where you are.', reward:{gilt:500,  cos:'halo'}},
+ {n:2, id:'obsidian', name:'OBSIDIAN DECK',  g:'♣', col:'#9a5cff', mult:1.5,  mod:'THE PAIRED COURT — every elite walks in with a twin.', reward:{gilt:1000, soul:'twin'}},
+ {n:3, id:'ivory',    name:'IVORY DECK',     g:'♥', col:'#fff4d6', mult:1.75, mod:'MARKED CARDS — every dice target is +1. The House reads your hand.', reward:{gilt:2000, cos:'crown'}},
+ {n:4, id:'bone',     name:'BONE DECK',      g:'☠', col:'#7fe0ff', mult:2,    mod:'LONG CURSES — every timed curse lasts twice as long.', reward:{gilt:3500, cos:'choir'}},
+ {n:5, id:'gilt',     name:'GILT DECK',      g:'♛', col:'#ffd36b', mult:2.5,  mod:'THE EARLY LANDLORD — the House arrives at 12:00. Three whole minutes of its reign.', reward:{gilt:7500, cos:'mantle'}}
+];
+const B2_COS={
+ halo:  {n:'BLOOD HALO',  g:'✹', col:'#ff2a3c', d:'A crimson ring burns at your feet.'},
+ crown: {n:'IVORY CROWN', g:'♛', col:'#fff4d6', d:'A small ivory crown hovers over your hat.'},
+ choir: {n:'BONE CHOIR',  g:'☠', col:'#7fe0ff', d:'Two frost-bone skulls orbit you, singing nothing.'},
+ mantle:{n:'GILT MANTLE', g:'✵', col:'#ffd36b', d:'Gold motes rise off your coat. You paid for every one.'}
+};
+// the endless court — each endless wave is dealt one theme; ~60% of its walkers wear it
+const B2_COURTS=[
+ {n:'THE PROCESSION', t:['wraith','stalker','wraith'],   col:'#c98bff'},
+ {n:'THE GALLERY',    t:['shooter','hexer','shooter'],    col:'#ffce5a'},
+ {n:'THE OSSUARY',    t:['brute','revenant','brute'],     col:'#ff5560'},
+ {n:'THE TIDE',       t:['swarm','husk','bomber','swarm'],col:'#8fd977'},
+ {n:'THE LEECHING',   t:['leech','shambler','stalker'],   col:'#4adf8a'}
+];
+function b2Save(){ try{ if(store) store.set(B2_KEY, JSON.stringify(STK)); }catch(e){} }
+function b2Load(){
+  try{ if(!store) return;
+    store.get(B2_KEY).then(r=>{
+      if(r&&r.value){ try{ const o=JSON.parse(r.value);
+        if(o&&typeof o==='object'){
+          STK.won=Math.max(0,+o.won||0); STK.sel=Math.max(0,Math.min(5,+o.sel||0)); STK.cos=typeof o.cos==='string'?o.cos:'';
+          STK.best={}; if(o.best&&typeof o.best==='object') for(const k in o.best){ const v=+o.best[k]; if(isFinite(v)) STK.best[k]=Math.max(-1,Math.min(5,v|0)); }
+          STK.first=(o.first&&typeof o.first==='object')?o.first:{};
+          STK.clears=(o.clears&&typeof o.clears==='object')?o.clears:{};
+          if(o.endless&&typeof o.endless==='object') STK.endless=Object.assign(STK.endless,o.endless);
+        } }catch(e){} }
+      try{ if(state==='menu' && typeof renderChips==='function') renderChips(); }catch(e){}
+    }).catch(()=>{});
+  }catch(e){}
+}
+b2Load();
+function b2SoulId(){ try{ return curSoul().id; }catch(e){ return 'vesper'; } }
+function b2BestFor(id){ const v=STK.best&&STK.best[id]; return typeof v==='number'?v:-1; }
+function b2BestAny(){ let m=-1; for(const k in (STK.best||{})) m=Math.max(m,STK.best[k]); return m; }
+// stake 1 opens for every soul after the first win; deeper decks are earned per soul
+function b2Avail(n,soul){ if(n<=0) return true; if(!STK.won) return false; if(n===1) return true; return b2BestFor(soul||b2SoulId())>=n-1; }
+function b2Sel(){ let s=STK.sel|0; const so=b2SoulId(); while(s>0 && !b2Avail(s,so)) s--; return s; }
+function b2HouseAt(){ return (P&&P.stake>=5)?720:780; }
+function b2ScoreMult(){ return (P&&P._endless)?1+0.1*Math.floor(Math.max(0,gt-P._endT0)/30):1; }
+function b2Pips(best){ let s=''; for(let i=1;i<=5;i++) s+='<i style="color:'+(i<=best?STAKES[i].col:'#4a3a34')+'">'+(i<=best?'◆':'◇')+'</i>'; return s; }
+
+// ——— the night begins: deal the stake ———
+function b2Start(){
+  CFG.spawn.max=340; window._b2won=false; window._b2giltMult=1; b2HideGate();
+  const s=b2Sel(); P.stake=s; P._endless=false; P._b2gate=false; P._b2step=0; P._b2bossN=0;
+  if(s>=1) P.b2lead=true;
+  if(s>=2) P.b2pairs=true;
+  if(s>=3) P.b2dice=1;
+  if(s>=4) P.curseCut=(P.curseCut||1)*2;
+  if(s>0){ const st=STAKES[s]; window._markMult=(window._markMult||1)*st.mult; window._b2giltMult=st.mult;
+    setTimeout(()=>{ if(state!=='dead') announce(st.g+' THE '+st.name+' IS DEALT — ×'+st.mult+' MARKS & GILT '+st.g, true); try{ SFX.chipStack(); SFX.casinoDing(); }catch(e){} }, 2600); }
+  document.body.classList.remove('b2endless');
+  { const tm=$('timer'); if(tm) tm.classList.remove('b2endless'); }
+  b2Hud(true);
+}
+// ——— per-frame (game dt): velocity for the sharpshooters, the endless ramp, the HUD ———
+function b2Tick(dt){
+  if(!P) return;
+  if(P._b2px!==undefined && dt>0){ const vx=(P.x-P._b2px)/dt, vy=(P.y-P._b2py)/dt;
+    P._b2vx=(P._b2vx||0)*0.8+vx*0.2; P._b2vy=(P._b2vy||0)*0.8+vy*0.2; }
+  P._b2px=P.x; P._b2py=P.y;
+  if(P._endless){
+    const step=Math.floor(Math.max(0,gt-P._endT0)/30);
+    if(step>P._b2step){ P._b2step=step; const m=b2ScoreMult();
+      b2Hud(true,true);
+      try{ SFX.multDing&&SFX.multDing(Math.min(8,step)); }catch(e){} tone(440*Math.pow(1.06,Math.min(24,step)),0.12,'sine',0.07);
+      if(step%2===0){ CFG.scale.hp+=0.12; CFG.scale.dmg+=0.03; CFG.scale.spdCap=Math.min(2.5,CFG.scale.spdCap+0.03);
+        showStreak('∞ THE FLOOR SINKS — DEPTH '+(step/2)+' · SCORE ×'+m.toFixed(1)+' ∞'); SFX.murmur(); flash(0.25,'#5a1a6a'); }
+      else showStreak('∞ SCORE ×'+m.toFixed(1)+' ∞'); }
+    P._b2bossT-=dt;
+    if(P._b2bossT<=0){ P._b2bossT=180; b2Champion(); }
+  }
+  b2Hud(false);
+}
+function b2Hud(force,pulse){
+  let el=$('b2Mult');
+  if(!el){ const hud=$('hud'); if(!hud) return; el=document.createElement('div'); el.id='b2Mult'; hud.appendChild(el); }
+  const s=(P&&P.stake)|0, st=STAKES[s];
+  let txt='';
+  if(s>0) txt+='<b style="color:'+st.col+'">'+st.g+' '+st.name.replace(' DECK','')+'</b>';
+  if(P&&P._endless){ const es=Math.max(0,gt-P._endT0);
+    txt+=(txt?'<br>':'')+'<span class="b2e">∞ ENDLESS +'+fmt(es)+'</span> <span class="b2x">×'+b2ScoreMult().toFixed(1)+'</span>'; }
+  if(!force && el._t===txt) return;
+  el._t=txt; el.innerHTML=txt; el.style.display=txt?'':'none';
+  if(pulse){ el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); }
+}
+// ——— endless spawn hooks (called from startWave) ———
+function b2WaveStart(){
+  if(!P||!P._endless) return;
+  const c=B2_COURTS[(Math.random()*B2_COURTS.length)|0]; P._b2court=c;
+  setTimeout(()=>{ if(state==='playing') showStreak('∞ THE COURT DEALS '+c.n+' ∞'); }, 700);
+}
+function b2CourtType(t){
+  const c=P&&P._endless&&P._b2court; if(!c||t==='gilded') return t;
+  if(Math.random()<0.6){ let nt=c.t[(Math.random()*c.t.length)|0];
+    if(window._fmods&&window._fmods.noRanged&&(nt==='shooter'||nt==='hexer')) nt='stalker'; return nt; }
+  return t;
+}
+// the perf budget: never more than 8 elites alive on the endless floor (they never LOD to silhouettes),
+// and never past the 300-walker cap
+function b2EliteCap(n){ let a=0; for(const e of enemies) if(e.elite) a++; return Math.max(0, Math.min(n, 8-a, CFG.spawn.max-enemies.length)); }
+function b2ScaleElite(e){
+  if(!e||!P||!P._endless) return;
+  const k=1+0.3*Math.max(0,gt-P._endT0)/60;
+  e.hp*=k; e.maxhp*=k; e.r+=4; e.dmg*=1+0.1*Math.min(10,(gt-P._endT0)/60); e._b2sc=1;
+}
+// a champion of the existing roster every 3:00 of the endless floor, heavier each time
+function b2Champion(){
+  if(enemies.some(e=>e.boss)){ P._b2bossT=30; return; } // one champion at a time — the next waits its turn
+  const order=['pitboss','croupier','collector','thehouse'];
+  const kind=order[(P._b2bossN||0)%order.length]; P._b2bossN=(P._b2bossN||0)+1;
+  try{ spawnBoss(kind); }catch(e){ return; }
+  const b=enemies[enemies.length-1];
+  if(b&&b.boss){ const k=1+0.6*P._b2bossN; b.hp*=k; b.maxhp*=k; b.dmg*=1+0.15*P._b2bossN; }
+  announce('∞ THE FLOOR SENDS A CHAMPION — №'+P._b2bossN+' ∞', false);
+}
+
+// ——— 15:00 standing: the night is won ———
+function b2NightWon(){
+  try{
+    if(P._b2gate) return false; // already offered — fall through to the old foreclosure
+    P._b2gate=true; window._b2won=true;
+    const so=b2SoulId(), s=P.stake|0, prev=b2BestFor(so), firstWin=!STK.won;
+    STK.won=(STK.won||0)+1; STK.best=STK.best||{}; if(s>prev) STK.best[so]=s;
+    STK.clears=STK.clears||{}; STK.clears[s]=(STK.clears[s]||0)+1; STK.first=STK.first||{};
+    const news=[];
+    if(firstWin) news.push(['♦','THE STAKES ARE OPEN — THE CRIMSON DECK IS UNSEALED',STAKES[1].col]);
+    if(s>0 && !STK.first[s]){ STK.first[s]=1; const rw=STAKES[s].reward||{};
+      if(rw.gilt){ gilt+=rw.gilt; saveGilt(); news.push(['◈','FIRST '+STAKES[s].name+' CLEAR — +'+rw.gilt.toLocaleString()+' GILT','#ffd36b']); }
+      if(rw.cos){ if(!STK.cos) STK.cos=rw.cos; const c=B2_COS[rw.cos]; news.push([c.g,'ADORNMENT EARNED: '+c.n+' — WEAR IT IN THE ANTE ROOM',c.col]); }
+      if(rw.soul){ news.push(['♝','A NEW SOUL TAKES A SEAT: THE OBSIDIAN TWIN','#d36bff']); } }
+    if(s<5 && s>prev && s>=1) news.push([STAKES[s+1].g,'THE '+STAKES[s+1].name+' IS UNSEALED FOR THIS SOUL',STAKES[s+1].col]);
+    b2Save();
+    // the House steps back from the felt
+    enemies.length=0; ebullets.length=0; try{ stopDrone(); }catch(e){}
+    state='b2gate'; try{ keys.clear(); }catch(e){}
+    hitstop=0; P.inv=Math.max(P.inv||0,3);
+    try{ bigWin('THE NIGHT IS WON',5); }catch(e){}
+    try{ domConfetti(90,'jackpotLayer'); }catch(e){} try{ SFX.seraph(); }catch(e){}
+    flash(0.7,'#fff2c0'); shake=Math.min(28,(shake||0)+18);
+    try{ houseSpeak('...FINE. THE NIGHT IS YOURS. STAY, IF YOU DARE.'); }catch(e){}
+    setTimeout(()=>b2ShowGate(news), 1300);
+    return true;
+  }catch(e){ console.warn('[B2 win]', e); return false; }
+}
+function b2ShowGate(news){
+  if(state!=='b2gate') return; // the player already chose (or the night ended) — never resurrect the gate
+  let g=$('b2Gate');
+  if(!g){ g=document.createElement('div'); g.id='b2Gate'; document.body.appendChild(g);
+    g.addEventListener('click',ev=>{ const b=ev.target.closest('button'); if(!b) return;
+      if(b.dataset.a==='on') b2PressOn(); else if(b.dataset.a==='out') b2CashOut(); }); }
+  const st=STAKES[(P&&P.stake)|0];
+  g.innerHTML='<div class="b2gCard">'
+    +'<div class="b2gT">♛ THE NIGHT IS WON ♛</div>'
+    +'<div class="b2gS">You outlived the House on the <b style="color:'+st.col+'">'+st.g+' '+st.name+'</b>.</div>'
+    +(news.length?'<div class="b2gN">'+news.map(n=>'<div style="color:'+n[2]+'"><b>'+n[0]+'</b> '+n[1]+'</div>').join('')+'</div>':'')
+    +'<div class="b2gR">'
+    +'<button class="btn b2on" data-a="on"><b>∞ PRESS ON</b><span>the ENDLESS FLOOR — the score multiplier climbs ×0.1 every 30s · a champion every 3:00</span><em>SPACE</em></button>'
+    +'<button class="btn b2out" data-a="out"><b>◈ CASH OUT</b><span>take the won night to the ledger</span><em>X</em></button>'
+    +'</div></div>';
+  g._t0=performance.now(); g.classList.add('go');
+  try{ SFX.rarSting(5); SFX.dingBells(); }catch(e){}
+}
+function b2HideGate(){ const g=$('b2Gate'); if(g) g.classList.remove('go'); }
+function b2PressOn(){
+  if(state!=='b2gate') return; b2HideGate();
+  houseActive=false; P._endless=true; P._endT0=gt; P._b2step=0; P._b2bossT=90; P.inv=Math.max(P.inv||0,2.5);
+  CFG.spawn.max=300; // the perf budget: the endless court never stands more than 300 deep
+  waveClearTarget=0; waveGap=1.6; window._b2endless=true;
+  { const tm=$('timer'); if(tm){ tm.classList.remove('stirs'); tm.classList.add('b2endless'); } }
+  document.body.classList.add('b2endless');
+  state='playing'; last=performance.now();
+  try{ startDrone(); SFX.bossRoar(); }catch(e){}
+  tone(55,1.4,'sine',0.26,30); noise(0.6,0.12,500);
+  flash(0.55,'#9a5cff'); shake=Math.min(24,(shake||0)+14);
+  announce('∞ THE ENDLESS FLOOR — THE SCORE CLIMBS ∞', true);
+  b2Hud(true,true);
+}
+function b2CashOut(){
+  if(state!=='b2gate') return; b2HideGate();
+  state='playing';
+  announce('◈ CASHED OUT — THE NIGHT IS YOURS ◈', true);
+  try{ SFX.cashout(); }catch(e){}
+  P.markerUsed=true; P.hp=0; actuallyDie();
+}
+window.addEventListener('keydown',e=>{
+  if(state!=='b2gate') return;
+  const k=(e.key||'').toLowerCase(); const g=$('b2Gate');
+  e.preventDefault(); e.stopImmediatePropagation();
+  if(e.repeat || !g || performance.now()-(g._t0||0)<900) return; // mashers don't skip the ceremony
+  if(k===' '||k==='enter'){ try{ SFX.press(); }catch(x){} b2PressOn(); }
+  else if(k==='x'||k==='escape'){ try{ SFX.press(); }catch(x){} b2CashOut(); }
+}, true);
+
+// ——— the ledger: stake, the won night, the endless depth, the records ———
+function b2Ledger(){
+  if(!P) return;
+  const s=P.stake|0, st=STAKES[s];
+  let rows='';
+  if(s>0) rows+='<div class="glRow b2gl"><span style="color:'+st.col+'">'+st.g+' '+st.name+'</span><b>×'+st.mult+'</b><span>CLEARED</span><b class="b2p">'+b2Pips(b2BestFor(b2SoulId()))+'</b></div>';
+  if(window._b2won){
+    $('goResult').textContent=P._endless?'THE FLOOR TOOK YOU':'THE NIGHT IS WON';
+    if(!P._endless) $('goSub').textContent='You outlived the House. The ledger is yours to keep.'; }
+  if(P._endless){ const es=Math.max(0,Math.round(gt-P._endT0)); const m=b2ScoreMult();
+    const E=STK.endless||(STK.endless={best:0,score:0});
+    const rec=es>(E.best||0);
+    let sc=0; try{ sc=computeScore(); }catch(e){}
+    if(rec){ E.best=es; E.stake=s; E.soul=b2SoulId(); E.mult=m; }
+    if(sc>(E.score||0)) E.score=sc;
+    b2Save();
+    rows+='<div class="glRow b2gl"><span style="color:#c98bff">∞ ENDLESS</span><b>+'+fmt(es)+'</b><span>SCORE</span><b>×'+m.toFixed(1)+'</b>'
+      +(rec?'<span class="b2rec">✦ DEEPEST EVER ✦</span>':'<span>BEST</span><b>+'+fmt(E.best||0)+'</b>')+'</div>';
+    if(rec){ setTimeout(()=>{ try{ SFX.record&&SFX.record(); flash(0.35,'#c98bff'); }catch(e){} }, 900); } }
+  if(rows){ const gl=$('goLedger'); if(gl) gl.insertAdjacentHTML('afterbegin', rows); }
+}
+// ——— menu + share text ———
+function b2LoadoutTag(){
+  if(!STK.won) return '';
+  const s=b2Sel(), st=STAKES[s];
+  return ' · <span style="color:'+st.col+'">'+st.g+' '+st.name+'</span> <span class="b2pips">'+b2Pips(b2BestFor(b2SoulId()))+'</span>';
+}
+function b2ShareBits(){
+  if(!P) return '';
+  const s=P.stake|0; let t='';
+  if(s>0) t+=' · '+STAKES[s].g+' '+STAKES[s].name.toLowerCase()+' '+'◆'.repeat(s);
+  if(window._b2won && !P._endless) t+=' · the night is won';
+  if(P._endless) t+=' · endless +'+fmt(Math.max(0,gt-P._endT0));
+  return t;
+}
+// ——— the Ante Room: THE STAKES + ADORNMENTS ———
+function b2AnteHtml(){
+  const so=b2SoulId(), sel=b2Sel(), bf=b2BestFor(so);
+  let h='<div class="anteH">CHOOSE YOUR STAKE <span style="opacity:.6;font-size:11px">(each deck keeps every cruelty below it · cleared with this soul: '+b2Pips(bf)+')</span></div>';
+  if(!STK.won){
+    h+='<div class="b2seal">'+STAKES.slice(1).map(st=>'<span class="b2deck dark" style="--dc:'+st.col+'">'+st.g+'</span>').join('')
+      +'<div>🔒 BEAT THE NIGHT — BE STANDING AT 15:00 WHEN THE HOUSE\'S REIGN ENDS — AND THE STAKES OPEN</div></div>';
+    return h;
+  }
+  h+='<div class="soulRow b2row">';
+  STAKES.forEach(st=>{ const un=b2Avail(st.n,so), on=sel===st.n, clr=bf>=st.n && st.n>0;
+    const rw=st.reward; let rwt='';
+    if(rw){ rwt = STK.first&&STK.first[st.n] ? '✓ FIRST CLEAR PAID'
+      : 'FIRST CLEAR: '+(rw.cos?B2_COS[rw.cos].g+' '+B2_COS[rw.cos].n:'♝ THE OBSIDIAN TWIN')+' + '+rw.gilt.toLocaleString()+' GILT'; }
+    h+= un
+      ? '<div class="stakeCard'+(on?' on':'')+(clr?' clr':'')+'" data-n="'+st.n+'" style="--sc:'+st.col+'"><span class="b2deck" style="--dc:'+st.col+'">'+st.g+'</span>'
+        +'<div class="soulN">'+st.name+'</div><div class="soulD">'+st.mod+'</div>'
+        +(st.n>0?'<div class="b2m">×'+st.mult+' MARKS & GILT</div>':'')+(rwt?'<div class="b2rw">'+rwt+'</div>':'')
+        +(clr?'<div class="b2c">◆ CLEARED</div>':'')+(on?'<div class="soulPick">— TONIGHT —</div>':'')+'</div>'
+      : '<div class="stakeCard locked" style="--sc:'+st.col+'"><span class="b2deck dark" style="--dc:'+st.col+'">'+st.g+'</span><div class="soulN">'+st.name+'</div><div class="soulD">🔒 CLEAR THE '+STAKES[st.n-1].name+' WITH THIS SOUL</div></div>';
+  });
+  h+='</div>';
+  const E=STK.endless||{};
+  if(E.best>0) h+='<div class="b2end">∞ DEEPEST ENDLESS FLOOR: <b>+'+fmt(E.best)+'</b> on the '+STAKES[E.stake|0].name+' · best score '+(E.score||0).toLocaleString()+'</div>';
+  const got=Object.keys(B2_COS).filter(id=>b2CosOwned(id));
+  if(got.length){
+    h+='<div class="anteH">ADORNMENTS <span style="opacity:.6;font-size:11px">(cosmetic · earned on the stakes)</span></div><div class="ctRow">';
+    h+='<div class="cosChip'+(!STK.cos?' on':'')+'" data-c=""><b>— BARE —</b><span>Nothing but the coat.</span></div>';
+    Object.keys(B2_COS).forEach(id=>{ const c=B2_COS[id], own=b2CosOwned(id);
+      h+= own ? '<div class="cosChip'+(STK.cos===id?' on':'')+'" data-c="'+id+'" style="--cc:'+c.col+'"><b style="color:'+c.col+'">'+c.g+' '+c.n+'</b><span>'+c.d+'</span></div>'
+        : '<div class="cosChip locked"><b>🔒 SEALED</b><span>a first clear on a higher deck</span></div>'; });
+    h+='</div>';
+  }
+  return h;
+}
+function b2CosOwned(id){ for(let n=1;n<=5;n++){ const rw=STAKES[n].reward; if(rw&&rw.cos===id&&STK.first&&STK.first[n]) return true; } return false; }
+function b2AnteClick(ev){
+  const sc=ev.target.closest('.stakeCard');
+  if(sc){ if(sc.classList.contains('locked')){ try{ SFX.thud(); }catch(e){} return true; }
+    const n=+sc.dataset.n; STK.sel=n; b2Save(); renderAnteRoom();
+    try{ SFX.chipStack(); tone(330*Math.pow(1.12,n),0.18,'triangle',0.08); if(n>=3) SFX.murmur(); }catch(e){}
+    if(n>0){ flash(0.25,STAKES[n].col); } return true; }
+  const cc=ev.target.closest('.cosChip');
+  if(cc){ if(cc.classList.contains('locked')){ try{ SFX.thud(); }catch(e){} return true; }
+    STK.cos=cc.dataset.c||''; b2Save(); renderAnteRoom(); try{ SFX.uiDing(); SFX.tingle(); }catch(e){} return true; }
+  return false;
+}
+// ——— the adornment, drawn in world space right after the gambler ———
+function b2DrawAdorn(){
+  const id=STK.cos; if(!id||!P||state==='menu') return;
+  if(!b2CosOwned(id)) return;
+  const t=gt;
+  ctx.save(); ctx.translate(P.x,P.y);
+  if(id==='halo'){ ctx.globalCompositeOperation='lighter';
+    ctx.strokeStyle='rgba(255,42,60,'+(0.45+Math.sin(t*4)*0.15).toFixed(3)+')'; ctx.lineWidth=2.2;
+    ctx.beginPath(); ctx.ellipse(0,P.radius*0.9,P.radius*1.6,P.radius*0.55,0,0,6.283); ctx.stroke();
+    ctx.fillStyle='#ff2a3c'; for(let i=0;i<3;i++){ const a=t*2.4+i*2.094; ctx.beginPath(); ctx.arc(Math.cos(a)*P.radius*1.6,P.radius*0.9+Math.sin(a)*P.radius*0.55,1.8,0,6.283); ctx.fill(); } }
+  else if(id==='crown'){ const y=-P.radius*2.9+Math.sin(t*2.6)*2.2;
+    ctx.font='700 15px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle='#1a0a10'; ctx.fillText('♛',1,y+1); ctx.fillStyle='#fff4d6'; ctx.fillText('♛',0,y); }
+  else if(id==='choir'){ ctx.font='700 11px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    for(let i=0;i<2;i++){ const a=t*1.9+i*3.1416, x=Math.cos(a)*P.radius*2.3, y=Math.sin(a)*P.radius*1.4-4;
+      ctx.fillStyle='#0a1418'; ctx.fillText('☠',x+1,y+1); ctx.fillStyle='#7fe0ff'; ctx.fillText('☠',x,y); } }
+  else if(id==='mantle'){ ctx.globalCompositeOperation='lighter';
+    for(let i=0;i<6;i++){ const ph=(t*0.7+i/6)%1, x=Math.sin(i*2.3+t*1.3)*P.radius*1.1, y=P.radius*0.6-ph*P.radius*3.2;
+      ctx.globalAlpha=(1-ph)*0.8; ctx.fillStyle='#ffd36b'; ctx.beginPath(); ctx.arc(x,y,1.6+(1-ph),0,6.283); ctx.fill(); }
+    ctx.globalAlpha=1; }
+  ctx.restore();
+}

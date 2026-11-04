@@ -415,7 +415,7 @@ function finalizeReward(bestId, matchN){
   let usedOv=false, usedVch=false;
   if(ovBonusNext){ ovBonusNext=false; base+=1; usedOv=true; setTimeout(()=>announce('⚡ OVERCHARGED — +1 BONUS LEVEL ⚡', true), 700); }
   if(vouchers>0){ vouchers--; base+=1; usedVch=true; setTimeout(()=>{ announce('◈ HOUSE VOUCHER SPENT — +1 LEVEL ◈', true); flash(0.35,'#ffd36b'); SFX.casinoDing(); }, 1400); }
-  gamble={ _forgiven:redForgiven, def, kind:slotKind, base, reward:base, matchN, round:1, threshold:8-(vlv('dice')?1:0)-(P.diceEase||0)+(P.hexDice?1:0)+(P.crookedT?1:0), rites:lastRites, seraph, rollT:0, win:false, dL:0, dR:0, hist:[], diceN:0, _voucherUsed:usedVch, _ovUsed:usedOv };
+  gamble={ _forgiven:redForgiven, def, kind:slotKind, base, reward:base, matchN, round:1, threshold:8-(vlv('dice')?1:0)-(P.diceEase||0)+(P.hexDice?1:0)+(P.crookedT?1:0)+(P.b2dice||0), rites:lastRites, seraph, rollT:0, win:false, dL:0, dR:0, hist:[], diceN:0, _voucherUsed:usedVch, _ovUsed:usedOv };
   if(P.crookedT) P.crookedT=false; // the CROOKED TABLE scar bites once
   if(seraph) seraphCeremony();
   ceremony(matchN, def);

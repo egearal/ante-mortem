@@ -4,7 +4,7 @@
 /* ============================================================
    DEATH + LEADERBOARD
    ============================================================ */
-function computeScore(){ return Math.floor(gt*7 + P.kills*6 + P.coins*3 + P.level*45); }
+function computeScore(){ return Math.floor((gt*7 + P.kills*6 + P.coins*3 + P.level*45)*((typeof b2ScoreMult==='function')?b2ScoreMult():1)); } // B2: the endless floor multiplies
 async function die(){
   if(state==='dead'||state==='marker') return;
   if(!P.markerUsed){ P.markerUsed=true; LT.markers=(LT.markers||0)+1; bump('markers',LT.markers); markerSpin(); return; }
@@ -115,7 +115,7 @@ async function actuallyDie(){
   if(gt>=899 && !P._houseHurt){ const had=SEC.has('deathless'); secret('deathless','DEATHLESS');
     if(!had && SEC.has('deathless')){ gilt+=975; saveGilt(); setTimeout(()=>announce('♛ DEATHLESS — THE HOUSE PAYS 1,000 GILT ♛',true),1200); } }
   stopDrone(); SFX.death(); shake=18; flash(0.6,'#8b1620');
-  const score=computeScore(), giltEarned=Math.floor(score/40);
+  const score=computeScore(), giltEarned=Math.floor(score/40*(window._b2giltMult||1)); // B2: the stake pays gilt too
   gilt+=giltEarned; saveGilt();
   LT.deaths++; bump('deaths',LT.deaths);
   LT.gilt+=giltEarned; bump('gilt',LT.gilt);
@@ -129,7 +129,7 @@ async function actuallyDie(){
   saveAch();
   const newBest = score>best; if(newBest) best=score;
   $('goResult').textContent = newBest? 'A RECORD IN BLOOD' : 'YOU BLINKED OUT';
-  { const by=(gt>=900)?'THE FORECLOSURE':(window._hitBy||'').toUpperCase();
+  { const by=(gt>=900&&!P._endless)?(window._b2won?'':'THE FORECLOSURE'):(window._hitBy||'').toUpperCase();
     $('goSub').textContent = (newBest? 'The court will remember this run.' : 'The house collects its due.')+(by?(' — taken by '+by):''); }
   quillFlick();
   // THE RECKONING — stat rows slam in with rising dings, everything skippable, back in the pit in seconds
@@ -186,6 +186,7 @@ async function actuallyDie(){
         +(bp?'<span>BEST PULL</span><b style="color:'+RARC[bp]+'">'+SLOT_RAR[bp]+'</b>':'')+'</div>'
         +(wchips?'<div class="glRow glChips">'+wchips+'</div>':'')
         +(schips?'<div class="glRow glChips">'+schips+'</div>':'');
+      try{ b2Ledger(); }catch(e){}
     } }
   // LUCK — the verdict of the night, in seven grades
   { const lk=$('goLuck');
@@ -262,7 +263,7 @@ function quillFlick(){
    Fake fortunes only — the card never shows coins, gilt or anything that pays.  */
 const A3_URL='https://egearal.github.io/ante-mortem/';
 function a3Night(){
-  const by=(gt>=900)?'THE FORECLOSURE':String(window._hitBy||'').toUpperCase();
+  const by=(gt>=900&&!P._endless)?(window._b2won?'':'THE FORECLOSURE'):String(window._hitBy||'').toUpperCase();
   const bp=(RUN&&RUN.bestPull)||null;
   return { time:fmt(gt), level:P.level, kills:P.kills, jack:(RUN&&RUN.pulls&&RUN.pulls._tr3)||0,
     streak:P.bestStreak||0, by, night:LT.runs||1, wave:wave||0,
@@ -271,7 +272,7 @@ function a3Night(){
 }
 function a3Line(n){
   return '♠ ANTE MORTEM — survived '+n.time+' · level '+n.level+' · '+n.jack+' jackpot'+(n.jack===1?'':'s')
-    +(n.by?' · taken by '+n.by:'')+' · '+A3_URL;
+    +(n.by?' · taken by '+n.by:'')+((typeof b2ShareBits==='function')?b2ShareBits():'')+' · '+A3_URL;
 }
 function a3Copy(txt){
   const legacy=()=>{ try{ const ta=document.createElement('textarea'); ta.value=txt; ta.setAttribute('readonly','');

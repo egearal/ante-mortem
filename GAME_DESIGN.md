@@ -397,3 +397,38 @@ Knowledge earned across sixteen batches; without it, verification is slow and fl
    shipped a blank game through a "successful" build. Trust the gate, not the bundler.
 8. **gzip check:** `dist/ante-mortem.html` must stay self-contained — zero network
    requests (fonts are embedded base64, OFL-licensed). Verify with the network tab.
+
+## B2 — THE STAKES + THE ENDLESS FLOOR (Wave B, long-term mastery)
+**The win**: being alive at gt≥900 (15:00, the end of the House's reign) used to mean FORECLOSURE. Now it
+is **THE NIGHT IS WON** (`b2NightWon`, called at the top of the foreclosure block in update): records the
+clear, pays first-clear rewards, purges the House, sets `state='b2gate'` and shows #b2Gate —
+**SPACE / ∞ PRESS ON** or **X / ◈ CASH OUT** (cash out = the old foreclosure path into the ledger).
+The gate eats every key while open (capture listener in ranks.js) and ignores input for 0.9s.
+**Persistence**: new additive key `am_stakes_v1` → `STK={won, best:{soulId:highestStakeCleared}, sel, first:{n:1},
+cos, clears, endless:{best,score,stake,soul,mult}}`. No existing key touched.
+**THE STAKES** (`STAKES` in ranks.js; each keeps every modifier below it; flags set in `b2Start` at startGame):
+| # | deck | modifier | marks & gilt | first clear |
+|---|---|---|---|---|
+| 1 | ♦ CRIMSON #ff2a3c | SHARPSHOOTERS — shooters/hexers lead shots (P.b2lead, velocity from b2Tick, lead ≤2.2s×0.9) | ×1.25 | ✹ BLOOD HALO + 500 gilt |
+| 2 | ♣ OBSIDIAN #9a5cff | THE PAIRED COURT — elites ×2 (×3 with NO MERCY) | ×1.5 | ♝ THE OBSIDIAN TWIN soul + 1,000 |
+| 3 | ♥ IVORY #fff4d6 | MARKED CARDS — dice targets +1 (P.b2dice in slot threshold) | ×1.75 | ♛ IVORY CROWN + 2,000 |
+| 4 | ☠ BONE #7fe0ff | LONG CURSES — P.curseCut ×2 | ×2 | ☠ BONE CHOIR + 3,500 |
+| 5 | ♛ GILT #ffd36b | THE EARLY LANDLORD — the House arrives at 12:00 (b2HouseAt()=720; stirs at 11:00) | ×2.5 | ✵ GILT MANTLE + 7,500 |
+Gating: stake 1 opens for every soul after the first win; stake N≥2 needs stake N−1 cleared **with that soul**.
+The multiplier rides `window._markMult` (marks) and `window._b2giltMult` (death gilt). Adornments are pure
+cosmetics drawn by `b2DrawAdorn()` right after drawPlayer; chosen in the Ante Room (ADORNMENTS row).
+THE OBSIDIAN TWIN (id `twin`, `stake:true` in SOULS — excluded from estatePct so the 100% stamp never regresses; D1's portrait
+fallback paints it as a rim-lit Vesper bust in violet — her shadow): +1 projectile,
+dice −1, −30 max blood.
+**THE ENDLESS FLOOR** (`b2PressOn`): houseActive=false, P._endless, P._endT0=gt; the House never returns
+(arrival gated on !P._endless). Waves resume with: a COURT theme per wave (B2_COURTS: PROCESSION / GALLERY /
+OSSUARY / TIDE / LEECHING — 60% of walkers wear it), elite waves every 2nd wave with elites scaled
+hp ×(1+0.3/endless-min), no wave-bosses — instead a CHAMPION every 3:00 (first at +1:30) cycling
+pitboss→croupier→collector→thehouse with hp ×(1+0.6n) (`spawnBoss(kind)` now takes an override).
+Every endless minute: scale.hp +0.12, dmg +0.03. Enemy cap 300 (CFG.spawn.max, reset to 340 at startGame).
+**Score ×(1 + 0.1 per 30s endless)** via computeScore → HUD #b2Mult ('∞ +m:ss · SCORE ×n' + stake tag),
+pulse + rising ding per step. Night-arc grade: tb=100+endless minutes (≤108) adds a blood-violet abyss
+layer to the vignette bake. Ledger: stake row with per-soul pips + ENDLESS row (time, ×, DEEPEST EVER);
+share line gains '· ♦ crimson deck ◆ · endless +m:ss'. Menu loadout line shows the selected deck + pips.
+**Probe**: `npm run probe -- --stake N --god-until 930` (god only while gt<930: survive the House, then fight
+the floor); `node probes/b2perf.js` = the endless perf gate; `node probes/b2shots.js` → shots/b2/.
