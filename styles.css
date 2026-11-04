@@ -2431,3 +2431,18 @@ body.b2endless #hud #b2Mult{box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(154,92,2
 .tpPair{font-size:12.5px;line-height:1.45;color:#e2d6b8;padding:3px 0;border-bottom:1px dotted rgba(255,242,192,.12);}
 .tpPair i{color:#a99a80;font-style:normal;}
 @media (max-width:600px){ .howTab{font-size:10.5px;padding:5px 8px;letter-spacing:.05em;} #howTabs{gap:5px;margin:6px 0 8px;} }
+
+/* ==== H2 — FRESH EYES: the ledger fits a 720p laptop (ANTE UP above the fold) ====
+   On short, wide screens the night's plaque and the rank/debt column sit side by side
+   instead of stacked, and the portrait shrinks a size. Phones and tall screens unchanged. */
+@media (min-width:641px) and (max-height:820px){
+  #gameover .panel{padding-top:14px;padding-bottom:12px;}
+  #gameover .subline{margin-bottom:4px;}
+  #a2Epitaph{margin-bottom:6px;}
+  #gameover .panel>#goLedger{grid-column:1;grid-row:9;align-self:stretch;}
+  #gameover .panel>#goRank{grid-column:2;grid-row:9;margin-top:10px;align-self:start;}
+  #gameover #goRank .rkTop{font-size:11px;}
+  #gameover .glPort{width:52px;height:62px;}
+  #gameover #againBtn{padding:11px 20px;margin-top:10px;}
+  #gameover #booksBtn,#gameover #goMenuBtn{padding:8px 8px;margin-top:6px;}
+}
