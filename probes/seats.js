@@ -48,8 +48,9 @@ const unlockHalf = () => { RANK.rank = 14; RANK._ld = 1; LT.deaths = 30; LT.trip
     await settle(page, 20); await shot(page, 's5_index_seats');
     await page.evaluate(() => { document.getElementById('indexPanel').classList.add('hidden'); });
     // 6 — the Cardsharp's tell
-    await page.evaluate(() => { LT.triples = 3; IDX.sl = 'sharp'; window.__bot.noSlotTap = true; window.__bot.god = true; });
+    await page.evaluate(() => { LT.triples = 3; IDX.sl = 'sharp'; window.__bot.noSlotTap = true; window.__bot.god = true; window.__bot.renderEvery = 30; });
     await until(page, "state==='slot' && slotStage==='ready'", 30000);
+    await page.evaluate(() => { window.__bot.renderEvery = 1; });
     await settle(page, 40); await shot(page, 's6_cardsharp_tell');
     await page.evaluate(() => { P.coins = 60; sharpRedeal(); }); await settle(page, 30); await shot(page, 's6b_cardsharp_redealt');
     // check the tell is honoured through the whole pull
@@ -64,7 +65,7 @@ const unlockHalf = () => { RANK.rank = 14; RANK._ld = 1; LT.deaths = 30; LT.trip
   // 7 — the Magpie's golden chip, mid-night
   {
     const { browser, page, errors } = await launch({ which });
-    await page.evaluate(() => { window.__bot.renderEvery = 1; const s = SOULS.find(x => x.id === 'magpie'); s.u = () => true; IDX.sl = 'magpie'; window.__bot.god = true; });
+    await page.evaluate(() => { window.__bot.renderEvery = 30; const s = SOULS.find(x => x.id === 'magpie'); s.u = () => true; IDX.sl = 'magpie'; window.__bot.god = true; });
     await until(page, "state==='playing' && gt>20", 20000);
     await page.evaluate(() => { for (let i = 0; i < 4; i++) coins.push({ x: P.x + 60 + i * 30, y: P.y + 40, r: 6, vx: 0, vy: 0, _d1: 1, gold: 1 }); });
     await settle(page, 4);
