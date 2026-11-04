@@ -15,7 +15,12 @@ const HOOK = `(()=>{
   const L=window.__h2log=[];
   const t=()=>(typeof gt==='number'?gt.toFixed(1):'-')+' '+(typeof state!=='undefined'?state:'');
   const wrap=(name)=>{ const f=window[name]; if(typeof f!=='function') return; window[name]=function(){ try{ L.push(t()+' '+name+': '+[...arguments].map(a=>typeof a==='string'?a.replace(/<[^>]+>/g,''):JSON.stringify(a)).join(' | ').slice(0,160)); }catch(e){} return f.apply(this,arguments); }; };
-  ['announce','coachMark','bigWin','fnLine'].forEach(wrap);
+  ['coachMark','bigWin'].forEach(wrap);
+  // log what is actually SHOWN in the banner (wrappers may hold or drop a call)
+  const an=document.getElementById('announce');
+  if(an) new MutationObserver(()=>{ if(!an.classList.contains('hidden')) L.push(t()+' SHOWN: '+an.textContent.slice(0,120)); }).observe(an,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['class']});
+  const at=document.getElementById('achToasts');
+  if(at) new MutationObserver(ms=>{ for(const m of ms) for(const n of m.addedNodes) L.push(t()+' TOAST: '+(n.textContent||'').slice(0,80)); }).observe(at,{childList:true});
   window.__h2vis=()=>{ const ids=['announce','coachToast','streak','bossBar']; const out=[];
     for(const id of ids){ const e=document.getElementById(id); if(!e) continue; const cs=getComputedStyle(e); if(e.classList.contains('hidden')||cs.display==='none'||cs.visibility==='hidden'||+cs.opacity<0.05) continue; if(id==='coachToast'&&!e.classList.contains('go')) continue; out.push(id+':'+e.textContent.slice(0,40)); }
     return out; };

@@ -222,7 +222,8 @@ function feedSecretKeys(k){
     if(keyBuf.endsWith('house')) secret('house','SPEAK ITS NAME');
   }
 }
-function achAdd(stat,v,name,desc){ (ACH_BY_STAT[stat]=ACH_BY_STAT[stat]||[]).push({id:stat+'_'+v,v,name,desc}); ACH_TOTAL++; }
+const H2_ONE={times:'once',runs:'run',bosses:'boss',souls:'soul',cards:'card',bounties:'bounty',skills:'skill',wounds:'wound'}; // H2: "Die 1 times" → "Die once"
+function achAdd(stat,v,name,desc){ if(v===1&&typeof desc==='string') desc=desc.replace(/\b1 (times|runs|bosses|souls|cards|bounties|skills|wounds)\b/,(m,w)=>w==='times'?'once':'1 '+H2_ONE[w]); (ACH_BY_STAT[stat]=ACH_BY_STAT[stat]||[]).push({id:stat+'_'+v,v,name,desc}); ACH_TOTAL++; }
 function buildAch(){
   const RN=['I','II','III','IV','V','VI','VII','VIII'];
   for(let l=5;l<=250;l+=5) achAdd('level',l,'Ascendant '+l,'Reach level '+l+' in one run');
