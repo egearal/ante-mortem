@@ -2156,3 +2156,5 @@ body.touchUI #hud #combo s{display:none;}
 /* the House tip inside A2's notice column: A4's phone `top:` offset must not ride along (with position:relative it shoved
    the tip ~100px below its slot — over feat toasts and the ledger title, outside the column the ledger is pushed past) */
 #a2Notes #coachToast{top:auto;}
+/* pause on narrow desktops (≤1180px): the brass blood bar (HUD rides above the pause veil) sat on top of RESUME — lift the row clear */
+@media (max-width:1180px){ body:not(.touchUI) #howBtnRow{bottom:78px;} }

@@ -1454,6 +1454,12 @@ const PROF={ on:/[?&#]prof/.test(location.search+location.hash), t0:0, tS:0, cur
   reset(){ this.stages={}; this.ri=0; this.rn=0; this.spikes25=0; this.spikes40=0; this.spikeStage={}; this.frames=0; }
 };
 window.__prof=PROF;
+// B4 — the blood bar's box in canvas (logical) px, re-read twice a second (it moves only on resize / layout)
+function _b4HpRect(){ const n=performance.now(); let c=window._b4hp;
+  if(!c||n-c.t>500||n<c.t){ let v=null; const el=document.getElementById('hpwrap');
+    if(el){ const b=el.getBoundingClientRect(), z=(typeof ZOOM==='number'&&ZOOM>0)?ZOOM:1; if(b.width>0) v={l:b.left/z,r:b.right/z,t:b.top/z}; }
+    c=window._b4hp={t:n,v}; }
+  return c.v; }
 function render(){
   ctx.save();
   let sx=0,sy=0; if(shake>0){ const sh=shake*0.6*(GFX.shake!=null?Math.min(1.5,GFX.shake):1); sx=rnd(-sh,sh); sy=rnd(-sh,sh); } // B3: the SHAKE dial scales it
@@ -2009,7 +2015,11 @@ function render(){
   }
   // XP / RAGE — gilded gothic gauge, smooth-lerped
   if(state==='playing'){
-    const xw=Math.min(340,VW*0.44), xx=VW/2-xw/2, xy=VH-46, bh=14;
+    let xw=Math.min(340,VW*0.44), xx=VW/2-xw/2, xy=VH-46; const bh=14;
+    { const hr=_b4HpRect(); // B4: never under the blood bar — slide right of it, or (phones) ride just above it
+      if(hr && xx<hr.r+14 && hr.t<VH-20){ const room=VW-(hr.r+14)-96;
+        if(room>=170){ xx=hr.r+14; xw=Math.min(xw,room); }
+        else { xx=hr.l+22; xw=Math.max(120,Math.min(xw,hr.r-hr.l-22)); xy=Math.min(xy,hr.t-12-bh); } } }
     const rage=P.ovT>0;
     const target=rage?Math.max(0,P.ovT)/100:Math.min(1,P.xp/P.xpNext);
     const key=rage?'_ovDisp':'_xpDisp';
