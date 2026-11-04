@@ -1812,3 +1812,107 @@ button[id$="Close"]:active{transform:translateY(1px);}
 /* the stale 'Soon: Cloakroom' footnote yields its line on short screens */
 @media (max-height:760px){ #gameover .panel>.soon{display:none;} }
 body:has(#a3Share .a3ShareOut.go) #a2Notes{opacity:.12;transition:opacity .2s;}
+
+/* ==== A4 ==== THE POCKET CASINO — touch controls, phone layout, safe areas (sizing/positioning only) */
+:root{--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);--sal:env(safe-area-inset-left,0px);--sar:env(safe-area-inset-right,0px);}
+html,body{overscroll-behavior:none;touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+body.touchUI{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+body.touchUI input,body.touchUI textarea{-webkit-user-select:text;user-select:text;}
+body.touchUI button,body.touchUI .btn{touch-action:manipulation;}
+/* the stick — a gilt ring that lands where the thumb does */
+#tcStick{position:absolute;left:0;top:0;width:112px;height:112px;z-index:26;pointer-events:none;opacity:0;transition:opacity .14s;}
+#tcStick.on{opacity:1;transition:none;}
+#tcStick .tcRing{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(232,182,76,.75);
+  background:radial-gradient(circle,rgba(26,10,16,.15) 40%,rgba(26,10,16,.55) 100%);
+  box-shadow:0 0 18px rgba(232,182,76,.25),inset 0 0 22px rgba(0,0,0,.6),inset 0 0 0 6px rgba(232,182,76,.08);}
+#tcStick .tcRing::after{content:'';position:absolute;inset:9px;border-radius:50%;border:1px dashed rgba(232,182,76,.3);}
+#tcStick .tcKnob{position:absolute;left:31px;top:31px;width:50px;height:50px;border-radius:50%;
+  background:radial-gradient(circle at 38% 32%,#fff2c0,#ffd36b 38%,#b07a22 80%,#6a4410);
+  box-shadow:0 0 16px rgba(255,211,107,.55),0 4px 10px rgba(0,0,0,.6),inset 0 -3px 6px rgba(0,0,0,.35);}
+/* thumb buttons */
+.tcBtn{position:absolute;display:none;z-index:360;pointer-events:auto;touch-action:none;-webkit-user-select:none;user-select:none;
+  font-family:var(--disp);font-weight:800;border-radius:50%;padding:0;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;line-height:1;}
+body.touchUI .tcBtn.show{display:flex;}
+.tcBtn .tcG{display:block;} .tcBtn .tcL{display:block;letter-spacing:.14em;}
+#tcBet{right:calc(18px + var(--sar));bottom:calc(22px + var(--sab));width:92px;height:92px;color:#2a1405;
+  background:radial-gradient(circle at 40% 30%,#fff2c0,#ffd36b 40%,#e8b64c 70%,#8a5a10);border:3px solid #fff2c0;
+  box-shadow:0 0 0 3px #6a4410,0 0 24px rgba(255,211,107,.45),0 8px 16px rgba(0,0,0,.6);opacity:.94;transition:transform .06s;}
+#tcBet .tcG{font-size:30px;margin-top:2px;} #tcBet .tcL{font-size:12px;margin-top:3px;}
+#tcBet.on{transform:scale(.9);box-shadow:0 0 0 3px #6a4410,0 0 36px rgba(255,242,192,.8),0 3px 8px rgba(0,0,0,.6);}
+#tcBet.dead{width:78px;height:78px;}
+#tcBet.holding{animation:tcHold .4s linear forwards;}
+@keyframes tcHold{from{box-shadow:0 0 0 3px #6a4410,0 0 0 3px rgba(139,255,208,0);}to{box-shadow:0 0 0 3px #6a4410,0 0 0 9px rgba(139,255,208,.85),0 0 30px rgba(139,255,208,.6);}}
+#tcCash{right:calc(28px + var(--sar));bottom:calc(132px + var(--sab));width:74px;height:74px;color:#06210f;
+  background:radial-gradient(circle at 40% 30%,#e9fff4,#8bffd0 45%,#2f9b6d);border:2px solid #e9fff4;box-shadow:0 0 22px rgba(139,255,208,.55),0 6px 14px rgba(0,0,0,.6);}
+#tcCash .tcG{font-size:20px;} #tcCash .tcL{font-size:11px;margin-top:3px;}
+#tcPause,#tcCodex{width:38px;height:38px;color:#ffd36b;background:rgba(20,8,12,.72);border:1px solid rgba(232,182,76,.6);box-shadow:0 2px 8px rgba(0,0,0,.6);top:calc(54px + var(--sat));}
+#tcPause{left:calc(10px + var(--sal));font-size:13px;letter-spacing:.05em;}
+#tcCodex{left:calc(54px + var(--sal));}
+#tcCodex .tcG{font-size:13px;} #tcCodex .tcL{font-size:6px;margin-top:2px;letter-spacing:.04em;}
+body.gamble #tcCodex{left:calc(10px + var(--sal));}
+#tcPzRow{display:none;}
+body.touchUI #tcPzRow{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:14px;}
+body.touchUI .pauseCard .pzsub{display:none;}
+.tcPzHint{flex-basis:100%;font-family:var(--disp);font-size:10px;letter-spacing:.2em;color:#9a8f7e;margin-top:6px;}
+
+/* --- touch HUD: notches respected, the right column climbs above the BET coin --- */
+body.touchUI .hudTop{padding-top:var(--sat);height:calc(44px + var(--sat));padding-left:calc(18px + var(--sal));padding-right:calc(44px + var(--sar));}
+body.touchUI #mute{top:calc(8px + var(--sat));right:calc(10px + var(--sar));}
+body.touchUI .hudBottom{bottom:calc(14px + var(--sab));padding-left:calc(18px + var(--sal));padding-right:calc(18px + var(--sar));}
+body.touchUI .hudBottom>div:last-child{margin-bottom:112px;}
+body.touchUI #hpwrap{width:min(340px,calc(100vw - 150px - var(--sal) - var(--sar)));}
+body.touchUI #debuffs{left:calc(12px + var(--sal));top:calc(100px + var(--sat));}
+body.touchUI #coachToast{bottom:auto;top:calc(100px + var(--sat));max-width:calc(100vw - 28px);}
+body.touchUI #achToasts{bottom:calc(150px + var(--sab));left:calc(12px + var(--sal));max-width:calc(100vw - 130px);}
+body.touchUI .cornerFrame{display:none;}
+body.touchUI #howBtnRow{bottom:calc(76px + var(--sab));gap:8px;white-space:nowrap;}
+@media (max-width:520px){ body.touchUI #howBtnRow .pillBtn{font-size:10.5px;letter-spacing:.1em;padding:11px 13px;} }
+/* --- the menu scrolls on anything smaller than a laptop --- */
+@media (max-width:700px),(max-height:560px){
+  #menu{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;align-items:flex-start;touch-action:pan-y;overscroll-behavior:contain;}
+  #menu .panel{height:auto;min-height:100%;justify-content:flex-start;
+    padding:calc(22px + var(--sat)) calc(22px + var(--sar)) calc(28px + var(--sab)) calc(22px + var(--sal));}
+  #menu .controls{position:static;transform:none;white-space:normal;margin-top:16px;}
+  #verStamp{position:static;margin-top:12px;}
+  #gameover,#achPanel,#storyPanel,#indexPanel,#vaultPanel{overflow-y:auto;-webkit-overflow-scrolling:touch;align-items:flex-start;touch-action:pan-y;
+    padding:calc(10px + var(--sat)) calc(8px + var(--sar)) calc(10px + var(--sab)) calc(8px + var(--sal));}
+  #gameover .panel,#vaultPanel .panel{margin:auto;}
+  #achPanel .panel,#storyPanel .panel,#indexPanel .panel{max-height:calc(100vh - 20px - var(--sat) - var(--sab))!important;margin:auto;padding:18px 14px;}
+  #tabPanel{padding:calc(8px + var(--sat)) 8px calc(8px + var(--sab));overflow-y:auto;align-items:flex-start;flex-wrap:wrap;gap:10px;}
+  #tabPanel .tpCol{min-width:0;width:100%;max-width:520px;max-height:none;padding:14px 16px;}
+  #tabPanel .tpSheet{width:100%;max-height:none;padding:16px 14px;}
+  .tpStats{flex-wrap:wrap;gap:7px;} .tpTile{flex:1 1 56px;padding:9px 4px 7px;} .tpTile b{font-size:19px;} .tpTile i{font-size:8px;letter-spacing:.14em;}
+  .tpSRows{grid-template-columns:1fr;}
+}
+/* portrait phone */
+@media (max-width:520px){
+  #menu h1{font-size:clamp(34px,11.5vw,56px);letter-spacing:.14em;}
+  #menu .tag{font-size:10px;letter-spacing:.32em;}
+  #menu #startBtn{min-width:0;width:100%;padding:15px 18px;font-size:18px;}
+  #menuRow2{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+  #menuRow2 .btn.msm{margin:0;padding:11px 10px;font-size:11px;letter-spacing:.1em;}
+  #gameover .panel{padding:18px 14px;}
+  .scoreBig{font-size:44px;}
+}
+/* landscape phone — title and PLAY on the left, the parlors on the right */
+@media (max-height:500px) and (orientation:landscape){
+  #menu .panel{display:grid;grid-template-columns:minmax(0,1fr) 250px;column-gap:26px;align-content:center;}
+  #menu .panel>*{grid-column:1;}
+  #menu #menuRow2{grid-column:2;grid-row:1 / span 12;align-self:center;width:250px;}
+  #menu #menuRow2 .btn.msm{padding:8px 14px;font-size:11.5px;}
+  #menu h1{font-size:clamp(34px,7vw,52px);margin:2px 0 8px;}
+  #menu .flavor,#menu .tag{display:none;}
+  #menu h1{white-space:nowrap;letter-spacing:.16em;}
+  #menu #chipRow{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;max-width:100%;padding-bottom:4px;scrollbar-width:none;touch-action:pan-x;}
+  #menu #chipRow>*{flex:0 0 auto;white-space:nowrap;}
+  #menu #startBtn{margin:12px 0 6px;}
+  #menu .controls{margin-top:8px;}
+  body.touchUI .hudBottom>div:last-child{margin-bottom:96px;}
+  body.touchUI .relicTag{display:none;}
+  #tcBet{width:84px;height:84px;}
+  #tcCash{bottom:calc(118px + var(--sab));}
+  body.touchUI #coachToast{top:calc(56px + var(--sat));}
+  body.touchUI #pauseLayer{align-items:flex-start;padding-top:calc(48px + var(--sat));}
+  body.touchUI #pauseLayer .pauseCard{transform-origin:50% 0;}
+  body.touchUI #howBtnRow{bottom:calc(64px + var(--sab));}
+}
