@@ -107,6 +107,7 @@ async function actuallyDie(){
   // the door opens FIRST — no recap decoration may ever stand between a corpse and its ledger
   state='dead'; try{ keys.clear(); }catch(e){} try{ setFav('☠'); }catch(e){}
   elGO.classList.remove('hidden');
+  { const bb=$('bossBar'); if(bb) bb.classList.add('hidden'); } // F1: the House's bar must not sit on the ledger's title
   if(P.coins===0) secret('broke','BROKE AT THE END');
   { const g6=Math.floor(gt); if(g6>=425&&g6<=427) secret('sixsix',"THE BEAST'S HOUR"); }
   if(gt>=900 && (P._lastHurtGt===undefined || gt-P._lastHurtGt>=60)) secret('untouched60','THE UNTOUCHED MINUTE');
