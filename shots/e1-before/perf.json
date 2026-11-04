@@ -1,0 +1,15 @@
+{
+ "render": {
+  "p50": 3.9,
+  "p95": 313.7,
+  "avg": 74.25
+ },
+ "drawEnemyLoop": {
+  "p50": 2,
+  "p95": 290.5,
+  "avg": 36.6
+ },
+ "enemies": 299,
+ "q": "high",
+ "qLow": false
+}
