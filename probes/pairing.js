@@ -26,7 +26,7 @@ const ONLY = opt('only', null) ? String(opt('only')).split(',') : ALL;
 async function arena(page) {
   await until(page, `state==='playing'`, 20000);
   return page.evaluate(async () => {
-    pending.length = 0;
+    pending.length = 0; const ik = P.instakill; P.instakill = 0; P.godT = 0;
     try { GFX.q = 'high'; } catch (e) {}
     const keep = enemies.slice(); enemies.length = 0;
     const types = ['shambler', 'husk', 'swarm', 'stalker', 'brute', 'wraith'];
@@ -38,7 +38,7 @@ async function arena(page) {
     for (let i = 0; i < 320; i++) { fill(); if (i === 20) { d0 = P.dmgDealt || 0; g0 = gt; }
       const t0 = now(); window.__vc.step(16.7); try { window.__bot.step(); } catch (e) {} const t1 = now(); if (i >= 20) ts.push(t1 - t0); if (i % 10 === 9) await null; }
     const dps = Math.round(((P.dmgDealt || 0) - d0) / Math.max(0.01, gt - g0));
-    window.__bot.renderEvery = 30; enemies.length = 0; for (const e of keep) enemies.push(e); P.hp = Math.max(P.hp, hp0);
+    window.__bot.renderEvery = 30; enemies.length = 0; for (const e of keep) enemies.push(e); P.hp = Math.max(P.hp, hp0); P.instakill = ik;
     ts.sort((a, b) => a - b);
     return { dps, shots: typeof evoShots !== 'undefined' ? evoShots.length : 0, avg: +(ts.reduce((a, b) => a + b, 0) / ts.length).toFixed(2), p95: +ts[Math.floor(ts.length * 0.95)].toFixed(2) };
   });

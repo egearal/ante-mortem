@@ -982,13 +982,13 @@ Object.assign(SFX, {
     setTimeout(()=>{ for(let i=0;i<10;i++) setTimeout(()=>tone(2349*Math.pow(1.122,i%5),0.3,'sine',0.08),i*70); }, 960); }
 });
 Object.assign(PROJ_FX, {
-  ossuary: l=>'skull 300% → 10 splinters → 30 shards',
+  ossuary: l=>'skull 400% → 12 splinters → 36 shards',
   stacked: l=>'13-card pinwheel · all crits · ace bursts',
-  cuts:    l=>'18 knives/s · double helix',
+  cuts:    l=>'22 knives/s · 140% · double helix',
   eye:     l=>'searchlight 700%/s · pulls loot',
   ratking: l=>'14 rats · kills breed 2 more',
-  maiden:  l=>'4 caskets · 500%/s · slam out · +3 armor',
-  hand:    l=>'5 blade rose · 220% · heals on cut',
+  maiden:  l=>'4 caskets · 700%/s · slam out · +3 armor',
+  hand:    l=>'5 blade rose · 300% · heals on cut',
   cremat:  l=>'3 fire jets · ignite & spread',
   garden:  l=>'3 stakes/s · plant 5s · barbed wire',
   russian: l=>'5 crit rounds · 6th = EXECUTION'

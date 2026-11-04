@@ -232,25 +232,25 @@ function grantWeaponLevels(def, levels){
    in update() and drawn by one hook in render(). */
 const PAIRINGS=[
   {id:'ossuary', w:'bolt',     p:'proj',   n:'THE OSSUARY',        g:'💀', hint:'The bones want more mouths to fire from…',
-    d:l=>'Your bone bolts keep flying, and every 1.1s a skull bursts from your chest: it hits for '+Math.round(300)+'% damage, splits into 10 bone splinters ('+100+'%), and each splinter shatters again into 3 shards ('+50+'%).'},
+    d:l=>'Your bone bolts keep flying, and every 0.75s a skull bursts from your chest: it hits for 400% damage, splits into 12 bone splinters (130%), and each splinter shatters again into 3 shards (70%).'},
   {id:'stacked', w:'cards',    p:'snake',  n:'THE STACKED DECK',   g:'🃏', hint:'A dealer who never loses would need loaded eyes…',
-    d:l=>'Every 1.3s the House deals a full 13-card pinwheel around you — every card is a CRITICAL hit ('+110+'% × crit), piercing 3. One card is the ACE OF SPADES: '+330+'% × crit, pierces everything, and detonates (90px) when it lands.'},
+    d:l=>'Every 1.3s the House deals a full 13-card pinwheel around you — every card is a CRITICAL hit (110% × crit), piercing 3. One card is the ACE OF SPADES: 330% × crit, pierces everything, and detonates (90px) when it lands.'},
   {id:'cuts',    w:'knives',   p:'fire',   n:'THE THOUSAND CUTS',  g:'✶', hint:'The knives ask for quicker hands…',
-    d:l=>'Two counter-spinning spigots spray a double helix of knives — 18 per second, '+90+'% damage each, piercing 1. A wall of steel that never stops turning.'},
+    d:l=>'Two counter-spinning spigots spray a double helix of knives — 22 per second, 140% damage each, piercing 2. A wall of steel that never stops turning.'},
   {id:'eye',     w:'lantern',  p:'mag',    n:'THE EYE IN THE SKY', g:'👁', hint:'The lantern wants to see your pockets…',
-    d:l=>'A casino searchlight sweeps around you (380px beam): '+700+'% damage per second to all in its light, and it drags every coin and soul it touches into your pocket. Every 3s the Eye takes a photograph — a '+800+'% flash (110px) at the beam\'s end.'},
+    d:l=>'A casino searchlight sweeps around you (380px beam): 700% damage per second to all in its light, and it drags every coin and soul it touches into your pocket. Every 3s the Eye takes a photograph — a 800% flash (110px) at the beam\'s end.'},
   {id:'ratking', w:'fangs',    p:'tithe',  n:"THE RAT KING'S FEAST",g:'🐀', hint:'The swarm would breed, if fed on blood…',
-    d:l=>'A horde of up to 14 plague-rats lives at your heel, hunting on their own and biting for '+90+'% damage. Every kill a rat makes births two more (horde of 30) and returns 1 lifeblood.'},
+    d:l=>'A horde of up to 14 plague-rats lives at your heel, hunting on their own and biting for 90% damage. Every kill a rat makes births two more (horde of 30) and returns 1 lifeblood.'},
   {id:'maiden',  w:'coffin',   p:'corset', n:'THE IRON MAIDEN',    g:'♖', hint:'The nails would rather be a whole box… with ribs…',
-    d:l=>'Four spiked iron caskets orbit you, crushing for '+500+'%/s and hurling foes away. Every 2.6s they fling out to 260px and slam back, each landing a '+400+'% blast (60px). You wear the iron too: +3 armor.'},
+    d:l=>'Four spiked iron caskets orbit you, crushing for 700%/s and hurling foes away. Every 2.6s they fling out to 260px and slam back, each landing a 600% blast (60px). You wear the iron too: +3 armor.'},
   {id:'hand',    w:'razor',    p:'leech',  n:'THE BLOODY HAND',    g:'🩸', hint:'The returning cards come back… thirsty…',
-    d:l=>'Every 1.4s a crimson hand opens: five blade-fingers trace a rose out to 230px and close back on you, cutting everything for '+220+'% damage. Every cut returns 0.4 lifeblood.'},
+    d:l=>'Every 1.1s a crimson hand opens: five blade-fingers trace a rose out to 230px and close back on you, cutting everything for 300% damage. Every cut returns 0.4 lifeblood.'},
   {id:'cremat',  w:'cinders',  p:'thorn',  n:'THE CREMATORIUM',    g:'⚱', hint:'The embers would like to be provoked…',
-    d:l=>'Three jets of furnace fire turn around you (150px), burning '+400+'%/s and setting foes ABLAZE ('+150+'%/s for 2.5s). Burning dead spread the fire. Any foe that strikes you triggers a 140px firestorm.'},
+    d:l=>'Three jets of furnace fire turn around you (150px), burning 400%/s and setting foes ABLAZE (150%/s for 2.5s). Burning dead spread the fire. Any foe that strikes you triggers a 140px firestorm.'},
   {id:'garden',  w:'stakes',   p:'pierce', n:"THE IMPALER'S GARDEN",g:'🌹', hint:'The stakes want to go all the way through…',
-    d:l=>'Fires 3 stakes per second that pierce EVERYTHING ('+160+'%) and plant for 5s. Planted stakes string barbed wire to their neighbours — anything crossing the wire bleeds '+600+'%/s and is slowed.'},
+    d:l=>'Fires 3 stakes per second that pierce EVERYTHING (160%) and plant for 5s. Planted stakes string barbed wire to their neighbours — anything crossing the wire bleeds 600%/s and is slowed.'},
   {id:'russian', w:'cylinder', p:'exec',   n:'RUSSIAN ROULETTE',   g:'⚅', hint:'Six chambers, and an executioner\'s patience…',
-    d:l=>'Five golden rounds (each a guaranteed crit at '+250+'%, piercing 4), one every 0.6s — and the SIXTH chamber is a screen-wide EXECUTION: every foe in sight takes '+400+'% × crit, and lesser foes left under 35% are simply dead.'}
+    d:l=>'Five golden rounds (each a guaranteed crit at 250%, piercing 4), one every 0.7s — and the SIXTH chamber is a screen-wide EXECUTION: every foe in sight takes 350% × crit, and lesser foes left under 30% are simply dead.'}
 ];
 const PAIR_BY_W={}; PAIRINGS.forEach(pr=>{ PAIR_BY_W[pr.w]=pr; pr.rar='pairing'; pr.max=1; });
 let evoShots=[], evoPlants=[], _evoSeq=-1;
@@ -309,14 +309,14 @@ function evoCd(e,key,t){ const k='_c1'+key; if((e[k]||0)>gt) return false; e[k]=
 function _segD2(px,py,ax,ay,bx,by){ const dx=bx-ax, dy=by-ay, L=dx*dx+dy*dy||1; let u=((px-ax)*dx+(py-ay)*dy)/L; u=u<0?0:(u>1?1:u); const qx=ax+dx*u-px, qy=ay+dy*u-py; return qx*qx+qy*qy; }
 const EVO_FIRE={
   ossuary(){ const t=nearestFoe(520); const a=t?Math.atan2(t.y-P.y,t.x-P.x):P.aim;
-    evoShot({vx:Math.cos(a)*P.projSpeed*0.75,vy:Math.sin(a)*P.projSpeed*0.75,r:9,dmg:P.damage*3,life:0.95,col:'#e9ff70',shape:'skull',gen:0});
+    evoShot({vx:Math.cos(a)*P.projSpeed*0.75,vy:Math.sin(a)*P.projSpeed*0.75,r:9,dmg:P.damage*4,life:0.95,col:'#e9ff70',shape:'skull',gen:0});
     tone(620,0.06,'triangle',0.09); setTimeout(()=>tone(930,0.05,'triangle',0.06),40); },
   stacked(){ const a0=Math.random()*6.283, ace=(Math.random()*13)|0;
     for(let i=0;i<13;i++){ const a=a0+i*(6.283/13), big=i===ace, sp=P.projSpeed*0.72;
       evoShot({vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:big?11:7,dmg:P.damage*(big?3.3:1.1)*P.critMult,crit:true,life:big?1.25:1.0,pierce:big?999:3,col:big?'#fff2c0':(i%2?'#ff3d6e':'#2a2030'),shape:'card',curl:2.2,spin:a,ace:big,suit:'♠♥♦♣'[i%4]}); }
     SFX.card(); setTimeout(()=>SFX.card(),60); noise(0.18,0.08,3800); tone(1760,0.08,'triangle',0.08,2600); },
   hand(){ const a0=Math.random()*6.283;
-    for(let k=0;k<5;k++) evoShot({a0:a0+k*1.2566,r:8,dmg:P.damage*2.2,life:1.1,pierce:999,col:'#ff1f3d',shape:'petal',petal:true});
+    for(let k=0;k<5;k++) evoShot({a0:a0+k*1.2566,r:8,dmg:P.damage*3,life:1.1,pierce:999,col:'#ff1f3d',shape:'petal',petal:true});
     tone(330,0.18,'sawtooth',0.07,660); noise(0.12,0.06,2400); },
   garden(){ const t=nearestFoe(480); const a0=t?Math.atan2(t.y-P.y,t.x-P.x):P.aim;
     for(let k=-1;k<=1;k++){ const a=a0+k*0.35; evoShot({vx:Math.cos(a)*P.projSpeed*1.25,vy:Math.sin(a)*P.projSpeed*1.25,r:5,dmg:P.damage*1.6,life:0.5,pierce:999,col:'#ff4fd8',shape:'stake',plant:true}); }
@@ -327,12 +327,12 @@ const EVO_FIRE={
       tone(260,0.07,'square',0.12,110); noise(0.06,0.12,1800); tone(1200+P._evCh*120,0.03,'sine',0.05); }
     else evoExecute(); }
 };
-const EVO_CD={ossuary:1.1, stacked:1.3, hand:1.4, garden:1.0, russian:0.6};
+const EVO_CD={ossuary:0.75, stacked:1.3, hand:1.1, garden:1.0, russian:0.7};
 function evoExecute(){ // the sixth chamber
   let n=0, ex=0;
   for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; if(!inView(e.x,e.y,20)) continue;
-    n++; const dmg=P.damage*4*P.critMult; const died=evoHurt(e,dmg,'#ffb020',true);
-    if(!died && !e.boss && !e.elite && !e.unkillable && e.hp>0 && e.hp<e.maxhp*0.35){ ftext(e.x,e.y-e.r-10,'EXECUTED','#ff3344',true); const ix=enemies.indexOf(e); if(ix>=0){ killEnemy(e,ix); ex++; } }
+    n++; const dmg=P.damage*3.5*P.critMult; const died=evoHurt(e,dmg,'#ffb020',true);
+    if(!died && !e.boss && !e.elite && !e.unkillable && e.hp>0 && e.hp<e.maxhp*0.30){ ftext(e.x,e.y-e.r-10,'EXECUTED','#ff3344',true); const ix=enemies.indexOf(e); if(ix>=0){ killEnemy(e,ix); ex++; } }
     else if(died) ex++; }
   flash(0.55,'#fff2c0'); shake=Math.min(26,shake+14); hitstop=Math.max(hitstop,0.06);
   ring(P.x,P.y,Math.max(VW,VH)*0.6,'#ffb020'); ring(P.x,P.y,120,'#fff');
@@ -350,8 +350,8 @@ function tickPairings(dt){
   if(P._evBang>0) P._evBang-=dt;
   // ✶ THE THOUSAND CUTS — a double helix, one knife every ~55ms
   if(evoOn('cuts')){ P._evCut=(P._evCut||0)-dt; let g=0;
-    while(P._evCut<=0 && g++<4){ P._evCut+=0.055; P._evSide=!P._evSide; const a=P._evSide? gt*5 : -gt*5+Math.PI;
-      evoShot({vx:Math.cos(a)*P.projSpeed*1.05,vy:Math.sin(a)*P.projSpeed*1.05,r:4,dmg:P.damage*0.9,life:0.6,pierce:1,col:'#7ff6ff',shape:'knife',spin:a}); }
+    while(P._evCut<=0 && g++<4){ P._evCut+=0.045; P._evSide=!P._evSide; const a=P._evSide? gt*5 : -gt*5+Math.PI;
+      evoShot({vx:Math.cos(a)*P.projSpeed*1.05,vy:Math.sin(a)*P.projSpeed*1.05,r:4,dmg:P.damage*1.4,life:0.6,pierce:2,col:'#7ff6ff',shape:'knife',spin:a}); }
     P._evSw=(P._evSw||0)-dt; if(P._evSw<=0){ P._evSw=0.33; tone(2200+Math.random()*400,0.03,'square',0.035,1400); noise(0.03,0.04,6000); } }
   // 👁 THE EYE IN THE SKY — the searchlight
   if(evoOn('eye')){ P._evEye=(P._evEye||0)+dt*1.5; const ba=P._evEye, L=380, hw=0.16, ca=Math.cos(ba), sa=Math.sin(ba);
@@ -368,11 +368,11 @@ function tickPairings(dt){
   if(evoOn('maiden')){ P._evMa=(P._evMa||0)+dt*2.4; P._evMt=(P._evMt||0)+dt; if(P._evMt>=2.6){ P._evMt=0; P._evMs=0; tone(80,0.3,'sawtooth',0.1,160); }
     const ph=Math.min(1,(P._evMt)/0.9), ext=P._evMt<0.9? Math.sin(ph*Math.PI) : 0, R=80+180*ext;
     if(P._evMt>=0.45 && !P._evMs){ P._evMs=1; for(let k=0;k<4;k++){ const a=P._evMa+k*1.5708, x=P.x+Math.cos(a)*R, y=P.y+Math.sin(a)*R;
-        for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; if(Math.hypot(e.x-x,e.y-y)<60+e.r) evoHurt(e,P.damage*4,'#6f8cff',false); } ring(x,y,60,'#6f8cff'); burst(x,y,8,'#c9d6ff'); }
+        for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; if(Math.hypot(e.x-x,e.y-y)<60+e.r) evoHurt(e,P.damage*6,'#6f8cff',false); } ring(x,y,60,'#6f8cff'); burst(x,y,8,'#c9d6ff'); }
       shake=Math.min(16,shake+6); noise(0.18,0.2,600); tone(60,0.3,'sine',0.2,40); }
     P._evMR=R;
     for(let k=0;k<4;k++){ const a=P._evMa+k*1.5708, x=P.x+Math.cos(a)*R, y=P.y+Math.sin(a)*R;
-      for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i], dx=e.x-x, dy=e.y-y; if(dx*dx+dy*dy<(e.r+18)*(e.r+18)){ evoHurt(e,P.damage*5*dt,'#6f8cff',false); const d=Math.hypot(dx,dy)||1; e.kx+=dx/d*300*dt*8; e.ky+=dy/d*300*dt*8; } } } }
+      for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i], dx=e.x-x, dy=e.y-y; if(dx*dx+dy*dy<(e.r+18)*(e.r+18)){ evoHurt(e,P.damage*7*dt,'#6f8cff',false); const d=Math.hypot(dx,dy)||1; e.kx+=dx/d*300*dt*8; e.ky+=dy/d*300*dt*8; } } } }
   // ⚱ THE CREMATORIUM — three turning jets, and the burning dead spread it
   if(evoOn('cremat')){ P._evCr=(P._evCr||0)+dt*2.2; const L=150, hw=0.28;
     for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i], dx=e.x-P.x, dy=e.y-P.y, d=Math.hypot(dx,dy); if(d>L+e.r) continue;
@@ -429,11 +429,11 @@ function tickPairings(dt){
 }
 function evoEnd(s){
   if(s._ended) return; s._ended=true;
-  if(s.shape==='skull'){ for(let k=0;k<10;k++){ const a=k*0.6283+rnd(-0.1,0.1), sp=rnd(320,420);
-      evoShot({x:s.x,y:s.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:3.5,dmg:P.damage*1.0,life:0.45,pierce:0,col:'#f2ead8',shape:'bone',gen:1,spin:a}); }
+  if(s.shape==='skull'){ for(let k=0;k<12;k++){ const a=k*0.5236+rnd(-0.1,0.1), sp=rnd(320,420);
+      evoShot({x:s.x,y:s.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:3.5,dmg:P.damage*1.3,life:0.45,pierce:0,col:'#f2ead8',shape:'bone',gen:1,spin:a}); }
     ring(s.x,s.y,48,'#e9ff70'); burst(s.x,s.y,8,'#f2ead8'); tone(880,0.05,'triangle',0.08); tone(440,0.08,'triangle',0.06); }
   else if(s.shape==='bone' && s.gen===1){ for(let k=0;k<3;k++){ const a=Math.atan2(s.vy,s.vx)+(k-1)*0.9+rnd(-0.2,0.2), sp=280;
-      evoShot({x:s.x,y:s.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:2.5,dmg:P.damage*0.5,life:0.3,pierce:0,col:'#e9ff70',shape:'bone',gen:2,spin:a}); } }
+      evoShot({x:s.x,y:s.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:2.5,dmg:P.damage*0.7,life:0.3,pierce:0,col:'#e9ff70',shape:'bone',gen:2,spin:a}); } }
   else if(s.ace){ const R=90; for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; if(Math.hypot(e.x-s.x,e.y-s.y)<R) evoHurt(e,s.dmg*0.6,'#fff2c0',true); }
     ring(s.x,s.y,R,'#fff2c0'); ring(s.x,s.y,R*0.5,'#ff3d6e'); burst(s.x,s.y,12,'#fff2c0'); shake=Math.min(12,shake+4); tone(1320,0.12,'sine',0.1); noise(0.1,0.12,2600); }
   else if(s.plant){ evoPlants.push({x:s.x,y:s.y,t:5,a:Math.atan2(s.vy,s.vx)}); if(evoPlants.length>12) evoPlants.shift(); tone(120,0.06,'square',0.08); noise(0.04,0.08,2000); }
