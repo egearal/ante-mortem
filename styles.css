@@ -2142,3 +2142,13 @@ body.b3calm .jackpotText,body.b3calm #jkMarq span,body.b3calm h1{animation-durat
 .cosChip.locked{opacity:.5;cursor:default;border-style:dashed;}
 .b2gl .b2p{letter-spacing:.06em;}
 .b2gl .b2rec{color:#d9a8ff;font-family:var(--disp);letter-spacing:.14em;}
+/* ==== C2 ==== */
+/* THE HIGH ROLLERS — boss nameplate rules line + the boss voice line */
+#bossPlate .hrSub{display:block;font-style:normal;font-size:11px;letter-spacing:.16em;color:#e6d9c2;margin-top:6px;text-shadow:0 1px 0 #000;opacity:.92;white-space:nowrap;}
+#hrVoice{position:fixed;top:calc(16% + 86px);left:50%;transform:translateX(-50%);z-index:46;pointer-events:none;opacity:0;transition:opacity .4s;
+  font-family:var(--disp);font-size:17px;letter-spacing:.14em;color:#fff2c0;text-shadow:0 0 14px rgba(0,0,0,.9),0 2px 0 #000;white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis;}
+#hrVoice.on{opacity:1;}
+#hrVoice.hr-croupier{color:#ffe6ea;text-shadow:0 0 16px rgba(255,42,106,.75),0 2px 0 #000;}
+#hrVoice.hr-bookie{color:#e8efe0;text-shadow:0 0 16px rgba(43,255,158,.55),0 2px 0 #000;}
+#hrVoice.hr-twins{color:#fff2c0;text-shadow:0 0 16px rgba(242,169,0,.7),0 2px 0 #000;}
+@media (max-width:600px){ #bossPlate .hrSub{font-size:8px;letter-spacing:.08em;white-space:normal;max-width:86vw;} #hrVoice{font-size:12px;letter-spacing:.08em;white-space:normal;text-align:center;} }

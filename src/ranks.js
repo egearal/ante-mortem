@@ -277,7 +277,7 @@ function buildAch(){
   PASSIVES.forEach(s=>{ for(let l=1;l<=s.max;l++){ achAdd('s_'+s.id,l,s.n+' '+(RN[l-1]||l),s.n+' to level '+l); } STAT_LABEL['s_'+s.id]=s.n; });
   const foes=['shambler','husk','swarm','shooter','stalker','hexer','revenant','brute','wraith','elite','leech','bomber'];
   foes.forEach(f=>{ [100,500,1000,2500,5000].forEach(v=>achAdd('ek_'+f,v,f.charAt(0).toUpperCase()+f.slice(1)+' Bane ×'+v,'Slay '+v+' '+f+'s')); STAT_LABEL['ek_'+f]=f.charAt(0).toUpperCase()+f.slice(1)+'s'; });
-  ['pitboss','croupier','collector','thehouse'].forEach(b=>{ [1,3,5,10,25,50].forEach(v=>achAdd('boss_'+b,v,BOSS_DEFS[b].name+' ×'+v,'Slay '+BOSS_DEFS[b].name+' '+v+' times')); STAT_LABEL['boss_'+b]=BOSS_DEFS[b].name; });
+  ['pitboss','croupier','collector','thehouse','bookie','twins'].forEach(b=>{ [1,3,5,10,25,50].forEach(v=>achAdd('boss_'+b,v,BOSS_DEFS[b].name+' ×'+v,'Slay '+BOSS_DEFS[b].name+' '+v+' times')); STAT_LABEL['boss_'+b]=BOSS_DEFS[b].name; });
 }
 /* THE INDEX — persistent catalogue of everything ever encountered (new key, additive) */
 const IDX_KEY='am_index_v1';
@@ -397,7 +397,7 @@ function openIndexPanel(){
    +sec('☠','CURSES ENDURED','#ff5560', DEBUFF_POOL.map(d=>[IDX.c.indexOf(d.label)>=0, '☠', d.label, '#ff5560']))
    +sec('★','THE TAROT','#c98bff', TAROT_FATES.map(f=>[IDX.t.indexOf(f.n)>=0, f.t>0?'★':'☠', IDX.t.indexOf(f.n)>=0?f.n+'|'+((f.dd||'')+' ['+(f.t>0?'BLESSING':'CURSE')+']'):f.n, f.c||'#c98bff']))
    +sec('♟','THE COURT','#c22ca0', Object.keys(CFG.enemy).filter(k=>!BOSS_DEFS[k]).map(k=>[IDX.e.indexOf(k)>=0, '♟', k.toUpperCase(), CFG.enemy[k].col||'#c98bff']))
-   +sec('♛','THE BOSSES','#ffd36b', Object.keys(BOSS_DEFS).map(k=>[IDX.b.indexOf(k)>=0, '♛', BOSS_DEFS[k].name, '#ffd36b']))
+   +sec('♛','THE BOSSES','#ffd36b', Object.keys(BOSS_DEFS).map(k=>[IDX.b.indexOf(k)>=0, BOSS_DEFS[k].g||'♛', BOSS_DEFS[k].name, GLYPH_COL[k]||'#ffd36b']))
    +(typeof soulIdxRows==='function'?sec('♠','THE SEATS','#e6d9c2', soulIdxRows()):'') // D1
    +(typeof FLOORS!=='undefined'?sec('♕','THE FLOORS','#d9a3c0', FLOORS.map(f=>[f.u(), f.g, f.n+'|'+f.d, f.col]) // D3: floors + the Ballroom's hazards
       .concat((()=>{ const b=FLOORS.find(f=>f.id==='ballroom'), on=!!(b&&b.u()); return [
