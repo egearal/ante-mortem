@@ -669,3 +669,62 @@ function awardMarks(m){
 function applyRankPerks(){
   for(let r=2;r<=RANK.rank;r++){ const e=RANKS[r-1]; if(e&&e.ap){ try{ e.ap(); }catch(x){} } }
 }
+
+/* ==== A3 — THE FIRST NIGHT (new-player onboarding) ====
+   A stranger's first 3 nights (lifetime LT.runs <= 3, read-only) and never a
+   ranked soul (RANK.rank >= 8 is a regular): the floor fills slower and ramps to
+   the true curve by ~1:45, the first level costs 8 souls (each worth double until then), the first RAGE is
+   cashed for you if you miss it, and the House explains three things once.
+   No new save keys: lessons ride LT.coach like every other coach mark.        */
+const FN={ nights:3, rankVet:8, ramp:105, start:0.55, xp1:8, xpBoost:1.5, bite:0.6 };
+function fnOn(){ try{ return !!(P && P._fn); }catch(e){ return false; } }
+// pressure multiplier for tonight: 0.55 at the opening bell → 1.0 at 1:45 (smoothstep)
+function fnEase(){
+  if(!fnOn()) return 1;
+  const t=Math.min(1, Math.max(0, (gt-(window._gt0||0))/FN.ramp)), s=t*t*(3-2*t);
+  return FN.start+(1-FN.start)*s;
+}
+// contact bite of anything born during the ramp: 0.6 → 1.0 alongside the spawn ease
+function fnBite(){ if(!fnOn()) return 1; const e=(fnEase()-FN.start)/(1-FN.start); return FN.bite+(1-FN.bite)*e; }
+function fnStart(){
+  P._fn = !window._fnOff && (LT.runs||0)<=FN.nights && (RANK.rank||1)<FN.rankVet;
+  if(!P._fn) return;
+  P._fnN=LT.runs||1; P._fnK=0; P._fnL=0; P._fnR=0; P._fnS=0;
+  P.xpNext=FN.xp1; // the first slot is the hook — get them there fast
+  P.xpMult=(P.xpMult||1)*FN.xpBoost; P._fnXp=1; // level-1 souls weigh double (reverted at the first level)
+  const touchy=(typeof matchMedia==='function') && matchMedia('(pointer: coarse)').matches;
+  if(P._fnN===1){
+    setTimeout(()=>{ if(state==='playing' && fnOn()) coachMark('fn_move', touchy
+      ? 'DRAG to walk — your bolt aims itself at the nearest dead · never stand still'
+      : 'WASD or ARROWS to walk — your bolt aims itself at the nearest dead · never stand still'); }, 900);
+  }
+  if(P._fnN<FN.nights || P._fnN===1) setTimeout(()=>{ if(state==='playing' && fnOn())
+    announce(P._fnN===1?'✦ THE HOUSE OPENS GENTLY — FOR NOW ✦':'✦ NIGHT '+P._fnN+' OF 3 — THE HOUSE STILL GOES EASY ✦', true); }, 1400);
+  else setTimeout(()=>{ if(state==='playing' && fnOn()) announce('☠ YOUR LAST GENTLE NIGHT — TOMORROW THE HOUSE PLAYS FOR KEEPS ☠', false); }, 1400);
+}
+// per-frame, called from update() right before the RAGE bar decays
+function fnTick(dt){
+  if(!fnOn()) return;
+  // FIRST BLOOD — the first corpse pays out like a jackpot (small one)
+  if(!P._fnK && P.kills>=1){ P._fnK=1;
+    ftext(P.x,P.y-46,'✦ FIRST BLOOD ✦','#ffd36b',true); ring(P.x,P.y,90,'#ffd36b'); ring(P.x,P.y,52,'#fff2c0');
+    burst(P.x,P.y,18,'#ffd36b'); flash(0.18,'#ffd36b'); shake=Math.min(8,shake+3);
+    SFX.casinoDing(); setTimeout(()=>{ try{ SFX.coinPling(); SFX.coinPling(); }catch(e){} },90); }
+  // the first RAGE: teach SPACE, and if the lesson doesn't land, the House cashes once
+  if(P.ovT>0 && !P._fnR){ P._fnR=1;
+    coachMark('fn_space','SPACE IS EVERY BET — press it NOW to cash the RAGE · reels, dice, wheel: all SPACE'); }
+  if(P.ovT>0 && P.ovT<90.6 && P._fnR===1){ P._fnR=2;
+    P.ovT=90.6; P.ovAge=0; cashRage();
+    setTimeout(()=>announce('◈ THE HOUSE CASHED FOR YOU — THIS ONCE · NEXT TIME, SPACE ◈', true), 200); }
+  // back on the floor after the first pull: say what the machine is for
+  if(P._fnL && !P._fnS && state==='playing'){ P._fnS=1;
+    if(P._fnN===1) setTimeout(()=>{ if(state==='playing' && fnOn()) coachMark('fn_slot','EVERY LEVEL PULLS THE SLOT — what lands is yours for the night: weapons, skills, sometimes a curse'); }, 5200); }
+}
+// FIRST LEVEL — gilded welcome as the reels drop (called from gainXP, before the slot opens)
+function fnFirstLevel(){
+  if(!fnOn() || P._fnL) return; P._fnL=1;
+  if(P._fnXp){ P._fnXp=0; P.xpMult=(P.xpMult||1)/FN.xpBoost; }
+  announce('♛ FIRST LEVEL — THE REELS ARE YOURS ♛', true);
+  try{ SFX.seraph(); coinRain(14); flash(0.3,'#ffd36b'); ring(P.x,P.y,170,'#ffd36b'); ring(P.x,P.y,110,'#fff2c0');
+    setTimeout(()=>{ try{ if(state==='slot') domConfetti(24,'slot'); }catch(e){} }, 60); }catch(e){}
+}

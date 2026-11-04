@@ -286,7 +286,7 @@ function spawnEnemy(type,x,y){
   const b=CFG.enemy[type], mins=gt/60, S=CFG.scale;
   idxSee(BOSS_DEFS[type]?'b':'e', type);
   ring(x,y,b.r+26,'#5a1a6a'); for(let sp=0;sp<5;sp++){ const sa=Math.random()*6.283; parts.push({x:x+Math.cos(sa)*b.r,y:y+Math.sin(sa)*b.r,vx:Math.cos(sa)*-40,vy:Math.sin(sa)*-40,life:rnd(.25,.5),col:'#7a3aa8',r:rnd(1.5,3)}); }
-  const hpS=1+mins*S.hp, dmgS=1+mins*S.dmg, spdS=Math.min(S.spdCap,1+mins*S.spd)*(P.enemySpeedBoost||1);
+  const hpS=1+mins*S.hp, dmgS=(1+mins*S.dmg)*fnBite(), spdS=Math.min(S.spdCap,1+mins*S.spd)*(P.enemySpeedBoost||1);
   enemies.push({type,x,y,r:b.r,hp:b.hp*hpS,maxhp:b.hp*hpS,spd:b.spd*spdS*_fspd,dmg:b.dmg*dmgS,
     xp:b.xp,coins:b.coins,cd:0,flash:0,kx:0,ky:0,ph:Math.random()*6.28,col:b.col,dark:b.dark,elite:type==='elite',
     ranged:b.ranged||false, shootCd:rnd(0.8,2.6), born:gt, vt:(type==='bomber'?'husk':null)});
@@ -315,7 +315,7 @@ function startWave(){
   if(wave>1 && wave%5===0){ CFG.scale.hp+=0.10; CFG.scale.dmg+=0.03; CFG.scale.spdCap=Math.min(2.3,CFG.scale.spdCap+0.08); showStreak('THE HOUSE GROWS CRUEL'); SFX.murmur(); flash(0.3,'#8b1620'); }
   const W=CFG.wave;
   // every wave rolls a little differently — the dealer shuffles, never repeats
-  const size=Math.min(W.cap, Math.round((W.first + (wave-1)*W.grow)*(P&&P.crowd?1.3:1)*rnd(0.85,1.2)));
+  const size=Math.min(W.cap, Math.round((W.first + (wave-1)*W.grow)*(P&&P.crowd?1.3:1)*rnd(0.85,1.2)*fnEase()));
   const eliteWave = wave % W.eliteEvery === 0;
   const wflav = (wave>=4 && Math.random()<0.15) ? ['husk','wraith','stalker','swarm','brute'][(Math.random()*5)|0] : null;
   for(let i=0;i<size && enemies.length<CFG.spawn.max;i++){
@@ -339,7 +339,7 @@ function startWave(){
   if(wave>=2 && ((P&&P.stampede) || wave%2===0 || Math.random()<0.55)){
     const ha=Math.random()*6.283, hd=Math.max(VW,VH)*0.62;
     const hx=clamp(P.x+Math.cos(ha)*hd,40,CFG.arena-40), hy=clamp(P.y+Math.sin(ha)*hd,40,CFG.arena-40);
-    const hn=Math.round((20+wave*3)*((window._fmods&&window._fmods.horde)||1)*(P&&P.crowd?1.3:1)*rnd(0.85,1.2));
+    const hn=Math.round((20+wave*3)*((window._fmods&&window._fmods.horde)||1)*(P&&P.crowd?1.3:1)*rnd(0.85,1.2)*fnEase());
     ring(hx,hy,180,'#8b1620'); ring(hx,hy,120,'#c81e2c'); // the ground marks where they pour in
     for(let k=0;k<hn && enemies.length<CFG.spawn.max;k++){ spawnEnemy('swarm', clamp(hx+rnd(-170,170),20,CFG.arena-20), clamp(hy+rnd(-170,170),20,CFG.arena-20)); }
     setTimeout(()=>{ if(state==='playing'){ showStreak('HORDE INCOMING'); SFX.murmur(); } }, 260);
@@ -604,6 +604,7 @@ function update(dt){
   if(texts.length>140) texts.splice(0,texts.length-140);
   if(rings.length>90) rings.splice(0,rings.length-90);
   if(sparks.length>320) sparks.splice(0,sparks.length-320);
+  fnTick(dt); // A3 first night: first blood, first RAGE lesson + forgiveness
   if(P.ovT>0){ P.ovAge+=dt;
     P.ovT-=dt*(3.3+P.ovAge*0.35);
     P._ovHb=(P._ovHb||0)-dt; if(P._ovHb<=0){ P._ovHb=Math.max(0.16,(11-P.ovHold)/40); tone(56,0.1,'sine',0.13,44); }
@@ -739,7 +740,7 @@ function update(dt){
     if(enemies.length<=waveClearTarget){ waveGap-=dt;
       if(!window._ewWarn && (wave+1)%CFG.wave.eliteEvery===0 && waveGap<1){ window._ewWarn=true; showStreak('♛ AN ELITE WAVE GATHERS ♛'); SFX.murmur(); setTimeout(()=>window._ewWarn=false,5000); }
       if(waveGap<=0) startWave(); }
-    else { waveGap=CFG.wave.gap; }
+    else { waveGap=CFG.wave.gap/Math.pow(fnEase(),2); } // A3: first nights breathe between waves
   }
   // 8:00 — THE FLOOR RISES. The stretch before the House must be earned.
   if(!P._floorRose && gt>=480){
@@ -1183,6 +1184,7 @@ function gainXP(n){
     if(P._xpCombo===14 && !P._xpPeak){ P._xpPeak=true; SFX.tingle(); setTimeout(()=>P._xpPeak=false,3000); } }
   while(P.xp>=P.xpNext){ if(!P._ovPass && state==='playing' && P.hp>=P.maxHp*0.2){ startOvercharge(); break; } P._ovPass=false;
     P.xp-=P.xpNext; P.level++; P.xpNext=Math.floor(20+P.level*7+P.level*P.level*1.3); /* G5: late levels eased 1.5->1.3 - probes showed 3.5-min droughts past level 7 */ pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); { const lv9=$('level'); if(lv9){ lv9.classList.remove('pop'); void lv9.offsetWidth; lv9.classList.add('pop'); } } ring(P.x,P.y,120,'#c81e2c'); ring(P.x,P.y,70,'#ffd36b'); burst(P.x,P.y,16,'#e8b64c'); for(let i=0;i<16;i++){ parts.push({x:P.x+rnd(-10,10),y:P.y+rnd(-4,4),vx:rnd(-14,14),vy:-rnd(90,220),life:rnd(.4,.8),col:i%3?'#ffd36b':'#fff2c0',r:rnd(1.6,3.2)}); } flash(0.25,'#c81e2c'); }
+  if(P.level>=2 && P._fn && !P._fnL) fnFirstLevel(); // A3 first night
   if(pending.length && state==='playing') openNextSlot();
 }
 
@@ -2885,6 +2887,7 @@ function startGame(){
   buildAudience(); buildHall(); renderRelics();
   debuffs=[];
   elMenu.classList.add('hidden'); elGO.classList.add('hidden'); elHud.classList.remove('hidden');
+  fnStart(); // A3 first night: ease + lessons for a stranger's first 3 nights
   state='playing'; last=performance.now();
 }
 

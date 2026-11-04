@@ -253,3 +253,154 @@ function quillFlick(){
   if(!q){ q=document.createElement('div'); q.id='quill'; q.textContent='✒'; document.body.appendChild(q); }
   q.classList.remove('on'); void q.offsetWidth; q.classList.add('on');
 }
+
+/* ==== A3 — THE SHARE CARD ====
+   Death ledger button: SHARE YOUR NIGHT → copies a brag line (navigator.share on
+   touch devices) and paints a 1200×630 GILT NOIR card the player can save.
+   Self-contained: own DOM (#a3Share), own CSS block, reads the dead run's P/RUN.
+   Fake fortunes only — the card never shows coins, gilt or anything that pays.  */
+const A3_URL='https://egearal.github.io/ante-mortem/';
+function a3Night(){
+  const by=(gt>=900)?'THE FORECLOSURE':String(window._hitBy||'').toUpperCase();
+  const bp=(RUN&&RUN.bestPull)||null;
+  return { time:fmt(gt), level:P.level, kills:P.kills, jack:(RUN&&RUN.pulls&&RUN.pulls._tr3)||0,
+    streak:P.bestStreak||0, by, night:LT.runs||1, wave:wave||0,
+    pull:bp?SLOT_RAR[bp]:null, pullCol:bp?RARC[bp]:null,
+    soul:(typeof curSoul==='function')?curSoul().n:'', rankT:(RANKS[RANK.rank-1]&&RANKS[RANK.rank-1].n)||'' };
+}
+function a3Line(n){
+  return '♠ ANTE MORTEM — survived '+n.time+' · level '+n.level+' · '+n.jack+' jackpot'+(n.jack===1?'':'s')
+    +(n.by?' · taken by '+n.by:'')+' · '+A3_URL;
+}
+function a3Copy(txt){
+  const legacy=()=>{ try{ const ta=document.createElement('textarea'); ta.value=txt; ta.setAttribute('readonly','');
+    ta.style.cssText='position:fixed;left:-9999px;top:0;opacity:0'; document.body.appendChild(ta); ta.select();
+    const ok=document.execCommand('copy'); ta.remove(); return ok; }catch(e){ return false; } };
+  try{ if(navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(txt).then(()=>true, ()=>legacy()); }catch(e){}
+  return Promise.resolve(legacy());
+}
+// the card itself — velvet, gilt, candlelight, one big number
+function a3Card(n){
+  const W=1200, H=630, c=document.createElement('canvas'); c.width=W; c.height=H;
+  const g=c.getContext('2d'); const DISP="'Cinzel', 'Times New Roman', serif", BODY="'Cormorant Garamond', Georgia, serif";
+  // velvet floor
+  let gr=g.createRadialGradient(W/2,H*0.46,40,W/2,H/2,W*0.66);
+  gr.addColorStop(0,'#3a121c'); gr.addColorStop(0.45,'#2a0f16'); gr.addColorStop(1,'#0a0407');
+  g.fillStyle=gr; g.fillRect(0,0,W,H);
+  // damask lattice, barely there
+  g.save(); g.globalAlpha=0.06; g.strokeStyle='#e6d9c2'; g.lineWidth=1;
+  for(let x=-H;x<W+H;x+=46){ g.beginPath(); g.moveTo(x,0); g.lineTo(x+H,H); g.stroke(); g.beginPath(); g.moveTo(x,H); g.lineTo(x+H,0); g.stroke(); }
+  g.restore();
+  // two candles, additive
+  g.save(); g.globalCompositeOperation='lighter';
+  for(const [cx,cy] of [[118,H-120],[W-118,H-120]]){
+    const cg=g.createRadialGradient(cx,cy,2,cx,cy,260); cg.addColorStop(0,'rgba(255,190,110,.34)'); cg.addColorStop(0.3,'rgba(232,140,60,.12)'); cg.addColorStop(1,'rgba(0,0,0,0)');
+    g.fillStyle=cg; g.fillRect(cx-260,cy-260,520,520); }
+  const cg2=g.createRadialGradient(W/2,H*0.44,10,W/2,H*0.44,360); cg2.addColorStop(0,'rgba(255,211,107,.16)'); cg2.addColorStop(1,'rgba(0,0,0,0)');
+  g.fillStyle=cg2; g.fillRect(0,0,W,H);
+  g.restore();
+  // candle bodies
+  for(const cx of [118,W-118]){ const by=H-120;
+    g.fillStyle='#e6d9c2'; g.fillRect(cx-9,by,18,70); g.fillStyle='rgba(0,0,0,.25)'; g.fillRect(cx+3,by,6,70);
+    const fl=g.createRadialGradient(cx,by-14,1,cx,by-14,16); fl.addColorStop(0,'#fff2c0'); fl.addColorStop(0.5,'#ffd36b'); fl.addColorStop(1,'rgba(255,140,40,0)');
+    g.fillStyle=fl; g.beginPath(); g.ellipse(cx,by-14,7,16,0,0,6.283); g.fill(); }
+  // vignette
+  const vg=g.createRadialGradient(W/2,H/2,H*0.35,W/2,H/2,W*0.72); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.7)');
+  g.fillStyle=vg; g.fillRect(0,0,W,H);
+  // the gilt frame
+  const gold=(y0,y1)=>{ const lg=g.createLinearGradient(0,y0,0,y1); lg.addColorStop(0,'#fff2c0'); lg.addColorStop(0.35,'#ffd36b'); lg.addColorStop(0.7,'#e8b64c'); lg.addColorStop(1,'#8a6a1c'); return lg; };
+  g.strokeStyle=gold(0,H); g.lineWidth=6; g.strokeRect(22,22,W-44,H-44);
+  g.lineWidth=1.5; g.strokeStyle='rgba(232,182,76,.7)'; g.strokeRect(36,36,W-72,H-72);
+  g.textAlign='center'; g.textBaseline='middle';
+  g.font='600 30px '+DISP; g.fillStyle='#ffd36b';
+  [['♠',46,46],['♥',W-46,46],['♦',46,H-46],['♣',W-46,H-46]].forEach(([s,x,y])=>{ g.fillStyle='#0a0407'; g.fillRect(x-20,y-20,40,40); g.fillStyle=(s==='♥'||s==='♦')?'#c81e2c':'#ffd36b'; g.fillText(s,x,y+1); });
+  const spaced=(txt,x,y,sp)=>{ const w=g.measureText(txt).width+sp*(txt.length-1); let cx=x-w/2;
+    for(const ch of txt){ const cw=g.measureText(ch).width; g.fillText(ch,cx+cw/2,y); cx+=cw+sp; } };
+  // title + night line
+  g.font='700 44px '+DISP; g.fillStyle=gold(70,120); g.shadowColor='rgba(255,211,107,.45)'; g.shadowBlur=18;
+  spaced('ANTE MORTEM',W/2,92,10); g.shadowBlur=0;
+  g.font='italic 500 24px '+BODY; g.fillStyle='#c9b78e';
+  g.fillText('night № '+n.night+(n.soul?' · '+n.soul.toLowerCase():'')+(n.rankT?' · '+n.rankT.toLowerCase():''),W/2,132);
+  // ornament rule
+  g.strokeStyle='rgba(232,182,76,.55)'; g.lineWidth=1.2;
+  g.beginPath(); g.moveTo(W/2-250,158); g.lineTo(W/2-22,158); g.moveTo(W/2+22,158); g.lineTo(W/2+250,158); g.stroke();
+  g.font='600 18px '+DISP; g.fillStyle='#e8b64c'; g.fillText('✦',W/2,159);
+  // THE BIG NUMBER
+  g.font='600 22px '+DISP; g.fillStyle='#bfae8c'; spaced('SURVIVED',W/2,190,8);
+  g.font='700 150px '+DISP; g.shadowColor='rgba(255,211,107,.6)'; g.shadowBlur=36; g.fillStyle=gold(210,350);
+  g.fillText(n.time,W/2,272); g.shadowBlur=0;
+  // four plaques
+  const st=[['LEVEL',n.level,'#ffd36b'],['SLAIN',n.kills.toLocaleString(),'#e6d9c2'],['JACKPOTS',n.jack,n.jack>0?'#8bffd0':'#bfae8c'],['BEST STREAK',n.streak,'#c98bff']];
+  const pw=220, ph=104, gap=26, x0=W/2-(pw*4+gap*3)/2, py=356;
+  st.forEach(([lb,v,col],i)=>{ const x=x0+i*(pw+gap);
+    g.fillStyle='rgba(10,4,7,.62)'; g.fillRect(x,py,pw,ph);
+    g.strokeStyle='rgba(232,182,76,.65)'; g.lineWidth=1.5; g.strokeRect(x+0.5,py+0.5,pw-1,ph-1);
+    g.strokeStyle='rgba(232,182,76,.2)'; g.strokeRect(x+6,py+6,pw-12,ph-12);
+    g.font='700 50px '+DISP; g.fillStyle=col; g.shadowColor=col; g.shadowBlur=12; g.fillText(String(v),x+pw/2,py+44); g.shadowBlur=0;
+    g.font='600 15px '+DISP; g.fillStyle='#bfae8c'; spaced(lb,x+pw/2,py+84,4); });
+  // the verdict
+  let vy=504;
+  if(n.by){ g.font='600 30px '+DISP; g.fillStyle='#e6d9c2'; spaced('TAKEN BY ',W/2-g.measureText(n.by).width/2-8,vy,4);
+    g.fillStyle='#d4212f'; g.shadowColor='#8b1620'; g.shadowBlur=16; g.textAlign='left';
+    const lw=g.measureText('TAKEN BY ').width+4*8; g.fillText(n.by, W/2-(lw+g.measureText(n.by).width)/2+lw, vy); g.textAlign='center'; g.shadowBlur=0; }
+  else { g.font='600 28px '+DISP; g.fillStyle='#8bffd0'; spaced('STILL BREATHING',W/2,vy,5); }
+  if(n.pull){ g.font='italic 500 22px '+BODY; g.fillStyle='#a99'; g.fillText('best pull: ',W/2-60,vy+40);
+    g.textAlign='left'; g.fillStyle=n.pullCol||'#e6d9c2'; g.font='600 20px '+DISP; g.fillText(n.pull,W/2-16,vy+41); g.textAlign='center'; }
+  // footer
+  g.font='500 17px '+BODY; g.fillStyle='rgba(201,183,142,.75)';
+  g.fillText(A3_URL.replace('https://','')+'  ·  no real money — only your soul',W/2,H-52);
+  return c;
+}
+function a3ShareInit(){
+  const go=$('gameover'); if(!go || $('a3Share')) return;
+  // pinned to the death layer itself (not the ledger panel) so it is reachable on any screen and survives any ledger restyle
+  const box=document.createElement('div'); box.id='a3Share';
+  box.innerHTML='<button class="a3ShareBtn" type="button">♠ SHARE YOUR NIGHT ♠</button>'
+    +'<div class="a3ShareOut hidden"><div class="a3ShareSheet">'
+    +'<div class="a3ShareMsg"></div><img class="a3ShareImg" alt="your night, as a card">'
+    +'<div class="a3ShareRow"><a class="a3ShareDl" download="ante-mortem-night.png">⬇ SAVE THE CARD</a><button class="a3ShareX" type="button">✕ CLOSE</button></div>'
+    +'</div></div>';
+  go.appendChild(box);
+  const btn=box.querySelector('.a3ShareBtn'), out=box.querySelector('.a3ShareOut'), msg=box.querySelector('.a3ShareMsg'),
+        img=box.querySelector('.a3ShareImg'), dl=box.querySelector('.a3ShareDl'), xb=box.querySelector('.a3ShareX');
+  let url=null;
+  const close=()=>{ out.classList.add('hidden'); out.classList.remove('go'); };
+  btn.addEventListener('click', async (ev)=>{
+    try{ ev.stopPropagation(); btn.blur(); }catch(e){}
+    if(state!=='dead' || !P) return;
+    const n=a3Night(), line=a3Line(n);
+    try{ SFX.chipStack(); setTimeout(()=>{ try{ SFX.casinoDing(); }catch(e){} },120); }catch(e){}
+    // the card
+    let blob=null;
+    try{ await (document.fonts&&document.fonts.ready); }catch(e){}
+    try{ const cv2=a3Card(n);
+      blob=await new Promise(r=>{ try{ cv2.toBlob(b=>r(b),'image/png'); }catch(e){ r(null); } });
+      if(url){ try{ URL.revokeObjectURL(url); }catch(e){} url=null; }
+      if(blob) url=URL.createObjectURL(blob);
+      const src=url||cv2.toDataURL('image/png');
+      img.src=src; dl.href=src; dl.download='ante-mortem-night-'+n.night+'.png';
+    }catch(e){ console.warn('[a3 card]', e); }
+    msg.innerHTML='<b>THE HOUSE PRINTS YOUR NIGHT…</b>';
+    out.classList.remove('hidden'); out.classList.remove('go'); void out.offsetWidth; out.classList.add('go');
+    // the line: the phone's share sheet when there is one, the clipboard otherwise
+    let how='';
+    const coarse=(typeof matchMedia==='function') && matchMedia('(pointer: coarse)').matches;
+    if(coarse && navigator.share){
+      try{ const f=blob&&typeof File==='function'?new File([blob],'ante-mortem-night-'+n.night+'.png',{type:'image/png'}):null;
+        const data={ title:'ANTE MORTEM', text:line };
+        if(f && navigator.canShare && navigator.canShare({files:[f]})) data.files=[f];
+        await navigator.share(data); how='✓ SENT INTO THE WORLD';
+      }catch(e){ how=''; } }
+    if(!how){ const ok=await a3Copy(line); how=ok?'✓ COPIED — PASTE IT ANYWHERE':'✎ COPY THE LINE BELOW'; }
+    msg.innerHTML='<b>'+how+'</b><span></span>'; msg.querySelector('span').textContent=line;
+    btn.textContent='♠ SHARED ✓ ♠'; btn.classList.add('done');
+    try{ SFX.coinPling(); SFX.tingle(); sparkBurstAt('a3Share','gameover',10); }catch(e){}
+  });
+  dl.addEventListener('click',(ev)=>{ try{ ev.stopPropagation(); SFX.vaultBuy?SFX.vaultBuy():SFX.coinPling(); }catch(e){} });
+  xb.addEventListener('click',(ev)=>{ try{ ev.stopPropagation(); xb.blur(); SFX.uiDing(); }catch(e){} close(); });
+  out.addEventListener('click',(ev)=>{ if(ev.target===out) close(); });
+  // every new corpse gets a clean button
+  try{ new MutationObserver(()=>{ if(!go.classList.contains('hidden')){ close(); btn.textContent='♠ SHARE YOUR NIGHT ♠'; btn.classList.remove('done'); } })
+    .observe(go,{attributes:true, attributeFilter:['class']}); }catch(e){}
+}
+try{ a3ShareInit(); }catch(e){}
