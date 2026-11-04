@@ -2426,3 +2426,8 @@ body.b2endless #hud #b2Mult{box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(154,92,2
   #menuRow2 .btn.msm.e2Door{grid-column:1/-1;text-align:center;}
   #menuRow2 .btn.msm.e2Door .e2DoorS{margin-left:auto;margin-right:auto;}
 }
+/* F1: pairing recipes in the TAB codex */
+.tpPairs{display:flex;flex-direction:column;gap:3px;}
+.tpPair{font-size:12.5px;line-height:1.45;color:#e2d6b8;padding:3px 0;border-bottom:1px dotted rgba(255,242,192,.12);}
+.tpPair i{color:#a99a80;font-style:normal;}
+@media (max-width:600px){ .howTab{font-size:10.5px;padding:5px 8px;letter-spacing:.05em;} #howTabs{gap:5px;margin:6px 0 8px;} }
