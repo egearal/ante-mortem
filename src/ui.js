@@ -319,7 +319,7 @@ function updateHUD(){
     _hSet('coinCount',Math.round(window._coinDisp).toLocaleString()); }
   const bb=$('bossBar'); const bs=enemies.find(x=>x.boss);
   if(bs){ bb.classList.remove('hidden'); const bp9=Math.max(0,bs.hp/bs.maxhp*100);
-    _hSet('bossName',BOSS_DEFS[bs.bossKind].name+' — '+Math.ceil(bp9)+'%'); _hW('bossFill',bp9.toFixed(1)+'%'); }
+    _hSet('bossName',BOSS_DEFS[bs.bossKind].bar?BOSS_DEFS[bs.bossKind].bar(bs,bp9):BOSS_DEFS[bs.bossKind].name+' — '+Math.ceil(bp9)+'%'); _hW('bossFill',bp9.toFixed(1)+'%'); }
   else if(_hud.bossOn!==false) bb.classList.add('hidden');
   _hud.bossOn=!!bs;
   const hpPct=clamp(P.hp/P.maxHp,0,1)*100;
@@ -348,6 +348,7 @@ function relicTip(el, name, lv, fx){
   el.onmouseleave=()=>{ $('relicTip').classList.add('hidden'); };
 }
 const GLYPH_COL={
+  croupier:'#ff2a6a', bookie:'#2bff9e', twins:'#f2a900', loaded:'#ff8af7', marked:'#ff5a1f', // C2 — the high rollers + elite affixes
   razor:'#bfe4ff', cinders:'#ff7a30', pendulum:'#c9b7ff', stakes:'#aeb8c2', serpent:'#e8c261',
   chalice:'#a05ae8', gramo:'#ffd36b', cylinder:'#ff4060', candelabra:'#fff2c0', guillotine:'#ff2030',
  bolt:'#ff5c5c',orbit:'#ffb300',spark:'#fff176',chand:'#ffd700',knives:'#00e5ff',aura:'#76ff03',nova:'#ff1744',seeker:'#b388ff',scythe:'#ff6ec7',
@@ -449,6 +450,7 @@ window.addEventListener('keydown',e=>{
   if(k==='q' && state==='paused'){ e.preventDefault(); quitToMenu(); return; }
   if(state==='playing' && k===' '){
     e.preventDefault();
+    if(typeof hrSpace==='function' && hrSpace()) return; // C2 — the Croupier's coin takes the call first
     if(P.ovT>0){ cashRage(); return; }
     if(vaultProp && Math.hypot(P.x-vaultProp.x,P.y-vaultProp.y)<115){
       if(vaultWindowOpen()){ state='vault'; openVault(); }
