@@ -203,7 +203,7 @@ async function actuallyDie(){
       +(RANKS[RANK.rank]&&RANKS[RANK.rank].r?'<div class="rkNext">NEXT: '+RANKS[RANK.rank].r+' — '+(res.need-res.have)+' MARKS AWAY</div>':'');
     { const st9=Math.max(2,Math.round(res.pct/12)); // the bar sings as it fills
       for(let i9=0;i9<st9;i9++) setTimeout(()=>tone(240+res.pct*4*((i9+1)/st9),0.06,'sine',0.05),650+i9*95); }
-    if(res.up){ SFX.seraph(); SFX.dingBells(); flash(0.5,'#ffd36b'); coinRain(22); }
+    if(res.up){ SFX.rankUp(); flash(0.5,'#ffd36b'); coinRain(22); }
   }
 }
 /* the LUCK math: how the night's RNG treated you, normalized across dice, pulls, wheel, ascent, and the death roll */
