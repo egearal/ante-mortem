@@ -963,3 +963,199 @@ function a2Payline(matchN, def){
   const _red=enterRedTable;
   enterRedTable=function(){ a2Dress(); const r=_red.apply(this, arguments); try{ setTimeout(a2LeverPull, 60); }catch(e){} return r; };
 }
+
+/* ============================================================
+   ==== C1 — THE PAIRING (the ceremony is a layer on A2's machine:
+   the reels, the glass, the stamp and the lever are A2's; this block
+   only drives them into the gilt PAIRING state and back out)
+   ============================================================ */
+Object.assign(SFX, {
+  // the House's own bell — a cathedral toll under the felt
+  c1Toll(){ tone(65,1.8,'sine',0.3,62); tone(130,1.4,'sine',0.13); tone(196,1.1,'triangle',0.06); tone(523,0.9,'sine',0.05); noise(0.7,0.05,420); },
+  // a gilt latch, heavier than any reel stop
+  c1Lock(n){ n=n||1; tone(104+n*28,0.22,'sine',0.28,60); tone(1568*Math.pow(1.19,n),0.22,'sine',0.13); tone(2093*Math.pow(1.19,n),0.16,'sine',0.06); noise(0.1,0.18,900); setTimeout(()=>{ tone(2900,0.02,'square',0.05); },22); },
+  // the two parents pulled together: a rising shimmer that ends in a held breath
+  c1Fuse(){ for(let i=0;i<16;i++) setTimeout(()=>{ tone(220*Math.pow(2,i/6),0.1,'sine',0.05+i*0.006); if(i%3===0) noise(0.04,0.05,5000); },i*30); tone(55,0.6,'sawtooth',0.06,110); },
+  // the fanfare — D minor walks to a D MAJOR it has no right to: Dm · B♭ · F · A · D
+  c1Fanfare(){ const ch=[[293.7,349.2,440],[233.1,293.7,349.2],[349.2,440,523.3],[440,554.4,659.3],[587.3,740,880,1174.7]];
+    ch.forEach((c,i)=>setTimeout(()=>{ const last=i===ch.length-1, d=last?1.6:0.36;
+      c.forEach(f=>{ tone(f,d,'triangle',last?0.11:0.09); tone(f/2,d,'sine',0.07); }); if(last){ tone(146.8,1.8,'sawtooth',0.05); noise(0.9,0.08,3600); } },i*190));
+    setTimeout(()=>{ for(let i=0;i<10;i++) setTimeout(()=>tone(2349*Math.pow(1.122,i%5),0.3,'sine',0.08),i*70); }, 960); }
+});
+Object.assign(PROJ_FX, {
+  ossuary: l=>'skull 400% → 12 splinters → 36 shards',
+  stacked: l=>'13-card pinwheel · all crits · ace bursts',
+  cuts:    l=>'22 knives/s · 140% · double helix',
+  eye:     l=>'searchlight 700%/s · pulls loot',
+  ratking: l=>'14 rats · kills breed 2 more',
+  maiden:  l=>'4 caskets · 700%/s · slam out · +3 armor',
+  hand:    l=>'5 blade rose · 300% · heals on cut',
+  cremat:  l=>'3 fire jets · ignite & spread',
+  garden:  l=>'3 stakes/s · plant 5s · barbed wire',
+  russian: l=>'5 crit rounds · 6th = EXECUTION'
+});
+{ const _ic=iconSvg;
+  iconSvg=function(id){ const pr=(typeof PAIRINGS!=='undefined')&&PAIRINGS.find(x=>x.id===id);
+    if(pr){ const c=(typeof GLYPH_COL!=='undefined'&&GLYPH_COL[id])||'#ffd36b'; return '<span class="gfall c1g" style="color:'+c+';text-shadow:0 0 10px '+c+'">'+pr.g+'</span>'; }
+    return _ic.apply(this,arguments); }; }
+let pairCur=null, pairTimers=[], pairPhase=0;
+function pairT(fn,ms){ const h=setTimeout(()=>{ try{ fn(); }catch(e){ console.error('[pairing]', e&&e.stack||e); } },ms); pairTimers.push(h); return h; }
+function pairCol(id){ return (typeof GLYPH_COL!=='undefined'&&GLYPH_COL[id])||'#ffd36b'; }
+function _c1Sym(html,col){ const d=document.createElement('div'); d.className='sym symBig'; d.innerHTML=html; if(col) d.style.color=col; return d; }
+function openPairing(pr){
+  pairCur=pr; pairTimers.forEach(clearTimeout); pairTimers=[]; pairPhase=0;
+  const W=WEAPONS.find(w=>w.id===pr.w), Pd=PASSIVES.find(p=>p.id===pr.p);
+  state='slot'; slotStage='pairing'; lastRites=false; gamble=null; window._slotFF=null; slotKind='weapon'; redStake=null;
+  try{ makeBulbs(); }catch(e){} ensureBulbs(); try{ a2Dress(); }catch(e){}
+  elSlot.classList.remove('hidden','lastrites','arsenal'); elSlot.classList.add('c1pair');
+  const m=$('machine'); m.classList.remove('win','jackpot','bust','pulling','dicing','deadly','hotdeck','selecting','tripleHold','c1born'); m.classList.add('c1pair');
+  { const sc=$('sacCard'); if(sc) sc.classList.add('hidden'); }
+  $('slotTag').textContent='♛ THE PAIRING ♛'; $('slotTag').title='';
+  $('reelsRow').style.display=''; $('diceRow').style.display='none'; $('riskWrap').style.display='none';
+  $('prizeTag').textContent='THE HOUSE OFFERS A MARRIAGE';
+  $('cardName').textContent='TWO BECOME ONE'; $('cardName').className='r-legendary bigname'; $('cardName').style.color='';
+  $('cardDesc').innerHTML='<div class="ofsub">'+W.n+' at its limit · '+Pd.n+' in your blood</div>';
+  $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> skip the ceremony';
+  ensurePayTable();
+  { const pt=$('payTable'); if(pt){ pt.classList.remove('red'); pt.classList.add('c1pt');
+    pt.innerHTML='<div class="ptHead">♛ PAIRING ♛</div>'
+      +'<div class="ptRow c1r" style="--pc:'+pairCol(W.id)+'"><span class="ptN">'+W.g+' '+W.n+'</span><span class="ptPips">MAX</span></div>'
+      +'<div class="c1plus">+</div>'
+      +'<div class="ptRow c1r" style="--pc:'+pairCol(Pd.id)+'"><span class="ptN">'+Pd.g+' '+Pd.n+'</span><span class="ptPips">LV '+skillLevel(Pd.id)+'</span></div>'
+      +'<div class="c1plus">=</div>'
+      +'<div class="ptRow c1r c1q" id="c1ptOut" style="--pc:#ffd36b"><span class="ptN">? ? ?</span><span class="ptPips">♛</span></div>'
+      +'<div class="ptFoot"><b>A WEAPON AT MAX</b><br>+ ITS ONE TRUE SKILL</div>'; } }
+  // the strips: noise above, the parents (and a gilt "?") where the payline will land
+  const pool=WEAPONS.filter(w=>weaponUnlocked(w.id)).map(w=>w.id).concat(PASSIVES.filter(s=>s.rar!=='ascend'&&s.rar!=='mythic').map(s=>s.id));
+  const strips=[$('strip0'),$('strip1'),$('strip2')], N=22, LAND=17;
+  strips.forEach((el,i)=>{ el.innerHTML=''; el.classList.remove('blur'); el.style.transition='none';
+    for(let k=0;k<N;k++){ let html, col;
+      if(k===LAND){ if(i===0){ html=iconSvg(W.id); col=pairCol(W.id); } else if(i===2){ html=iconSvg(Pd.id); col=pairCol(Pd.id); } else { html='<span class="gfall c1q">?</span>'; col='#ffd36b'; } }
+      else { const id=pool[(Math.random()*pool.length)|0], df=WEAPONS.find(x=>x.id===id)||PASSIVES.find(x=>x.id===id); html=iconSvg(id); col=RARC[df&&df.rar]||'#c9c1b4'; }
+      const d=_c1Sym(html,col); if(k===LAND) d.classList.add('c1land'); el.appendChild(d); }
+    el.style.transform='translateY(0px)'; });
+  document.querySelectorAll('.reelbox').forEach(b=>b.classList.remove('antici','slam','pick','locked','a2creep','c1lock','c1fuse'));
+  $('reelsRow').classList.remove('sweeping','a2pay1','a2pay2','a2pay3','a2tease');
+  SFX.levelUp(); SFX.c1Toll(); flash(0.45,'#ffd36b'); shake=Math.min(16,shake+7); excite=1;
+  try{ duckDrone&&duckDrone(5200); }catch(e){}
+  setTimeout(()=>announce('♛ THE PAIRING — '+W.n.toUpperCase()+' + '+Pd.n.toUpperCase()+' ♛', true), 120);
+  LT.pairOffers=(LT.pairOffers||0)+1;
+  showSlotButtons();
+  // ---- the timeline ----
+  const landAt=(el)=>{ const s=el.children[LAND], H=(s&&s.offsetHeight)||63, B=(el.parentElement&&el.parentElement.clientHeight)||189; return B/2-H*(LAND+0.5); };
+  pairT(()=>{ try{ a2LeverPull(); }catch(e){}
+    strips.forEach((el,i)=>{ const dur=[0.75,2.2,1.15][i]; el.classList.add('blur');
+      el.style.transition='transform '+dur+'s cubic-bezier(.12,.62,.25,1)'; el.style.transform='translateY('+landAt(el)+'px)'; });
+    tone(90,0.5,'sine',0.1,140); noise(0.35,0.05,700); }, 200);
+  const lock=(i,n)=>{ const el=strips[i], bx=el.parentElement; el.classList.remove('blur');
+    if(bx){ bx.classList.remove('slam'); void bx.offsetWidth; bx.classList.add('slam','c1lock'); bx.style.setProperty('--pkc','#ffd36b'); }
+    try{ SFX.a2Clunk(n); }catch(e){} SFX.c1Lock(n); SFX.reelHit(n); shake=Math.min(18,shake+4+n*2); flash(0.2+n*0.08, i===0?pairCol(W.id):(i===2?pairCol(Pd.id):'#ffd36b')); sparkBurst(10+n*8); };
+  pairT(()=>{ lock(0,1); pairPhase=1; }, 200+760);
+  pairT(()=>{ lock(2,2); pairPhase=2; const b1=strips[1].parentElement; if(b1) b1.classList.add('a2creep');
+    for(let i=0;i<6;i++) pairT(()=>{ try{ SFX.a2Ratchet(i); }catch(e){} }, 60+i*(80+i*26)); }, 200+1160);
+  pairT(()=>{ const b1=strips[1].parentElement; if(b1) b1.classList.remove('a2creep'); lock(1,3); pairPhase=3;
+    $('gambleMsg').innerHTML='<span style="color:#ffd36b">◈ THE PARENTS MEET ◈</span>'; }, 200+2220);
+  pairT(pairFuse, 200+2500);
+  pairT(pairBorn, 200+3100);
+  pairT(pairOffer, 200+5500); // the name slam (bigWin t4) holds ~2.6s — the card waits for it
+}
+function pairFuse(){ if(pairPhase>=4) return; pairPhase=4; const rr=$('reelsRow'); if(!rr) return;
+  const rb=rr.getBoundingClientRect(), mid=$('reelBox1').getBoundingClientRect();
+  [0,2].forEach(i=>{ const s=$('strip'+i).querySelector('.c1land'); if(!s) return; const r=s.getBoundingClientRect();
+    const c=s.cloneNode(true); c.classList.add('c1fly'); c.style.left=(r.left-rb.left)+'px'; c.style.top=(r.top-rb.top)+'px'; c.style.width=r.width+'px'; c.style.height=r.height+'px';
+    rr.appendChild(c); void c.offsetWidth;
+    c.style.transform='translate('+((mid.left+mid.width/2)-(r.left+r.width/2))+'px,'+((mid.top+mid.height/2)-(r.top+r.height/2))+'px) scale(.6)'; c.style.opacity='0.2';
+    setTimeout(()=>c.remove(), 700); });
+  document.querySelectorAll('.reelbox').forEach(b=>b.classList.add('c1fuse'));
+  SFX.c1Fuse(); flash(0.3,'#fff2c0'); shake=Math.min(18,shake+5);
+}
+function pairBorn(){ if(pairPhase>=5) return; pairPhase=5; const pr=pairCur; if(!pr) return;
+  const s=$('strip1').querySelector('.c1land'); if(s){ s.innerHTML='<span class="gfall c1g c1born" style="color:'+pairCol(pr.id)+';text-shadow:0 0 18px '+pairCol(pr.id)+'">'+pr.g+'</span>'; s.style.color=pairCol(pr.id); }
+  const m=$('machine'); m.classList.add('c1born','jackpot'); setTimeout(()=>m.classList.remove('jackpot'),2600);
+  document.querySelectorAll('.reelbox').forEach(b=>b.classList.remove('c1fuse'));
+  { const o=$('c1ptOut'); if(o){ o.classList.remove('c1q'); o.style.setProperty('--pc',pairCol(pr.id)); o.innerHTML='<span class="ptN">'+pr.g+' '+pr.n+'</span><span class="ptPips">♛</span>'; } }
+  const st=$('a2Stamp'); if(st){ st.textContent='♛ PAIRING ♛'; st.style.setProperty('--payc','#ffd36b'); st.className='a2Stamp go t3 c1stamp'; setTimeout(()=>{ st.className='a2Stamp'; }, 2400); }
+  const rw=$('reelsRow'); if(rw){ rw.style.setProperty('--payc','#ffd36b'); rw.classList.remove('a2pay3'); void rw.offsetWidth; rw.classList.add('a2pay3'); setTimeout(()=>rw.classList.remove('a2pay3'),2600); }
+  const mq=$('slotTag'); if(mq){ mq.textContent='♛ '+pr.n+' ♛'; mq.classList.remove('a2strobe'); void mq.offsetWidth; mq.classList.add('a2strobe'); setTimeout(()=>mq.classList.remove('a2strobe'),2400); }
+  // the loudest thing the House does short of a triple: every layer, by tier
+  const lite=typeof GFX!=='undefined'&&GFX.lite;
+  bigWin(pr.n, 4); SFX.c1Fanfare(); SFX.seraph();
+  domConfetti(lite?18:40,'slot'); coinRain(lite?14:30); sparkBurst(lite?16:40);
+  flash(0.6,'#fff2c0'); shake=Math.min(26,shake+14);
+  try{ SFX.a2Payline(3); }catch(e){}
+  setTimeout(()=>{ if(slotStage!=='pairing'&&slotStage!=='pairoffer') return; flash(0.4,pairCol(pr.id)); domConfetti(lite?8:22,'slot'); SFX.dingBells(); }, 420);
+  setTimeout(()=>{ if(slotStage!=='pairing'&&slotStage!=='pairoffer') return; coinRain(lite?8:18); sparkBurst(lite?10:26); }, 900);
+}
+function pairOffer(){ const pr=pairCur; if(!pr) return; if(pairPhase<5) pairBorn(); pairPhase=6;
+  { const jl=$('jackpotLayer'); if(jl) jl.classList.add('hidden'); }
+  const W=WEAPONS.find(w=>w.id===pr.w), Pd=PASSIVES.find(p=>p.id===pr.p);
+  slotStage='pairoffer';
+  $('prizeTag').textContent='♛ THE PAIRING ♛';
+  $('cardName').textContent=pr.n; $('cardName').className='r-legendary bigname'; $('cardName').style.color=pairCol(pr.id);
+  $('cardDesc').innerHTML='<div class="ofbig c1recipe"><span style="color:'+pairCol(W.id)+'">'+W.g+'</span> '+W.n+' <b>+</b> <span style="color:'+pairCol(Pd.id)+'">'+Pd.g+'</span> '+Pd.n+'</div>'
+    +'<div class="ofstat c1desc">'+pr.d(1)+'</div>'
+    +'<div class="ofsub c1rep">'+(pr.w==='bolt'?'RIDES ON TOP OF YOUR BONE BOLTS':'REPLACES '+W.n.toUpperCase()+' — FOR THE REST OF THE NIGHT')+'</div>';
+  $('gambleMsg').innerHTML='';
+  showSlotButtons();
+}
+function pairFF(){ // SPACE during the ceremony: land everything now, keep the climax
+  if(slotStage!=='pairing') return;
+  pairTimers.forEach(clearTimeout); pairTimers=[];
+  if(pairPhase>=5){ pairOffer(); return; } // a second SPACE after the birth goes straight to the card
+  [0,1,2].forEach(i=>{ const el=$('strip'+i); const s=el.children[17]; el.classList.remove('blur'); el.style.transition='none';
+    const H=(s&&s.offsetHeight)||63, B=(el.parentElement&&el.parentElement.clientHeight)||189; el.style.transform='translateY('+(B/2-H*17.5)+'px)';
+    const bx=el.parentElement; if(bx){ bx.classList.remove('a2creep'); bx.classList.add('c1lock'); } });
+  if(pairPhase<5){ SFX.c1Lock(3); pairBorn(); }
+  pairT(pairOffer, 1300);
+}
+function claimPairing(){
+  if(slotStage!=='pairoffer'||!pairCur) return;
+  const pr=pairCur; const W=WEAPONS.find(w=>w.id===pr.w);
+  const known=(typeof IDX!=='undefined'&&Array.isArray(IDX.pr)&&IDX.pr.indexOf(pr.id)>=0);
+  evoClaim(pr);
+  renderRelics();
+  SFX.winDing(); SFX.c1Lock(3); flash(0.4,pairCol(pr.id)); coinRain(10);
+  const col=pairCol(pr.id);
+  ring(P.x,P.y,220,col); ring(P.x,P.y,140,'#fff2c0'); burst(P.x,P.y,30,col); shake=Math.min(20,shake+8);
+  setTimeout(()=>announce('♛ '+pr.n+' IS BORN ♛', true), 80);
+  if(!known) setTimeout(()=>{ announce('📖 A NEW RECIPE IS INSCRIBED IN THE INDEX 📖', true); SFX.chipStack&&SFX.chipStack(); }, 1500);
+  if((LT.pairBy?Object.keys(LT.pairBy).length:0)>=PAIRINGS.length) setTimeout(()=>announce('♛ EVERY PAIRING THE HOUSE KNOWS — YOU HAVE MARRIED THEM ALL ♛', true), 3000);
+  closePairing();
+}
+function closePairing(){
+  pairTimers.forEach(clearTimeout); pairTimers=[]; pairCur=null; pairPhase=0;
+  window._slotFF=null;
+  elSlot.classList.remove('c1pair'); const m=$('machine'); m.classList.remove('c1pair','c1born','jackpot','win');
+  document.querySelectorAll('.reelbox').forEach(b=>b.classList.remove('c1lock','c1fuse','slam','a2creep'));
+  { const pt=$('payTable'); if(pt) pt.classList.remove('c1pt'); }
+  slotStage='idle'; spaceHold=false; holdProg=0; holdFired=false; ringShow(false);
+  elSlot.classList.add('hidden');
+  noise(0.18,0.05,900);
+  if(pending.length && state!=='dead'){ setTimeout(openNextSlot,250); }
+  else if(state==='slot'){ state='playing'; last=performance.now(); }
+}
+{ // wire THE PAIRING into the existing flow
+  const _ons=openNextSlot;
+  openNextSlot=function(){ if(pending.length && state!=='dead'){ let pr=null; try{ pr=readyPairing(); }catch(e){} if(pr){ openPairing(pr); return; } } return _ons.apply(this, arguments); };
+  const _tap=slotTap;
+  slotTap=function(){ if(slotStage==='pairing'){ pairFF(); tone(900,0.05,'sine',0.06); return; } if(slotStage==='pairoffer'){ claimPairing(); return; } return _tap.apply(this, arguments); };
+  const _btns=showSlotButtons;
+  showSlotButtons=function(){
+    if(slotStage==='pairing'||slotStage==='pairoffer'){ const box=$('slotBtns'); box.innerHTML='';
+      if(slotStage==='pairing') box.appendChild(makeBtn('♛ THE HOUSE IS DEALING','gold','SPACE · skip',()=>slotTap()));
+      else { const b=makeBtn('♛ CLAIM THE PAIRING','gold c1claim','press SPACE',()=>slotTap()); box.appendChild(b); }
+      return; }
+    return _btns.apply(this, arguments); };
+  // the cards whisper about a pairing once a weapon reaches its limit
+  const _of=openOffer;
+  openOffer=function(){ const r=_of.apply(this, arguments);
+    try{ const g=gamble; if(g && g.def){ const d=$('cardDesc'); let h='';
+      const known=id=>typeof IDX!=='undefined'&&Array.isArray(IDX.pr)&&IDX.pr.indexOf(id)>=0;
+      if(g.kind==='weapon'){ const pr=pairingFor(g.def.id); const tl=Math.min(g.def.max, skLevel(g.def)+g.reward);
+        if(pr && tl>=g.def.max){ const Pd=PASSIVES.find(p=>p.id===pr.p);
+          h = skillLevel(pr.p)>0 ? '♛ PAIRING READY — NEXT PULL' : (known(pr.id) ? '♛ PAIRS WITH '+Pd.g+' '+Pd.n.toUpperCase() : '♛ PAIRS WITH SOMETHING…'); } }
+      else { const pr=PAIRINGS.find(x=>x.p===g.def.id && known(x.id) && !(P.evo&&P.evo[x.w]));
+        if(pr){ const W=WEAPONS.find(w=>w.id===pr.w); if((P.wlv[pr.w]||0)>=W.max) h='♛ COMPLETES '+pr.n+' — NEXT PULL'; else if((P.wlv[pr.w]||0)>0) h='♛ HALF OF '+pr.n; } }
+      if(h && d){ const el=document.createElement('div'); el.className='c1hint'; el.textContent=h; d.appendChild(el); } } }catch(e){}
+    return r; };
+}

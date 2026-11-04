@@ -735,6 +735,7 @@ function update(dt){
       tone(last?1568:520,last?0.14:0.05,last?'sine':'square',last?0.12:0.07); if(last){ sparkBurst(10); } } } }
   if(candL){ P.candT=(P.candT||0)-dt; if(P.candT<=0){ P.candT=Math.max(0.7,1.3-candL*0.09); fireCandles(candL); } }
   if(guilL){ P.guilT=(P.guilT||0)-dt; if(P.guilT<=0){ P.guilT=Math.max(2.6,4.6-guilL*0.35); dropGuillotine(guilL); } }
+  if(typeof tickPairings==='function') tickPairings(dt); // C1 — the evolved arsenal
   // ground machinery: waves ring out, stakes bite, pools rot, the blade falls
   for(let i=waves.length-1;i>=0;i--){ const w=waves[i]; w.t-=dt; w.r+=dt*300;
     if(w.t<=0){ waves.splice(i,1); continue; }
@@ -1924,6 +1925,7 @@ function render(){
     const gl=Math.sin(gt*7+k*2)*0.5+0.5; ctx.globalAlpha=gl*0.7; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(-2.5,-2.5,1.6,0,6.28); ctx.fill(); ctx.globalAlpha=1;
     ctx.restore(); } }
 
+  if(typeof drawPairings==='function') drawPairings(); // C1 — the evolved arsenal
   drawPlayer();
   try{ b2DrawAdorn(); }catch(e){}
   if(_bR) balSky(); // D3: the chandelier hanging over its circle, then falling

@@ -103,6 +103,24 @@ Long-run budget audited: full vault ≈ 15-25 runs of gilt income; income buffs 
 ## ★ HOUSE FAVORS (achievement perma-perks, 2026-07)
 Ten specific feats seal small PERMANENT bonuses (ACH_PERKS in ranks.js, keyed by achievement id): survive 3 min → +2 speed, first triple jackpot → +2 speed, wave 15 → +5 blood, 1k run kills / 25k lifetime → +2% dmg each, 54 streak → +2% fire, 25 dice wins → +1% crit, 5 perfects → +2% XP, 100 spins / 10 bosses → +2% coins each. Applied instantly at unlock (seraph ceremony) + every startGame via `applyAchPerks()`. Index milestones ride the same table with `g` = one-time gilt paid only at the unlock moment. Total budget ~10% power — keep it there.
 
+## ♛ THE PAIRINGS (weapon evolutions — C1, the long night)
+**Recipe law:** a weapon at MAX + its one paired skill at ANY level → the NEXT slot visit opens **THE PAIRING** before the normal pull (the pull is not consumed — the pairing is a bonus layered in front of it). `readyPairing()` (weapons.js) decides; the `openNextSlot` wrapper (slot.js C1 block) hijacks the visit. One pairing per visit; several ready → one per level-up, in PAIRINGS order.
+| Evolved | Weapon (max) | + Skill | Signature |
+|---|---|---|---|
+| 💀 THE OSSUARY | ♠ Bone Bolt (6) | ❖ Extra Ante | skull every 0.75s 400% → 12 splinters 130% → 3 shards 70% each. Rides ON TOP of the bolt (bolt is never replaced) and adds +1 bolt per volley |
+| 🃏 THE STACKED DECK | ♣ Dealer's Hand | ⚁ Snake Eyes | 13-card curling pinwheel / 1.3s, all crits 110%, pierce 3; one ACE 330%×crit, infinite pierce, 90px detonation |
+| ✶ THE THOUSAND CUTS | ※ Fan of Knives | ♗ Swift Hands | 2 counter-rotating spigots, 22 knives/s, 140%, pierce 2 |
+| 👁 THE EYE IN THE SKY | 🏮 Dead Lantern | ◎ Deep Pockets | rotating 380px searchlight 700%/s, vacuums coins+souls; photo-flash 800% 110px every 3s |
+| 🐀 THE RAT KING'S FEAST | ∴ Rat King's Fangs | ✝ Blood Tithe | self-sustaining horde ≤14 rats (bite 90%, 0.35s per-foe cd); rat kills breed 2 (≤30) + 1 HP |
+| ♖ THE IRON MAIDEN | ⚰ Coffin Nails | ▣ Bone Corset | 4 orbiting caskets 700%/s + knockback, fling to 260px every 2.6s with 600% 60px slams; +3 armor on claim |
+| 🩸 THE BLOODY HAND | ✂ Razor Deck | ♥ Velvet Leech | 5 blade-fingers trace a rose to 230px and back / 1.1s, 300%, +0.4 HP per cut |
+| ⚱ THE CREMATORIUM | 🔥 Cinder Spit | ✱ Barbed Chips | 3 turning 150px jets 400%/s, ignite 150%/s 2.5s, burning dead spread fire 70px; being hit → 140px firestorm (0.8s cd) |
+| 🌹 THE IMPALER'S GARDEN | ⚒ Iron Stakes | † Piercing Fate | 3 infinite-pierce stakes/s 160%, plant 5s (≤12), barbed wire to 2 nearest (≤260px) 600%/s + slow |
+| ⚅ RUSSIAN ROULETTE | ✪ Roulette Cylinder | ‡ Executioner | 5 crit rounds 250% pierce 4, one per 0.7s; 6th chamber = every foe in view takes 350%×crit, non-boss/non-elite under 30% die |
+**Engine:** `P.evo={weaponId:pairingId}` (run-only). Parent attacks are suppressed by wrappers on their fire functions (`evoHas`). Evolved projectiles live in `evoShots`/`evoPlants` (weapons.js), ticked by ONE line in core.js update (`tickPairings(dt)`) and drawn by ONE line in render (`drawPairings()` before drawPlayer). Damage goes through `evoHurt` (trackDmg, half-strength lifesteal, kill via killEnemy). Balance: numbers scale only with P.damage/critMult, never with enemy HP, so the HP curve (+66%/min) reels them in.
+**Ceremony** (slot.js C1 block, a layer on A2's machine): stages `'pairing'` → `'pairoffer'`. Gilt machine, reels roll down to weapon · gilt ? · skill, gilt latches (`SFX.c1Lock`), parents fly into the middle reel (`c1Fuse`), the evolved glyph is born: A2 stamp "♛ PAIRING ♛" + a2pay3 rails + bigWin(name,4) + `SFX.c1Fanfare` (Dm·B♭·F·A·D major) + seraph + domConfetti + coinRain + sparks, then aftershocks. SPACE skips to the birth; SPACE/CLAIM on the offer seals it. The paytable becomes the recipe card.
+**Discovery:** Index section ♛ THE PAIRINGS (ranks.js C1 block) — am_index_v1 additive fields `pr` (sealed recipes) and `pm` (weapons ever maxed: unlocks the vague hint). Unknown = "??? + ???". Offer cards: weapon reaching max → "♛ PAIRS WITH SOMETHING…" (or the partner's name once discovered, or "READY — NEXT PULL"); a known partner skill → "♛ COMPLETES X". Lifetime: `LT.pairings`, `LT.pairBy{id}`, `LT.pairOffers`. Probe: `node probes/pairing.js [--only id,id] [--shots label] [--night]`.
+
 ## 📖 THE INDEX (lifetime collection, 2026-07)
 Menu panel. Everything ever encountered is catalogued forever under NEW key `am_index_v1` (`{w,p,c,t,e,b}` id arrays; secrets counted via SEC): weapons (incl. implicit starting bolt at startGame), passives/ascensions (addPassiveHUD), curses (applyDebuff by label), tarot (revealTarot by name), enemies & bosses (spawnEnemy — CFG.enemy includes the 4 bosses; BOSS_DEFS membership decides the section). Unmet = dark ??? tile; met = glyph in its GLYPH_COL. `idxPct()` on menu line; milestones 25/50/75/100% pay gilt + favors (MARGINALIA at 100%). Hook = `idxSee(cat,id)` — call it from any NEW acquisition path or the thing won't catalogue.
 
@@ -120,6 +138,7 @@ Gold-sheen gradient title (keep the h1 NODE — 'namehouse' secret binds to it),
 CFG: spawn{startInt:0.75, minInt:0.26, baseBatch:4}, wave{first:26, grow:6, cap:96}, scale{hp:0.62, dmg:0.22, spdCap:1.95}, 5-wave spikes hp+0.10/dmg+0.03. Measured: no-input death ~8s; kiting-never-leveling death ~50s.
 
 ## Content inventory
+- **10 PAIRINGS** (evolutions) — see ♛ THE PAIRINGS.
 - **29 weapons** (+Batch 7: ✂ Razor Deck returning slivers · 🔥 Cinder Spit ember cones · ⌛ Pendulum metronome arc · ⚒ Iron Stakes planted ground spikes · ≈ Brass Serpent sine bolt · 🍷 Poison Chalice rot pools (gpools) · 🎺 Gramophone wave arcs (waves) · ✪ Roulette Cylinder 6-burst with golden crit tracer · 🕯 Candelabra triple candle familiars · 🗡 The Guillotine telegraphed blade slam (guils)). New bullet kinds: razor/ember/stake/serpent/chalice/flamebolt/tracer; ground arrays waves/guils/gpools/gstakes reset in startGame.
 - (legacy) **19 weapons** (bolt, cards, orbit, scythe, spark, chand, knives, aura, nova, seeker + coil lash, mortar blast, lantern turret, fangs swarm, bell knockback-toll, dice ricochet, phantom pierce-wave, coffin rear-nails, moths homing-stream). New-weapon mechanics use: timer blocks in update, helper fire fns, bullet flags (seek, pierce, blast, bounce, spin).
 - **~21 slot passives** incl thorns, lifesteal, armor (flat reduction in hurtPlayer), on-kill heal, knockback mult, inv-bonus.

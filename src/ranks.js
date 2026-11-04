@@ -1063,3 +1063,33 @@ function b2DrawAdorn(){
     ctx.globalAlpha=1; }
   ctx.restore();
 }
+/* ==== C1 — THE PAIRINGS in the Index (am_index_v1: additive fields pr = sealed
+   recipes, pm = weapons ever maxed — hints unlock from pm) ==== */
+if(!Array.isArray(IDX.pr)) IDX.pr=[];
+if(!Array.isArray(IDX.pm)) IDX.pm=[];
+{ const _il=idxLoad;
+  idxLoad=async function(){ const r=await _il.apply(this, arguments);
+    try{ if(store){ const v=await store.get(IDX_KEY,false); if(v&&v.value){ const o=JSON.parse(v.value);
+      if(Array.isArray(o.pr)) IDX.pr=o.pr.filter(x=>typeof x==='string');
+      if(Array.isArray(o.pm)) IDX.pm=o.pm.filter(x=>typeof x==='string'); } } }catch(e){}
+    if(!Array.isArray(IDX.pr)) IDX.pr=[]; if(!Array.isArray(IDX.pm)) IDX.pm=[];
+    return r; }; }
+function c1PairingsSection(){
+  if(typeof PAIRINGS==='undefined') return '';
+  const got=PAIRINGS.filter(p=>IDX.pr.indexOf(p.id)>=0).length, life=LT.pairings||0;
+  return '<div class="idxSec c1idx" style="--sc:#ffd36b"><div class="idxSecH"><b>♛ THE PAIRINGS</b><span>'+got+' / '+PAIRINGS.length+' · SEALED '+life+'× LIFETIME</span></div><div class="idxGrid c1grid">'
+    +PAIRINGS.map(pr=>{ const W=WEAPONS.find(w=>w.id===pr.w), Pd=PASSIVES.find(p=>p.id===pr.p), c=GLYPH_COL[pr.id]||'#ffd36b';
+      if(IDX.pr.indexOf(pr.id)>=0){ const n=(LT.pairBy&&LT.pairBy[pr.id])||0;
+        return '<div class="idxTile on c1tile" style="--ic:'+c+'"><span class="idxG">'+pr.g+'</span><b class="c1tn">'+pr.n+'</b>'
+          +'<span class="c1rec"><i style="color:'+(GLYPH_COL[W.id]||'#ffd36b')+'">'+W.g+'</i> '+W.n+' + <i style="color:'+(GLYPH_COL[Pd.id]||'#8bff9a')+'">'+Pd.g+'</i> '+Pd.n+'</span>'
+          +'<span class="c1cnt">×'+n+'</span></div>'; }
+      const hinted=IDX.pm.indexOf(pr.w)>=0;
+      return '<div class="idxTile c1tile'+(hinted?' c1hinted':'')+'"><span class="idxG">?</span><b class="c1tn">??? + ???</b>'
+        +(hinted?'<span class="c1rec c1vague">“'+pr.hint+'”</span>':'<span class="c1rec c1vague">max a weapon to hear it whisper</span>')+'</div>'; }).join('')
+    +'</div><div class="idxHint">A weapon at MAX + its one true skill → the next pull offers THE PAIRING.</div></div>';
+}
+{ const _oi=openIndexPanel;
+  openIndexPanel=function(){ const r=_oi.apply(this, arguments);
+    try{ const list=$('idxList'); if(list){ const old=list.querySelector('.c1idx'); if(old) old.remove();
+      const first=list.querySelector('.idxSec'); if(first) first.insertAdjacentHTML('afterend', c1PairingsSection()); else list.insertAdjacentHTML('afterbegin', c1PairingsSection()); } }catch(e){}
+    return r; }; }

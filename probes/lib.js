@@ -85,7 +85,8 @@ const BOT = `(()=>{
       const vis=[...document.querySelectorAll('.layer:not(.hidden),[id$=Layer]:not(.hidden),[id$=Panel]:not(.hidden)')].map(e=>e.id||e.className).slice(0,12);
       B.stall={ state, gt, clock:fmt(gt), hitstop, tabHold:typeof tabHold!=='undefined'?tabHold:null, slotStage:typeof slotStage!=='undefined'?slotStage:null,
         slotBusy:typeof slotBusy!=='undefined'?slotBusy:null, pending:(typeof pending!=='undefined'&&pending)?pending.length:null, hp:P&&P.hp, ovT:P&&P.ovT,
-        layers:vis, autoPaused:!!window._autoPaused };
+        layers:vis, autoPaused:!!window._autoPaused,
+        crash:(typeof crash!=='undefined'&&state==='crash')?{mult:crash.mult,cp:crash.cp,live:crash.live,done:crash.done,jk:!!crash.jk,on:crash.on,msg:(document.getElementById('crashMsg')||{}).textContent}:undefined };
       console.warn('[probe] STALL '+JSON.stringify(B.stall));
     }
   }
