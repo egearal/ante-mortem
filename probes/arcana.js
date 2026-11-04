@@ -147,6 +147,35 @@ const AFTER = {
     allErr.push(...errors.map(e => 'phone: ' + e)); if (errors.length) fail++;
     await browser.close();
   }
+  // input over a live reveal: the phone BET coin and gamepad A must still drive the game (the card never eats input)
+  if (!ONLY) for (const mode of ['bet', 'padA']) {
+    const phone = mode === 'bet';
+    const { browser, page, errors } = await launch({ which, mobile: phone, viewport: phone ? { width: 390, height: 844 } : { width: 1280, height: 720 } });
+    if (!phone) await page.evaluate(() => { const mk = () => ({ pressed: false, touched: false, value: 0 });
+      const pad = window.__pad = { id: 'Xbox Wireless Controller (STANDARD GAMEPAD)', index: 0, connected: true, mapping: 'standard', timestamp: 0, axes: [0, 0, 0, 0], buttons: Array.from({ length: 17 }, mk) };
+      navigator.getGamepads = () => [pad, null, null, null]; const ev = new Event('gamepadconnected'); ev.gamepad = pad; window.dispatchEvent(ev); });
+    await page.evaluate(() => { window.__bot.god = true; window.__bot.noSlotTap = true; });
+    await until(page, "state==='playing' && gt>30", 30000);
+    await page.evaluate(() => { window.__bot.manual = true; arcanaDraw('lovers'); gainXP(P.xpNext * 3); });
+    await until(page, "state==='slot'", 3000);
+    const cover = await page.evaluate(() => { const r = document.getElementById('arcanaReveal'); const live = r && !r.classList.contains('hidden');
+      const b = document.getElementById('tcBet'); let top = null; if (b) { const q = b.getBoundingClientRect(); const el = document.elementFromPoint(q.left + q.width / 2, q.top + q.height / 2); top = el && (el === b || b.contains(el)); }
+      return { live, betOnTop: top }; });
+    let left = false;
+    for (let i = 0; i < 60; i++) {
+      if (phone) await page.evaluate(() => { const b = document.getElementById('tcBet'); const r = b.getBoundingClientRect();
+        const o = { pointerId: 7, pointerType: 'touch', isPrimary: true, bubbles: true, clientX: r.left + r.width / 2, clientY: r.top + r.height / 2 };
+        b.dispatchEvent(new PointerEvent('pointerdown', o)); b.dispatchEvent(new PointerEvent('pointerup', o)); });
+      else { await page.evaluate(() => { const b = __pad.buttons[0]; b.pressed = true; b.value = 1; }); await run(page, 3); await page.evaluate(() => { const b = __pad.buttons[0]; b.pressed = false; b.value = 0; }); }
+      await run(page, 30);
+      if (await page.evaluate(() => state === 'playing')) { left = true; break; }
+    }
+    const pass = cover.live && (phone ? cover.betOnTop === true : true) && left && errors.length === 0;
+    if (!pass) fail++;
+    console.error(`${pass ? '✓' : '✗'} ${(phone ? 'BET coin' : 'pad Ⓐ').padEnd(10)} reveal live=${cover.live}${phone ? ' · coin on top=' + cover.betOnTop : ''} · drove the slot to the end=${left}${errors.length ? ' · ERRORS ' + errors.length : ''}`);
+    allErr.push(...errors.map(e => mode + ': ' + e));
+    await browser.close();
+  }
   if (allErr.length) console.error(allErr.slice(0, 10).join('\n'));
   console.log(JSON.stringify({ cards: rows.length, failed: fail, rows: rows.map(r => ({ id: r.id, pass: r.pass, arcP95ms: +r.during.arc95.toFixed(2), frameMedMs: +r.during.med.toFixed(1) })) }));
   process.exit(fail ? 1 : 0);

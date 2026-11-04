@@ -295,6 +295,7 @@ function arcanaCheatDeath(){
   if(!(P && ARC.p===P && ARC.deathSkip)) return false;
   ARC.deathSkip=false; ARC.st.skip++;
   P.hp=Math.max(1,Math.round(P.maxHp*0.6)); P.inv=Math.max(P.inv||0,3);
+  if(P.martyr) P._mCap=P.hp; // THE MARTYR refuses healing, not resurrection (same law as the Death Roll)
   for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; if(Math.hypot(e.x-P.x,e.y-P.y)<260) arcHit(e,i,300,'#e3b7ff',true); }
   ring(P.x,P.y,260,'#d24dff'); ring(P.x,P.y,160,'#fff2c0'); burst(P.x,P.y,36,'#d24dff');
   flash(0.8,'#d24dff'); setTimeout(()=>flash(0.5,'#fff2c0'),120); shake=Math.min(26,shake+18); slowT=Math.max(slowT,0.6);
@@ -306,8 +307,8 @@ function arcanaRollSpawn(){
   if(window._arcForce){ const m=arcById(window._arcForce); window._arcForce=null; if(m) return m.id; }
   if(tarots.some(t=>t.maj)) return null;
   const left=MAJOR_ARCANA.filter(m=>A.drawn.indexOf(m.id)<0);
-  if(!left.length || Math.random()>=arcOdds()) return null;
-  return left[(Math.random()*left.length)|0].id;
+  if(!left.length || rng('arcana')>=arcOdds()) return null; // own DAILY DEBT stream: the small tarot stream is untouched
+  return left[(rng('arcana')*left.length)|0].id;
 }
 function arcanaManifest(id){
   announce('✦ A MAJOR ARCANUM MANIFESTS ✦', true); ARC_SFX.manifest(); flash(0.25,'#ffd36b');
