@@ -468,6 +468,14 @@ Never rename or repurpose any of these — players must not lose progress. New f
 - `am_stakes_v1` — STAKES best deck cleared per soul, endless records (B2)
 - `am_dials_v1` — settings: volumes, rebinding, rumble, flash (B3)
 - `am_seats_v1` — soul unlock progress counters + seen-unlock flags (D1)
+- `am_book_v1` — THE BOOK OF DEBTS: paid entries already seen (the door's NEW! wax) + best daily streak seen (E2)
 - `am_seat_v1` — one-tab lock heartbeat (pre-existing, not progress)
 - `am_probe` — headless harness flag only, never used by real players
 
+## ⚖ THE BOOK OF DEBTS (E2)
+- **The door** (`#e2BookBtn`, first of the hall's doors; hotkey **B**) opens `#e2Book`: every unlock in the game as nine illuminated chapters — SOULS, FLOORS, STAKES (soul × deck grid), PAIRINGS, MAJOR ARCANA, BOSSES, CONTRACTS (+ the bought contract slots), RANK REWARDS (every 5th rank), DAILY STREAK. Each entry: sealed/paid, the exact condition, live progress.
+- **Nothing is typed twice.** `e2Chapters()` (ui.js E2 block) reads SOULS/`SOUL_PROG`, FLOORS, STAKES/`STK`/`b2Avail`, `PAIRINGS`+`IDX.pr/pm` (C1), `MAJOR_ARCANA`+`ARC_ODDS`+`IDX.t 'MAJOR:'` (D4), BOSS_DEFS+`LT.bossBy`+`IDX.b`, RUN_CONTRACTS, CT_SLOT_COST, RANKS/`rkCum`, `DLY`/`dlyStreak`. Text-only gates (`uTxt` like "5,000 LIFETIME KILLS", "SURVIVE 10:00 (OR CLEAR STAKE 1)") are parsed by `E2_RX` for their target; a new gate phrase needs one regex row there or it shows sealed with 0 / 1. Missing tables (a branch not merged) render as "THE HOUSE HAS NOT YET PRINTED THIS CHAPTER". Rank gates are measured in MARKS. The daily streak rungs mirror daily.js' streak pay (5 gilt × (streak−1), capped at 11 days).
+- **TONIGHT'S DEBTS** = `e2Pins()`: the three unpaid entries with the highest % (one per chapter first); purchases only count once 25% in reach; stake decks and arcana (pure luck / binary) never pin. A fresh save falls back to rank → soul → floor.
+- **The ledger**: the run's start snapshots every entry (`e2Snap`, on `_runSeq` change); after `actuallyDie` the nearest debt (rank rewards excluded — the rank bar above covers them) is written into `#goRank` and its bar/number climb from the pre-night value ("THE MAGPIE — 4,212 / 5,000 COINS", +n% TONIGHT). If a debt was paid tonight, it is stamped ✦ DEBT PAID ✦ instead.
+- **NEW!** wax on the door = paid entries not in `E2.seen`. Persistence: NEW key `am_book_v1` `{seen:[entry ids], dsMax}` (first boot seeds `seen` with everything already paid, so old saves don't light up). Opening the book stamps NEW! on each, rings `SFX.e2Paid`, confetti.
+- Pad: `#e2Book` is in `B3_SCOPES`, default focus `.e2Pin`; every entry is a `<button>`, Ⓑ/ESC closes, SPACE never deals a night from under it. Probe: `node probes/e2book.js` (fresh + mid-progress saves, desktop + 390×844, pad walk, ledger tally, injected C1/D4 rows) → `shots/e2/`.

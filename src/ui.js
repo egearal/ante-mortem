@@ -2469,3 +2469,311 @@ Object.assign(GLYPH_COL, {
         d.innerHTML=iconSvg(pid)+'<span class="lvpips c1pip">♛</span>';
         relicTip(d, pr.n, '♛', projFx(pr,1)); }); } }catch(e){}
     return r; }; }
+
+/* ==== E2 — THE HOUSE'S BOOK OF DEBTS ======================================
+   A menu door that maps everything left to win, chapter by chapter, with the
+   live progress of each seal; TONIGHT'S DEBTS pins the three nearest; the
+   death ledger tallies the single nearest one. Every condition and number is
+   READ from the real tables (SOULS / SOUL_PROG / FLOORS / STAKES / PAIRINGS /
+   MAJOR_ARCANA / BOSS_DEFS / RUN_CONTRACTS / CT_SLOT_COST / RANKS / DLY) —
+   unlock text like "5,000 LIFETIME KILLS" is parsed for its target.
+   Persistence: NEW additive key am_book_v1 {seen:[paid entry ids], dsMax}.
+   Read-only toward every other system.
+   ========================================================================== */
+const E2_KEY='am_book_v1';
+const E2={seen:null, dsMax:0, _ld:false, snap:null, fresh:[], _t:null, waxRung:false};
+const E2_NIGHT_MIN=15; // B2: the night is won by standing at 15:00 (the end of the House's reign)
+(async function e2Load(){
+  try{ if(store){ const r=await store.get(E2_KEY,false);
+    if(r&&r.value){ const o=JSON.parse(r.value);
+      if(Array.isArray(o.seen)) E2.seen=o.seen.filter(x=>typeof x==='string');
+      E2.dsMax=Math.max(0,(+o.dsMax)|0); } } }catch(e){}
+  E2._ld=true;
+})();
+function e2Save(){ clearTimeout(E2._t); E2._t=setTimeout(()=>{ try{ if(store) store.set(E2_KEY, JSON.stringify({v:1, seen:E2.seen||[], dsMax:E2.dsMax||0}), false); }catch(e){} }, 400); }
+const e2Num=s=>+String(s).replace(/,/g,'');
+const e2Fmt=n=>Math.floor(n).toLocaleString();
+function e2Esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+function e2StakeAny(n){ try{ for(const k in (STK.best||{})) if(STK.best[k]>=n) return true; }catch(e){} return false; }
+// unlock text → [have, need, unit]; the target number comes from the table's own words
+const E2_RX=[
+ [/HOUSE RANK (\d+)/,            n=>[RANK.rank, n, 'RANK']],
+ [/DIE ([\d,]+) TIMES/,          n=>[LT.deaths||0, n, 'DEATHS']],
+ [/([\d,]+) LIFETIME KILLS/,     n=>[LT.kills||0, n, 'KILLS']],
+ [/([\d,]+) LIFETIME COINS/,     n=>[LT.coins||0, n, 'COINS']],
+ [/SPIN ([\d,]+) SLOTS/,         n=>[LT.spins||0, n, 'SPINS']],
+ [/MEET THE HOUSE (\d+) TIMES/,  n=>[LT.houseMet||0, n, 'MEETINGS']],
+ [/MEET THE HOUSE ONCE/,         ()=>[LT.houseMet||0, 1, 'MEETING']],
+ [/SURVIVE (\d+):(\d+)/,         (m,s)=>[REC.minutes||0, m+s/60, 'MINUTES']],
+ [/CLEAR STAKE (\d)/,            n=>[e2StakeAny(n)?1:0, 1, 'CLEAR']],
+ [/ANSWER (\d+) WHISPERS/,       n=>[SEC.size, n, 'WHISPERS']],
+ [/(\d+) TRIPLES/,               n=>[LT.triples||0, n, 'TRIPLES']],
+ [/RED TABLE (\d+) TIMES/,       n=>[LT.rites||0, n, 'RITES']],
+ [/RAGE AT 90%\+ (\d+) TIMES/,   n=>[(typeof SEATS!=='undefined'&&SEATS.st.rage)||0, n, 'CASH-OUTS']]
+];
+function e2Parse(txt){
+  let best=null;
+  String(txt||'').toUpperCase().split(/\(?\bOR\b\)?/).forEach(alt=>{
+    for(const [rx,f] of E2_RX){ const m=alt.match(rx); if(!m) continue;
+      try{ const r=f(...m.slice(1).map(e2Num)); if(!best || r[0]/r[1]>best[0]/best[1]) best=r; }catch(e){} break; } });
+  return best;
+}
+function e2Mk(o){
+  o.done=!!o.done; o.need=Math.max(1e-9,+o.need||1); o.have=Math.max(0,+o.have||0);
+  o.pct=o.done?1:Math.max(0,Math.min(0.999,o.have/o.need));
+  // a rank gate is measured in MARKS (rank 1 of 12 is not 8% of the way there)
+  if(!o.done && o.unit==='RANK' && typeof rkCum==='function'){ try{ o.pct=Math.max(0,Math.min(0.999,RANK.marks/Math.max(1,rkCum(Math.round(o.need))))); }catch(e){} }
+  return o;
+}
+function e2PT(e){ // the live progress text
+  if(e.pt) return e.pt;
+  if(e.done) return 'PAID';
+  if(e.unit==='RANK') return 'RANK '+e2Fmt(e.have)+' / '+e2Fmt(e.need);
+  return e2Fmt(Math.min(e.have,e.need))+' / '+e2Fmt(e.need)+(e.unit?' '+e.unit:'');
+}
+/* ---------- the chapters, read live from the tables ---------- */
+function e2Chapters(){
+  const C=[];
+  const ch=(id,n,g,col,entries,note)=>{ C.push({id,n,g,col,entries:entries||[],note:note||''}); };
+  // I — SOULS
+  try{ ch('souls','SOULS','♠','#e6d9c2', SOULS.map(s=>{ const done=!!s.u();
+      const pp=(typeof SOUL_PROG!=='undefined'&&SOUL_PROG[s.id])?SOUL_PROG[s.id]():null, px=e2Parse(s.uTxt);
+      const pr=pp||px;
+      return e2Mk({id:'soul:'+s.id, g:s.g, col:s.col, n:s.n, port:s.id, cond:s.uTxt||'SEATED FROM THE FIRST NIGHT',
+        have:pr?pr[0]:(done?1:0), need:pr?pr[1]:1, unit:(px&&px[2])||(s.stake?'CLEAR':''), done}); })); }catch(e){}
+  // II — FLOORS
+  try{ if(typeof FLOORS!=='undefined') ch('floors','FLOORS','♣','#8fd977', FLOORS.map(f=>{ const done=!!f.u(), pr=e2Parse(f.uTxt);
+      return e2Mk({id:'floor:'+f.id, g:f.g, col:f.col, n:f.n, cond:f.uTxt||'OPEN FROM THE FIRST NIGHT', have:pr?pr[0]:(done?1:0), need:pr?pr[1]:1, unit:pr?pr[2]:'', done}); })); }catch(e){}
+  // III — STAKES (per soul)
+  try{ if(typeof STAKES!=='undefined' && typeof STK!=='undefined'){
+    const E=[e2Mk({id:'stake:win', g:STAKES[1].g, col:STAKES[1].col, n:'BEAT THE NIGHT', cond:'STAND AT '+E2_NIGHT_MIN+':00 — THE '+STAKES[1].name+' OPENS FOR EVERY SOUL',
+      have:REC.minutes||0, need:E2_NIGHT_MIN, unit:'MINUTES', done:(STK.won||0)>0})];
+    SOULS.forEach(s=>{ const best=b2BestFor(s.id), seat=!!s.u();
+      for(let n=1;n<STAKES.length;n++){ const st=STAKES[n];
+        E.push(e2Mk({id:'stake:'+s.id+':'+n, soul:s.id, deck:n, g:st.g, col:st.col, n:s.n+' · '+st.name, cond:'CLEAR THE '+st.name+' WITH '+s.n,
+          have:0, need:1, done:best>=n, open:seat&&b2Avail(n,s.id), nopin:true})); } });
+    ch('stakes','STAKES','♦','#ff2a3c',E); } }catch(e){}
+  // IV — PAIRINGS (C1)
+  try{ if(typeof PAIRINGS!=='undefined' && Array.isArray(PAIRINGS)){
+    ch('pairings','PAIRINGS','♛','#ffd36b', PAIRINGS.map(pr=>{ const W=WEAPONS.find(w=>w.id===pr.w)||{n:pr.w}, Pd=PASSIVES.find(p=>p.id===pr.p)||{n:pr.p};
+      const known=Array.isArray(IDX.pr)&&IDX.pr.indexOf(pr.id)>=0, hinted=Array.isArray(IDX.pm)&&IDX.pm.indexOf(pr.w)>=0;
+      return e2Mk({id:'pair:'+pr.id, g:known?pr.g:'?', col:(typeof GLYPH_COL!=='undefined'&&GLYPH_COL[pr.id])||'#ffd36b', n:known?pr.n:'??? + ???',
+        cond:known?(String(W.n).toUpperCase()+' AT MAX + '+String(Pd.n).toUpperCase()):(hinted?'“'+(pr.hint||'IT PAIRS WITH SOMETHING…')+'”':'MAX A WEAPON TO HEAR IT WHISPER'),
+        have:known?2:(hinted?1:0), need:2, unit:'', pt:known?'PAID':(hinted?'ONE HALF KNOWN':'UNKNOWN'), done:known}); })); }
+    else ch('pairings','PAIRINGS','♛','#ffd36b',[],'THE HOUSE HAS NOT YET PRINTED THIS CHAPTER'); }catch(e){}
+  // V — MAJOR ARCANA (D4)
+  try{ if(typeof MAJOR_ARCANA!=='undefined' && Array.isArray(MAJOR_ARCANA)){
+    const od=(typeof ARC_ODDS!=='undefined')?('DEALT ON '+Math.round(ARC_ODDS.base*100)+'% +'+Math.round(ARC_ODDS.perMin*100)+'%/MIN (MAX '+Math.round(ARC_ODDS.cap*100)+'%) OF TAROT'):'DEALT BY CHANCE FROM THE TAROT';
+    ch('arcana','MAJOR ARCANA','✦','#c98bff', MAJOR_ARCANA.map(m=>{ const got=Array.isArray(IDX.t)&&IDX.t.indexOf('MAJOR:'+m.id)>=0;
+      return e2Mk({id:'arc:'+m.id, g:m.g||'✦', col:m.c||'#c98bff', n:(m.num?m.num+' · ':'')+m.n, cond:got?(m.dd||od):od, have:0, need:1, pt:got?'PAID':'NOT YET DRAWN', done:got, nopin:true}); })); }
+    else ch('arcana','MAJOR ARCANA','✦','#c98bff',[],'THE HOUSE HAS NOT YET PRINTED THIS CHAPTER'); }catch(e){}
+  // VI — BOSSES
+  try{ if(typeof BOSS_DEFS!=='undefined'){
+    ch('bosses','BOSSES','☠','#ff5560', Object.keys(BOSS_DEFS).map(k=>{ const B=BOSS_DEFS[k], met=Array.isArray(IDX.b)&&IDX.b.indexOf(k)>=0, slain=(LT.bossBy&&LT.bossBy[k])||0;
+      const col=(typeof CFG!=='undefined'&&CFG.enemy&&CFG.enemy[k]&&CFG.enemy[k].col)||'#ff5560';
+      if(k==='housegod') return e2Mk({id:'boss:'+k, g:B.g||'♛', col:'#ff2a3c', n:B.name, cond:'OUTLAST ITS REIGN — STAND AT '+E2_NIGHT_MIN+':00', have:REC.minutes||0, need:E2_NIGHT_MIN, unit:'MINUTES', done:(STK&&STK.won||0)>0, nopin:true});
+      return e2Mk({id:'boss:'+k, g:met?(B.g||'♛'):'?', col, n:met?B.name:'??? — A BOSS UNMET', cond:met?'SLAY IT ONCE':'IT WALKS IN ON A 10TH WAVE — MEET IT, THEN SLAY IT',
+        have:slain?1:(met?0.5:0), need:1, pt:slain?('PAID · SLAIN '+slain+'×'):(met?'MET · NOT YET SLAIN':'NEVER MET'), done:slain>0}); })); } }catch(e){}
+  // VII — CONTRACTS
+  try{ if(typeof RUN_CONTRACTS!=='undefined'){
+    const E=RUN_CONTRACTS.map(c=>{ const done=!c.u||!!c.u(), pr=e2Parse(c.uTxt);
+      return e2Mk({id:'ct:'+c.id, g:c.g, col:'#e6c27a', n:c.n, cond:(c.uTxt||'OPEN')+' — '+c.d, have:pr?pr[0]:(done?1:0), need:pr?pr[1]:1, unit:pr?pr[2]:'', done}); });
+    if(typeof CT_SLOT_COST!=='undefined') for(let n=2;n<=CT_SLOT_COST.length;n++){ const cost=CT_SLOT_COST[n-1]; if(!cost) continue;
+      E.push(e2Mk({id:'ctslot:'+n, g:'✍', col:'#ffd36b', n:(n===2?'SECOND':'THIRD')+' CONTRACT SLOT', cond:'BUY IT IN THE ANTE ROOM — '+e2Fmt(cost)+' ◈ GILT', have:gilt, need:cost, unit:'GILT', done:ctSlots()>=n,
+        nopin:ctSlots()<n-1 || gilt<cost*0.25})); } // a purchase is only a marked debt once it is in reach
+    ch('contracts','CONTRACTS','✍','#e6c27a',E); } }catch(e){}
+  // VIII — RANK REWARDS (every 5th rank pays forever)
+  try{ if(typeof RANKS!=='undefined'){ const E=[];
+    for(let r=5;r<=RANKS.length;r+=5){ const rk=RANKS[r-1]; if(!rk||!rk.r) continue;
+      E.push(e2Mk({id:'rank:'+r, g:r%10===0?'⚜':'✦', col:r%10===0?'#ffd36b':'#e8b64c', n:'RANK '+r+' · '+rk.n, cond:rk.r, have:RANK.marks, need:rkCum(r), unit:'MARKS', done:RANK.rank>=r})); }
+    ch('ranks','RANK REWARDS','⚜','#ffd36b',E); } }catch(e){}
+  // IX — DAILY STREAK (B1)
+  try{ if(typeof DLY!=='undefined' && typeof dlyStreak==='function'){
+    const cur=dlyStreak(); if(cur>E2.dsMax){ E2.dsMax=cur; e2Save(); }
+    const paidDays=Object.values((DLY.data&&DLY.data.days)||{}).filter(d=>d&&d.done).length;
+    const bonus=st=>5*Math.min(10,Math.max(0,st-1)); // mirrors daily.js dlyDeath() streak pay
+    const E=[e2Mk({id:'daily:1', g:'☀', col:'#ffe14a', n:'YOUR FIRST DAILY DEBT', cond:'PLAY ONE DAILY DEBT TO ITS END — THE MENU PLAQUE', have:paidDays, need:1, unit:'DEBTS', done:paidDays>=1})];
+    [2,3,5,7,11].forEach(n=>E.push(e2Mk({id:'daily:'+n, g:'☀', col:n>=7?'#ffd36b':'#ffe14a', n:'A '+n+'-DAY STREAK', cond:'PAY '+n+' DAILY DEBTS IN A ROW — +'+bonus(n)+' GILT ON EVERY DEBT', have:Math.max(cur,E2.dsMax), need:n, unit:'DAYS', done:E2.dsMax>=n})));
+    ch('daily','DAILY STREAK','☀','#ffe14a',E); } }catch(e){}
+  return C;
+}
+function e2All(C){ const a=[]; (C||e2Chapters()).forEach(c=>c.entries.forEach(e=>{ e.ch=c.id; e.chn=c.n; a.push(e); })); return a; }
+function e2Owed(all){ return all.filter(e=>!e.done && !e.nopin && e.pct>0).sort((a,b)=>b.pct-a.pct); }
+function e2Pins(all){
+  const owed=e2Owed(all), out=[], seenCh={};
+  for(const e of owed){ if(out.length>=3) break; if(seenCh[e.ch]) continue; seenCh[e.ch]=1; out.push(e); }
+  for(const e of owed){ if(out.length>=3) break; if(!out.includes(e)) out.push(e); }
+  if(out.length<3){ // nothing measurable yet (a fresh save): the nearest honest goals, one per chapter
+    const pri=['ranks','souls','floors','stakes','bosses','contracts','daily'], rest=all.filter(e=>!e.done && !e.nopin && !out.includes(e) && !/^\?/.test(e.n))
+      .sort((a,b)=>((pri.indexOf(a.ch)+99)%99)-((pri.indexOf(b.ch)+99)%99));
+    for(const e of rest){ if(out.length>=3) break; if(seenCh[e.ch]) continue; seenCh[e.ch]=1; out.push(e); }
+    for(const e of rest){ if(out.length>=3) break; if(!out.includes(e)) out.push(e); } }
+  return out;
+}
+function e2Ready(){ return E2._ld && typeof RANK!=='undefined' && RANK._ld && performance.now()>2500; }
+function e2NewIds(all){ if(!E2.seen) return []; return all.filter(e=>e.done && E2.seen.indexOf(e.id)<0).map(e=>e.id); }
+function e2InitSeen(all){ if(E2.seen || !e2Ready()) return; E2.seen=all.filter(e=>e.done).map(e=>e.id); e2Save(); }
+
+/* ---------- sound: leather, vellum, wax ---------- */
+Object.assign(SFX,{
+  e2Open(){ tone(73,0.5,'sine',0.22,55); noise(0.16,0.09,500);
+    for(let i=0;i<5;i++) setTimeout(()=>noise(0.05,0.05,1800+i*700),90+i*42); // the pages riffle
+    [262,330,392,523].forEach((f,i)=>setTimeout(()=>{ tone(f,0.7,'sine',0.05); tone(f*2,0.25,'sine',0.015); },320+i*70)); },
+  e2Page(){ noise(0.04,0.05,2600); setTimeout(()=>noise(0.05,0.04,3400),40); tone(880,0.05,'sine',0.02); },
+  e2Tick(p){ tone(320+700*p,0.05,'sine',0.045,(320+700*p)*1.02); },
+  e2Wax(){ tone(150,0.14,'triangle',0.13,80); noise(0.07,0.12,900); setTimeout(()=>tone(1320,0.12,'sine',0.03),60); },
+  e2Paid(){ tone(62,0.5,'sine',0.3,40); noise(0.12,0.22,1100);
+    [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>{ tone(f,0.5,'sine',0.09); tone(f*1.5,0.2,'sine',0.025); },140+i*80));
+    setTimeout(()=>{ try{ SFX.dingBells(); }catch(e){} },560); }
+});
+
+/* ---------- the door in the hall ---------- */
+function e2Door(){
+  const row=$('menuRow2'); if(!row) return;
+  let b=$('e2BookBtn');
+  if(!b){ b=document.createElement('button'); b.id='e2BookBtn'; b.className='btn msm e2Door';
+    b.innerHTML='<span class="e2DoorT">⚖ THE BOOK OF DEBTS</span><small class="e2DoorS"></small><i class="e2Wax">NEW!</i>';
+    row.insertBefore(b,row.firstChild);
+    b.addEventListener('click',()=>openBook()); }
+  let all=[]; try{ all=e2All(); }catch(e){ return; }
+  e2InitSeen(all);
+  if(!E2.seen && !e2Ready()){ clearTimeout(E2._dt); E2._dt=setTimeout(()=>{ if(state==='menu') e2Door(); },2700); }
+  const nw=e2NewIds(all).length, pin=e2Owed(all)[0];
+  const s=b.querySelector('.e2DoorS'); if(s) s.textContent=pin?('NEAREST: '+pin.n+' · '+Math.floor(pin.pct*100)+'%'):'EVERY DEBT IS PAID';
+  b.classList.toggle('e2New', nw>0);
+  const w=b.querySelector('.e2Wax'); if(w) w.textContent=nw>1?nw+' NEW!':'NEW!';
+  if(nw>0 && !E2.waxRung && state==='menu'){ E2.waxRung=true; setTimeout(()=>{ try{ SFX.e2Wax(); }catch(e){} },700); }
+}
+{ const _rc=renderChips; renderChips=function(){ const r=_rc.apply(this,arguments); try{ e2Door(); }catch(e){} return r; }; }
+
+/* ---------- the book ---------- */
+const E2_ROMAN=['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+function e2Bar(p,cls){ return '<div class="e2Bar'+(cls?' '+cls:'')+'"><i style="width:'+(Math.max(0,Math.min(1,p))*100).toFixed(1)+'%"></i></div>'; }
+function e2Medal(e){
+  if(e.port && typeof soulPortraitImg==='function'){ const im=soulPortraitImg(e.port,'e2Port',!e.done); if(im) return '<span class="e2Med e2MedP">'+im+'</span>'; }
+  return '<span class="e2Med">'+e2Esc(e.g)+'</span>';
+}
+function e2Entry(e, fresh){
+  const st=e.done?'paid':'sealed';
+  return '<button class="e2E '+st+(fresh?' e2Fresh':'')+'" data-id="'+e2Esc(e.id)+'" style="--ec:'+e.col+'">'
+    +e2Medal(e)
+    +'<span class="e2Tx"><b class="e2N">'+e2Esc(e.n)+'</b><span class="e2C">'+e2Esc(e.cond)+'</span>'
+    +(e.done?'':e2Bar(e.pct))+'<span class="e2Pt">'+(e.done?'✦ PAID':e2Esc(e2PT(e)))+'</span></span>'
+    +(fresh?'<i class="e2Stamp">NEW!</i>':(e.done?'':'<i class="e2Seal" title="sealed"></i>'))+'</button>';
+}
+function e2StakeGrid(c, fresh){
+  let h='<div class="e2SG"><div class="e2SGr e2SGh"><span class="e2SGs">SOUL</span>';
+  for(let n=1;n<STAKES.length;n++){ const st=STAKES[n], rw=st.reward||{};
+    const rwT=(rw.gilt?'+'+e2Fmt(rw.gilt)+' ◈':'')+(rw.cos&&typeof B2_COS!=='undefined'&&B2_COS[rw.cos]?' · '+B2_COS[rw.cos].n:'')+(rw.soul?' · A SOUL':'');
+    h+='<span class="e2SGd" style="--dc:'+st.col+'" title="'+e2Esc(st.mod)+'"><b>'+st.g+'</b>'+e2Esc(st.name.replace(' DECK',''))+'<small>×'+st.mult+(rwT?' · '+e2Esc(rwT):'')+'</small></span>'; }
+  h+='</div>';
+  SOULS.forEach(s=>{ const seat=!!s.u();
+    h+='<button class="e2SGr e2E'+(seat?'':' e2SGoff')+'" data-id="stakes:'+s.id+'" style="--ec:'+s.col+'"><span class="e2SGs"><i>'+s.g+'</i> '+e2Esc(s.n)+(seat?'':' <small>· SEALED</small>')+'</span>';
+    for(let n=1;n<STAKES.length;n++){ const e=c.entries.find(x=>x.soul===s.id&&x.deck===n); if(!e){ h+='<span></span>'; continue; }
+      const f=fresh.indexOf(e.id)>=0;
+      h+='<span class="e2SGc '+(e.done?'on':(e.open?'open':'shut'))+(f?' e2Fresh':'')+'" style="--dc:'+STAKES[n].col+'" title="'+e2Esc(e.cond)+'">'+(e.done?'◆':(e.open?'◇':'·'))+'</span>'; }
+    h+='</button>'; });
+  return h+'<div class="e2SGk"><b style="color:#ffd36b">◆</b> CLEARED · <b>◇</b> OPEN TO PLAY · · SEALED — CLEAR THE DECK BEFORE IT WITH THAT SOUL</div></div>';
+}
+function e2Render(){
+  const body=$('e2Body'); if(!body) return;
+  const C=e2Chapters(), all=e2All(C), fresh=E2.fresh||[];
+  const paid=all.filter(e=>e.done).length;
+  $('e2Tot').innerHTML='<span><b>'+paid+'</b> / '+all.length+' SEALS BROKEN</span>'+e2Bar(paid/Math.max(1,all.length),'e2BarTot');
+  // TONIGHT'S DEBTS
+  const pins=e2Pins(all);
+  let h='<div class="e2PinH">✒ TONIGHT\'S DEBTS <span>— THE NEAREST THREE · PLAY ONE MORE NIGHT</span></div><div class="e2Pins">';
+  if(!pins.length) h+='<div class="e2None">♛ THE HOUSE OWES YOU NOTHING. EVERY SEAL IS BROKEN. ♛</div>';
+  pins.forEach((e,i)=>{ h+='<button class="e2Pin" data-id="'+e2Esc(e.id)+'" style="--ec:'+e.col+'"><i class="e2PinN">'+E2_ROMAN[i]+'</i>'
+    +e2Medal(e)+'<span class="e2Tx"><small class="e2PinC">'+e2Esc(e.chn)+'</small><b class="e2N">'+e2Esc(e.n)+'</b><span class="e2C">'+e2Esc(e.cond)+'</span>'
+    +e2Bar(e.pct,'e2BarBig')+'<span class="e2Pt"><b>'+Math.floor(e.pct*100)+'%</b> · '+e2Esc(e2PT(e))+'</span></span></button>'; });
+  h+='</div>';
+  // the chapters
+  C.forEach((c,ci)=>{ const pd=c.entries.filter(e=>e.done).length, tot=c.entries.length;
+    h+='<section class="e2Ch" id="e2ch_'+c.id+'" style="--cc:'+c.col+'"><div class="e2ChH"><span class="e2Ill">'+c.n.charAt(0)+'</span>'
+      +'<span class="e2ChT"><b>'+c.n.slice(1)+'</b><small>CHAPTER '+E2_ROMAN[ci]+' · '+c.g+'</small></span>'
+      +'<span class="e2ChN">'+(tot?pd+' / '+tot+' PAID':'—')+(tot?e2Bar(pd/tot):'')+'</span></div>';
+    if(!tot) h+='<div class="e2None">'+e2Esc(c.note)+'</div>';
+    else if(c.id==='stakes'){ h+='<div class="e2Grid">'+e2Entry(c.entries[0], fresh.indexOf(c.entries[0].id)>=0)+'</div>'+e2StakeGrid(c, fresh); }
+    else h+='<div class="e2Grid">'+c.entries.map(e=>e2Entry(e, fresh.indexOf(e.id)>=0)).join('')+'</div>';
+    h+='</section>'; });
+  body.innerHTML=h;
+  const nav=$('e2Nav'); if(nav) nav.innerHTML=C.map(c=>{ const pd=c.entries.filter(e=>e.done).length;
+    return '<button class="e2NavB" data-ch="'+c.id+'" style="--cc:'+c.col+'">'+c.g+' '+c.n+(c.entries.length?' <i>'+pd+'/'+c.entries.length+'</i>':'')+'</button>'; }).join('');
+}
+function openBook(){
+  let p=$('e2Book');
+  if(!p){ p=document.createElement('div'); p.id='e2Book'; p.className='layer hidden';
+    p.innerHTML='<div class="panel e2P"><div class="e2Hd"><div class="e2T">⚖ THE BOOK OF DEBTS</div><div class="e2Sub">WHAT THE HOUSE STILL OWES YOU — AND WHAT IT WILL TAKE</div><div id="e2Tot"></div></div>'
+      +'<div id="e2Nav"></div><div id="e2Body"></div><button class="btn" id="e2Close">Back</button></div>';
+    document.body.appendChild(p);
+    $('e2Close').addEventListener('click',closeBook);
+    p.addEventListener('click',ev=>{ if(ev.target===p){ closeBook(); return; } });
+    $('e2Nav').addEventListener('click',ev=>{ const b=ev.target.closest('.e2NavB'); if(!b) return; const sec=$('e2ch_'+b.dataset.ch), body=$('e2Body');
+      if(sec&&body){ body.scrollTo({top:sec.offsetTop-body.offsetTop-4, behavior:'smooth'}); } try{ SFX.e2Page(); }catch(e){} });
+    $('e2Body').addEventListener('click',ev=>{ const b=ev.target.closest('.e2E,.e2Pin'); if(!b) return;
+      b.classList.remove('e2Poke'); void b.offsetWidth; b.classList.add('e2Poke');
+      try{ if(b.classList.contains('paid')) SFX.uiDing(); else SFX.e2Page(); }catch(e){} });
+  }
+  const all=e2All();
+  e2InitSeen(all);
+  E2.fresh=e2NewIds(all);
+  if(E2.seen){ all.forEach(e=>{ if(e.done && E2.seen.indexOf(e.id)<0) E2.seen.push(e.id); }); e2Save(); }
+  e2Render();
+  p.classList.remove('hidden');
+  const body=$('e2Body'); if(body) body.scrollTop=0;
+  try{ SFX.e2Open(); }catch(e){}
+  if(E2.fresh.length){ const n=E2.fresh.length;
+    setTimeout(()=>{ try{ SFX.e2Paid(); flash(0.35,'#ffd36b'); domConfetti(Math.min(60,24+n*8),'e2Book'); coinRain(Math.min(24,8+n*3));
+      announce('✦ '+(n===1?'A DEBT WAS':n+' DEBTS WERE')+' PAID SINCE YOUR LAST VISIT ✦', true); }catch(e){} }, 380); }
+}
+function closeBook(){ const p=$('e2Book'); if(!p||p.classList.contains('hidden')) return; p.classList.add('hidden'); E2.fresh=[]; try{ renderChips(); SFX.casinoDing(); }catch(e){} }
+function e2BookOpen(){ const p=$('e2Book'); return !!(p && !p.classList.contains('hidden')); }
+// keys: ESC closes the book, SPACE must not deal a night from under it, B opens it from the hall
+window.addEventListener('keydown',e=>{
+  const k=(e.key||'').toLowerCase();
+  if(e2BookOpen()){
+    if(k==='escape'){ e.preventDefault(); e.stopImmediatePropagation(); if(!e.repeat) closeBook(); return; }
+    if(k===' '){ e.preventDefault(); e.stopImmediatePropagation(); return; }
+    return; }
+  if(k==='b' && !e.repeat && typeof state!=='undefined' && state==='menu' && !$('menu').classList.contains('hidden')
+     && !document.querySelector('.layer:not(.hidden):not(#menu):not(#hud)') && !(document.activeElement&&document.activeElement.tagName==='INPUT')){ e.preventDefault(); openBook(); }
+}, true);
+// B3 — the pad's ring walks the book; Ⓑ closes it
+try{ if(typeof B3_SCOPES!=='undefined') B3_SCOPES.splice(1,0,'#e2Book'); if(typeof B3_DEFAULT!=='undefined') B3_DEFAULT.e2Book='.e2Pin'; }catch(e){}
+
+/* ---------- the ledger: the nearest debt, tallied ---------- */
+function e2Snap(){ try{ const m={}; e2All().forEach(e=>{ m[e.id]={have:e.have, pct:e.pct, done:e.done}; }); E2.snap=m; }catch(e){ E2.snap=null; } }
+// a new night = a new _runSeq (startGame is bound by reference in places, so watch the counter instead of wrapping it)
+setInterval(()=>{ try{ if(window._runSeq && window._runSeq!==E2._seq){ E2._seq=window._runSeq; e2Snap(); } }catch(e){} }, 200);
+function e2Ledger(){
+  const rk=$('goRank'); if(!rk || !E2.snap) return;
+  const old=$('e2Debt'); if(old) old.remove();
+  let all=[]; try{ all=e2All(); }catch(e){ return; }
+  const paid=all.filter(e=>e.done && E2.snap[e.id] && !E2.snap[e.id].done);
+  const d=document.createElement('div'); d.id='e2Debt';
+  if(paid.length){ const e=paid[0];
+    d.className='e2Dp'; d.style.setProperty('--ec',e.col);
+    d.innerHTML='<span class="e2DpS">✦ DEBT PAID ✦</span><b>'+e2Esc(e.n)+'</b><small>'+e2Esc(e.chn)+(paid.length>1?' · +'+(paid.length-1)+' MORE':'')+' · SEE THE BOOK OF DEBTS</small>';
+    rk.appendChild(d);
+    setTimeout(()=>{ try{ d.classList.add('go'); SFX.e2Paid(); flash(0.4,e.col); domConfetti(40,'gameover'); }catch(x){} }, 1500);
+    return; }
+  const e=e2Owed(all).filter(x=>x.ch!=='ranks')[0]; if(!e) return; // the rank bar right above already tells the rank story
+  const s0=E2.snap[e.id]||{have:e.have,pct:e.pct}, p0=Math.min(s0.pct,e.pct), h0=Math.min(s0.have,e.have);
+  d.style.setProperty('--ec',e.col);
+  d.innerHTML='<div class="e2DT"><span class="e2DL">✒ NEAREST DEBT</span><b>'+e2Esc(e.n)+'</b><span class="e2DN">'+e2Esc(e2PT(Object.assign({},e,{have:h0})))+'</span></div>'
+    +e2Bar(p0,'e2BarL')+'<div class="e2DC">'+e2Esc(e.cond)+'<span class="e2DG">'+(e.pct>p0+0.0005?'+'+Math.max(1,Math.round((e.pct-p0)*100))+'% TONIGHT':'')+'</span></div>';
+  rk.appendChild(d);
+  const bar=d.querySelector('.e2Bar i'), num=d.querySelector('.e2DN'), g=d.querySelector('.e2DG');
+  if(g) g.style.opacity=0;
+  if(e.pct<=p0+0.0005) return;
+  const T0=performance.now()+1300, DUR=1500; let lastTick=-1;
+  const step=()=>{ if(!d.isConnected) return; const q=Math.max(0,Math.min(1,(performance.now()-T0)/DUR)), qe=1-Math.pow(1-q,3);
+    const p=p0+(e.pct-p0)*qe, hv=h0+(e.have-h0)*qe;
+    if(bar) bar.style.width=(p*100).toFixed(2)+'%';
+    if(num) num.textContent=e2PT(Object.assign({},e,{have:hv}));
+    const tk=Math.floor(q*10); if(tk!==lastTick && q>0 && q<1){ lastTick=tk; try{ SFX.e2Tick(p); }catch(x){} }
+    if(q<1) requestAnimationFrame(step); else { d.classList.add('go'); if(g){ g.style.opacity=1; } try{ tone(880+e.pct*400,0.25,'sine',0.06); }catch(x){} } };
+  requestAnimationFrame(step);
+}
+{ const _ad=actuallyDie; actuallyDie=async function(){ const r=await _ad.apply(this,arguments); try{ setTimeout(e2Ledger,60); }catch(e){} return r; }; }
