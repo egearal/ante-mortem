@@ -76,11 +76,12 @@ const BOT = `(()=>{
     B.n++;
     B.states[state]=(B.states[state]||0)+1;
     if(state==='menu'){ if(!B.startedAt){ B.startedAt=B.n; try{ startGame(); }catch(e){ console.error('[bot startGame]', e && e.stack || e); } } return; }
-    if(state==='paused'){ try{ document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true})); }catch(e){} return; }
+    if(state==='paused'){ if(B.pauseHold) return; try{ document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true})); }catch(e){} return; }
     if(state==='dead'){ if(!B.res) B.res={ gt, clock:fmt(gt), level:P.level, kills:P.kills, coins:P.coins, err:!!window._amErr }; return; }
     if(P && P.level>B.maxLevel) B.maxLevel=P.level;
     if(state==='playing'){
       if(B.god && P){ P.hp=P.maxHp; }
+      if(B.manual){ for(const k of K) keys.delete(k); return; } // a human thumb is driving (probes/phone.js)
       steer();
       if(P.ovT>0 && typeof cashRage==='function'){ try{ cashRage(); }catch(e){} }
       if(B.n%9===0) { /* cash streaks and anything else wanting SPACE */ }

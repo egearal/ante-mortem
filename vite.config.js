@@ -47,6 +47,14 @@ function singleFile() {
       for (const m of srcTags.slice(1)) html = html.replace(m[0], '');
 
       this.emitFile({ type: 'asset', fileName: 'ante-mortem.html', source: html });
+
+      // A4: the hosted build also carries the install-as-app kit (ignored from file://)
+      const man = JSON.parse(fs.readFileSync(path.join(root, 'manifest.webmanifest'), 'utf8'));
+      man.start_url = './ante-mortem.html';
+      this.emitFile({ type: 'asset', fileName: 'manifest.webmanifest', source: JSON.stringify(man, null, 2) });
+      this.emitFile({ type: 'asset', fileName: 'sw.js', source: fs.readFileSync(path.join(root, 'sw.js'), 'utf8') });
+      for (const f of fs.readdirSync(path.join(root, 'icons')).filter(f => /\.(png|svg)$/.test(f)))
+        this.emitFile({ type: 'asset', fileName: 'icons/' + f, source: fs.readFileSync(path.join(root, 'icons', f)) });
     },
   };
 }

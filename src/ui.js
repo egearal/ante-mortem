@@ -383,7 +383,7 @@ function renderRelics(){
    INPUT
    ============================================================ */
 const keys=new Set();
-const touch={active:false,wx:0,wy:0};
+const touch={active:false,wx:0,wy:0,joy:false,jx:0,jy:0};
 window.addEventListener('keyup',e=>{ if(e.key==='Tab'){ e.preventDefault(); tabHold=false; hideTab(); } });
 window.addEventListener('keydown',e=>{
   let k=e.key.toLowerCase();
@@ -516,16 +516,15 @@ window.addEventListener('keyup',e=>{
   }
   keys.delete(k);
 });
-function ptr(e){ const t=e.touches?e.touches[0]:e; touch.wx=t.clientX+camX; touch.wy=t.clientY+camY; }
-cv.addEventListener('pointerdown',e=>{ if(e.button!==0) return; touch.active=true; ptr(e); });
-cv.addEventListener('pointermove',e=>{ if(touch.active)ptr(e); });
-window.addEventListener('pointerup',()=>touch.active=false);
-window.addEventListener('pointercancel',()=>touch.active=false);
+// mouse: hold-to-walk toward the cursor. touch: the floating stick (A4 block, end of file)
+function ptr(e){ touch.wx=e.clientX/ZOOM+camX; touch.wy=e.clientY/ZOOM+camY; }
+cv.addEventListener('pointerdown',e=>{ if(e.pointerType==='touch'||e.pointerType==='pen'){ joyDown(e); return; } if(e.button!==0) return; touch.active=true; ptr(e); });
+cv.addEventListener('pointermove',e=>{ if(e.pointerType==='touch'||e.pointerType==='pen'){ joyMove(e); return; } if(touch.active)ptr(e); });
+window.addEventListener('pointerup',e=>{ if(e.pointerType==='touch'||e.pointerType==='pen'){ joyUp(e); return; } touch.active=false; });
+window.addEventListener('pointercancel',e=>{ joyUp(e); touch.active=false; });
 cv.addEventListener('contextmenu',e=>e.preventDefault());
-cv.addEventListener('touchstart',e=>{ touch.active=true; ptr(e); e.preventDefault(); },{passive:false});
-cv.addEventListener('touchmove',e=>{ ptr(e); e.preventDefault(); },{passive:false});
-cv.addEventListener('touchend',()=>touch.active=false);
-cv.addEventListener('touchcancel',()=>touch.active=false,{passive:true});
+cv.addEventListener('touchstart',e=>{ e.preventDefault(); },{passive:false});
+cv.addEventListener('touchmove',e=>{ e.preventDefault(); },{passive:false});
 $('startBtn').addEventListener('click',startGame);
 /* menu juice: plaque tilt toward cursor, piano-key hover chimes, press squash + ring burst */
 { const chime=b=>{ if(!AC||muted) return;
@@ -611,7 +610,16 @@ const SOULS=[
  {id:'brute',  n:'THE BRUTE',  g:'⚒', col:'#ff9a3c', d:'Starts with Iron Stakes. +25% damage, +20 blood, −15% speed. Subtlety is for the thin.',
    pips:'♥♥♥♥♥ · 👢 · ⚔⚔⚔⚔', u:()=>(LT.kills||0)>=2500, uTxt:'2,500 LIFETIME KILLS', ap:()=>{ P.wlv={stakes:1}; P.damage*=1.25; P.maxHp+=20; P.hp=P.maxHp; P.speed*=0.85; }},
  {id:'yolk',   n:'THE YOLK',   g:'◌', col:'#fff2c0', d:'Hatched too early. Tiny, quick, 60 blood — wide pockets, and the reels lean toward pairs for it.',
-   pips:'♥ · 👢👢👢👢👢 · 🎲🎲🎲🎲', u:()=>SEC.has('theegg'), uTxt:'FIND THE EGG', ap:()=>{ P.wlv={razor:1}; P.radius*=0.7; P.speed*=1.2; P.maxHp=60; P.hp=60; P.pickup+=24; P.yolkFate=true; }}
+   pips:'♥ · 👢👢👢👢👢 · 🎲🎲🎲🎲', u:()=>SEC.has('theegg'), uTxt:'FIND THE EGG', ap:()=>{ P.wlv={razor:1}; P.radius*=0.7; P.speed*=1.2; P.maxHp=60; P.hp=60; P.pickup+=24; P.yolkFate=true; }},
+ // ==== D1 — THE SEATS: four souls that change HOW you play (mechanics block at the end of this file) ====
+ {id:'sharp',  n:'THE CARDSHARP', g:'♣', col:'#36f08a', d:'Reads the deck: every slot shows its result BEFORE you pull — the skill and the match. Don\'t like the hand? Burn 25 coins to RE-DEAL, once per slot (R). −15 max blood.',
+   pips:'♥♥ · 👢👢👢 · 🃏🃏🃏🃏🃏', u:()=>(LT.triples||0)>=3, uTxt:'LAND 3 TRIPLES', ap:()=>{ P.sharp=true; P.maxHp=Math.max(40,P.maxHp-15); P.hp=P.maxHp; }},
+ {id:'martyr', n:'THE MARTYR',    g:'✝', col:'#ff2448', d:'Never heals — no regen, no leech, no fountains, no wheel mercy. Every 10% of blood missing: +6% damage, +4% fire rate (up to +54% / +36%). +40 max blood to bleed with.',
+   pips:'♥♥♥♥ · 👢👢👢 · ⚔⚔⚔⚔⚔', u:()=>(LT.rites||0)>=10, uTxt:'SIT AT THE RED TABLE 10 TIMES', ap:()=>{ P.martyr=true; P.maxHp+=40; P.hp=P.maxHp; P.regen=0; P.lifesteal=0; }},
+ {id:'magpie', n:'THE MAGPIE',    g:'✧', col:'#2ee6ff', d:'Pickup reach ×2.5. Every coin has a 3% chance to be a GOLDEN CHIP — grab it and a free mini-slot spins: triple = a free level, pair = a free power, bust = coins. −20% damage.',
+   pips:'♥♥♥ · 👢👢👢👢 · ◈◈◈◈', u:()=>(LT.coins||0)>=5000, uTxt:'PICK UP 5,000 LIFETIME COINS', ap:()=>{ P.magpie=true; P.pickup*=2.5; P.damage*=0.8; }},
+ {id:'banker', n:'THE BANKER\'S GHOST', g:'♖', col:'#c4ff4d', d:'Interest: every 60s, +8% of the coins you hold. Cash RAGE at 90%+ and it pays DOUBLE that: +16% of your purse. The wheel won\'t spin for the dead — no Wheel of Souls. −10 max blood.',
+   pips:'♥♥ · 👢👢👢 · ◈◈◈◈◈', u:()=>((typeof SEATS!=='undefined'&&SEATS.st.rage)||0)>=15, uTxt:'CASH OUT RAGE AT 90%+ 15 TIMES', ap:()=>{ P.banker=true; P.maxHp=Math.max(40,P.maxHp-10); P.hp=P.maxHp; }}
 ];
 function curSoul(){ if(DLY_RNG && typeof dlySoul==='function') return dlySoul(); const s=SOULS.find(x=>x.id===(IDX.sl||'vesper')); return (s&&s.u())?s:SOULS[0]; }
 // INDULGENCES — gilt buys the night a head start. Consumed when the run begins.
@@ -901,3 +909,833 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
   try{ tone(1450,0.02,'square',0.028); }catch(x){}
 },true);
+
+/* ============================================================
+   ◈ A2 — THE LANES. Announces, secret cards, House tips and feat toasts
+   share one stacked column (#a2Notes) so they can never overlap each other,
+   and the column is parked wherever the open table/ledger is NOT: above it,
+   beside it, below it — or, on the death ledger, in the margin (wide) or
+   pushing the ledger down (narrow). Text scales to fit any width.
+   ============================================================ */
+const A2L={ el:null, raf:0, lastDead:false };
+function a2Notes(){
+  if(A2L.el) return A2L.el;
+  const n=document.createElement('div'); n.id='a2Notes'; n.className='a2play';
+  const w=$('wrap')||document.body; w.appendChild(n);
+  const an=$('announce'); if(an) n.appendChild(an);
+  let sr=$('secretReveal'); if(!sr){ sr=document.createElement('div'); sr.id='secretReveal'; sr.className='hidden'; }
+  n.appendChild(sr);
+  A2L.el=n;
+  try{ new MutationObserver(()=>a2LaneSoon()).observe(n,{subtree:true,childList:true,attributes:true,attributeFilter:['class'],characterData:true}); }catch(e){}
+  ['slot','gameover','wheelLayer','crashLayer','achToasts'].forEach(id=>{ const e=$(id); if(e) try{ new MutationObserver(()=>a2LaneSoon()).observe(e,{attributes:true,attributeFilter:['class'],childList:id==='achToasts'}); }catch(x){} });
+  window.addEventListener('resize',()=>a2LaneSoon());
+  return n;
+}
+function a2LaneSoon(){ if(A2L.raf) return; A2L.raf=requestAnimationFrame(()=>{ A2L.raf=0; try{ a2Lane(); }catch(e){} }); }
+function _a2vis(e){ if(!e) return null; if(e.closest('.hidden')) return null; const r=e.getBoundingClientRect(); return (r.width>0&&r.height>0)?r:null; }
+function _a2union(rs){ rs=rs.filter(Boolean); if(!rs.length) return null;
+  return { left:Math.min(...rs.map(r=>r.left)), right:Math.max(...rs.map(r=>r.right)), top:Math.min(...rs.map(r=>r.top)), bottom:Math.max(...rs.map(r=>r.bottom)) }; }
+function a2Lane(){
+  const n=a2Notes(), W=innerWidth, H=innerHeight;
+  const dead=(typeof state!=='undefined') && state==='dead' && !$('gameover').classList.contains('hidden');
+  // what is open, and where does it stand?
+  let m=null, parts=[];
+  if(!dead){
+    if(state==='slot'){ parts=[_a2vis($('machine')), _a2vis($('payTable')), _a2vis($('sacCard'))].filter(Boolean); m=_a2union(parts); }
+    else if(state==='wheel') m=_a2vis(document.querySelector('#wheelLayer .wheelShell'));
+    else if(state==='crash') m=_a2vis(document.querySelector('#crashLayer .wheelShell'));
+  }
+  const modal = dead || !!m;
+  // tips and feat toasts join the column while a table or the ledger is open
+  const co=$('coachToast'), at=$('achToasts');
+  // feat toasts keep their bottom-left corner unless that corner would land on the open table
+  const zone={left:8, right:Math.min(W,340), top:H-130-Math.max(60,(at&&at.offsetHeight)||0), bottom:H-120};
+  const hitZ=r=>r && r.left<zone.right && r.right>zone.left && r.top<zone.bottom && r.bottom>zone.top;
+  const dockAt = dead || (!!m && (parts.length?parts:[m]).some(hitZ));
+  if(modal){ if(co && co.parentNode!==n) n.appendChild(co); }
+  else if(co && co.parentNode===n) document.body.appendChild(co);
+  if(dockAt){ if(at && at.parentNode!==n) n.appendChild(at); }
+  else if(at && at.parentNode===n) ($('wrap')||document.body).insertBefore(at, n);
+  // fit the announce to the width it will get
+  const an=$('announce');
+  const go=$('gameover');
+  n.style.left=n.style.top=n.style.width=n.style.right=''; n.classList.remove('a2play','a2above','a2side','a2below','a2top','a2deadSide','a2deadTop');
+  let availW=Math.min(W-24, 980);
+  if(dead){
+    const p=_a2vis(go&&go.querySelector('.panel'));
+    const side = p && (W-p.right) >= 240;
+    // A3's share plaque is pinned top-right of the death layer — the column always starts below it
+    // if A3's share plaque is still pinned to the layer (not seated in the ledger), start below it
+    const shEl=$('a3Share'), sh=(shEl && !shEl.closest('.panel')) ? _a2vis(shEl) : null;
+    const top0 = sh ? Math.round(sh.bottom+10) : (side?18:10);
+    n.style.top=top0+'px';
+    if(side){ n.classList.add('a2deadSide'); n.style.left=Math.round(p.right+18)+'px'; n.style.width=Math.round(Math.min(380, W-p.right-32))+'px'; availW=Math.min(380, W-p.right-32); }
+    else { n.classList.add('a2deadTop'); }
+    a2FitAnn(an, availW);
+    if(go){ const hN = side?0:n.getBoundingClientRect().height; go.style.paddingTop = hN>4 ? Math.round(top0+hN+12)+'px' : ''; }
+    A2L.lastDead=true; return;
+  }
+  if(A2L.lastDead && go){ go.style.paddingTop=''; A2L.lastDead=false; }
+  if(!m){ n.classList.add('a2play'); a2FitAnn(an, availW); return; }
+  a2FitAnn(an, availW);
+  let hN=n.getBoundingClientRect().height;
+  if(hN<4){ n.classList.add('a2above'); n.style.top='8px'; return; }
+  if(m.top-10 >= hN+6){ n.classList.add('a2above'); n.style.top=Math.round(Math.max(6, m.top-10-hN))+'px'; return; }
+  const L=m.left, R=W-m.right;
+  if(Math.max(L,R) >= 210){
+    const onLeft = L>=R; const w=Math.min(380, (onLeft?L:R)-28);
+    n.classList.add('a2side'); n.style.width=Math.round(w)+'px';
+    if(onLeft) n.style.left=Math.round(L-18-w)+'px'; else n.style.left=Math.round(m.right+18)+'px';
+    a2FitAnn(an, w); hN=n.getBoundingClientRect().height;
+    n.style.top=Math.round(Math.max(8, Math.min(m.top+8, H-hN-8)))+'px'; return;
+  }
+  if(H-m.bottom-10 >= hN+6){ n.classList.add('a2below'); n.style.top=Math.round(m.bottom+10)+'px'; return; }
+  n.classList.add('a2top'); n.style.top='6px'; // no clean room anywhere: hug the very top, compact
+}
+// the banner shrinks to its lane; if even the smallest size cannot hold it on one line, it wraps
+function a2FitAnn(an, availW){
+  if(!an || an.classList.contains('hidden')) return;
+  const len=Math.max(8,(an.textContent||'').length);
+  const fs=Math.max(14, Math.min(30, Math.floor((availW-56)/(len*0.86))));
+  an.style.fontSize=fs+'px';
+  an.classList.toggle('a2wrap', (len*fs*0.86) > (availW-56));
+}
+{ // a found secret already flips its own card (riddle → name → +25 GILT) — the duplicate banner is dropped
+  const _ann=announce;
+  announce=function(txt, good){
+    a2Notes();
+    if(typeof txt==='string' && txt.indexOf('🗝 SECRET — ')===0){
+      const nm=txt.slice(11).split(' · ')[0].trim();
+      setTimeout(()=>{ const sr=$('secretReveal'); if(sr && !sr.classList.contains('hidden') && sr.classList.contains('go') && nm && (sr.textContent||'').indexOf(nm)>=0) return; _ann(txt, good); }, 0);
+      return;
+    }
+    return _ann(txt, good);
+  };
+  try{ a2Notes(); }catch(e){}
+}
+
+/* ◈ A2 — THE LEDGER'S HEADER: how you died and how long, engraved under the verdict */
+function a2DressLedger(){
+  try{
+    const sub=$('goSub'); if(!sub) return;
+    const t=sub.textContent||'', k=t.indexOf(' — taken by ');
+    const by = k>=0 ? t.slice(k+12) : '';
+    let ep=$('a2Epitaph');
+    if(!ep){ ep=document.createElement('div'); ep.id='a2Epitaph'; sub.parentNode.insertBefore(ep, sub.nextSibling); }
+    ep.innerHTML='<span class="a2epBy">☠ '+(by?('TAKEN BY <b>'+by+'</b>'):'THE HOUSE COLLECTS')+'</span>'
+      +'<span class="a2epT">SURVIVED <b>'+fmt(gt)+'</b></span><span class="a2epL">LEVEL <b>'+(P?P.level:1)+'</b></span>';
+    if(k>=0) sub.textContent=t.slice(0,k);
+    // A3's share plaque gets a seat in the what's-next rows (same node, same handler — only moved)
+    { const sh=$('a3Share'), pn=sub.parentNode, bb=$('booksBtn'); if(sh && pn && sh.parentNode!==pn) pn.insertBefore(sh, bb||null); }
+    const sc=$('goScore'); if(sc && !sc.dataset.a2){ sc.dataset.a2=1; const lb=document.createElement('div'); lb.className='a2scoreLbl'; lb.textContent='THE TALLY'; sc.parentNode.insertBefore(lb, sc); }
+  }catch(e){}
+}
+{ const _ad=actuallyDie;
+  actuallyDie=async function(){ const was=state; const r=_ad.apply(this, arguments); if(was!=='dead') a2DressLedger(); return r; }; }
+
+/* ◈ A2 — the LEVEL CHARGE gauge's brass frame (canvas HUD). Gradients cached per geometry. */
+const _a2GF={};
+function a2GaugeFrame(x,y,w,h){
+  const k=(x|0)+'|'+(w|0)+'|'+(y|0);
+  let g=_a2GF[k];
+  if(!g){ for(const kk in _a2GF) delete _a2GF[kk];
+    const b=ctx.createLinearGradient(x-6,y-6,x+w*0.35,y+h+6);
+    b.addColorStop(0,'#fff2c0'); b.addColorStop(0.18,'#c8922e'); b.addColorStop(0.42,'#6e4a12'); b.addColorStop(0.6,'#e8b64c'); b.addColorStop(0.82,'#8a5f18'); b.addColorStop(1,'#f0cf7a');
+    const c=ctx.createLinearGradient(0,y-2,0,y+h+2); c.addColorStop(0,'#030102'); c.addColorStop(1,'#16070b');
+    g=_a2GF[k]={b,c}; }
+  ctx.fillStyle='rgba(0,0,0,0.55)'; roundRect(x-7,y-5,w+14,h+12,9); ctx.fill();          // drop shadow
+  ctx.fillStyle=g.b; roundRect(x-6,y-6,w+12,h+12,8); ctx.fill();                       // cast rim
+  ctx.fillStyle='#140a03'; roundRect(x-3,y-3,w+6,h+6,6); ctx.fill();                   // the cut
+  ctx.fillStyle=g.c; roundRect(x-2,y-2,w+4,h+4,5); ctx.fill();                         // the channel
+  ctx.strokeStyle='rgba(255,240,192,0.45)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x-1,y-5.5); ctx.lineTo(x+w+1,y-5.5); ctx.stroke(); // top bevel catch-light
+  ctx.fillStyle='#fff2c0'; for(const bx of [x-3, x+w+3]){ ctx.beginPath(); ctx.arc(bx, y+h/2, 1.6, 0, 6.283); ctx.fill(); } // rivets
+}
+
+/* ============================================================
+   A4 — THE POCKET CASINO
+   A phone is a casino you carry. Left thumb: a floating gilt stick that
+   appears wherever it lands. Right thumb: the BET coin — it IS the space bar
+   (real keydown/keyup, so hold-to-roll and hold-to-re-ante just work).
+   II pauses, ✦ CODEX opens the book, CASH banks the ascent. On touch, every
+   "SPACE" the House prints becomes "◈ BET".
+   ============================================================ */
+const IS_TOUCH=(()=>{ try{ return matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints>0 && matchMedia('(hover: none)').matches); }catch(e){ return false; } })();
+window._touchUI=false;
+function tcKey(type,k){
+  const code=k===' '?'Space':k==='Escape'?'Escape':k==='Enter'?'Enter':'Key'+k.toUpperCase();
+  try{ window.dispatchEvent(new KeyboardEvent(type,{key:k,code,bubbles:true,cancelable:true})); }catch(e){}
+}
+function tcBuzz(ms){ try{ if(navigator.vibrate && !muted) navigator.vibrate(ms); }catch(e){} }
+// soft felt sounds for the thumb controls (synthesized, like everything else)
+function tcSfx(kind){ if(!AC||muted) return;
+  try{
+    if(kind==='stick'){ tone(196,0.05,'sine',0.05,140); }
+    else if(kind==='bet'){ tone(523,0.04,'triangle',0.05); tone(1046,0.03,'sine',0.025); }
+    else if(kind==='btn'){ tone(880,0.04,'sine',0.04); setTimeout(()=>tone(1318,0.04,'sine',0.03),40); }
+  }catch(e){} }
+
+/* ---------- the stick ---------- */
+const JOY={id:-1,ox:0,oy:0,R:56,el:null,knob:null};
+function joyEls(){
+  if(JOY.el) return;
+  const b=document.createElement('div'); b.id='tcStick'; b.innerHTML='<div class="tcRing"></div><div class="tcKnob"></div>';
+  $('wrap').appendChild(b); JOY.el=b; JOY.knob=b.querySelector('.tcKnob');
+}
+function joyPlace(){ if(!JOY.el) return; JOY.el.style.transform='translate('+(JOY.ox-JOY.R)+'px,'+(JOY.oy-JOY.R)+'px)'; }
+function joyDown(e){
+  setTouchUI(true);
+  if(state!=='playing' || JOY.id!==-1 || tabHold) return;
+  if(e.clientX>window.innerWidth*0.62) return; // the right thumb's half belongs to the BET coin
+  joyEls();
+  const sa=8; // keep the ring on screen
+  JOY.id=e.pointerId;
+  JOY.ox=clamp(e.clientX,JOY.R+sa,window.innerWidth-JOY.R-sa); JOY.oy=clamp(e.clientY,JOY.R+sa,window.innerHeight-JOY.R-sa);
+  joyPlace(); JOY.knob.style.transform='translate(0px,0px)'; JOY.el.classList.add('on');
+  try{ cv.setPointerCapture(e.pointerId); }catch(x){}
+  touch.joy=false; tcSfx('stick');
+}
+function joyMove(e){
+  if(e.pointerId!==JOY.id) return;
+  let dx=e.clientX-JOY.ox, dy=e.clientY-JOY.oy; const d=Math.hypot(dx,dy)||1;
+  if(d>JOY.R){ // the ring follows a thumb that overruns it
+    JOY.ox=e.clientX-dx/d*JOY.R; JOY.oy=e.clientY-dy/d*JOY.R; dx=dx/d*JOY.R; dy=dy/d*JOY.R; joyPlace(); }
+  JOY.knob.style.transform='translate('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px)';
+  if(d>JOY.R*0.16){ touch.joy=true; touch.jx=dx/Math.min(d,JOY.R); touch.jy=dy/Math.min(d,JOY.R); }
+  else touch.joy=false;
+}
+function joyUp(e){
+  if(e && e.pointerId!==undefined && e.pointerId!==JOY.id) return;
+  JOY.id=-1; touch.joy=false; touch.jx=touch.jy=0;
+  if(JOY.el) JOY.el.classList.remove('on');
+}
+window.addEventListener('blur',()=>joyUp());
+
+/* ---------- the thumb buttons ---------- */
+const TC={bet:null,cash:null,pause:null,codex:null,betDown:false,deadT:0,last:'',tab:false};
+function tcButton(id,html,title){ const b=document.createElement('button'); b.id=id; b.className='tcBtn'; b.type='button'; b.innerHTML=html; b.title=title;
+  b.addEventListener('contextmenu',e=>e.preventDefault()); $('wrap').appendChild(b); return b; }
+function tcBuild(){
+  if(TC.bet) return;
+  TC.bet=tcButton('tcBet','<span class="tcG">◈</span><span class="tcL">BET</span>','BET — the space bar');
+  TC.cash=tcButton('tcCash','<span class="tcG">▲</span><span class="tcL">CASH</span>','CASH OUT the ascent');
+  TC.pause=tcButton('tcPause','<span class="tcG">II</span>','Pause');
+  TC.codex=tcButton('tcCodex','<span class="tcG">✦</span><span class="tcL">CODEX</span>','Your codex');
+  // BET: pointerdown = keydown SPACE, pointerup = keyup SPACE. On the ledger it is R: hold to re-ante, tap to read on.
+  TC.bet.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); setTouchUI(true);
+    try{ TC.bet.setPointerCapture(e.pointerId); }catch(x){}
+    if(TC.betDown) return; TC.betDown=true; TC.bet.classList.add('on'); tcBuzz(8); tcSfx('bet');
+    if(state==='dead'){ TC.deadT=performance.now(); TC.bet.classList.add('holding'); tcKey('keydown','r'); }
+    else { TC.deadT=0; tcKey('keydown',' '); } });
+  const betUp=e=>{ if(!TC.betDown) return; TC.betDown=false; TC.bet.classList.remove('on','holding');
+    if(TC.deadT){ const held=performance.now()-TC.deadT; TC.deadT=0; tcKey('keyup','r');
+      if(held<400 && state==='dead'){ tcKey('keydown',' '); tcKey('keyup',' '); } }
+    else tcKey('keyup',' '); };
+  TC.bet.addEventListener('pointerup',betUp); TC.bet.addEventListener('pointercancel',betUp); TC.bet.addEventListener('lostpointercapture',betUp);
+  TC.cash.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); tcBuzz(14); tcKey('keydown','Enter'); tcKey('keyup','Enter'); });
+  TC.pause.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); tcSfx('btn'); tcKey('keydown','Escape'); tcKey('keyup','Escape'); });
+  TC.codex.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); tcCodex(); });
+  // the pause card gains a codex thumb (RESUME / HOW TO PLAY / QUIT pills already exist below it)
+  const pc=document.querySelector('.pauseCard');
+  if(pc && !$('tcPzRow')){ const r=document.createElement('div'); r.id='tcPzRow';
+    r.innerHTML='<button class="btn msm" id="tcPzCodex" type="button">✦ YOUR CODEX</button><div class="tcPzHint">TAP THE CARD TO RESUME</div>';
+    pc.appendChild(r);
+    $('tcPzCodex').addEventListener('click',e=>{ e.stopPropagation(); tcCodex(); }); }
+}
+function tcCodex(){
+  const tp=$('tabPanel');
+  if(TC.tab && tp && tp.classList.contains('show')){ TC.tab=false; tabHold=false; hideTab(); SFX.casinoDing&&SFX.casinoDing(); return; }
+  if(!(state==='playing'||state==='slot'||state==='wheel'||state==='paused')) return;
+  joyUp(); TC.tab=true; tabHold=true; showTab(); SFX.uiDing&&SFX.uiDing(); tcBuzz(6);
+}
+// with the codex open by touch, a tap outside its columns closes it
+document.addEventListener('pointerdown',e=>{
+  if(!TC.tab || e.pointerType==='mouse') return;
+  const t=e.target; if(t.closest && (t.closest('.tpCol')||t.closest('#tcCodex')||t.closest('#tcPzCodex'))) return;
+  TC.tab=false; tabHold=false; hideTab(); e.stopPropagation(); e.preventDefault();
+},true);
+// the death roll is a mash: on touch, any tap on the layer is a press too
+document.addEventListener('pointerdown',e=>{
+  if(!window._touchUI || e.pointerType==='mouse' || state!=='marker') return;
+  if(e.target.closest && e.target.closest('button')) return;
+  tcKey('keydown',' '); tcKey('keyup',' ');
+},false);
+
+// which thumbs show, and what the coin says — cheap, class flips only on change
+function tcSync(){
+  if(!window._touchUI || !TC.bet) return;
+  if(state!=='playing' && JOY.id!==-1) joyUp();
+  if(TC.tab){ const tp=$('tabPanel'); if(!tp || !tp.classList.contains('show')) TC.tab=false; }
+  const crashLive = state==='crash' && typeof crash!=='undefined' && crash && crash.live && !crash.jk;
+  const betOn = ['playing','slot','wheel','crash','marker','dead'].includes(state) && !(state==='crash' && crash && crash.jk);
+  let lbl='BET';
+  if(state==='dead') lbl=(window._recapDone?'AGAIN':'READ');
+  else if(state==='marker') lbl='PRESS';
+  else if(state==='crash') lbl=crash&&crash.live?'PUSH':'LAUNCH';
+  else if(state==='slot' && typeof slotStage!=='undefined' && slotStage==='offer') lbl='HOLD';
+  const key=state+'|'+betOn+'|'+crashLive+'|'+lbl;
+  if(key===TC.last) return; TC.last=key;
+  TC.bet.classList.toggle('show',betOn);
+  TC.bet.classList.toggle('dead',state==='dead');
+  TC.bet.querySelector('.tcL').textContent=lbl;
+  TC.cash.classList.toggle('show',crashLive);
+  TC.pause.classList.toggle('show',state==='playing');
+  TC.codex.classList.toggle('show',state==='playing'||state==='slot'||state==='wheel');
+}
+setInterval(tcSync,90);
+
+/* ---------- fit the cabinets to the glass ----------
+   A short landscape phone can't hold the slot machine, the wheel or the ascent
+   at full size. Measure the natural box and shrink it (CSS `scale`, which
+   composes with any transform animation the machine wears) until it fits. */
+const TC_FIT=['#machine','#wheelLayer .wheelShell','#crashLayer .wheelShell','#pauseLayer .pauseCard'];
+function tcFit(){
+  const vw=window.innerWidth, vh=window.innerHeight;
+  for(const sel of TC_FIT){ const el=document.querySelector(sel); if(!el) continue;
+    if(!el.offsetParent && el.offsetWidth===0){ continue; } // hidden layer — leave as is
+    const w=el.offsetWidth, h=el.offsetHeight; if(!w||!h) continue;
+    // on a short touch screen the pause card shares the glass with the pill row + HUD
+    const ah = (sel==='#pauseLayer .pauseCard' && window._touchUI && vh<560) ? vh-176 : vh-12;
+    const s=Math.min(1,(vw-12)/w,ah/h);
+    const v=s<0.995?s.toFixed(3):'';
+    if(el.style.scale!==v) el.style.scale=v; }
+}
+window.addEventListener('resize',()=>setTimeout(tcFit,60));
+setInterval(()=>{ if(state==='slot'||state==='wheel'||state==='crash'||state==='paused') tcFit(); },250);
+
+/* ---------- the House speaks touch ---------- */
+const TC_PHRASES=[
+  [/⌨ WASD walk.*$/, '☝ LEFT THUMB walks · ◈ BET is every bet · CASH banks the ascent · II pause · ✦ CODEX · hold ◈ AGAIN to re-ante'],
+  [/— PRESS SPACE ✦/, '— TAP PLAY ✦'],
+  [/\b(press|PRESS) SPACE\b/g, 'TAP'],
+  [/\bHOLD SPACE\b/g, 'HOLD ◈ BET'],
+  [/\bMASH SPACE\b/g, 'MASH ◈ BET'],
+  [/\bWASD walks\b/g, 'Your left thumb walks'],
+  [/\bWASD\b/g, 'LEFT THUMB'],
+  [/\bSPACE\b/g, '◈ BET'],
+  [/\bENTER cashes\b/g, 'CASH cashes'],
+];
+function tcRelabelText(n){
+  const v=n.nodeValue; if(!v || !/SPACE|WASD|ENTER/.test(v)) return;
+  const par=n.parentNode; if(!par || par.nodeName==='SCRIPT' || par.nodeName==='STYLE' || par.nodeName==='TEXTAREA') return;
+  let o=v;
+  if(par.classList && par.classList.contains('keyhint')){ o=o.replace(/^\s*SPACE\s*$/,'◈ BET').replace(/^\s*ENTER\s*$/,'▲'); }
+  for(const [re,to] of TC_PHRASES) o=o.replace(re,to);
+  if(o!==v) n.nodeValue=o;
+}
+function tcRelabel(root){
+  if(!root) return;
+  if(root.nodeType===3){ tcRelabelText(root); return; }
+  if(root.nodeType!==1) return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT); let n; while((n=w.nextNode())) tcRelabelText(n);
+}
+let _tcMO=null;
+function setTouchUI(on){
+  if(!on || window._touchUI) return;
+  window._touchUI=true; document.body.classList.add('touchUI');
+  tcBuild(); tcRelabel(document.body); TC.last=''; tcSync();
+  try{ _tcMO=new MutationObserver(ms=>{ for(const m of ms){
+      if(m.type==='characterData') tcRelabelText(m.target);
+      else for(const a of m.addedNodes) tcRelabel(a); } });
+    _tcMO.observe(document.body,{subtree:true,childList:true,characterData:true}); }catch(e){}
+  // phones start on the lighter felt — auto-quality may still climb back if the device flies
+  try{ if(GFX.q==='auto' && state!=='playing'){ qLow=true; window._qFlipT=performance.now(); } }catch(e){}
+}
+// a touch device announces itself at boot; a touchscreen laptop on its first touch
+if(IS_TOUCH) setTouchUI(true);
+window.addEventListener('touchstart',()=>setTouchUI(true),{passive:true,capture:true});
+
+// the how-to book and the ledger pages turn with a swipe, like paper
+{ let sx=0, sy=0, sid=-1;
+  document.addEventListener('pointerdown',e=>{ if(e.pointerType==='mouse') return; sid=e.pointerId; sx=e.clientX; sy=e.clientY; },true);
+  document.addEventListener('pointerup',e=>{ if(e.pointerId!==sid) return; sid=-1;
+    const dx=e.clientX-sx, dy=e.clientY-sy; if(Math.abs(dx)<56 || Math.abs(dx)<Math.abs(dy)*1.4) return;
+    const hp=$('howPanel'), pr=document.getElementById('pageReveal');
+    const open=(hp&&!hp.classList.contains('hidden')) || (pr&&!pr.classList.contains('hidden'));
+    if(open) tcKey('keydown', dx<0?'ArrowRight':'ArrowLeft'); },true); }
+
+/* ---------- no zoom, no long-press menus, no stray selection ---------- */
+document.addEventListener('gesturestart',e=>e.preventDefault()); // iOS pinch
+document.addEventListener('dblclick',e=>{ if(window._touchUI) e.preventDefault(); });
+document.addEventListener('contextmenu',e=>{ if(window._touchUI && !(e.target.closest && e.target.closest('input,textarea'))) e.preventDefault(); });
+document.addEventListener('selectstart',e=>{ if(window._touchUI && !(e.target.closest && e.target.closest('input,textarea'))) e.preventDefault(); });
+// audio: iOS wants the context woken INSIDE a finished gesture, and a silent
+// buffer played through it, before it will ever sing
+{ const wake=()=>{ try{ initAudio(); if(AC){ if(AC.state==='suspended') AC.resume().catch(()=>{});
+      const b=AC.createBuffer(1,1,22050), s=AC.createBufferSource(); s.buffer=b; s.connect(AC.destination); s.start(0); }
+    if(AC && AC.state==='running'){ ['touchend','click','pointerup'].forEach(ev=>window.removeEventListener(ev,wake,true)); } }catch(e){} };
+  ['touchend','click','pointerup'].forEach(ev=>window.addEventListener(ev,wake,true)); }
+
+/* ---------- install as an app (hosted build only — never from file://) ---------- */
+if(/^https?:$/.test(location.protocol) && !document.querySelector('link[rel="manifest"]')){
+  const l=document.createElement('link'); l.rel='manifest'; l.href='./manifest.webmanifest'; document.head.appendChild(l); }
+if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
+  window.addEventListener('load',()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
+}
+
+/* ============================================================
+   D1 — THE SEATS. Four new souls (Cardsharp, Martyr, Magpie,
+   Banker's Ghost), their mechanics hooks, the unlock ceremony,
+   and a painted-in-code GILT NOIR portrait for EVERY soul,
+   baked once to an offscreen canvas. Persistence: am_seats_v1
+   (new, additive) — {seen:[soul ids already celebrated], st:{rage}}.
+   ============================================================ */
+const SEATS_KEY='am_seats_v1';
+const SEATS={seen:null, st:{rage:0}, _ld:false};
+const SEAT_OLD=['vesper','dealer','widow','debtor','brute','yolk'];
+let _seatsT=null;
+function seatsSaveSoon(){ clearTimeout(_seatsT); _seatsT=setTimeout(()=>{ try{ if(store) store.set(SEATS_KEY, JSON.stringify({seen:SEATS.seen||[], st:SEATS.st}), false); }catch(e){} }, 700); }
+(async function seatsLoad(){
+  try{ if(store){ const r=await store.get(SEATS_KEY,false);
+    if(r&&r.value){ const o=JSON.parse(r.value);
+      if(Array.isArray(o.seen)) SEATS.seen=o.seen.filter(x=>typeof x==='string');
+      if(o.st&&typeof o.st==='object'){ SEATS.st.rage=Math.max(0,(+o.st.rage)|0); } } } }catch(e){}
+  SEATS._ld=true;
+})();
+Object.assign(GLYPH_COL,{ soul_vesper:'#e6d9c2', soul_dealer:'#6fb7ff', soul_widow:'#c98bff', soul_debtor:'#ffd36b', soul_brute:'#ff9a3c', soul_yolk:'#fff2c0',
+  soul_sharp:'#36f08a', soul_martyr:'#ff2448', soul_magpie:'#2ee6ff', soul_banker:'#c4ff4d' });
+// how close is a sealed seat? [have, need] — shown under the lock
+const SOUL_PROG={
+  dealer:()=>[RANK.rank,12], widow:()=>[SEC.size,12], debtor:()=>[LT.deaths||0,25], brute:()=>[LT.kills||0,2500],
+  sharp:()=>[LT.triples||0,3], martyr:()=>[LT.rites||0,10], magpie:()=>[LT.coins||0,5000], banker:()=>[SEATS.st.rage||0,15] };
+function _hexA(h,a){ const n=parseInt((h||'#ffffff').slice(1),16); return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')'; }
+
+/* ---------- SFX for the seats (all synthesized) ---------- */
+Object.assign(SFX,{
+  seatUnlock(){ tone(55,1.6,'sine',0.22,49); tone(82,1.3,'triangle',0.09,80); noise(0.6,0.05,900);
+    [392,523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>{ tone(f,0.55,'sine',0.12); tone(f*2,0.2,'sine',0.03); },380+i*95));
+    setTimeout(()=>{ SFX.dingBells(); SFX.chipStack(); },1000); },
+  cardFlip(){ noise(0.04,0.12,4200); tone(1250,0.035,'square',0.04); setTimeout(()=>tone(1660,0.05,'sine',0.05),45); },
+  riffle(){ for(let i=0;i<9;i++) setTimeout(()=>noise(0.022,0.09,3200+i*180),i*28); setTimeout(()=>SFX.cardFlip(),300); },
+  stigmata(n){ tone(98-n*3,0.7,'sine',0.2,80); tone(196,0.35,'triangle',0.05,150); setTimeout(()=>tone(1046+n*60,0.25,'sine',0.05),90); },
+  refuse(){ noise(0.12,0.04,700); tone(180,0.12,'sine',0.05,120); },
+  chipClink(){ tone(2093,0.05,'square',0.06); setTimeout(()=>tone(2637,0.09,'sine',0.08),50); noise(0.03,0.05,5000); },
+  chipTick(i){ tone(700+i*160,0.05,'square',0.05); noise(0.02,0.04,3000); },
+  register(){ tone(1568,0.07,'square',0.07); setTimeout(()=>tone(2093,0.16,'sine',0.1),70); setTimeout(()=>{ noise(0.08,0.08,2400); SFX.chipStack(); },160); }
+});
+
+/* ---------- THE PORTRAITS — busts in the GILT NOIR manner ---------- */
+const _PORT={}, _PORTURL={};
+const SOUL_PAINT=(function(){
+  const INK='#050203';
+  const lg=(g,x0,y0,x1,y1,st)=>{ const r=g.createLinearGradient(x0,y0,x1,y1); st.forEach(s=>r.addColorStop(s[0],s[1])); return r; };
+  const rg=(g,x,y,r0,r1,st)=>{ const r=g.createRadialGradient(x,y,r0,x,y,r1); st.forEach(s=>r.addColorStop(s[0],s[1])); return r; };
+  const ink=(g,fill,lw)=>{ g.fillStyle=fill; g.fill(); g.strokeStyle=INK; g.lineWidth=lw||1.3; g.lineJoin='round'; g.stroke(); };
+  function shoulders(g,fill,w){ w=w||1; const L=50-44*w, R=50+44*w;
+    g.beginPath(); g.moveTo(L-4,122); g.bezierCurveTo(L,104,L+6,92,50-22*w,86); g.quadraticCurveTo(44,83,50,83); g.quadraticCurveTo(56,83,50+22*w,86);
+    g.bezierCurveTo(R-6,92,R,104,R+4,122); g.closePath(); ink(g,fill,1.6); }
+  function neck(g,skin,w){ w=w||1; g.beginPath(); g.moveTo(50-7*w,62); g.lineTo(50-8*w,86); g.quadraticCurveTo(50,90,50+8*w,86); g.lineTo(50+7*w,62); g.closePath(); ink(g,skin,1.1);
+    g.fillStyle='rgba(30,8,12,0.35)'; g.beginPath(); g.moveTo(50-7*w,66); g.quadraticCurveTo(50,74,50+7*w,66); g.lineTo(50+7*w,62); g.lineTo(50-7*w,62); g.fill(); }
+  function headPath(g,o){ const w=o.w||1, cy=o.cy||50, top=o.top||29, chin=o.chin||72;
+    g.beginPath(); g.moveTo(50,top); g.bezierCurveTo(50+13*w,top,50+16*w,cy-10,50+15*w,cy); g.bezierCurveTo(50+14*w,cy+12,50+7*w,chin-1,50,chin);
+    g.bezierCurveTo(50-7*w,chin-1,50-14*w,cy+12,50-15*w,cy); g.bezierCurveTo(50-16*w,cy-10,50-13*w,top,50,top); g.closePath(); }
+  function head(g,skin,o){ o=o||{}; headPath(g,o); ink(g,lg(g,36,30,64,72,[[0,skin],[1,o.skin2||'#8a7464']]),1.4);
+    // cheek hollows + jaw shade
+    g.save(); headPath(g,o); g.clip();
+    g.fillStyle=rg(g,63,58,1,16,[[0,'rgba(40,10,16,0.38)'],[1,'rgba(40,10,16,0)']]); g.fillRect(30,25,40,50);
+    if(o.gaunt){ g.fillStyle='rgba(40,12,16,0.32)'; g.beginPath(); g.ellipse(41,58,3,5,0.2,0,6.283); g.ellipse(59,58,3,5,-0.2,0,6.283); g.fill(); }
+    g.restore(); }
+  function face(g,o){ const eyes=[]; const ey=o.ey||50, ex=o.ex||6.2, er=o.er||1.5, cx=50;
+    // brows
+    g.strokeStyle=o.brow||'#1a0c0e'; g.lineWidth=o.browW||1.3; g.lineCap='round';
+    g.beginPath(); g.moveTo(cx-ex-4,ey-4+(o.browTilt||0)); g.quadraticCurveTo(cx-ex,ey-6,cx-ex+3.6,ey-4.2); g.moveTo(cx+ex+4,ey-4-(o.browTilt||0)); g.quadraticCurveTo(cx+ex,ey-6,cx+ex-3.6,ey-4.2); g.stroke();
+    for(const sd of [-1,1]){ const x=cx+sd*ex;
+      g.fillStyle='rgba(30,6,10,0.45)'; g.beginPath(); g.ellipse(x,ey+0.3,4.6,2.8,0,0,6.283); g.fill();
+      g.fillStyle='#0d0406'; g.beginPath(); g.moveTo(x-3.6,ey); g.quadraticCurveTo(x,ey-2.4*(o.round||1),x+3.6,ey); g.quadraticCurveTo(x,ey+2.1*(o.round||1),x-3.6,ey); g.fill();
+      g.fillStyle=o.eye; g.beginPath(); g.arc(x+(o.look||0.6),ey,er,0,6.283); g.fill();
+      g.fillStyle='#fff8e0'; g.beginPath(); g.arc(x+(o.look||0.6)-0.5,ey-0.5,0.45,0,6.283); g.fill();
+      eyes.push([x+(o.look||0.6),ey,o.eye]); }
+    // nose
+    if(!o.noNose){ g.strokeStyle='rgba(40,12,14,0.6)'; g.lineWidth=1; g.beginPath(); g.moveTo(cx+0.6,ey+1); g.quadraticCurveTo(cx+2.2,ey+7,cx+0.4,ey+8.6); g.quadraticCurveTo(cx-1,ey+9,cx-2,ey+8.2); g.stroke(); }
+    // lips
+    const ly=o.ly||ey+13; g.fillStyle=o.lip||'#6a1820'; g.beginPath(); g.moveTo(cx-4.4,ly); g.quadraticCurveTo(cx,ly-1.6+(o.smirk||0),cx+4.4,ly-(o.smirk||0)); g.quadraticCurveTo(cx,ly+2.4,cx-4.4,ly); g.fill();
+    g.strokeStyle='rgba(20,4,8,0.7)'; g.lineWidth=0.7; g.beginPath(); g.moveTo(cx-4.4,ly); g.quadraticCurveTo(cx,ly+0.3,cx+4.4,ly-(o.smirk||0)); g.stroke();
+    return eyes; }
+  function lapels(g,col){ g.beginPath(); g.moveTo(39,86); g.lineTo(50,110); g.lineTo(61,86); g.lineTo(56,84); g.lineTo(50,97); g.lineTo(44,84); g.closePath(); ink(g,col,1); }
+  function buttons(g,col,y0,n){ g.fillStyle=col; for(let i=0;i<n;i++){ g.beginPath(); g.arc(50,y0+i*7,1.2,0,6.283); g.fill(); } }
+  function brimHat(g,o){ // wide brim + crown + band
+    const y=o.y||31, rx=o.rx||33, top=o.top||12;
+    g.beginPath(); g.ellipse(50,y,rx,o.ry||6.5,o.tilt||0,0,6.283); ink(g,o.col,1.4);
+    g.beginPath(); g.moveTo(50-14,y); g.bezierCurveTo(50-16,top+6,50-12,top,50,top); g.bezierCurveTo(50+12,top,50+16,top+6,50+14,y); g.closePath(); ink(g,o.col2||o.col,1.4);
+    if(o.band){ g.fillStyle=o.band; g.beginPath(); g.moveTo(36,y-1); g.lineTo(36.6,y-5.4); g.quadraticCurveTo(50,y-7,63.4,y-5.4); g.lineTo(64,y-1); g.quadraticCurveTo(50,y+0.6,36,y-1); g.fill(); }
+    g.strokeStyle='rgba(255,240,210,0.22)'; g.lineWidth=0.8; g.beginPath(); g.ellipse(50,y-0.6,rx-2,(o.ry||6.5)-2,o.tilt||0,3.5,5.6); g.stroke(); }
+  function hairBack(g,col,o){ o=o||{}; g.beginPath(); g.moveTo(34,44); g.bezierCurveTo(30,30,40,24,50,24); g.bezierCurveTo(60,24,70,30,66,44);
+    g.bezierCurveTo(68,o.len||66,66,(o.len||66)+6,60,(o.len||66)+4); g.lineTo(40,(o.len||66)+4); g.bezierCurveTo(34,(o.len||66)+6,32,o.len||66,34,44); g.closePath(); ink(g,col,1.3); }
+
+  const P_={
+    vesper(g){ hairBack(g,'#1a0c10',{len:64});
+      shoulders(g,lg(g,0,84,0,120,[[0,'#b0202f'],[0.5,'#7a1020'],[1,'#3a060d']]));
+      neck(g,'#d9c8b4'); lapels(g,'#120609');
+      g.fillStyle='#e6d9c2'; g.beginPath(); g.moveTo(46,85); g.lineTo(50,93); g.lineTo(54,85); g.closePath(); g.fill(); // cravat
+      buttons(g,'#e8b64c',100,3);
+      head(g,'#efe2cf'); const e=face(g,{eye:'#ff9a3c', lip:'#9a1a26'});
+      g.beginPath(); g.moveTo(35,44); g.quadraticCurveTo(38,34,50,33); g.quadraticCurveTo(44,38,40,50); g.quadraticCurveTo(37,46,35,44); ink(g,'#1a0c10',0.9); // fringe
+      brimHat(g,{col:'#0e0609', col2:'#140a0d', band:'#e8b64c', y:32, rx:34, top:11, tilt:-0.06});
+      g.beginPath(); g.moveTo(62,27); g.bezierCurveTo(70,18,78,10,86,6); g.bezierCurveTo(82,14,74,22,64,29); g.closePath(); ink(g,lg(g,62,28,86,6,[[0,'#7a1020'],[1,'#ff3a4a']]),1); // the red feather
+      g.strokeStyle='rgba(255,200,200,0.5)'; g.lineWidth=0.5; g.beginPath(); g.moveTo(63,28); g.quadraticCurveTo(74,17,85,7); g.stroke();
+      return e; },
+    dealer(g){ shoulders(g,lg(g,0,84,0,120,[[0,'#1e2332'],[1,'#07080d']]));
+      neck(g,'#d6c6b2');
+      g.beginPath(); g.moveTo(41,86); g.lineTo(50,112); g.lineTo(59,86); g.closePath(); ink(g,'#e6e0d4',1); // shirt
+      g.beginPath(); g.moveTo(36,88); g.lineTo(47,110); g.lineTo(42,120); g.lineTo(28,120); g.closePath(); ink(g,'#2a3550',1); // waistcoat
+      g.beginPath(); g.moveTo(64,88); g.lineTo(53,110); g.lineTo(58,120); g.lineTo(72,120); g.closePath(); ink(g,'#2a3550',1);
+      g.beginPath(); g.moveTo(50,88); g.lineTo(43,84.5); g.lineTo(43,91.5); g.closePath(); g.moveTo(50,88); g.lineTo(57,84.5); g.lineTo(57,91.5); g.closePath(); ink(g,'#0a0a10',0.8); // bow tie
+      g.beginPath(); g.moveTo(50,95); g.lineTo(52,98); g.lineTo(50,101); g.lineTo(48,98); g.closePath(); ink(g,'#6fb7ff',0.6); // diamond pin
+      for(let i=0;i<3;i++){ g.save(); g.translate(78,104); g.rotate(-0.5+i*0.32); g.beginPath(); g.rect(-5,-16,10,14); ink(g,'#f2ece0',0.8);
+        g.fillStyle=i===1?'#c0182a':'#0a0a10'; g.font='7px serif'; g.textAlign='center'; g.fillText(['♠','♦','♣'][i],0,-7); g.restore(); }
+      head(g,'#e7d7c2'); const e=face(g,{eye:'#6fb7ff', lip:'#6a2a30', smirk:0.8});
+      g.strokeStyle='#120a0c'; g.lineWidth=1.1; g.beginPath(); g.moveTo(45.5,61); g.quadraticCurveTo(50,59.5,54.5,61); g.stroke(); // pencil moustache
+      g.beginPath(); g.moveTo(35,42); g.bezierCurveTo(35,28,44,25,50,25); g.bezierCurveTo(58,25,66,28,65,42); g.quadraticCurveTo(58,33,50,33); g.quadraticCurveTo(42,33,35,42); ink(g,'#0e0a0c',1.1); // slicked hair
+      g.fillStyle='rgba(255,255,255,0.18)'; g.beginPath(); g.ellipse(45,30,6,1.4,-0.3,0,6.283); g.fill();
+      g.beginPath(); g.moveTo(34,37); g.quadraticCurveTo(50,33,66,37); g.lineTo(66,40); g.quadraticCurveTo(50,36,34,40); g.closePath(); ink(g,'#1a2a40',0.9); // visor band
+      g.beginPath(); g.moveTo(32,39); g.quadraticCurveTo(50,34,68,39); g.quadraticCurveTo(62,47,50,47); g.quadraticCurveTo(38,47,32,39); g.closePath(); g.fillStyle='rgba(111,183,255,0.42)'; g.fill(); g.strokeStyle=INK; g.lineWidth=1.1; g.stroke();
+      return e; },
+    widow(g){ g.beginPath(); g.ellipse(50,30,15,11,0,0,6.283); ink(g,'#120a16',1.2); // the updo
+      shoulders(g,lg(g,0,84,0,120,[[0,'#2c1840'],[1,'#07040a']]),0.92);
+      neck(g,'#e4d6cc',0.9);
+      for(let i=0;i<9;i++){ const a=Math.PI*(0.12+i*0.095); g.beginPath(); g.ellipse(50+Math.cos(a)*-13,82-Math.sin(a)*3.5+4,3.4,6,a-1.57,0,6.283); ink(g,'#1c1026',0.6); } // high lace ruff
+      g.strokeStyle='rgba(201,139,255,0.35)'; g.lineWidth=0.5; for(let i=0;i<7;i++){ g.beginPath(); g.moveTo(38+i*4,80); g.lineTo(39+i*4,90); g.stroke(); }
+      // moth brooch
+      g.fillStyle='#c98bff'; g.beginPath(); g.ellipse(46,101,4.2,3,-0.5,0,6.283); g.ellipse(54,101,4.2,3,0.5,0,6.283); g.fill();
+      g.fillStyle='#7a4aa8'; g.beginPath(); g.ellipse(46.5,104,2.6,2,0.4,0,6.283); g.ellipse(53.5,104,2.6,2,-0.4,0,6.283); g.fill();
+      g.fillStyle='#e8b64c'; g.beginPath(); g.ellipse(50,102,1.1,3.4,0,0,6.283); g.fill();
+      head(g,'#f0e4dc',{w:0.94}); const e=face(g,{eye:'#c98bff', lip:'#4a1838', ex:5.8});
+      g.beginPath(); g.moveTo(36,46); g.bezierCurveTo(34,30,44,27,50,27); g.bezierCurveTo(56,27,66,30,64,46); g.quadraticCurveTo(60,35,50,34); g.quadraticCurveTo(40,35,36,46); ink(g,'#120a16',1); // parted hair
+      // the veil: a mesh over brow and eyes
+      g.save(); g.beginPath(); g.moveTo(32,33); g.quadraticCurveTo(50,26,68,33); g.lineTo(67,57); g.quadraticCurveTo(50,62,33,57); g.closePath();
+      g.fillStyle='rgba(12,4,18,0.42)'; g.fill(); g.clip(); g.strokeStyle='rgba(201,139,255,0.22)'; g.lineWidth=0.4;
+      for(let i=-6;i<12;i++){ g.beginPath(); g.moveTo(26+i*4,26); g.lineTo(46+i*4,62); g.stroke(); g.beginPath(); g.moveTo(46+i*4,26); g.lineTo(26+i*4,62); g.stroke(); }
+      g.restore();
+      g.beginPath(); g.ellipse(60,27,9,4,0.35,0,6.283); ink(g,'#1a0e22',1); // the pillbox
+      g.fillStyle='#c98bff'; g.beginPath(); g.arc(65,25,1.4,0,6.283); g.fill();
+      return e; },
+    debtor(g){ shoulders(g,lg(g,0,84,0,120,[[0,'#5a4420'],[1,'#1e1508']]));
+      neck(g,'#cdbb9e',0.9); lapels(g,'#2a1e0e');
+      g.beginPath(); g.moveTo(45,85); g.lineTo(50,96); g.lineTo(55,85); g.closePath(); ink(g,'#c9bc9e',0.8);
+      g.strokeStyle='#8a7a5a'; g.lineWidth=0.5; for(let i=0;i<6;i++){ g.beginPath(); g.moveTo(22+i*3,100+i*2); g.lineTo(26+i*3,104+i*2); g.stroke(); } // threadbare darn
+      // the chain and padlock
+      g.strokeStyle='#9a8048'; g.lineWidth=1.3; for(let i=0;i<9;i++){ const t=i/8, x=38+t*24, y=86+Math.sin(t*Math.PI)*16; g.beginPath(); g.ellipse(x,y,1.8,1.1,t*2,0,6.283); g.stroke(); }
+      g.beginPath(); g.rect(46.5,103,7,6); ink(g,'#b08a3a',0.8); g.strokeStyle='#b08a3a'; g.lineWidth=1.2; g.beginPath(); g.arc(50,103,2.4,Math.PI,0); g.stroke();
+      head(g,'#e2d2b8',{gaunt:true, skin2:'#7a6a52'}); const e=face(g,{eye:'#ffd36b', lip:'#5a2a22', browTilt:1.2});
+      g.fillStyle='rgba(30,20,14,0.5)'; for(let i=0;i<26;i++){ g.fillRect(42+((i*37)%17),63+((i*13)%7),0.6,0.6); } // stubble
+      g.strokeStyle='#d8b24a'; g.lineWidth=1.1; g.beginPath(); g.arc(56.8,50,4.6,0,6.283); g.stroke(); g.strokeStyle='rgba(216,178,74,0.7)'; g.lineWidth=0.5; g.beginPath(); g.moveTo(61,52); g.quadraticCurveTo(66,66,62,84); g.stroke(); // monocle
+      // battered top hat
+      g.beginPath(); g.ellipse(50,33,24,4.6,0.05,0,6.283); ink(g,'#16110c',1.3);
+      g.beginPath(); g.moveTo(37,33); g.lineTo(38,8); g.quadraticCurveTo(44,10,48,6); g.lineTo(62,8); g.lineTo(63,33); g.closePath(); ink(g,'#1e1812',1.3);
+      g.strokeStyle='rgba(0,0,0,0.6)'; g.lineWidth=0.8; g.beginPath(); g.moveTo(48,7); g.lineTo(47,16); g.stroke();
+      g.fillStyle='#6b5320'; g.fillRect(37.6,27,25,3.6);
+      return e; },
+    brute(g){ shoulders(g,lg(g,0,84,0,120,[[0,'#5a3218'],[1,'#1c0e06']]),1.18);
+      for(const sd of [-1,1]){ g.beginPath(); g.ellipse(50+sd*34,96,15,10,sd*0.35,0,6.283); ink(g,lg(g,0,86,0,106,[[0,'#8a929c'],[1,'#3a3f46']]),1.4); // iron pauldrons
+        for(let k=0;k<3;k++){ g.beginPath(); g.moveTo(50+sd*(26+k*7),90-k*1.5); g.lineTo(50+sd*(28+k*7),76-k*3); g.lineTo(50+sd*(31+k*7),89-k*1.5); g.closePath(); ink(g,'#c9c2b4',0.8); } }
+      neck(g,'#c4987a',1.5);
+      g.beginPath(); g.rect(38,74,24,7); ink(g,'#4a4f56',1.2); g.fillStyle='#9aa2ac'; for(let i=0;i<5;i++){ g.beginPath(); g.arc(40.5+i*4.75,77.5,0.9,0,6.283); g.fill(); } // iron collar
+      head(g,'#d0a688',{w:1.18, top:27, chin:73, skin2:'#6a4a36'}); const e=face(g,{eye:'#ff9a3c', lip:'#5a2018', ex:6.8, browW:2.6, brow:'#2a140c', browTilt:-1});
+      g.strokeStyle='rgba(255,170,150,0.85)'; g.lineWidth=1.1; g.beginPath(); g.moveTo(41,41); g.lineTo(45.5,58); g.stroke(); // the scar
+      g.strokeStyle='rgba(90,30,20,0.6)'; g.lineWidth=0.5; for(let i=0;i<4;i++){ g.beginPath(); g.moveTo(41.5+i*1.1,45+i*3.5); g.lineTo(44.5+i*1.1,44+i*3.5); g.stroke(); }
+      g.fillStyle='rgba(255,240,220,0.16)'; g.beginPath(); g.ellipse(45,33,8,3,-0.3,0,6.283); g.fill(); // bald sheen
+      return e; },
+    yolk(g){ shoulders(g,lg(g,0,90,0,120,[[0,'#2a2014'],[1,'#0a0806']]),0.7);
+      for(const sd of [-1,1]){ g.beginPath(); g.moveTo(50,86); g.lineTo(50+sd*24,74); g.lineTo(50+sd*30,98); g.lineTo(50+sd*10,94); g.closePath(); ink(g,'#3a2c1a',1.1); } // a collar three sizes too big
+      neck(g,'#f0e2a8',0.7);
+      g.beginPath(); g.ellipse(50,62,14,15,0,0,6.283); ink(g,lg(g,38,48,62,78,[[0,'#fff4c8'],[1,'#c9b070']]),1.4);
+      const eyes=[]; for(const sd of [-1,1]){ const x=50+sd*5.6;
+        g.fillStyle='#0d0406'; g.beginPath(); g.arc(x,62,3.6,0,6.283); g.fill();
+        g.fillStyle='#ffe066'; g.beginPath(); g.arc(x+0.5,62,2,0,6.283); g.fill();
+        g.fillStyle='#fffbe8'; g.beginPath(); g.arc(x-0.6,60.8,0.8,0,6.283); g.fill(); eyes.push([x+0.5,62,'#ffe066']); }
+      g.fillStyle='#8a3a20'; g.beginPath(); g.ellipse(50,70.5,2,1.3,0,0,6.283); g.fill(); // a small round 'o'
+      g.fillStyle='rgba(255,140,120,0.25)'; g.beginPath(); g.ellipse(41,67,2.6,1.6,0,0,6.283); g.ellipse(59,67,2.6,1.6,0,0,6.283); g.fill();
+      // the cracked shell cap
+      g.beginPath(); g.moveTo(35,55); g.bezierCurveTo(35,38,44,33,50,33); g.bezierCurveTo(56,33,65,38,65,55);
+      const zz=[[62,52],[59,56],[56,51],[53,55],[50,50],[47,55],[44,51],[41,56],[38,52]]; zz.forEach(p=>g.lineTo(p[0],p[1])); g.closePath(); ink(g,lg(g,40,34,60,56,[[0,'#fffaf0'],[1,'#d8ccb4']]),1.3);
+      g.strokeStyle='rgba(120,100,70,0.6)'; g.lineWidth=0.6; g.beginPath(); g.moveTo(45,38); g.lineTo(47,43); g.lineTo(45,46); g.stroke();
+      return eyes; },
+    sharp(g){ shoulders(g,lg(g,0,84,0,120,[[0,'#16201a'],[1,'#050906']]));
+      neck(g,'#d8c6ae');
+      g.beginPath(); g.moveTo(40,86); g.lineTo(50,104); g.lineTo(60,86); g.closePath(); ink(g,'#e6e0d4',0.9);
+      g.beginPath(); g.moveTo(33,90); g.lineTo(47,110); g.lineTo(44,121); g.lineTo(26,121); g.closePath(); ink(g,lg(g,0,90,0,120,[[0,'#2bd07a'],[1,'#0a4a28']]),1); // emerald waistcoat
+      g.beginPath(); g.moveTo(67,90); g.lineTo(53,110); g.lineTo(56,121); g.lineTo(74,121); g.closePath(); ink(g,lg(g,0,90,0,120,[[0,'#2bd07a'],[1,'#0a4a28']]),1);
+      g.strokeStyle='#0a0a0a'; g.lineWidth=1.2; g.beginPath(); g.moveTo(47,88); g.lineTo(50,99); g.lineTo(53,88); g.stroke(); // string tie
+      g.strokeStyle='#e8b64c'; g.lineWidth=0.7; g.beginPath(); g.moveTo(36,108); g.quadraticCurveTo(42,114,46,110); g.stroke(); // watch chain
+      // the fan — five cards at the shoulder, ace of clubs on top
+      for(let i=0;i<5;i++){ g.save(); g.translate(20,110); g.rotate(-0.75+i*0.22); g.beginPath(); g.rect(-5.5,-21,11,15); ink(g,'#f4eee2',0.8);
+        g.fillStyle=(i%2)?'#c0182a':'#0a0a10'; g.font='8px serif'; g.textAlign='center'; g.fillText(['♠','♥','♦','♥','♣'][i],0,-11); g.restore(); }
+      g.beginPath(); g.ellipse(22,113,6,4.5,0.3,0,6.283); ink(g,'#d8c6ae',1); // fingertips on the fan
+      head(g,'#e8d6bf',{w:0.96}); const e=face(g,{eye:'#36f08a', lip:'#6a2a26', smirk:1.6, browTilt:1.4, look:1.1});
+      g.strokeStyle='#120a08'; g.lineWidth=1.2; g.beginPath(); g.moveTo(44,61.5); g.quadraticCurveTo(47,59.5,50,60.6); g.quadraticCurveTo(53,59.5,56,61.5); g.quadraticCurveTo(58,62.5,58.6,60.8); g.moveTo(44,61.5); g.quadraticCurveTo(42,62.5,41.4,60.8); g.stroke(); // curled moustache
+      g.fillStyle='#120a08'; g.beginPath(); g.moveTo(48.6,68); g.lineTo(50,73); g.lineTo(51.4,68); g.fill(); // goatee
+      // flat-brim gambler's hat, a card in the band
+      g.beginPath(); g.ellipse(50,32,30,5.2,0.08,0,6.283); ink(g,'#0c140f',1.4);
+      g.beginPath(); g.moveTo(37,32); g.lineTo(38,17); g.quadraticCurveTo(50,13,62,17); g.lineTo(63,32); g.closePath(); ink(g,'#121c16',1.4);
+      g.fillStyle='#36f08a'; g.fillRect(37.4,26.5,25.2,3.4);
+      g.save(); g.translate(58,22); g.rotate(0.35); g.beginPath(); g.rect(-3.4,-6,6.8,9); ink(g,'#f4eee2',0.7); g.fillStyle='#0a0a10'; g.font='6px serif'; g.textAlign='center'; g.fillText('♣',0,0.6); g.restore();
+      return e; },
+    martyr(g){ g.beginPath(); g.ellipse(50,44,25,25,0,0,6.283); g.strokeStyle='rgba(255,36,72,0.75)'; g.lineWidth=1.6; g.stroke(); // the crimson halo
+      g.strokeStyle='rgba(255,36,72,0.3)'; g.lineWidth=4; g.stroke();
+      hairBack(g,'#2a1810',{len:72});
+      shoulders(g,lg(g,0,84,0,120,[[0,'#e6d9c2'],[1,'#6b5d4c']]),0.98);
+      g.strokeStyle='rgba(90,70,50,0.55)'; g.lineWidth=0.8; [[30,92,36,120],[40,90,42,120],[60,90,58,120],[70,92,64,120],[50,94,50,120]].forEach(l=>{ g.beginPath(); g.moveTo(l[0],l[1]); g.quadraticCurveTo((l[0]+l[2])/2+3,(l[1]+l[3])/2,l[2],l[3]); g.stroke(); }); // shroud folds
+      g.fillStyle=rg(g,56,104,1,15,[[0,'rgba(160,12,32,0.95)'],[0.6,'rgba(139,22,32,0.6)'],[1,'rgba(139,22,32,0)']]); g.beginPath(); g.ellipse(56,104,16,14,0,0,6.283); g.fill(); // the wound blooms
+      neck(g,'#d8c8b8',0.9);
+      head(g,'#e6d8c8',{gaunt:true, w:0.92, skin2:'#7a6656'}); const e=face(g,{eye:'#ff2448', lip:'#5a1a22', ex:5.8, browTilt:-1.6});
+      g.strokeStyle='#b0102a'; g.lineWidth=1; for(const sd of [-1,1]){ g.beginPath(); g.moveTo(50+sd*5.8,52.5); g.quadraticCurveTo(50+sd*6.6,58,50+sd*6,64); g.stroke(); g.fillStyle='#b0102a'; g.beginPath(); g.arc(50+sd*6,64.5,0.9,0,6.283); g.fill(); } // blood tears
+      g.beginPath(); g.moveTo(37,46); g.bezierCurveTo(36,32,44,28,50,28); g.bezierCurveTo(56,28,64,32,63,46); g.quadraticCurveTo(57,34,50,36); g.quadraticCurveTo(43,34,37,46); ink(g,'#2a1810',1); // lank parted hair
+      // the crown of thorns
+      g.strokeStyle='#3a2414'; g.lineWidth=1.8; g.beginPath(); g.ellipse(50,35,16,4.2,0,0,6.283); g.stroke();
+      g.strokeStyle='#5a3a20'; g.lineWidth=0.9; g.beginPath(); g.ellipse(50,34.4,16.5,3.6,0.08,0,6.283); g.stroke();
+      g.strokeStyle='#2a1a0c'; g.lineWidth=0.8; for(let i=0;i<14;i++){ const a=i/14*6.283, x=50+Math.cos(a)*16, y=35+Math.sin(a)*4.2; g.beginPath(); g.moveTo(x,y); g.lineTo(x+Math.cos(a+1)*3.2,y-2.4-Math.abs(Math.sin(a))*1.4); g.stroke(); }
+      g.fillStyle='#b0102a'; g.beginPath(); g.arc(44,39.5,0.8,0,6.283); g.arc(57,40,0.7,0,6.283); g.fill();
+      return e; },
+    magpie(g){ hairBack(g,'#0a0a10',{len:60});
+      shoulders(g,'#0a0a10');
+      // the feather mantle — black and white quills, a cyan sheen
+      for(let i=0;i<13;i++){ const t=i/12, x=10+t*80, y=92+Math.abs(t-0.5)*-14; g.beginPath(); g.moveTo(x-5,y+12); g.lineTo(x,y-6-((i%2)*4)); g.lineTo(x+5,y+12); g.closePath(); ink(g,(i%3===1)?'#e8e8f0':'#0e0e18',0.8);
+        if(i%3!==1){ g.strokeStyle='rgba(46,230,255,0.55)'; g.lineWidth=0.7; g.beginPath(); g.moveTo(x-1.6,y+8); g.lineTo(x,y-3); g.stroke(); } }
+      neck(g,'#dccab8',0.85);
+      // a necklace of stolen things
+      g.strokeStyle='#c9b78e'; g.lineWidth=0.5; g.beginPath(); g.moveTo(38,86); g.quadraticCurveTo(50,104,62,86); g.stroke();
+      [['#ffd36b',40,90,2],['#ff3a5a',44,95,1.6],['#e6e6f0',48,98,2.2],['#2ee6ff',52,98,1.7],['#8bff9a',56,95,1.6],['#ffd36b',60,90,1.8]].forEach(b=>{ g.beginPath(); g.arc(b[1],b[2],b[3],0,6.283); ink(g,b[0],0.6); });
+      g.strokeStyle='#ffd36b'; g.lineWidth=0.8; g.beginPath(); g.arc(50,103,2.6,0,6.283); g.stroke(); // a ring, not hers
+      head(g,'#ecdcca',{w:0.95}); const e=face(g,{eye:'#2ee6ff', lip:'#5a2030', smirk:1.2, look:-0.6});
+      // the domino mask
+      g.beginPath(); g.moveTo(37,47); g.quadraticCurveTo(43,43,48.5,47); g.quadraticCurveTo(50,48.5,51.5,47); g.quadraticCurveTo(57,43,63,47); g.quadraticCurveTo(64,53,58,54); g.quadraticCurveTo(53,54,50,51.5); g.quadraticCurveTo(47,54,42,54); g.quadraticCurveTo(36,53,37,47); g.closePath();
+      g.fillStyle='#0a0a12'; g.fill('evenodd'); g.strokeStyle='rgba(46,230,255,0.7)'; g.lineWidth=0.8; g.stroke();
+      for(const sd of [-1,1]){ const x=50+sd*6.2; g.fillStyle='#2ee6ff'; g.beginPath(); g.arc(x-0.6,50,1.5,0,6.283); g.fill(); g.fillStyle='#fff'; g.beginPath(); g.arc(x-1.1,49.5,0.45,0,6.283); g.fill(); }
+      g.beginPath(); g.moveTo(35,46); g.bezierCurveTo(33,30,44,26,50,26); g.bezierCurveTo(58,26,67,30,65,46); g.quadraticCurveTo(60,32,52,33); g.quadraticCurveTo(42,33,35,46); ink(g,'#0a0a10',1);
+      g.strokeStyle='#f0f0f8'; g.lineWidth=1.6; g.beginPath(); g.moveTo(55,28); g.quadraticCurveTo(60,32,62,40); g.stroke(); // the white streak
+      g.strokeStyle='#ffd36b'; g.lineWidth=0.9; g.beginPath(); g.arc(35.4,58,2.2,0,6.283); g.stroke(); // hoop earring
+      return e; },
+    banker(g){ shoulders(g,lg(g,0,84,0,120,[[0,'#26341a'],[1,'#0a1006']]));
+      neck(g,'#cfdcc0',0.9);
+      g.beginPath(); g.moveTo(40,84); g.lineTo(46,92); g.lineTo(50,86); g.lineTo(54,92); g.lineTo(60,84); g.lineTo(55,80); g.lineTo(45,80); g.closePath(); ink(g,'#eef4e2',0.9); // starched wing collar
+      g.beginPath(); g.moveTo(46,88); g.quadraticCurveTo(50,100,54,88); g.quadraticCurveTo(50,92,46,88); ink(g,'#2a3a1a',0.8); // cravat
+      lapels(g,'#141c0c'); buttons(g,'#9ab06a',103,2);
+      // a ledger under the arm
+      g.save(); g.translate(80,104); g.rotate(-0.2); g.beginPath(); g.rect(-9,-12,18,22); ink(g,'#3a2a14',1); g.fillStyle='#c4ff4d'; g.fillRect(-9,-4,18,1.6); g.restore();
+      head(g,'#d6e4c8',{gaunt:true, skin2:'#6a7a5a'}); const e=face(g,{eye:'#c4ff4d', lip:'#3a4a2a', er:1.1, round:1.2});
+      for(const sd of [-1,1]){ g.beginPath(); g.moveTo(50+sd*14.5,44); g.quadraticCurveTo(50+sd*17,58,50+sd*9,64); g.quadraticCurveTo(50+sd*12,54,50+sd*13,44); g.closePath(); ink(g,'#b8bcae',0.8); } // grey mutton chops
+      g.strokeStyle='#c4ff4d'; g.lineWidth=0.7; g.beginPath(); g.arc(43.8,50,3.4,0,6.283); g.moveTo(59.6,50); g.arc(56.2,50,3.4,0,6.283); g.moveTo(47.2,50); g.lineTo(52.8,50); g.stroke(); // pince-nez
+      g.beginPath(); g.moveTo(59.6,51); g.quadraticCurveTo(66,62,61,78); g.stroke();
+      // a tall top hat
+      g.beginPath(); g.ellipse(50,32,22,4.4,0,0,6.283); ink(g,'#0c1208',1.3);
+      g.beginPath(); g.moveTo(38,32); g.lineTo(37,4); g.quadraticCurveTo(50,1.5,63,4); g.lineTo(62,32); g.closePath(); ink(g,'#121a0c',1.3);
+      g.fillStyle='#c4ff4d'; g.fillRect(37.8,25.5,24.4,3.2);
+      g.fillStyle='rgba(220,255,180,0.14)'; g.fillRect(40,6,3,18);
+      // the ghost fades out at the waist
+      g.globalCompositeOperation='destination-out'; g.fillStyle=lg(g,0,92,0,121,[[0,'rgba(0,0,0,0)'],[1,'rgba(0,0,0,0.92)']]); g.fillRect(0,88,100,34); g.globalCompositeOperation='source-over';
+      return e; }
+  };
+  return P_;
+})();
+function soulPortrait(id, locked){
+  const key=id+(locked?'_L':''); if(_PORT[key]) return _PORT[key];
+  const S=2, W=100, H=120, s=SOULS.find(x=>x.id===id)||SOULS[0], col=s.col;
+  const mk=()=>{ const c=document.createElement('canvas'); c.width=W*S; c.height=H*S; const g=c.getContext('2d'); g.scale(S,S); return [c,g]; };
+  const [fc,f]=mk(); let eyes=[];
+  try{ eyes=(SOUL_PAINT[id]||SOUL_PAINT.vesper)(f)||[]; }catch(e){ eyes=[]; }
+  // light it: rim on the right in the soul's color, candle key on the left, falloff toward the hem
+  const edge=(dx,dy,fill)=>{ const [ec,eg]=mk(); eg.setTransform(1,0,0,1,0,0); eg.drawImage(fc,0,0); eg.globalCompositeOperation='destination-out'; eg.drawImage(fc,dx*S,dy*S);
+    eg.globalCompositeOperation='source-in'; eg.fillStyle=fill; eg.fillRect(0,0,W*S,H*S); return ec; };
+  const rim=edge(-2.2,0.8,_hexA(col,locked?0.95:0.8)), keyL=edge(1.6,1.2,'rgba(255,232,190,0.55)');
+  f.save(); f.setTransform(1,0,0,1,0,0); f.globalCompositeOperation='source-atop';
+  if(locked){ f.fillStyle='#07030a'; f.fillRect(0,0,W*S,H*S); }
+  else { const sh=f.createLinearGradient(0,0,W*S,H*S); sh.addColorStop(0,'rgba(255,220,170,0.10)'); sh.addColorStop(0.55,'rgba(0,0,0,0)'); sh.addColorStop(1,'rgba(0,0,0,0.42)'); f.fillStyle=sh; f.fillRect(0,0,W*S,H*S);
+    const hem=f.createLinearGradient(0,96*S,0,H*S); hem.addColorStop(0,'rgba(0,0,0,0)'); hem.addColorStop(1,'rgba(0,0,0,0.6)'); f.fillStyle=hem; f.fillRect(0,0,W*S,H*S); }
+  f.globalCompositeOperation='source-over'; f.drawImage(rim,0,0); if(!locked) f.drawImage(keyL,0,0); f.restore();
+  // the cameo
+  const [c,g]=mk();
+  g.save(); g.beginPath(); g.ellipse(50,60,46,57,0,0,6.283); g.clip();
+  let bg=g.createRadialGradient(50,40,2,50,52,72); bg.addColorStop(0,locked?'#1c0d14':'#3a1520'); bg.addColorStop(0.55,locked?'#0d0609':'#1a0a10'); bg.addColorStop(1,'#050203'); g.fillStyle=bg; g.fillRect(0,0,W,H);
+  bg=g.createRadialGradient(50,46,2,50,46,40); bg.addColorStop(0,_hexA(col,locked?0.14:0.3)); bg.addColorStop(1,_hexA(col,0)); g.fillStyle=bg; g.fillRect(0,0,W,H);
+  if(!locked){ bg=g.createRadialGradient(22,28,1,22,28,30); bg.addColorStop(0,'rgba(255,196,120,0.22)'); bg.addColorStop(1,'rgba(255,196,120,0)'); g.fillStyle=bg; g.fillRect(0,0,W,H);
+    g.fillStyle='#fff2c0'; g.beginPath(); g.ellipse(14,40,1.1,2.4,0,0,6.283); g.fill(); g.fillStyle='#e6d9c2'; g.fillRect(13.2,42,1.6,10); } // a candle in the dark
+  { let sd=0; for(let i=0;i<id.length;i++) sd=(sd*31+id.charCodeAt(i))>>>0; const rnd9=()=>((sd=(sd*1103515245+12345)>>>0)/4294967296);
+    g.fillStyle='rgba(255,255,255,0.035)'; for(let i=0;i<140;i++) g.fillRect(rnd9()*W,rnd9()*H,0.5,0.5); } // velvet stipple
+  g.drawImage(fc,0,0,W,H);
+  g.globalCompositeOperation='lighter';
+  for(const e of eyes){ const r=g.createRadialGradient(e[0],e[1],0,e[0],e[1],5.5); r.addColorStop(0,_hexA(e[2],0.8)); r.addColorStop(1,_hexA(e[2],0)); g.fillStyle=r; g.fillRect(e[0]-6,e[1]-6,12,12); }
+  g.globalCompositeOperation='source-over';
+  bg=g.createRadialGradient(50,56,30,50,60,62); bg.addColorStop(0,'rgba(0,0,0,0)'); bg.addColorStop(1,'rgba(0,0,0,0.78)'); g.fillStyle=bg; g.fillRect(0,0,W,H);
+  if(locked){ g.fillStyle=_hexA(col,0.9); g.font="700 16px 'Cinzel',serif"; g.textAlign='center'; g.textBaseline='middle'; g.fillText('?',50,104); }
+  g.restore();
+  // the gilt frame
+  const fr=g.createLinearGradient(0,0,W,H); if(locked){ fr.addColorStop(0,'#3a2a14'); fr.addColorStop(0.5,'#7a5a2a'); fr.addColorStop(1,'#2a1c0c'); } else { fr.addColorStop(0,'#7a5a1c'); fr.addColorStop(0.35,'#ffd36b'); fr.addColorStop(0.6,'#a07828'); fr.addColorStop(1,'#fff2c0'); }
+  g.strokeStyle='#120804'; g.lineWidth=5; g.beginPath(); g.ellipse(50,60,46.5,57.5,0,0,6.283); g.stroke();
+  g.strokeStyle=fr; g.lineWidth=3; g.stroke();
+  g.strokeStyle=locked?'rgba(120,90,40,0.4)':'rgba(255,242,192,0.55)'; g.lineWidth=0.6; g.beginPath(); g.ellipse(50,60,44.4,55.4,0,0,6.283); g.stroke();
+  for(const yy of [2.8,117.2]){ g.beginPath(); g.moveTo(50,yy-3); g.lineTo(53,yy); g.lineTo(50,yy+3); g.lineTo(47,yy); g.closePath(); g.fillStyle=fr; g.fill(); g.strokeStyle='#120804'; g.lineWidth=0.6; g.stroke(); }
+  _PORT[key]=c; return c;
+}
+function soulPortraitURL(id, locked){ const key=id+(locked?'_L':''); if(_PORTURL[key]) return _PORTURL[key];
+  try{ _PORTURL[key]=soulPortrait(id,locked).toDataURL('image/png'); }catch(e){ _PORTURL[key]=''; } return _PORTURL[key]; }
+function soulPortraitImg(id, cls, locked){ const u=soulPortraitURL(id,locked); return u?'<img class="'+(cls||'soulPort')+'" src="'+u+'" alt="" draggable="false">':''; }
+
+/* ---------- THE ANTE ROOM — soul cards wear their portraits ---------- */
+{ const _rar=renderAnteRoom;
+  renderAnteRoom=function(){ _rar.apply(this,arguments);
+    try{ const row=document.querySelector('#anteBody .soulRow'); if(!row) return;
+      const cur=curSoul(); let html='';
+      SOULS.forEach(s=>{ const un=s.u(), on=cur.id===s.id;
+        if(un) html+='<div class="soulCard d1'+(on?' on':'')+'" data-id="'+s.id+'" style="--sc:'+s.col+'">'+soulPortraitImg(s.id,'soulPort')
+          +'<div class="soulTx"><div class="soulN"><span class="soulGi">'+s.g+'</span> '+s.n+'</div><div class="soulD">'+s.d+'</div>'+(s.pips?'<div class="soulPips">'+s.pips+'</div>':'')+(on?'<div class="soulPick">— AT THE TABLE —</div>':'')+'</div></div>';
+        else { const pr=SOUL_PROG[s.id]?SOUL_PROG[s.id]():null; const pct=pr?Math.min(100,Math.floor(pr[0]/pr[1]*100)):0;
+          html+='<div class="soulCard d1 locked" style="--sc:'+s.col+'" title="'+s.uTxt.replace(/"/g,'&quot;')+'">'+soulPortraitImg(s.id,'soulPort',true)
+          +'<div class="soulTx"><div class="soulN">'+s.n+'</div><div class="soulD">🔒 '+s.uTxt+'</div>'
+          +(pr?'<div class="soulProg"><i style="width:'+pct+'%"></i></div><div class="soulProgT">'+Math.min(pr[0],pr[1]).toLocaleString()+' / '+pr[1].toLocaleString()+'</div>':'<div class="soulProgT">THE HOUSE WILL NOT SAY</div>')+'</div></div>'; } });
+      row.innerHTML=html; row.classList.add('d1seats');
+    }catch(e){} };
+}
+
+/* ---------- THE INDEX — a SEATS section (rows for ranks.js' sec()) ---------- */
+function soulIdxRows(){ return SOULS.map(s=>[s.u(), s.g, s.n+'|'+s.d.replace(/"/g,'&quot;'), s.col]); }
+
+/* ---------- THE UNLOCK CEREMONY ---------- */
+const _seatQ=[];
+function seatSweep(){
+  if(!SEATS._ld || typeof RANK==='undefined' || !RANK._ld) return;
+  if(!SEATS.seen){ SEATS.seen=SOULS.filter(s=>SEAT_OLD.includes(s.id)&&s.u()).map(s=>s.id); if(!SEATS.seen.includes('vesper')) SEATS.seen.push('vesper'); seatsSaveSoon(); }
+  let ch=false;
+  SOULS.forEach(s=>{ if(!SEATS.seen.includes(s.id) && s.u()){ SEATS.seen.push(s.id); _seatQ.push(s.id); ch=true; } });
+  if(ch) seatsSaveSoon();
+  seatPump();
+}
+function seatPump(){
+  if(!_seatQ.length || window._seatBusy) return;
+  if(state!=='menu' && state!=='dead' && state!=='playing') return setTimeout(seatPump,1500);
+  const id=_seatQ.shift(), s=SOULS.find(x=>x.id===id); if(!s) return;
+  window._seatBusy=true;
+  let t=document.getElementById('soulToast');
+  if(!t){ t=document.createElement('div'); t.id='soulToast'; document.body.appendChild(t);
+    t.addEventListener('click',()=>{ t.classList.remove('go'); }); }
+  t.style.setProperty('--sc', s.col);
+  t.innerHTML=soulPortraitImg(s.id,'stPort')+'<div class="stTx"><div class="stH">✦ A NEW SOUL TAKES A SEAT ✦</div><div class="stN">'+s.g+' '+s.n+'</div><div class="stD">'+s.d+'</div><div class="stF">'+(s.uTxt?'EARNED: '+s.uTxt+' · ':'')+'CHOOSE THEM IN THE ANTE ROOM</div></div>';
+  t.classList.remove('go'); void t.offsetWidth; t.classList.add('go');
+  try{ SFX.seatUnlock(); flash(0.5,s.col); coinRain(state==='playing'?10:22); domConfetti(36,'coinRain'); if(state!=='playing') sparkBurstAt('soulToast','coinRain',28); }catch(e){}
+  try{ announce('✦ '+s.n+' — UNSEALED ✦', true); }catch(e){}
+  setTimeout(()=>{ t.classList.remove('go'); window._seatBusy=false; setTimeout(seatPump,500); }, state==='playing'?5200:7000);
+}
+{ const _rc=renderChips; renderChips=function(){ const r=_rc.apply(this,arguments); try{ seatSweep(); }catch(e){} return r; }; }
+
+/* ---------- THE MECHANICS — one tick from update(), a few wrappers ---------- */
+function soulTick(dt){
+  if(!P) return;
+  // the ledger notices new seats mid-run, too
+  { const n=performance.now(); if(n-(window._seatSwT||0)>4000){ window._seatSwT=n; try{ seatSweep(); }catch(e){} } }
+  if(P.martyr){
+    P.regen=0; P.lifesteal=0; P.onKillHeal=0;
+    const rev=(P.revived?1:0)+(P.phUsed?1:0)+(P.markerUsed?1:0);
+    if(P._mRev!==rev || P._mCap===undefined){ P._mRev=rev; P._mCap=P.hp; } // resurrection is not healing
+    if(P.hp>P._mCap+0.01){ const dh=P.hp-P._mCap; P.hp=P._mCap;
+      if(dh>=2 && performance.now()-(P._mRefT||0)>1600){ P._mRefT=performance.now(); ftext(P.x,P.y-34,'✝ REFUSED','#ff2448'); try{ SFX.refuse(); }catch(e){} } }
+    P._mCap=P.hp;
+    const st=Math.max(0,Math.min(9,Math.floor((1-P.hp/Math.max(1,P.maxHp))*10+1e-6))), o=P._mSt||0;
+    if(st!==o){ const fd=(1+0.06*st)/(1+0.06*o), fr=(1+0.04*st)/(1+0.04*o);
+      P.damage*=fd; P.fireRate*=fr; if(P._ovD!==undefined) P._ovD*=fd; if(P._ovR!==undefined) P._ovR*=fr;
+      P._mSt=st;
+      if(st>o){ const rn=['','I','II','III','IV','V','VI','VII','VIII','IX'][st];
+        showStreak('✝ STIGMATA '+rn+' — +'+(st*6)+'% DMG · +'+(st*4)+'% FIRE ✝'); try{ SFX.stigmata(st); }catch(e){}
+        flash(0.18+st*0.03,'#8b1620'); ring(P.x,P.y,60+st*8,'#ff2448'); if(st>=5) shake=Math.min(16,shake+st); } } }
+  if(P.magpie){ for(const c of coins){ if(!c._d1){ c._d1=1; if(rng('loot')<0.03) c.gold=1; } } }
+  if(P.banker){ P._bkT=(P._bkT||0)+dt;
+    if(P._bkT>=55 && !P._bkW){ P._bkW=1; ftext(P.x,P.y-40,'♖ INTEREST IN 5…','#c4ff4d'); try{ tone(1318,0.06,'sine',0.05); }catch(e){} }
+    if(P._bkT>=60){ P._bkT-=60; P._bkW=0;
+      const gain=P.coins>0?Math.max(1,Math.round(P.coins*0.08)):0;
+      if(gain>0){ P.coins+=gain; LT.coins+=gain; try{ bump('runCoins',P.coins); bump('ltCoins',LT.coins); }catch(e){}
+        announce('♖ INTEREST ACCRUES — +'+gain+' COINS ♖', true); try{ SFX.register(); }catch(e){}
+        coinRain(Math.min(30,6+Math.floor(gain/4))); ftext(P.x,P.y-36,'+'+gain+' ◈','#c4ff4d',true); flash(0.22,'#c4ff4d');
+        P._bkPaid=(P._bkPaid||0)+gain; }
+      else { announce('♖ NOTHING TO COMPOUND ♖', false); try{ SFX.refuse(); }catch(e){} } } }
+}
+// world overlay — the Magpie's golden chips, the Martyr's bleeding halo
+function soulDrawWorld(){
+  if(!P) return;
+  if(P.magpie){ for(const c of coins){ if(!c.gold || !inView(c.x,c.y,40)) continue;
+    const sp=Math.abs(Math.cos(gt*3+c.x*0.05)), w=8*(0.4+0.6*sp);
+    ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.fillStyle='rgba(46,230,255,0.25)'; ctx.beginPath(); ctx.arc(c.x,c.y,14+Math.sin(gt*8)*2,0,6.283); ctx.fill(); ctx.restore();
+    ctx.fillStyle='#1a0408'; ctx.beginPath(); ctx.ellipse(c.x,c.y,w+1.4,9.4,0,0,6.283); ctx.fill();
+    ctx.fillStyle='#ffd36b'; ctx.beginPath(); ctx.ellipse(c.x,c.y,w,8,0,0,6.283); ctx.fill();
+    ctx.fillStyle='#b0122a'; ctx.beginPath(); ctx.ellipse(c.x,c.y,w*0.7,5.6,0,0,6.283); ctx.fill();
+    ctx.fillStyle='#fff2c0'; ctx.beginPath(); ctx.ellipse(c.x,c.y,w*0.3,2.6,0,0,6.283); ctx.fill(); } }
+  if(P.martyr && (P._mSt||0)>0){ const st=P._mSt;
+    ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.strokeStyle='rgba(255,36,72,'+(0.08+st*0.035+Math.sin(gt*5)*0.04)+')'; ctx.lineWidth=1.5+st*0.25;
+    ctx.beginPath(); ctx.arc(P.x,P.y-2,30+Math.sin(gt*3)*2,0,6.283); ctx.stroke(); ctx.restore(); }
+}
+// THE MAGPIE'S GOLDEN CHIP — a free three-reel mini-slot that never stops the night
+const _chipQ=[];
+function magpieChip(c){
+  try{ SFX.chipClink(); }catch(e){} ring(c.x,c.y,40,'#2ee6ff'); burst(c.x,c.y,10,'#ffd36b'); ftext(c.x,c.y-20,'✧ GOLDEN CHIP','#2ee6ff');
+  LT.chips=(LT.chips||0)+1;
+  _chipQ.push(1); if(!window._chipBusy) chipSpin();
+}
+function chipSpin(){
+  if(!_chipQ.length){ window._chipBusy=false; return; } _chipQ.shift(); window._chipBusy=true;
+  const seq=window._runSeq;
+  let el=document.getElementById('chipSlot');
+  if(!el){ el=document.createElement('div'); el.id='chipSlot'; el.innerHTML='<div class="csH">✧ GOLDEN CHIP ✧</div><div class="csR"><b></b><b></b><b></b></div><div class="csO"></div>'; document.body.appendChild(el); }
+  const SY=['7','♠','♥','♦','♣','◈','★'], u=rng('slot');
+  const kind=u<0.12?3:(u<0.47?2:0);
+  const fin = kind===3 ? ['7','7','7'] : (()=>{ const a=SY[(Math.random()*SY.length)|0]; if(kind===2){ const o=SY.filter(x=>x!==a); return [a,a,o[(Math.random()*o.length)|0]]; } const sh=SY.slice().sort(()=>Math.random()-0.5); return [sh[0],sh[1],sh[2]]; })();
+  const reels=[...el.querySelectorAll('.csR b')]; reels.forEach(r=>{ r.className=''; });
+  el.querySelector('.csO').textContent=''; el.classList.remove('win3','win2','bust'); el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');
+  let stopped=0; const iv=setInterval(()=>{ reels.forEach((r,i)=>{ if(i>=stopped) r.textContent=SY[(Math.random()*SY.length)|0]; }); },55);
+  [480,760,1060].forEach((ms,i)=>setTimeout(()=>{ stopped=i+1; reels[i].textContent=fin[i]; reels[i].className='st'; try{ SFX.chipTick(i); }catch(e){}
+    if(i===1 && fin[0]===fin[1]){ try{ SFX.tingle(); }catch(e){} reels[2].className='antici'; } },ms));
+  setTimeout(()=>{ clearInterval(iv);
+    if(window._runSeq!==seq || !P || state==='dead' || state==='menu'){ el.classList.remove('go'); window._chipBusy=false; _chipQ.length=0; return; }
+    const out=el.querySelector('.csO');
+    if(kind===3){ el.classList.add('win3'); out.textContent='TRIPLE SEVENS — A FREE LEVEL';
+      pending.push({}); announce('✧ GOLDEN CHIP — 7 7 7 — A FREE LEVEL ✧', true); try{ SFX.jackpot(); SFX.dingBells(); }catch(e){}
+      coinRain(26); flash(0.45,'#2ee6ff'); shake=Math.min(16,shake+7); }
+    else if(kind===2){ el.classList.add('win2'); let txt='A FREE POWER'; try{ txt=grantMiniPower()||txt; }catch(e){}
+      out.textContent='PAIR — '+txt; announce('✧ CHIP PAIR — '+String(txt).toUpperCase()+' ✧', true); try{ SFX.dingBells(); SFX.casinoDing(); }catch(e){}
+      coinRain(12); flash(0.3,'#2ee6ff'); }
+    else { el.classList.add('bust'); const g=8+((rng('drop')*8)|0); P.coins+=g; LT.coins+=g; out.textContent='BUST — +'+g+' COINS';
+      try{ SFX.coinPling(); }catch(e){} ftext(P.x,P.y-30,'+'+g+' ◈','#ffd36b'); }
+    setTimeout(()=>{ el.classList.remove('go'); setTimeout(chipSpin,260); }, 1300);
+  }, 1200);
+}
+// THE CARDSHARP — the tell is dealt when the machine opens; the reels obey it
+function sharpDeal(pool, redeal){
+  if(!P||!P.sharp) { window._sharpTell=null; return; }
+  if(!redeal) window._sharpRedealt=false;
+  window._sharpPool=pool;
+  const u=rng('slot'), pB=MFATE.P+(P.yolkFate?0.03:0);
+  const n = P.coldDeck ? 1 : (u<MFATE.T ? 3 : (u<MFATE.T+pB ? 2 : 1));
+  const d=weightedByRarity(pool, slotHot());
+  window._sharpTell={n, s:d.id};
+  sharpShow();
+}
+function sharpShow(){
+  const t=window._sharpTell; if(!t||slotStage!=='ready') return;
+  const defs=slotKind==='weapon'?WEAPONS:PASSIVES, d=defs.find(x=>x.id===t.s); if(!d) return;
+  const n=(slotFloor&&t.n<2)?2:t.n;
+  const lvTxt = n>=3 ? 'TRIPLE — MAX LEVEL' : (n===2 ? 'PAIR — +2 LEVELS' : 'SINGLE — +1 LEVEL');
+  $('cardName').textContent=d.n; $('cardName').className='r-'+d.rar; $('cardName').style.color='';
+  $('cardDesc').innerHTML='<div class="ofsub sharpTell">♣ THE TELL: '+lvTxt+'</div><div class="ofsub">'+projFx(d, skLevel(d)+1)+'</div>';
+  flarePayRow(d.rar);
+  const can=!window._sharpRedealt;
+  $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> take the hand'+(can?' · <span class="keyhint">R</span> re-deal · 25 ◈':' · <span style="color:#8a7c66">the deck is cut</span>');
+  const m=$('machine'); if(m){ m.classList.remove('sharpFlip'); void m.offsetWidth; m.classList.add('sharpFlip'); }
+}
+function sharpBtn(){
+  if(!P||!P.sharp||slotStage!=='ready') return null;
+  const can=!window._sharpRedealt, rich=(P.coins||0)>=25;
+  const b=makeBtn('♣ RE-DEAL', 'sharpBtn'+(can&&rich?'':' dim'), can?(rich?'25 ◈ · R':'NEED 25 ◈'):'ONCE PER SLOT', ()=>sharpRedeal());
+  return b;
+}
+function sharpRedeal(){
+  if(!P||!P.sharp||slotStage!=='ready'||!window._sharpPool) return;
+  if(window._sharpRedealt){ try{ SFX.thud(); }catch(e){} return; }
+  if((P.coins||0)<25){ try{ SFX.bust(); }catch(e){} announce('♣ THE HOUSE WANTS 25 COINS TO RE-DEAL ♣', false); return; }
+  P.coins-=25; window._sharpRedealt=true;
+  try{ SFX.riffle(); }catch(e){} flash(0.25,'#36f08a'); sparkBurst(14);
+  sharpDeal(window._sharpPool, true); showSlotButtons();
+}
+window.addEventListener('keydown',e=>{ try{ if(state==='slot' && slotStage==='ready' && P && P.sharp && (e.key||'').toLowerCase()==='r' && !e.repeat){ e.preventDefault(); sharpRedeal(); } }catch(err){} });
+// THE BANKER'S GHOST — no wheel for the dead; the RAGE pays a dividend. Every 90%+ cash counts toward his seat.
+{ const _tw=tickWheelTok; tickWheelTok=function(dt){ if(P&&P.banker){ wheelTok=null; return; } return _tw.apply(this,arguments); }; }
+{ const _ow=openWheel; openWheel=function(){ if(P&&P.banker){ announce('♖ THE WHEEL WILL NOT SPIN FOR THE DEAD ♖', false); return; } return _ow.apply(this,arguments); }; }
+{ const _cr=cashRage; cashRage=function(){ const good=P&&P.ovT>=90, purse=P?P.coins:0; const r=_cr.apply(this,arguments);
+    if(good){ SEATS.st.rage=(SEATS.st.rage||0)+1; seatsSaveSoon();
+      if(P.banker){ const g=Math.max(10,Math.round(purse*0.16)); P.coins+=g; LT.coins+=g;
+        setTimeout(()=>{ announce('♖ THE DIVIDEND — +'+g+' COINS ♖', true); try{ SFX.register(); }catch(e){} coinRain(Math.min(34,10+Math.floor(g/4))); flash(0.3,'#c4ff4d'); }, 500); } }
+    return r; }; }
