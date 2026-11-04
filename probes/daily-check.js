@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// node probes/daily-check.js [--src] [--seconds 60]
+// node probes/daily-check.js [--src] [--seconds 150]
 // B1 proof: two fresh DAILY DEBT runs of the same seed, driven by the same
 // scripted inputs (the autoplay bot on the virtual clock), must produce the
 // identical first N game-seconds of spawns and slot results. A different seed
@@ -8,7 +8,7 @@
 const { launch, until } = require('./lib');
 const argv = process.argv.slice(2);
 const which = argv.includes('--src') ? 'src' : 'dist';
-const SECS = +(argv[argv.indexOf('--seconds') + 1] || 60) || 60;
+const SECS = +(argv[argv.indexOf('--seconds') + 1] || 150) || 150;
 
 async function night(day) {
   const { browser, page, errors } = await launch({ which });
@@ -31,10 +31,13 @@ async function night(day) {
   return out;
 }
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const firstDiff = (a, b) => { for (let i = 0; i < Math.max(a.length, b.length); i++) if (JSON.stringify(a[i]) !== JSON.stringify(b[i])) return { i, a: a[i], b: b[i] }; return null; };
 
 (async () => {
   const DAY = 20261112, OTHER = 20261113;
-  const A = await night(DAY), B = await night(DAY), C = await night(OTHER), N1 = await night(0), N2 = await night(0);
+  const PAIR = argv.includes('--pair'); // debug: only the two same-seed runs
+  const A = await night(DAY), B = await night(DAY);
+  const C = PAIR ? A : await night(OTHER), N1 = PAIR ? { log: { spawns: [1] }, errors: [] } : await night(0), N2 = PAIR ? { log: { spawns: [2] }, errors: [] } : await night(0);
   const rows = {
     'daily A == daily B (spawns)': same(A.log.spawns, B.log.spawns),
     'daily A == daily B (slot results)': same(A.log.slots, B.log.slots),
@@ -49,6 +52,7 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     pass, seconds: SECS, checks: rows,
     debt: A.terms, nextDebt: C.terms,
     counts: { spawnsA: A.log.spawns.length, spawnsB: B.log.spawns.length, slotsA: A.log.slots.length, slotsB: B.log.slots.length },
+    diverge: { spawns: firstDiff(A.log.spawns, B.log.spawns), slots: firstDiff(A.log.slots, B.log.slots) },
     firstSlotsA: A.log.slots.slice(0, 4), firstSlotsB: B.log.slots.slice(0, 4),
     firstSpawnsA: A.log.spawns.slice(0, 3), firstSpawnsB: B.log.spawns.slice(0, 3),
     errors: errors.slice(0, 6),

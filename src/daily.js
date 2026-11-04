@@ -164,10 +164,15 @@ function dlyDeath(){
 }
 function dlyBand(res, pay, pb){
   const go=$('gameover'), pn=go&&go.querySelector('.panel'); if(!pn) return;
-  let b=$('dlyBand'); if(!b){ b=document.createElement('div'); b.id='dlyBand'; pn.insertBefore(b, pn.firstChild); }
+  let b=$('dlyBand'); if(!b){ b=document.createElement('div'); b.id='dlyBand'; }
+  // wide screens: a plaque pinned beside the ledger (the panel is already full); narrow: top of the panel, which may scroll
+  const wide=(typeof matchMedia==='function') && matchMedia('(min-width: 1100px)').matches;
+  if(wide){ if(b.parentNode!==go) go.appendChild(b); }
+  else if(b.parentNode!==pn) pn.insertBefore(b, pn.firstChild);
+  go.classList.toggle('dly', !wide);
   const t=DLY.terms, d=DLY.data, rec=d.days[DLY.day]||{};
   const trk=DLY.track.map(s=>'<i style="color:'+(DLY_MARK_COL[s]||'#e6d9c2')+'">'+s+'</i>').join('');
-  b.className=DLY.scored?'scored':'practice';
+  b.className=(DLY.scored?'scored':'practice')+(wide?' side':'');
   b.innerHTML='<div class="dbTop">☀ DAILY DEBT #'+t.n+' <b>'+(DLY.scored?'SCORED':'PRACTICE')+'</b></div>'
     +'<div class="dbName">'+t.name+'</div>'
     +'<div class="dbTerms">'+dlyModLine(t,true)+'</div>'
@@ -269,7 +274,7 @@ if(typeof actuallyDie==='function'){ const _ad=actuallyDie;
     try{ if(was!=='dead') dlyDeath(); }catch(e){ console.error('[daily death]',e); }
     return r; }; }
 // a normal corpse never wears the daily band
-try{ new MutationObserver(()=>{ const go=$('gameover'); if(go && !go.classList.contains('hidden') && !(DLY_RNG&&DLY.on)){ const b=$('dlyBand'); if(b) b.remove(); } })
+try{ new MutationObserver(()=>{ const go=$('gameover'); if(go && !go.classList.contains('hidden') && !(DLY_RNG&&DLY.on)){ const b=$('dlyBand'); if(b) b.remove(); go.classList.remove('dly'); } })
   .observe($('gameover'),{attributes:true, attributeFilter:['class']}); }catch(e){}
 if(typeof renderChips==='function'){ const _rc=renderChips;
   renderChips=function(){ const r=_rc.apply(this, arguments); try{ dlyPlaque(); }catch(e){} return r; }; }

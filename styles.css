@@ -1440,7 +1440,7 @@ button[id$="Close"]:active{transform:translateY(1px);}
 @media (prefers-reduced-motion: reduce){ #a3Share .a3ShareOut.go .a3ShareSheet,#a3Share .a3ShareBtn{animation:none;} }
 
 /* ==== B1 ==== DAILY DEBT — the menu plaque + the ledger band */
-#dlyPlaque{position:relative;margin:12px auto 4px;max-width:520px;padding:10px 14px 10px;cursor:pointer;text-align:center;
+#dlyPlaque{position:relative;margin:12px 0 4px;max-width:440px;padding:10px 14px 10px;cursor:pointer;text-align:center;
   background:linear-gradient(180deg,rgba(42,15,22,.92),rgba(16,6,9,.94));border:1px solid rgba(232,182,76,.55);border-radius:6px;
   box-shadow:inset 0 0 0 3px rgba(10,4,7,.8),inset 0 0 0 4px rgba(232,182,76,.22),0 6px 22px rgba(0,0,0,.55),0 0 18px rgba(255,211,107,.10);
   font-family:var(--disp);transition:transform .15s,box-shadow .2s;animation:dlyGlow 3.2s ease-in-out infinite;}
@@ -1481,6 +1481,11 @@ button[id$="Close"]:active{transform:translateY(1px);}
 #dlyBand .dbPb.go{animation:dlyPb 1.4s var(--ease-pop) both;}
 @keyframes dlyBandIn{from{opacity:0;transform:translateY(-8px) scale(.96);}to{opacity:1;transform:none;}}
 @keyframes dlyPb{0%{opacity:0;transform:scale(.6);}40%{opacity:1;transform:scale(1.25);text-shadow:0 0 24px #8bffd0;}100%{opacity:1;transform:none;text-shadow:0 0 10px rgba(139,255,208,.6);}}
-@media (max-width:600px){ #dlyPlaque{margin:8px auto 2px;padding:8px 10px;} #dlyPlaque .dpName{font-size:13px;} #dlyPlaque .dpTerms{font-size:12px;}
+#dlyBand.side{position:absolute;left:calc(22px + env(safe-area-inset-left,0px));top:calc(64px + env(safe-area-inset-top,0px));width:300px;margin:0;z-index:3;}
+#dlyBand.side.go{animation:dlySideIn .55s var(--ease-pop) both;}
+@keyframes dlySideIn{from{opacity:0;transform:translateX(-14px);}to{opacity:1;transform:none;}}
+#gameover.dly .panel{max-height:100vh;max-height:100dvh;overflow-y:auto;}
+#gameover.dly #dlyBand{margin-top:34px;}
+@media (max-width:600px){ #dlyPlaque{margin:8px auto 2px;max-width:none;padding:8px 10px;} #dlyPlaque .dpName{font-size:13px;} #dlyPlaque .dpTerms{font-size:12px;}
   #dlyPlaque .dpTop{font-size:10px;letter-spacing:.14em;} #dlyBand .dbTrack{font-size:18px;} }
 @media (prefers-reduced-motion: reduce){ #dlyPlaque,#dlyBand.go,#dlyBand .dbPb.go{animation:none;} #dlyBand .dbPb{opacity:1;} }
