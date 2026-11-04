@@ -31,7 +31,7 @@ const CFG = {
     pitboss: { hp:2600,spd:74,dmg:30,r:34, xp:40,coins:45, col:'#d4212f', dark:'#4a0a10' },
     croupier:{ hp:2100,spd:60,dmg:22,r:30, xp:40,coins:45, col:'#e6d9c2', dark:'#4a3a28' }, // A1: ivory, not gold
     bookie:  { hp:2400,spd:70,dmg:24,r:32, xp:45,coins:50, col:'#3f7a5a', dark:'#0f2a1c' }, // C2: racetrack felt + slate ledger
-    twins:   { hp:2600,spd:95,dmg:22,r:26, xp:55,coins:30, col:'#c9962e', dark:'#3a2608' }, // C2: one shared life (bone twin recolors)
+    twins:   { hp:2000,spd:95,dmg:22,r:30, xp:55,coins:30, col:'#c9962e', dark:'#3a2608' }, // C2: one shared life (bone twin recolors)
     collector:{hp:3200,spd:48,dmg:26,r:36, xp:50,coins:60, col:'#6a4ab5', dark:'#241540' },
     thehouse:{ hp:4400,spd:64,dmg:30,r:38, xp:70,coins:90,col:'#c98bff', dark:'#2a0a34' },
     housegod:{ hp:1000000,spd:1,dmg:1,r:46, xp:0,coins:0, col:'#1a0f1d', dark:'#07030a' }
@@ -2765,7 +2765,7 @@ const BOSS_DEFS={
   pitboss:{name:'THE PIT BOSS', vt:'brute'},
   croupier:{name:'THE CROUPIER', vt:'hr_croupier', g:'♠', bar:(b,p)=>hrBar(b,p), sub:'DEALS THE FLOOR · ♠ BLADES ♥ HEALS HIM ♦ PAYS YOU ♣ SLOWS · CALL HIS COIN'},
   bookie:{name:'THE BOOKIE', vt:'hr_bookie', g:'♞', bar:(b,p)=>hrBar(b,p), sub:'STAND ON THE ODDS WHEN BETS CLOSE · WIN — HE BLEEDS · LOSE — A CURSE'},
-  twins:{name:'THE TWINS OF FORTUNE', vt:'hr_twin', g:'✵', falls:'THE TWINS OF FORTUNE FALL', bar:(b,p)=>hrBar(b,p), sub:'ONE LIFE, TWO BODIES · ONLY THE TWIN THE WHEEL NAMES TAKES FULL DAMAGE'},
+  twins:{name:'THE TWINS OF FORTUNE', vt:'hr_twin', g:'✵', falls:'THE TWINS OF FORTUNE FALL', bar:(b,p)=>hrBar(b,p), sub:'ONE LIFE, TWO BODIES · ONLY THE TWIN THE WHEEL NAMES TAKES FULL DAMAGE · THE OTHER 40%'},
   collector:{name:'THE DEBT COLLECTOR', vt:'hexer'},
   thehouse:{name:'THE HOUSE ITSELF', vt:'revenant'}
 };
@@ -2912,8 +2912,8 @@ function hrTwinSync(e){
   const pool=e.pool; if(!pool) return;
   if(e._hs===undefined) e._hs=e.hp;
   const drop=e._hs-e.hp;
-  if(drop>0){ const hot=hrWheel?hrWheel.hot:'gold', m=(e.tw===hot)?1:0.25; pool.hp-=drop*m;
-    if(m<1 && Math.random()<0.08) ftext(e.x,e.y-e.r-12,'×0.25','#8a8478'); }
+  if(drop>0){ const hot=hrWheel?hrWheel.hot:'gold', m=(e.tw===hot)?1:0.4; pool.hp-=drop*m;
+    if(m<1 && Math.random()<0.08) ftext(e.x,e.y-e.r-12,'×0.4','#8a8478'); }
   e.hp=e._hs=Math.max(0,pool.hp);
 }
 // a boss's unique bounty — paid on top of the usual gilt + epic floor
@@ -3215,7 +3215,7 @@ function hrDrawBody(e,T,r,sway){
     const hot=hrWheel&&hrWheel.hot===e.tw, cl=e.tw==='gold'?'#ffd36b':'#fff2c0';
     if(hot){ ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.5+Math.sin(gt*6)*0.2; ctx.drawImage(silVar(T,'glow',cl),-dw*0.62,-dw*0.62-r*0.1,dw*1.24,dw*1.24); ctx.restore(); }
     else { ctx.save(); ctx.strokeStyle='rgba(150,150,170,0.55)'; ctx.lineWidth=2; ctx.setLineDash([5,6]); ctx.rotate(-gt); ctx.beginPath(); ctx.arc(0,0,r*1.35,0,6.28); ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
-    ctx.fillStyle=hot?cl:'#8a8478'; ctx.font="800 "+Math.round(r*0.42)+"px 'Cinzel',serif"; ctx.textAlign='center'; ctx.fillText(hot?'×1':'×¼',0,-r*1.62);
+    ctx.fillStyle=hot?cl:'#8a8478'; ctx.font="800 "+Math.round(r*0.42)+"px 'Cinzel',serif"; ctx.textAlign='center'; ctx.fillText(hot?'×1':'×0.4',0,-r*1.62);
     if(e.dst==='tele'){ ctx.save(); ctx.rotate(e.ca); ctx.globalAlpha=0.3+Math.sin(gt*30)*0.15; ctx.fillStyle='#ffd36b'; ctx.fillRect(0,-r*0.4,420,r*0.8); ctx.restore(); }
   }
 }
@@ -3275,7 +3275,7 @@ function hrDrawTop(){
       ctx.beginPath(); ctx.moveTo(tw[0].x,tw[0].y); ctx.lineTo(tw[1].x,tw[1].y); ctx.stroke(); ctx.restore();
       ctx.save(); ctx.strokeStyle='#2a2018'; ctx.lineWidth=1.5; ctx.setLineDash([3,5]); ctx.beginPath(); ctx.moveTo(tw[0].x,tw[0].y); ctx.lineTo(tw[1].x,tw[1].y); ctx.stroke(); ctx.restore(); }
     if(tw.length){ let mx=0,my=1e9; for(const t of tw){ mx+=t.x; my=Math.min(my,t.y); } mx/=tw.length;
-      const W=hrWheel, R=30, cx=mx, cy=my-110, st=6.283/12;
+      const W=hrWheel, R=30, cx=clamp(mx,camX+60,camX+VW-60), cy=clamp(my-110,camY+110,camY+VH-80), st=6.283/12;
       ctx.save(); ctx.translate(cx,cy);
       ctx.fillStyle='rgba(6,2,4,0.85)'; ctx.beginPath(); ctx.arc(0,0,R+6,0,6.28); ctx.fill();
       for(let k=0;k<12;k++){ ctx.fillStyle=(k%2===0)?'#c9962e':'#e6dccb'; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,R,W.a+k*st,W.a+(k+1)*st); ctx.closePath(); ctx.fill(); }
