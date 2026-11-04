@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 // npm run probe [-- --nights 5 --src --god --mobile --rank 20 --minutes 14]
+// B2: --stake N (0-5, unlocks + selects that deck) · --god-until S (god only while gt<S, e.g. 930 =
+//     survive the House, then fight the endless floor for real; implies --god)
 // Plays N full nights with the autoplay bot on a virtual clock and prints a
 // JSON report. Exit code 1 on any runtime error.
 'use strict';
@@ -15,7 +17,9 @@ const which = opt('src', false) ? 'src' : 'dist';
     const mobile = !!opt('mobile', false);
     const { browser, page, errors } = await launch({ which, mobile, viewport: mobile ? { width: 390, height: 844 } : { width: 1280, height: 720 } });
     const rank = opt('rank', null);
-    await page.evaluate(({ god, rank }) => { window.__bot.god = god; if (rank) { try { RANK.rank = +rank; RANK._ld = 1; } catch (e) {} } }, { god: !!opt('god', false), rank });
+    const godUntil = opt('god-until', null), stake = opt('stake', null);
+    await page.evaluate(({ god, rank, godUntil, stake }) => { window.__bot.god = god; if (godUntil) window.__bot.godUntil = +godUntil; if (rank) { try { RANK.rank = +rank; RANK._ld = 1; } catch (e) {} }
+      if (stake != null) { try { STK.won = 1; STK.best = { vesper: Math.max(-1, +stake - 1) }; STK.sel = +stake; } catch (e) {} } }, { god: !!opt('god', false) || !!godUntil, rank, godUntil, stake });
     const t0 = Date.now();
     // virtual frames: gt runs at 1.71x, so MAXMIN game-minutes ≈ MAXMIN*60/1.71 s
     const frames = Math.ceil(MAXMIN * 60 / 1.71 / 0.0167) + 3000;
@@ -24,6 +28,7 @@ const which = opt('src', false) ? 'src' : 'dist';
       res: window.__bot.res,
       alive: !window.__bot.res, clock: typeof gt === 'number' ? fmt(gt) : null, gt,
       level: P && P.level, maxLevel: window.__bot.maxLevel, kills: P && P.kills,
+      stake: P && P.stake, won: !!window._b2won, endless: !!(P && P._endless), endlessSec: (P && P._endless) ? Math.round(gt - P._endT0) : null, scoreMult: (typeof b2ScoreMult === 'function') ? b2ScoreMult() : null, peakEnemies: window.__bot.peakE || 0,
       states: window.__bot.states, amErr: !!window._amErr, timerErr: window.__timerErr || 0,
       heapMB: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) : null,
     }));
@@ -31,7 +36,7 @@ const which = opt('src', false) ? 'src' : 'dist';
     r.errors = errors.slice(0, 5);
     allErrors = allErrors.concat(errors);
     results.push(r);
-    console.error(`night ${n + 1}: ${r.res ? 'died ' + r.res.clock + ' lvl ' + r.res.level + ' kills ' + r.res.kills : 'alive at ' + r.clock + ' lvl ' + r.level} · ${r.realSec}s real · errors ${errors.length}`);
+    console.error(`night ${n + 1}: ${r.res ? 'died ' + r.res.clock + ' lvl ' + r.res.level + ' kills ' + r.res.kills : 'alive at ' + r.clock + ' lvl ' + r.level}${r.stake ? ' · stake ' + r.stake : ''}${r.won ? ' · WON' : ''}${r.endless ? ' · endless +' + r.endlessSec + 's ×' + r.scoreMult : ''} · ${r.realSec}s real · errors ${errors.length}`);
     await browser.close();
   }
   const deaths = results.filter(r => r.res).map(r => r.res.gt).sort((a, b) => a - b);
