@@ -21,11 +21,11 @@ async function snap(page, name) {
   const { browser, page, errors } = await launch({ which });
   await page.evaluate((f) => { window.__probeFloor = f; window.__bot.god = true; try { REC.minutes = Math.max(REC.minutes || 0, 10); } catch (e) {} }, floor);
   // the ante room with the floor card
-  await page.evaluate(() => { window.__bot.startedAt = -1; window.__bot.renderEvery = 1; try { IDX.fl = window.__probeFloor; openAnteRoom(); } catch (e) { console.error(e); } });
+  await page.evaluate(() => { window.__bot.startedAt = -1; window.__bot.renderEvery = 1; try { IDX.fl = window.__probeFloor; openAnteRoom(); const c = document.querySelector('.floorCard[data-id="'+window.__probeFloor+'"]'); if (c) c.scrollIntoView({ block: 'center' }); } catch (e) { console.error(e); } });
   for (let i = 0; i < 30; i++) await page.evaluate(() => window.__vc.step(16.7));
   await page.waitForTimeout(500);
   await page.screenshot({ path: path.join(OUT, 'f0_anteroom.jpg'), type: 'jpeg', quality: 82 }); console.error('  ✓ f0_anteroom');
-  await page.evaluate(() => { try { const p = document.getElementById('antePanel'); if (p) p.classList.add('hidden'); } catch (e) {} window.__bot.startedAt = null; });
+  await page.evaluate(() => { try { const p = document.getElementById('antePanel'); if (p) p.classList.add('hidden'); } catch (e) {} window.__bot.startedAt = null; window.__bot.renderEvery = 30; });
   await until(page, "state==='playing' && gt>30", 30000); await snap(page, 'f1_play_0m30');
   if (floor === 'ballroom') {
     await until(page, "state==='playing' && BAL.crashes.length && BAL.crashes[0].t>1.4", 60000); await snap(page, 'f2_chandelier_telegraph');
@@ -35,7 +35,9 @@ async function snap(page, name) {
     await until(page, "state==='playing' && BAL.seam && BAL.seam.t>1.5", 60000); await snap(page, 'f6_mirror_twins');
   }
   await until(page, "state==='playing' && gt>300", 80000); await snap(page, 'f7_play_5m00');
-  await until(page, "state==='playing' && gt>792", 160000); await snap(page, 'f8_play_13m00_house');
+  await until(page, "state==='playing' && gt>770", 160000);
+  await page.evaluate(() => { P.maxHp = 1e6; P.hp = 1e6; }); // god mode survives a House touch for the frame
+  await until(page, "state==='playing' && gt>786 && enemies.some(e=>e.bossKind==='housegod')", 20000); await snap(page, 'f8_play_13m00_house');
   await browser.close();
   console.log(JSON.stringify({ out: path.relative(ROOT, OUT), floor, errors: errors.slice(0, 8) }, null, 1));
   process.exit(errors.length ? 1 : 0);

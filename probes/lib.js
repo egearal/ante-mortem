@@ -59,7 +59,7 @@ const BOT = `(()=>{
     let fx=0, fy=0;
     for(const e of enemies){ const dx=P.x-e.x, dy=P.y-e.y, d=Math.hypot(dx,dy)||1; if(d<220){ const w=(220-d)/220; fx+=dx/d*w*w*3; fy+=dy/d*w*w*3; } }
     // telegraphed hazards (THE BALLROOM's chandeliers): a player sees the ring and steps out of it
-    if(window.__hazards) for(const h of window.__hazards){ const dx=P.x-h.x, dy=P.y-h.y, d=Math.hypot(dx,dy)||1; if(d<h.r+70){ fx+=dx/d*8; fy+=dy/d*8; } }
+    if(window.__hazards) for(const h of window.__hazards){ const dx=P.x-h.x, dy=P.y-h.y, d=Math.hypot(dx,dy)||1; if(d<h.r+40){ const w=Math.min(1,(h.r+40-d)/60)*4; fx+=dx/d*w; fy+=dy/d*w; } }
     const C=CFG.arena/2, cx=C-P.x, cy=C-P.y, cd=Math.hypot(cx,cy)||1;
     // orbit: tangent around centre at ~300px
     fx+=-cy/cd*0.6 + cx/cd*(cd-300)/300; fy+=cx/cd*0.6 + cy/cd*(cd-300)/300;

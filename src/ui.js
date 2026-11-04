@@ -582,8 +582,8 @@ const FLOORS=[
    u:()=>RANK.rank>=20, uTxt:'REACH HOUSE RANK 20', mods:{horde:1.4, noRanged:true, coin:1.15, tint:'cellar'}},
  {id:'chapel', n:'THE CHAPEL', g:'☨', col:'#fff2c0', d:'Where the House prays to itself. Everything runs 10% faster. XP +10%, tarot twice as often.',
    u:()=>(LT.houseMet||0)>=3, uTxt:'MEET THE HOUSE 3 TIMES', mods:{spd:1.1, xp:1.1, tarot:2, tint:'chapel'}},
- {id:'ballroom', n:'THE BALLROOM', g:'♕', col:'#d9a3c0', d:'A mirrored floor under the great chandelier. Every 90s the floor WALTZES (a turning current). Chandeliers fall — everything under one dies, you too — and leave coins. Mirrors at the edges send reflections. Coins +10%.',
-   u:()=>(REC.minutes||0)>=10 || (LT.houseMet||0)>=1 || !!(typeof stakeCleared==='function'&&stakeCleared(1)), uTxt:'SURVIVE 10:00 (OR CLEAR STAKE 1)', mods:{ballroom:true, coin:1.1}}
+ {id:'ballroom', n:'THE BALLROOM', g:'♕', col:'#d9a3c0', d:'A mirrored floor under the great chandelier. Every 90s the floor WALTZES (a turning current). Chandeliers fall — everything under one dies, you too — and leave coins. Mirrors at the edges send reflections.',
+   u:()=>(REC.minutes||0)>=10 || (LT.houseMet||0)>=1 || !!(typeof stakeCleared==='function'&&stakeCleared(1)), uTxt:'SURVIVE 10:00 (OR CLEAR STAKE 1)', mods:{ballroom:true}}
 ];
 function curFloor(){ const pf=window.__probeFloor, f=FLOORS.find(x=>x.id===(pf||IDX.fl||'pit')); return (f&&(pf||f.u()))?f:FLOORS[0]; } // __probeFloor: headless harness only (probes --floor)
 /* ==== D3 — THE BALLROOM ====================================================
@@ -649,7 +649,7 @@ function balUpdate(dt){
       const drift=(o,k)=>{ const dx=o.x-cx, dy=o.y-cy, d=Math.sqrt(dx*dx+dy*dy); if(d<1||d>1150) return;
         const f=Math.min(1,d/220)*(d>820?Math.max(0,1-(d-820)/330):1)*k; o.x-=dy/d*S*f; o.y+=dx/d*S*f; };
       for(const e of enemies) drift(e, e.boss?0.5:1);
-      drift(P,0.6); P.x=clamp(P.x,14,A-14); P.y=clamp(P.y,14,A-14);
+      drift(P,0.5); P.x=clamp(P.x,14,A-14); P.y=clamp(P.y,14,A-14);
       for(const c of coins) drift(c,0.8); for(const o of orbs) drift(o,0.8); } }
   // ✦ CHANDELIER CRASH — telegraphed, lethal, generous
   if(gt>=BAL.chandAt && BAL.crashes.length<(houseActive?2:1)){
@@ -678,14 +678,19 @@ function balDrop(){
     let best=null, bn=-1;
     for(let k=0;k<Math.min(14,vis.length);k++){ const a=vis[(Math.random()*vis.length)|0]; let n=0;
       for(const b of vis){ const dx=a.x-b.x, dy=a.y-b.y; if(dx*dx+dy*dy<R*R) n++; } if(n>bn){ bn=n; best=a; } }
-    if(best){ tx=best.x; ty=best.y; } else { const a=Math.random()*6.283, d=rnd(170,280); tx=P.x+Math.cos(a)*d; ty=P.y+Math.sin(a)*d; } }
+    if(best){ // lead the target: the court walks toward you, so the glass lands where they WILL be
+      let mx=0, my=0, ms=0, mn=0; for(const b of vis){ const dx=best.x-b.x, dy=best.y-b.y; if(dx*dx+dy*dy<R*R){ mx+=b.x; my+=b.y; ms+=b.spd; mn++; } }
+      mx/=mn; my/=mn; ms/=mn; const ddx=P.x-mx, ddy=P.y-my, dd=Math.hypot(ddx,ddy)||1, lead=Math.min(dd*0.55, ms*2.0, 260);
+      tx=mx+ddx/dd*lead; ty=my+ddy/dd*lead;
+      // the House's own drops hunt you; the night's drops are a gift you must not walk into
+      const px=tx-P.x, py=ty-P.y, pd=Math.hypot(px,py)||1; if(pd<R+30){ tx=P.x+px/pd*(R+30); ty=P.y+py/pd*(R+30); } } else { const a=Math.random()*6.283, d=rnd(170,280); tx=P.x+Math.cos(a)*d; ty=P.y+Math.sin(a)*d; } }
   const A=CFG.arena; tx=clamp(tx,R,A-R); ty=clamp(ty,R,A-R);
   BAL.crashes.push({x:tx,y:ty,r:R,t:0,tel:2.6,ph:Math.random()*6.283});
   showStreak('✦ THE CHANDELIER SWAYS — STAND CLEAR ✦'); BAL_SFX.creak();
 }
 function balImpact(c){
   const R=c.r; let k=0;
-  for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; if(!e) continue; const dx=e.x-c.x, dy=e.y-c.y, rr=R+e.r*0.5;
+  for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; if(!e) continue; const dx=e.x-c.x, dy=e.y-c.y, rr=R+e.r;
     if(dx*dx+dy*dy>rr*rr) continue;
     if(e.boss){ e.flash=0.3;
       if(e.unkillable||e.bossKind==='housegod'){ if(!e._balStun){ e._balStun=true; BAL.stuns.push({e,t:2.6,spd:e.spd}); e.spd*=0.08; ftext(e.x,e.y-50,'STAGGERED','#e6ecff',true); } }
@@ -694,7 +699,7 @@ function balImpact(c){
     e.hp=0; killEnemy(e,i); k++; }
   BAL.crushed+=k;
   // the glass pays — a pile of coins in the wreck
-  const n=Math.min(42, 7+k*2);
+  const n=Math.min(20, 3+Math.ceil(k/2));
   for(let i=0;i<n;i++){ const a=Math.random()*6.283, d=Math.random()*R*0.55; coins.push({x:c.x+Math.cos(a)*d,y:c.y+Math.sin(a)*d,r:6,vx:rnd(-70,70),vy:rnd(-70,70)}); }
   BAL.wreck.push({x:c.x,y:c.y,t:0,a:Math.random()*6.283});
   ring(c.x,c.y,R*1.5,'#ffffff'); ring(c.x,c.y,R*1.1,'#cdd5e8'); ring(c.x,c.y,R*0.7,'#a03050');
@@ -713,7 +718,7 @@ function balImpact(c){
 }
 function balReflect(side){
   const E=side===0?camX:side===1?camX+VW:side===2?camY:camY+VH, vert=side<2, A=CFG.arena;
-  const N=Math.min(14, 4+Math.floor(gt/90));
+  const N=Math.min(10, 3+Math.floor(gt/120));
   const pool=[]; for(const e of enemies){ if(e.boss||e.mirror) continue; if(e.x>camX&&e.x<camX+VW&&e.y>camY&&e.y<camY+VH) pool.push(e); }
   let made=0;
   for(let k=0;k<N && enemies.length<CFG.spawn.max;k++){
@@ -724,7 +729,7 @@ function balReflect(side){
     else { const u=Math.random(); x=vert?E+(side===0?-60:60):camX+u*VW; y=vert?camY+u*VH:E+(side===2?-60:60); t=Math.random()<0.5?'husk':'shambler'; }
     x=clamp(x,20,A-20); y=clamp(y,20,A-20);
     spawnEnemy(t,x,y); const m=enemies[enemies.length-1]; if(!m) continue;
-    m.mirror=true; m.hp*=0.6; m.maxhp*=0.6; m.col='#cdd5e8'; m.dark='#3c4258'; BAL.mirrors.push(m); made++; }
+    m.mirror=true; m.hp*=0.5; m.maxhp*=0.5; m.col='#cdd5e8'; m.dark='#3c4258'; BAL.mirrors.push(m); made++; }
   if(made){ showStreak('◇ '+made+' REFLECTIONS STEP OUT ◇'); }
 }
 // ---- art: baked once ----
@@ -742,7 +747,7 @@ function balTile(dark,variant){
   for(let s=0;s<2;s++){ const o=((vh>>(s*6))&63)/63*cs; x.beginPath(); x.moveTo(o-40,cs); x.lineTo(o+40,0); x.stroke(); }
   // silver-gilt inlay frame and wine corner diamonds (four quarters meet at each grout cross)
   x.strokeStyle='rgba(205,213,232,0.05)'; x.lineWidth=1.2; x.strokeRect(7,7,cs-14,cs-14);
-  x.fillStyle='rgba(74,14,34,0.55)';
+  x.fillStyle='rgba(74,14,34,0.40)';
   for(const [ux,uy] of [[0,0],[cs,0],[0,cs],[cs,cs]]){ x.beginPath(); x.moveTo(ux,uy-22); x.lineTo(ux+22,uy); x.lineTo(ux,uy+22); x.lineTo(ux-22,uy); x.closePath(); x.fill(); }
   x.strokeStyle='rgba(205,213,232,0.06)'; x.lineWidth=1;
   for(const [ux,uy] of [[0,0],[cs,0],[0,cs],[cs,cs]]){ x.beginPath(); x.moveTo(ux,uy-22); x.lineTo(ux+22,uy); x.lineTo(ux,uy+22); x.lineTo(ux-22,uy); x.closePath(); x.stroke(); }
@@ -757,7 +762,7 @@ function balMedallion(cx,cy){ // the dance-floor rosette under the great chandel
   const R=460;
   if(!inView(cx,cy,R+300)) return;
   if(!_balMed){ const c=document.createElement('canvas'); c.width=c.height=R*2; const x=c.getContext('2d'); x.translate(R,R);
-    x.fillStyle='rgba(60,10,28,0.30)'; x.beginPath(); x.arc(0,0,R*0.96,0,6.283); x.fill();
+    x.fillStyle='rgba(60,10,28,0.22)'; x.beginPath(); x.arc(0,0,R*0.96,0,6.283); x.fill();
     for(const [rr,a,w] of [[R*0.96,0.10,3],[R*0.9,0.05,1.5],[R*0.62,0.08,2],[R*0.3,0.07,1.5]]){ x.strokeStyle='rgba(205,213,232,'+a+')'; x.lineWidth=w; x.beginPath(); x.arc(0,0,rr,0,6.283); x.stroke(); }
     x.fillStyle='rgba(205,213,232,0.035)'; x.beginPath();
     for(let i=0;i<32;i++){ const a=i/32*6.283, rr=i%2?R*0.2:(i%4===0?R*0.88:R*0.6); x.lineTo(Math.cos(a)*rr,Math.sin(a)*rr); } x.closePath(); x.fill();
@@ -798,7 +803,7 @@ function balGround(){
   ctx.save(); ctx.globalCompositeOperation='lighter';
   if(!GFX.lite && inView(C,C,700)){ ctx.globalAlpha=0.16+Math.sin(gt*0.9)*0.02; ctx.drawImage(lightSprite(205,213,240),C-560,C-430,1120,860); }
   // mirror twins shimmer — a silver ghost under each reflection
-  if(!qLow){ ctx.globalAlpha=0.5; const gs=glowSprite('rgba(205,213,240,0.6)','rgba(205,213,240,0)',24); let n=0;
+  if(!qLow){ ctx.globalAlpha=0.85; const gs=glowSprite('rgba(205,213,240,0.6)','rgba(205,213,240,0)',24); let n=0;
     for(const m of BAL.mirrors){ if(n>40) break; if(!inView(m.x,m.y,40)) continue; n++; const rr=m.r*1.9; ctx.drawImage(gs,m.x-rr,m.y-rr*0.7,rr*2,rr*1.4); } }
   ctx.restore(); ctx.globalAlpha=1;
   for(const w of BAL.wreck){ if(!inView(w.x,w.y,200)) continue; ctx.save(); ctx.globalAlpha=Math.min(1,(20-w.t)/4)*0.85; ctx.translate(w.x,w.y); ctx.rotate(w.a); ctx.drawImage(balWrSprite(),-160,-160); ctx.restore(); }
@@ -823,9 +828,9 @@ function balGround(){
     ctx.save(); ctx.globalCompositeOperation='lighter';
     const vx=s.side===0?camX:s.side===1?camX+VW-W:camX, vy=s.side===2?camY:s.side===3?camY+VH-W:camY;
     const ww=s.side<2?W:VW, hh=s.side<2?VH:W;
-    ctx.fillStyle='rgba(205,213,240,'+(0.10*a).toFixed(3)+')'; ctx.fillRect(vx,vy,ww,hh);
-    ctx.fillStyle='rgba(235,240,255,'+(0.5*a).toFixed(3)+')';
-    if(s.side<2) ctx.fillRect(s.side===0?camX+W-2:camX+VW-W,camY,2,VH); else ctx.fillRect(camX,s.side===2?camY+W-2:camY+VH-W,VW,2);
+    ctx.fillStyle='rgba(205,213,240,'+(0.17*a).toFixed(3)+')'; ctx.fillRect(vx,vy,ww,hh); ctx.fillStyle='rgba(205,213,240,'+(0.08*a).toFixed(3)+')'; ctx.fillRect(s.side===0?vx+W:s.side===1?vx-W:vx, s.side===2?vy+W:s.side===3?vy-W:vy, ww, hh);
+    ctx.fillStyle='rgba(235,240,255,'+(0.85*a).toFixed(3)+')';
+    if(s.side<2) ctx.fillRect(s.side===0?camX+W-3:camX+VW-W,camY,3,VH); else ctx.fillRect(camX,s.side===2?camY+W-3:camY+VH-W,VW,3);
     ctx.restore(); }
 }
 // world-space, over the court: the chandelier hanging above its circle, then falling
