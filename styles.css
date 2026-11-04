@@ -1917,9 +1917,10 @@ body.touchUI #howBtnRow{bottom:calc(76px + var(--sab));gap:8px;white-space:nowra
   body.touchUI #howBtnRow{bottom:calc(64px + var(--sab));}
 }
 /* ==== B2 ==== THE STAKES + THE ENDLESS FLOOR */
-#b2Mult{font-family:var(--disp);font-size:10.5px;letter-spacing:.16em;color:#c9b78e;text-align:center;margin-top:3px;white-space:nowrap;}
-#b2Mult .b2e{color:#d9a8ff;text-shadow:0 0 10px rgba(201,139,255,.55);}
-#b2Mult .b2x{color:#fff2c0;font-size:12px;text-shadow:0 0 12px rgba(255,211,107,.7);}
+#b2Mult{position:absolute;top:calc(50px + env(safe-area-inset-top,0px));left:calc(14px + env(safe-area-inset-left,0px));z-index:3;pointer-events:none;transform-origin:left center;
+  font-family:var(--disp);font-size:11px;letter-spacing:.16em;color:#c9b78e;line-height:1.5;white-space:nowrap;text-shadow:0 1px 3px #000;}
+#b2Mult .b2e{color:#d9a8ff;font-size:12px;text-shadow:0 0 10px rgba(201,139,255,.6),0 1px 3px #000;}
+#b2Mult .b2x{color:#fff2c0;font-size:22px;font-weight:700;letter-spacing:.06em;vertical-align:-3px;text-shadow:0 0 14px rgba(255,211,107,.85),0 1px 3px #000;}
 #b2Mult.pulse{animation:b2Pulse .7s cubic-bezier(.2,1.6,.4,1);}
 @keyframes b2Pulse{0%{transform:scale(1.55);filter:brightness(2.2);}100%{transform:scale(1);filter:none;}}
 #timer.b2endless{color:#e6c8ff;text-shadow:0 0 14px rgba(154,92,255,.75),0 0 2px #fff;}
@@ -1936,7 +1937,7 @@ body.touchUI #howBtnRow{bottom:calc(76px + var(--sab));gap:8px;white-space:nowra
 .b2gR{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
 .b2gR .btn{flex:1 1 220px;display:flex;flex-direction:column;gap:4px;align-items:center;padding:12px 14px;min-height:44px;}
 .b2gR .btn b{font-family:var(--disp);font-size:17px;letter-spacing:.14em;}
-.b2gR .btn span{font-size:11.5px;color:#b8ab95;line-height:1.45;}
+.b2gR .btn span{font-family:var(--body);font-size:14px;font-weight:500;text-transform:none;letter-spacing:.01em;color:#c8bba4;line-height:1.35;}
 .b2gR .btn em{font-style:normal;font-size:9.5px;letter-spacing:.22em;opacity:.6;}
 .b2gR .b2on{border-color:#9a5cff;box-shadow:0 0 22px rgba(154,92,255,.45);}
 .b2gR .b2on b{color:#d9a8ff;}

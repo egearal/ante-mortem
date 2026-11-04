@@ -23,8 +23,9 @@ async function snap(page, name) { await page.evaluate(() => { window.__bot.rende
     await until(page, "state==='playing' && gt>705", 4000);
     await snap(page, 'b3_gilt_night_crown');
     await until(page, "state==='b2gate'", 30000);
-    await page.evaluate(() => { window.__bot.noSpace = true; });
-    await shot(page, 'b4_night_won_gate', 1600);
+    await page.evaluate(() => { window.__bot.noSpace = true; window.__bot.renderEvery = 1; });
+    await run(page, 200); // the jackpot slam clears, the gate rises
+    await shot(page, 'b4_night_won_gate', 700);
     await page.evaluate(() => { b2PressOn(); });
     await until(page, "state==='playing' && P._endless && gt-P._endT0>95", 30000);
     await snap(page, 'b5_endless_hud');
