@@ -844,6 +844,8 @@ function b2CourtType(t){
     if(window._fmods&&window._fmods.noRanged&&(nt==='shooter'||nt==='hexer')) nt='stalker'; return nt; }
   return t;
 }
+// the perf budget: never more than 8 elites alive on the endless floor (they never LOD to silhouettes)
+function b2EliteCap(n){ let a=0; for(const e of enemies) if(e.elite) a++; return Math.min(n, Math.max(0, 8-a)); }
 function b2ScaleElite(e){
   if(!e||!P||!P._endless) return;
   const k=1+0.3*Math.max(0,gt-P._endT0)/60;
@@ -851,6 +853,7 @@ function b2ScaleElite(e){
 }
 // a champion of the existing roster every 3:00 of the endless floor, heavier each time
 function b2Champion(){
+  if(enemies.some(e=>e.boss)){ P._b2bossT=30; return; } // one champion at a time — the next waits its turn
   const order=['pitboss','croupier','collector','thehouse'];
   const kind=order[(P._b2bossN||0)%order.length]; P._b2bossN=(P._b2bossN||0)+1;
   try{ spawnBoss(kind); }catch(e){ return; }

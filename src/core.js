@@ -348,7 +348,7 @@ function startWave(){
   }
   if(eliteWave){
     const n=(1+Math.floor(wave/8))*((P&&P.noMercy&&P.b2pairs)?3:((P&&(P.noMercy||P.b2pairs))?2:1)); // B2 OBSIDIAN: elites walk in pairs
-    for(let k=0;k<n;k++){ const a=Math.random()*6.283, d=Math.max(VW,VH)*0.6;
+    for(let k=0;k<((P&&P._endless)?b2EliteCap(n):n);k++){ const a=Math.random()*6.283, d=Math.max(VW,VH)*0.6;
       const ex9=clamp(P.x+Math.cos(a)*d,20,CFG.arena-20), ey9=clamp(P.y+Math.sin(a)*d,20,CFG.arena-20);
       spawnEnemy('elite',ex9,ey9); if(P&&P._endless) b2ScaleElite(enemies[enemies.length-1]); ring(ex9,ey9,160,'#c98bff'); ring(ex9,ey9,90,'#e8ccff'); }
     showStreak('WAVE '+wave+' · ELITE'); SFX.murmur(); flash(0.3,'#c98bff');

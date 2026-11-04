@@ -89,12 +89,13 @@ const BOT = `(()=>{
       return;
     }
     if(state==='slot'){ if(B.noSlotTap) return; if(B.n%6===0){ stopLock=0; try{ slotTap(); }catch(e){} } return; }
+    if(B.noSpace && state==='b2gate') return;
     if(B.n%4===0) space();
   };
 })();`;
 
-async function launch({ viewport = { width: 1280, height: 720 }, which = 'dist', mobile = false, fresh = true, vclock = true } = {}) {
-  const browser = await chromium.launch();
+async function launch({ viewport = { width: 1280, height: 720 }, which = 'dist', mobile = false, fresh = true, vclock = true, args = [] } = {}) {
+  const browser = await chromium.launch(args.length ? { args } : undefined);
   const ctx = await browser.newContext(mobile
     ? { viewport, deviceScaleFactor: 1, isMobile: true, hasTouch: true }
     : { viewport, deviceScaleFactor: 1 });
