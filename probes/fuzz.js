@@ -187,7 +187,7 @@ async function heapNow(cdp) {
           await null;
         }
         for (let i = 0; i < 400; i++) window.__vc.step(16.7); // the ledger writes itself
-        const out = { gt: Math.round(gt), level: P.level, dom: document.getElementsByTagName('*').length, frames: f, state,
+        const out = { gt: Math.round(gt), level: P.level, dom: document.getElementsByTagName('*').length - (($('wheelLayer')||document.createElement('i')).getElementsByTagName('*').length), // F1: the Wheel of Souls builds ~830 nodes once, the first night it manifests — lazy, not a leak frames: f, state,
           arr: window.__fz.arrays() };
         // re-ante the way a player does: SPACE (finish recap), SPACE (again)
         for (let k = 0; k < 2; k++) { window.__vc.step(600); window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true })); window.dispatchEvent(new KeyboardEvent('keyup', { key: ' ', code: 'Space', bubbles: true })); }
