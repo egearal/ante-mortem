@@ -2,7 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ANTE MORTEM">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="./icons/icon-180.png">
 <meta name="description" content="ANTE MORTEM — a gothic casino roguelite. The House deals, you survive until 13:00. Slots, dice, a wheel of souls and a crash-game ascension. No real money — only your soul.">
 <meta name="theme-color" content="#0a0507">
 <meta property="og:title" content="ANTE MORTEM — the House always bleeds">
@@ -1825,6 +1831,110 @@ button[id$="Close"]:active{transform:translateY(1px);}
 /* the stale 'Soon: Cloakroom' footnote yields its line on short screens */
 @media (max-height:760px){ #gameover .panel>.soon{display:none;} }
 body:has(#a3Share .a3ShareOut.go) #a2Notes{opacity:.12;transition:opacity .2s;}
+
+/* ==== A4 ==== THE POCKET CASINO — touch controls, phone layout, safe areas (sizing/positioning only) */
+:root{--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);--sal:env(safe-area-inset-left,0px);--sar:env(safe-area-inset-right,0px);}
+html,body{overscroll-behavior:none;touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+body.touchUI{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+body.touchUI input,body.touchUI textarea{-webkit-user-select:text;user-select:text;}
+body.touchUI button,body.touchUI .btn{touch-action:manipulation;}
+/* the stick — a gilt ring that lands where the thumb does */
+#tcStick{position:absolute;left:0;top:0;width:112px;height:112px;z-index:26;pointer-events:none;opacity:0;transition:opacity .14s;}
+#tcStick.on{opacity:1;transition:none;}
+#tcStick .tcRing{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(232,182,76,.75);
+  background:radial-gradient(circle,rgba(26,10,16,.15) 40%,rgba(26,10,16,.55) 100%);
+  box-shadow:0 0 18px rgba(232,182,76,.25),inset 0 0 22px rgba(0,0,0,.6),inset 0 0 0 6px rgba(232,182,76,.08);}
+#tcStick .tcRing::after{content:'';position:absolute;inset:9px;border-radius:50%;border:1px dashed rgba(232,182,76,.3);}
+#tcStick .tcKnob{position:absolute;left:31px;top:31px;width:50px;height:50px;border-radius:50%;
+  background:radial-gradient(circle at 38% 32%,#fff2c0,#ffd36b 38%,#b07a22 80%,#6a4410);
+  box-shadow:0 0 16px rgba(255,211,107,.55),0 4px 10px rgba(0,0,0,.6),inset 0 -3px 6px rgba(0,0,0,.35);}
+/* thumb buttons */
+.tcBtn{position:absolute;display:none;z-index:360;pointer-events:auto;touch-action:none;-webkit-user-select:none;user-select:none;
+  font-family:var(--disp);font-weight:800;border-radius:50%;padding:0;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;line-height:1;}
+body.touchUI .tcBtn.show{display:flex;}
+.tcBtn .tcG{display:block;} .tcBtn .tcL{display:block;letter-spacing:.14em;}
+#tcBet{right:calc(18px + var(--sar));bottom:calc(22px + var(--sab));width:92px;height:92px;color:#2a1405;
+  background:radial-gradient(circle at 40% 30%,#fff2c0,#ffd36b 40%,#e8b64c 70%,#8a5a10);border:3px solid #fff2c0;
+  box-shadow:0 0 0 3px #6a4410,0 0 24px rgba(255,211,107,.45),0 8px 16px rgba(0,0,0,.6);opacity:.94;transition:transform .06s;}
+#tcBet .tcG{font-size:30px;margin-top:2px;} #tcBet .tcL{font-size:12px;margin-top:3px;}
+#tcBet.on{transform:scale(.9);box-shadow:0 0 0 3px #6a4410,0 0 36px rgba(255,242,192,.8),0 3px 8px rgba(0,0,0,.6);}
+#tcBet.dead{width:78px;height:78px;}
+#tcBet.holding{animation:tcHold .4s linear forwards;}
+@keyframes tcHold{from{box-shadow:0 0 0 3px #6a4410,0 0 0 3px rgba(139,255,208,0);}to{box-shadow:0 0 0 3px #6a4410,0 0 0 9px rgba(139,255,208,.85),0 0 30px rgba(139,255,208,.6);}}
+#tcCash{right:calc(28px + var(--sar));bottom:calc(132px + var(--sab));width:74px;height:74px;color:#06210f;
+  background:radial-gradient(circle at 40% 30%,#e9fff4,#8bffd0 45%,#2f9b6d);border:2px solid #e9fff4;box-shadow:0 0 22px rgba(139,255,208,.55),0 6px 14px rgba(0,0,0,.6);}
+#tcCash .tcG{font-size:20px;} #tcCash .tcL{font-size:11px;margin-top:3px;}
+#tcPause,#tcCodex{width:38px;height:38px;color:#ffd36b;background:rgba(20,8,12,.72);border:1px solid rgba(232,182,76,.6);box-shadow:0 2px 8px rgba(0,0,0,.6);top:calc(54px + var(--sat));}
+#tcPause{left:calc(10px + var(--sal));font-size:13px;letter-spacing:.05em;}
+#tcCodex{left:calc(54px + var(--sal));}
+#tcCodex .tcG{font-size:13px;} #tcCodex .tcL{font-size:6px;margin-top:2px;letter-spacing:.04em;}
+body.gamble #tcCodex{left:calc(10px + var(--sal));}
+#tcPzRow{display:none;}
+body.touchUI #tcPzRow{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:14px;}
+body.touchUI .pauseCard .pzsub{display:none;}
+.tcPzHint{flex-basis:100%;font-family:var(--disp);font-size:10px;letter-spacing:.2em;color:#9a8f7e;margin-top:6px;}
+
+/* --- touch HUD: notches respected, the right column climbs above the BET coin --- */
+body.touchUI .hudTop{padding-top:var(--sat);height:calc(44px + var(--sat));padding-left:calc(18px + var(--sal));padding-right:calc(44px + var(--sar));}
+body.touchUI #mute{top:calc(8px + var(--sat));right:calc(10px + var(--sar));}
+body.touchUI .hudBottom{bottom:calc(14px + var(--sab));padding-left:calc(18px + var(--sal));padding-right:calc(18px + var(--sar));}
+body.touchUI .hudBottom>div:last-child{margin-bottom:112px;}
+body.touchUI #hpwrap{width:min(340px,calc(100vw - 150px - var(--sal) - var(--sar)));}
+body.touchUI #debuffs{left:calc(12px + var(--sal));top:calc(100px + var(--sat));}
+body.touchUI #coachToast{bottom:auto;top:calc(100px + var(--sat));max-width:calc(100vw - 28px);}
+body.touchUI #achToasts{bottom:calc(150px + var(--sab));left:calc(12px + var(--sal));max-width:calc(100vw - 130px);}
+body.touchUI .cornerFrame{display:none;}
+body.touchUI #howBtnRow{bottom:calc(76px + var(--sab));gap:8px;white-space:nowrap;}
+@media (max-width:520px){ body.touchUI #howBtnRow .pillBtn{font-size:10.5px;letter-spacing:.1em;padding:11px 13px;} }
+/* --- the menu scrolls on anything smaller than a laptop --- */
+@media (max-width:700px),(max-height:560px){
+  #menu{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;align-items:flex-start;touch-action:pan-y;overscroll-behavior:contain;}
+  #menu .panel{height:auto;min-height:100%;justify-content:flex-start;
+    padding:calc(22px + var(--sat)) calc(22px + var(--sar)) calc(28px + var(--sab)) calc(22px + var(--sal));}
+  #menu .controls{position:static;transform:none;white-space:normal;margin-top:16px;}
+  #verStamp{position:static;margin-top:12px;}
+  #gameover,#achPanel,#storyPanel,#indexPanel,#vaultPanel{overflow-y:auto;-webkit-overflow-scrolling:touch;align-items:flex-start;touch-action:pan-y;
+    padding:calc(10px + var(--sat)) calc(8px + var(--sar)) calc(10px + var(--sab)) calc(8px + var(--sal));}
+  #gameover .panel,#vaultPanel .panel{margin:auto;}
+  #achPanel .panel,#storyPanel .panel,#indexPanel .panel{max-height:calc(100vh - 20px - var(--sat) - var(--sab))!important;margin:auto;padding:18px 14px;}
+  #tabPanel{padding:calc(8px + var(--sat)) 8px calc(8px + var(--sab));overflow-y:auto;align-items:flex-start;flex-wrap:wrap;gap:10px;}
+  #tabPanel .tpCol{min-width:0;width:100%;max-width:520px;max-height:none;padding:14px 16px;}
+  #tabPanel .tpSheet{width:100%;max-height:none;padding:16px 14px;}
+  .tpStats{flex-wrap:wrap;gap:7px;} .tpTile{flex:1 1 56px;padding:9px 4px 7px;} .tpTile b{font-size:19px;} .tpTile i{font-size:8px;letter-spacing:.14em;}
+  .tpSRows{grid-template-columns:1fr;}
+}
+/* portrait phone */
+@media (max-width:520px){
+  #menu h1{font-size:clamp(34px,11.5vw,56px);letter-spacing:.14em;}
+  #menu .tag{font-size:10px;letter-spacing:.32em;}
+  #menu #startBtn{min-width:0;width:100%;padding:15px 18px;font-size:18px;}
+  #menuRow2{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+  #menuRow2 .btn.msm{margin:0;padding:11px 10px;font-size:11px;letter-spacing:.1em;}
+  #gameover .panel{padding:18px 14px;}
+  .scoreBig{font-size:44px;}
+}
+/* landscape phone — title and PLAY on the left, the parlors on the right */
+@media (max-height:500px) and (orientation:landscape){
+  #menu .panel{display:grid;grid-template-columns:minmax(0,1fr) 250px;column-gap:26px;align-content:center;}
+  #menu .panel>*{grid-column:1;}
+  #menu #menuRow2{grid-column:2;grid-row:1 / span 12;align-self:center;width:250px;}
+  #menu #menuRow2 .btn.msm{padding:8px 14px;font-size:11.5px;}
+  #menu h1{font-size:clamp(34px,7vw,52px);margin:2px 0 8px;}
+  #menu .flavor,#menu .tag{display:none;}
+  #menu h1{white-space:nowrap;letter-spacing:.16em;}
+  #menu #chipRow{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;max-width:100%;padding-bottom:4px;scrollbar-width:none;touch-action:pan-x;}
+  #menu #chipRow>*{flex:0 0 auto;white-space:nowrap;}
+  #menu #startBtn{margin:12px 0 6px;}
+  #menu .controls{margin-top:8px;}
+  body.touchUI .hudBottom>div:last-child{margin-bottom:96px;}
+  body.touchUI .relicTag{display:none;}
+  #tcBet{width:84px;height:84px;}
+  #tcCash{bottom:calc(118px + var(--sab));}
+  body.touchUI #coachToast{top:calc(56px + var(--sat));}
+  body.touchUI #pauseLayer{align-items:flex-start;padding-top:calc(48px + var(--sat));}
+  body.touchUI #pauseLayer .pauseCard{transform-origin:50% 0;}
+  body.touchUI #howBtnRow{bottom:calc(64px + var(--sab));}
+}
 </style>
 </head>
 <body>
@@ -2068,12 +2178,15 @@ const BASE_SCALE = Object.assign({}, CFG.scale);
 /* ---------- canvas ---------- */
 const cv = document.getElementById('c');
 const ctx = cv.getContext('2d',{alpha:false}); // opaque canvas — the compositor stops blending the page behind every frame
-let VW=0, VH=0, DPR=1;
+let VW=0, VH=0, DPR=1, ZOOM=1;
 function resize(){
   DPR = Math.min(window.devicePixelRatio||1, window._qPrev===true?1:2);
-  VW = window.innerWidth; VH = window.innerHeight;
-  cv.width = VW*DPR; cv.height = VH*DPR;
-  ctx.setTransform(DPR,0,0,DPR,0,0);
+  // A4: phones pull the camera back — visual scale only (VW/VH are logical px)
+  { const sw=window.innerWidth, sh=window.innerHeight, s=Math.min(sw,sh);
+    ZOOM = s<540 ? Math.max(0.72, s/540) : 1;
+    VW = sw/ZOOM; VH = sh/ZOOM;
+    cv.width = Math.round(sw*DPR); cv.height = Math.round(sh*DPR); }
+  ctx.setTransform(DPR*ZOOM,0,0,DPR*ZOOM,0,0);
   // opaque canvas boots black — paint the house dark immediately so the menu
   // never sits on a void (render() only runs once a run exists)
   ctx.fillStyle='#0a0507'; ctx.fillRect(0,0,VW,VH);
@@ -2621,6 +2734,7 @@ function update(dt){
       if(!a9&&window._gpA) window.dispatchEvent(new KeyboardEvent('keyup',{key:' ',bubbles:true}));
       if(b9&&!window._gpB) window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
       window._gpA=a9; window._gpB=b9; } }
+  if(touch.joy && mx===0 && my===0){ mx=touch.jx; my=touch.jy; } // A4: the floating stick
   if(touch.active && mx===0 && my===0){ const dx=touch.wx-P.x, dy=touch.wy-P.y, d=Math.hypot(dx,dy); if(d>6){ mx=dx/d; my=dy/d; } }
   const ml=Math.hypot(mx,my); if(ml>0){ mx/=ml; my/=ml; P.aim=Math.atan2(my,mx); }
   P.x=clamp(P.x+mx*P.speed*dt,14,CFG.arena-14);
@@ -3076,7 +3190,7 @@ function drawLandmarks(){
     ctx.fillText('◈ THE VAULT ◈', 0, 112);
     if(state==='playing' && Math.hypot(P.x-vaultProp.x,P.y-vaultProp.y)<115){
       ctx.fillStyle='rgba(139,255,154,'+(0.6+Math.sin(gt*6)*0.3)+')';
-      ctx.font="700 12px 'Cinzel',serif"; ctx.fillText('SPACE — ENTER', 0, 128); }
+      ctx.font="700 12px 'Cinzel',serif"; ctx.fillText(window._touchUI?'◈ BET — ENTER':'SPACE — ENTER', 0, 128); }
     ctx.restore(); }
   // ghost patrons — spirits of dead gamblers drifting the hall
   ctx.save();
@@ -4091,7 +4205,7 @@ function render(){
     if(stf<0.35){ ctx.shadowColor='#ff5566'; ctx.shadowBlur=8; }
     roundRect(VW-118,81,Math.max(2,100*stf),5,2.5); ctx.fill(); ctx.shadowBlur=0;
     if(killStreak>=27){ ctx.font="700 11px 'Cinzel',serif"; ctx.fillStyle='#8bff9a'; ctx.shadowBlur=8;
-      ctx.fillText('SPACE — CASH +'+Math.floor(killStreak/3)+' ◈', VW-18, 92); }
+      ctx.fillText((window._touchUI?'◈ BET':'SPACE')+' — CASH +'+Math.floor(killStreak/3)+' ◈', VW-18, 92); }
     ctx.restore();
   }
   ctx.restore();
@@ -4857,6 +4971,7 @@ function loop(now){
 // this a no-op, so it never costs a real tab anything.
 { let _prk=0; setInterval(()=>{ if(document.hidden&&window._autoPaused){ if((++_prk)%16) return; } tick(performance.now()); }, 15); }
 function frame(now){
+  if(typeof GFX==='undefined') return; // A4: hosted build loads 13 scripts — the ticker can beat ui.js to the felt
   try{
   const dt=Math.min(Math.max((now-last)/1000,0),0.05); last=now;
   if(loopPrev){ frameAvg=frameAvg*0.93+(now-loopPrev)*0.07; } loopPrev=now;
@@ -9602,7 +9717,7 @@ function renderRelics(){
    INPUT
    ============================================================ */
 const keys=new Set();
-const touch={active:false,wx:0,wy:0};
+const touch={active:false,wx:0,wy:0,joy:false,jx:0,jy:0};
 window.addEventListener('keyup',e=>{ if(e.key==='Tab'){ e.preventDefault(); tabHold=false; hideTab(); } });
 window.addEventListener('keydown',e=>{
   let k=e.key.toLowerCase();
@@ -9735,16 +9850,15 @@ window.addEventListener('keyup',e=>{
   }
   keys.delete(k);
 });
-function ptr(e){ const t=e.touches?e.touches[0]:e; touch.wx=t.clientX+camX; touch.wy=t.clientY+camY; }
-cv.addEventListener('pointerdown',e=>{ if(e.button!==0) return; touch.active=true; ptr(e); });
-cv.addEventListener('pointermove',e=>{ if(touch.active)ptr(e); });
-window.addEventListener('pointerup',()=>touch.active=false);
-window.addEventListener('pointercancel',()=>touch.active=false);
+// mouse: hold-to-walk toward the cursor. touch: the floating stick (A4 block, end of file)
+function ptr(e){ touch.wx=e.clientX/ZOOM+camX; touch.wy=e.clientY/ZOOM+camY; }
+cv.addEventListener('pointerdown',e=>{ if(e.pointerType==='touch'||e.pointerType==='pen'){ joyDown(e); return; } if(e.button!==0) return; touch.active=true; ptr(e); });
+cv.addEventListener('pointermove',e=>{ if(e.pointerType==='touch'||e.pointerType==='pen'){ joyMove(e); return; } if(touch.active)ptr(e); });
+window.addEventListener('pointerup',e=>{ if(e.pointerType==='touch'||e.pointerType==='pen'){ joyUp(e); return; } touch.active=false; });
+window.addEventListener('pointercancel',e=>{ joyUp(e); touch.active=false; });
 cv.addEventListener('contextmenu',e=>e.preventDefault());
-cv.addEventListener('touchstart',e=>{ touch.active=true; ptr(e); e.preventDefault(); },{passive:false});
-cv.addEventListener('touchmove',e=>{ ptr(e); e.preventDefault(); },{passive:false});
-cv.addEventListener('touchend',()=>touch.active=false);
-cv.addEventListener('touchcancel',()=>touch.active=false,{passive:true});
+cv.addEventListener('touchstart',e=>{ e.preventDefault(); },{passive:false});
+cv.addEventListener('touchmove',e=>{ e.preventDefault(); },{passive:false});
 $('startBtn').addEventListener('click',startGame);
 /* menu juice: plaque tilt toward cursor, piano-key hover chimes, press squash + ring burst */
 { const chime=b=>{ if(!AC||muted) return;
@@ -10260,6 +10374,227 @@ function a2GaugeFrame(x,y,w,h){
   ctx.fillStyle=g.c; roundRect(x-2,y-2,w+4,h+4,5); ctx.fill();                         // the channel
   ctx.strokeStyle='rgba(255,240,192,0.45)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x-1,y-5.5); ctx.lineTo(x+w+1,y-5.5); ctx.stroke(); // top bevel catch-light
   ctx.fillStyle='#fff2c0'; for(const bx of [x-3, x+w+3]){ ctx.beginPath(); ctx.arc(bx, y+h/2, 1.6, 0, 6.283); ctx.fill(); } // rivets
+}
+
+/* ============================================================
+   A4 — THE POCKET CASINO
+   A phone is a casino you carry. Left thumb: a floating gilt stick that
+   appears wherever it lands. Right thumb: the BET coin — it IS the space bar
+   (real keydown/keyup, so hold-to-roll and hold-to-re-ante just work).
+   II pauses, ✦ CODEX opens the book, CASH banks the ascent. On touch, every
+   "SPACE" the House prints becomes "◈ BET".
+   ============================================================ */
+const IS_TOUCH=(()=>{ try{ return matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints>0 && matchMedia('(hover: none)').matches); }catch(e){ return false; } })();
+window._touchUI=false;
+function tcKey(type,k){
+  const code=k===' '?'Space':k==='Escape'?'Escape':k==='Enter'?'Enter':'Key'+k.toUpperCase();
+  try{ window.dispatchEvent(new KeyboardEvent(type,{key:k,code,bubbles:true,cancelable:true})); }catch(e){}
+}
+function tcBuzz(ms){ try{ if(navigator.vibrate && !muted) navigator.vibrate(ms); }catch(e){} }
+// soft felt sounds for the thumb controls (synthesized, like everything else)
+function tcSfx(kind){ if(!AC||muted) return;
+  try{
+    if(kind==='stick'){ tone(196,0.05,'sine',0.05,140); }
+    else if(kind==='bet'){ tone(523,0.04,'triangle',0.05); tone(1046,0.03,'sine',0.025); }
+    else if(kind==='btn'){ tone(880,0.04,'sine',0.04); setTimeout(()=>tone(1318,0.04,'sine',0.03),40); }
+  }catch(e){} }
+
+/* ---------- the stick ---------- */
+const JOY={id:-1,ox:0,oy:0,R:56,el:null,knob:null};
+function joyEls(){
+  if(JOY.el) return;
+  const b=document.createElement('div'); b.id='tcStick'; b.innerHTML='<div class="tcRing"></div><div class="tcKnob"></div>';
+  $('wrap').appendChild(b); JOY.el=b; JOY.knob=b.querySelector('.tcKnob');
+}
+function joyPlace(){ if(!JOY.el) return; JOY.el.style.transform='translate('+(JOY.ox-JOY.R)+'px,'+(JOY.oy-JOY.R)+'px)'; }
+function joyDown(e){
+  setTouchUI(true);
+  if(state!=='playing' || JOY.id!==-1 || tabHold) return;
+  if(e.clientX>window.innerWidth*0.62) return; // the right thumb's half belongs to the BET coin
+  joyEls();
+  const sa=8; // keep the ring on screen
+  JOY.id=e.pointerId;
+  JOY.ox=clamp(e.clientX,JOY.R+sa,window.innerWidth-JOY.R-sa); JOY.oy=clamp(e.clientY,JOY.R+sa,window.innerHeight-JOY.R-sa);
+  joyPlace(); JOY.knob.style.transform='translate(0px,0px)'; JOY.el.classList.add('on');
+  try{ cv.setPointerCapture(e.pointerId); }catch(x){}
+  touch.joy=false; tcSfx('stick');
+}
+function joyMove(e){
+  if(e.pointerId!==JOY.id) return;
+  let dx=e.clientX-JOY.ox, dy=e.clientY-JOY.oy; const d=Math.hypot(dx,dy)||1;
+  if(d>JOY.R){ // the ring follows a thumb that overruns it
+    JOY.ox=e.clientX-dx/d*JOY.R; JOY.oy=e.clientY-dy/d*JOY.R; dx=dx/d*JOY.R; dy=dy/d*JOY.R; joyPlace(); }
+  JOY.knob.style.transform='translate('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px)';
+  if(d>JOY.R*0.16){ touch.joy=true; touch.jx=dx/Math.min(d,JOY.R); touch.jy=dy/Math.min(d,JOY.R); }
+  else touch.joy=false;
+}
+function joyUp(e){
+  if(e && e.pointerId!==undefined && e.pointerId!==JOY.id) return;
+  JOY.id=-1; touch.joy=false; touch.jx=touch.jy=0;
+  if(JOY.el) JOY.el.classList.remove('on');
+}
+window.addEventListener('blur',()=>joyUp());
+
+/* ---------- the thumb buttons ---------- */
+const TC={bet:null,cash:null,pause:null,codex:null,betDown:false,deadT:0,last:'',tab:false};
+function tcButton(id,html,title){ const b=document.createElement('button'); b.id=id; b.className='tcBtn'; b.type='button'; b.innerHTML=html; b.title=title;
+  b.addEventListener('contextmenu',e=>e.preventDefault()); $('wrap').appendChild(b); return b; }
+function tcBuild(){
+  if(TC.bet) return;
+  TC.bet=tcButton('tcBet','<span class="tcG">◈</span><span class="tcL">BET</span>','BET — the space bar');
+  TC.cash=tcButton('tcCash','<span class="tcG">▲</span><span class="tcL">CASH</span>','CASH OUT the ascent');
+  TC.pause=tcButton('tcPause','<span class="tcG">II</span>','Pause');
+  TC.codex=tcButton('tcCodex','<span class="tcG">✦</span><span class="tcL">CODEX</span>','Your codex');
+  // BET: pointerdown = keydown SPACE, pointerup = keyup SPACE. On the ledger it is R: hold to re-ante, tap to read on.
+  TC.bet.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); setTouchUI(true);
+    try{ TC.bet.setPointerCapture(e.pointerId); }catch(x){}
+    if(TC.betDown) return; TC.betDown=true; TC.bet.classList.add('on'); tcBuzz(8); tcSfx('bet');
+    if(state==='dead'){ TC.deadT=performance.now(); TC.bet.classList.add('holding'); tcKey('keydown','r'); }
+    else { TC.deadT=0; tcKey('keydown',' '); } });
+  const betUp=e=>{ if(!TC.betDown) return; TC.betDown=false; TC.bet.classList.remove('on','holding');
+    if(TC.deadT){ const held=performance.now()-TC.deadT; TC.deadT=0; tcKey('keyup','r');
+      if(held<400 && state==='dead'){ tcKey('keydown',' '); tcKey('keyup',' '); } }
+    else tcKey('keyup',' '); };
+  TC.bet.addEventListener('pointerup',betUp); TC.bet.addEventListener('pointercancel',betUp); TC.bet.addEventListener('lostpointercapture',betUp);
+  TC.cash.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); tcBuzz(14); tcKey('keydown','Enter'); tcKey('keyup','Enter'); });
+  TC.pause.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); tcSfx('btn'); tcKey('keydown','Escape'); tcKey('keyup','Escape'); });
+  TC.codex.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); tcCodex(); });
+  // the pause card gains a codex thumb (RESUME / HOW TO PLAY / QUIT pills already exist below it)
+  const pc=document.querySelector('.pauseCard');
+  if(pc && !$('tcPzRow')){ const r=document.createElement('div'); r.id='tcPzRow';
+    r.innerHTML='<button class="btn msm" id="tcPzCodex" type="button">✦ YOUR CODEX</button><div class="tcPzHint">TAP THE CARD TO RESUME</div>';
+    pc.appendChild(r);
+    $('tcPzCodex').addEventListener('click',e=>{ e.stopPropagation(); tcCodex(); }); }
+}
+function tcCodex(){
+  const tp=$('tabPanel');
+  if(TC.tab && tp && tp.classList.contains('show')){ TC.tab=false; tabHold=false; hideTab(); SFX.casinoDing&&SFX.casinoDing(); return; }
+  if(!(state==='playing'||state==='slot'||state==='wheel'||state==='paused')) return;
+  joyUp(); TC.tab=true; tabHold=true; showTab(); SFX.uiDing&&SFX.uiDing(); tcBuzz(6);
+}
+// with the codex open by touch, a tap outside its columns closes it
+document.addEventListener('pointerdown',e=>{
+  if(!TC.tab || e.pointerType==='mouse') return;
+  const t=e.target; if(t.closest && (t.closest('.tpCol')||t.closest('#tcCodex')||t.closest('#tcPzCodex'))) return;
+  TC.tab=false; tabHold=false; hideTab(); e.stopPropagation(); e.preventDefault();
+},true);
+// the death roll is a mash: on touch, any tap on the layer is a press too
+document.addEventListener('pointerdown',e=>{
+  if(!window._touchUI || e.pointerType==='mouse' || state!=='marker') return;
+  if(e.target.closest && e.target.closest('button')) return;
+  tcKey('keydown',' '); tcKey('keyup',' ');
+},false);
+
+// which thumbs show, and what the coin says — cheap, class flips only on change
+function tcSync(){
+  if(!window._touchUI || !TC.bet) return;
+  if(state!=='playing' && JOY.id!==-1) joyUp();
+  if(TC.tab){ const tp=$('tabPanel'); if(!tp || !tp.classList.contains('show')) TC.tab=false; }
+  const crashLive = state==='crash' && typeof crash!=='undefined' && crash && crash.live && !crash.jk;
+  const betOn = ['playing','slot','wheel','crash','marker','dead'].includes(state) && !(state==='crash' && crash && crash.jk);
+  let lbl='BET';
+  if(state==='dead') lbl=(window._recapDone?'AGAIN':'READ');
+  else if(state==='marker') lbl='PRESS';
+  else if(state==='crash') lbl=crash&&crash.live?'PUSH':'LAUNCH';
+  else if(state==='slot' && typeof slotStage!=='undefined' && slotStage==='offer') lbl='HOLD';
+  const key=state+'|'+betOn+'|'+crashLive+'|'+lbl;
+  if(key===TC.last) return; TC.last=key;
+  TC.bet.classList.toggle('show',betOn);
+  TC.bet.classList.toggle('dead',state==='dead');
+  TC.bet.querySelector('.tcL').textContent=lbl;
+  TC.cash.classList.toggle('show',crashLive);
+  TC.pause.classList.toggle('show',state==='playing');
+  TC.codex.classList.toggle('show',state==='playing'||state==='slot'||state==='wheel');
+}
+setInterval(tcSync,90);
+
+/* ---------- fit the cabinets to the glass ----------
+   A short landscape phone can't hold the slot machine, the wheel or the ascent
+   at full size. Measure the natural box and shrink it (CSS `scale`, which
+   composes with any transform animation the machine wears) until it fits. */
+const TC_FIT=['#machine','#wheelLayer .wheelShell','#crashLayer .wheelShell','#pauseLayer .pauseCard'];
+function tcFit(){
+  const vw=window.innerWidth, vh=window.innerHeight;
+  for(const sel of TC_FIT){ const el=document.querySelector(sel); if(!el) continue;
+    if(!el.offsetParent && el.offsetWidth===0){ continue; } // hidden layer — leave as is
+    const w=el.offsetWidth, h=el.offsetHeight; if(!w||!h) continue;
+    // on a short touch screen the pause card shares the glass with the pill row + HUD
+    const ah = (sel==='#pauseLayer .pauseCard' && window._touchUI && vh<560) ? vh-176 : vh-12;
+    const s=Math.min(1,(vw-12)/w,ah/h);
+    const v=s<0.995?s.toFixed(3):'';
+    if(el.style.scale!==v) el.style.scale=v; }
+}
+window.addEventListener('resize',()=>setTimeout(tcFit,60));
+setInterval(()=>{ if(state==='slot'||state==='wheel'||state==='crash'||state==='paused') tcFit(); },250);
+
+/* ---------- the House speaks touch ---------- */
+const TC_PHRASES=[
+  [/⌨ WASD walk.*$/, '☝ LEFT THUMB walks · ◈ BET is every bet · CASH banks the ascent · II pause · ✦ CODEX · hold ◈ AGAIN to re-ante'],
+  [/— PRESS SPACE ✦/, '— TAP PLAY ✦'],
+  [/\b(press|PRESS) SPACE\b/g, 'TAP'],
+  [/\bHOLD SPACE\b/g, 'HOLD ◈ BET'],
+  [/\bMASH SPACE\b/g, 'MASH ◈ BET'],
+  [/\bWASD walks\b/g, 'Your left thumb walks'],
+  [/\bWASD\b/g, 'LEFT THUMB'],
+  [/\bSPACE\b/g, '◈ BET'],
+  [/\bENTER cashes\b/g, 'CASH cashes'],
+];
+function tcRelabelText(n){
+  const v=n.nodeValue; if(!v || !/SPACE|WASD|ENTER/.test(v)) return;
+  const par=n.parentNode; if(!par || par.nodeName==='SCRIPT' || par.nodeName==='STYLE' || par.nodeName==='TEXTAREA') return;
+  let o=v;
+  if(par.classList && par.classList.contains('keyhint')){ o=o.replace(/^\s*SPACE\s*$/,'◈ BET').replace(/^\s*ENTER\s*$/,'▲'); }
+  for(const [re,to] of TC_PHRASES) o=o.replace(re,to);
+  if(o!==v) n.nodeValue=o;
+}
+function tcRelabel(root){
+  if(!root) return;
+  if(root.nodeType===3){ tcRelabelText(root); return; }
+  if(root.nodeType!==1) return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT); let n; while((n=w.nextNode())) tcRelabelText(n);
+}
+let _tcMO=null;
+function setTouchUI(on){
+  if(!on || window._touchUI) return;
+  window._touchUI=true; document.body.classList.add('touchUI');
+  tcBuild(); tcRelabel(document.body); TC.last=''; tcSync();
+  try{ _tcMO=new MutationObserver(ms=>{ for(const m of ms){
+      if(m.type==='characterData') tcRelabelText(m.target);
+      else for(const a of m.addedNodes) tcRelabel(a); } });
+    _tcMO.observe(document.body,{subtree:true,childList:true,characterData:true}); }catch(e){}
+  // phones start on the lighter felt — auto-quality may still climb back if the device flies
+  try{ if(GFX.q==='auto' && state!=='playing'){ qLow=true; window._qFlipT=performance.now(); } }catch(e){}
+}
+// a touch device announces itself at boot; a touchscreen laptop on its first touch
+if(IS_TOUCH) setTouchUI(true);
+window.addEventListener('touchstart',()=>setTouchUI(true),{passive:true,capture:true});
+
+// the how-to book and the ledger pages turn with a swipe, like paper
+{ let sx=0, sy=0, sid=-1;
+  document.addEventListener('pointerdown',e=>{ if(e.pointerType==='mouse') return; sid=e.pointerId; sx=e.clientX; sy=e.clientY; },true);
+  document.addEventListener('pointerup',e=>{ if(e.pointerId!==sid) return; sid=-1;
+    const dx=e.clientX-sx, dy=e.clientY-sy; if(Math.abs(dx)<56 || Math.abs(dx)<Math.abs(dy)*1.4) return;
+    const hp=$('howPanel'), pr=document.getElementById('pageReveal');
+    const open=(hp&&!hp.classList.contains('hidden')) || (pr&&!pr.classList.contains('hidden'));
+    if(open) tcKey('keydown', dx<0?'ArrowRight':'ArrowLeft'); },true); }
+
+/* ---------- no zoom, no long-press menus, no stray selection ---------- */
+document.addEventListener('gesturestart',e=>e.preventDefault()); // iOS pinch
+document.addEventListener('dblclick',e=>{ if(window._touchUI) e.preventDefault(); });
+document.addEventListener('contextmenu',e=>{ if(window._touchUI && !(e.target.closest && e.target.closest('input,textarea'))) e.preventDefault(); });
+document.addEventListener('selectstart',e=>{ if(window._touchUI && !(e.target.closest && e.target.closest('input,textarea'))) e.preventDefault(); });
+// audio: iOS wants the context woken INSIDE a finished gesture, and a silent
+// buffer played through it, before it will ever sing
+{ const wake=()=>{ try{ initAudio(); if(AC){ if(AC.state==='suspended') AC.resume().catch(()=>{});
+      const b=AC.createBuffer(1,1,22050), s=AC.createBufferSource(); s.buffer=b; s.connect(AC.destination); s.start(0); }
+    if(AC && AC.state==='running'){ ['touchend','click','pointerup'].forEach(ev=>window.removeEventListener(ev,wake,true)); } }catch(e){} };
+  ['touchend','click','pointerup'].forEach(ev=>window.addEventListener(ev,wake,true)); }
+
+/* ---------- install as an app (hosted build only — never from file://) ---------- */
+if(/^https?:$/.test(location.protocol) && !document.querySelector('link[rel="manifest"]')){
+  const l=document.createElement('link'); l.rel='manifest'; l.href='./manifest.webmanifest'; document.head.appendChild(l); }
+if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
+  window.addEventListener('load',()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
 }
 </script>
 </body>
