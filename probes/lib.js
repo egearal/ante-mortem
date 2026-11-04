@@ -20,6 +20,7 @@ function target(which) {
 
 const VCLOCK = `(()=>{
   let VT=0, id=1; const q=[], raf=[];
+  window.__realNow=performance.now.bind(performance); // B2: perf probes time real work inside virtual frames
   const base=Date.now();
   performance.now=()=>VT;
   Date.now=()=>base+VT;
@@ -79,8 +80,9 @@ const BOT = `(()=>{
     if(state==='paused'){ try{ document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true})); }catch(e){} return; }
     if(state==='dead'){ if(!B.res) B.res={ gt, clock:fmt(gt), level:P.level, kills:P.kills, coins:P.coins, err:!!window._amErr }; return; }
     if(P && P.level>B.maxLevel) B.maxLevel=P.level;
+    if(enemies && enemies.length>(B.peakE||0)) B.peakE=enemies.length;
     if(state==='playing'){
-      if(B.god && P){ P.hp=P.maxHp; }
+      if(B.god && P && (!B.godUntil || gt<B.godUntil)){ P.hp=P.maxHp; P.inv=Math.max(P.inv||0,0.25); }
       steer();
       if(P.ovT>0 && typeof cashRage==='function'){ try{ cashRage(); }catch(e){} }
       if(B.n%9===0) { /* cash streaks and anything else wanting SPACE */ }

@@ -307,7 +307,7 @@ function updateHUD(){
   { let wv=$('waveInfo'); if(!wv){ wv=document.createElement('div'); wv.id='waveInfo'; const tm=$('timer'); if(tm&&tm.parentNode) tm.parentNode.insertBefore(wv,tm.nextSibling); }
     if(wv) { const left9=Math.max(0,enemies.filter(e=>!e.boss).length-waveClearTarget);
       let wtxt='WAVE '+wave+(left9>0?' · '+left9+' TO THIN':'');
-      if(gt>=720&&gt<780) wtxt='☷ THE HOUSE IN '+Math.ceil(780-gt)+'s ☷'; if(_hud.wv!==wtxt){ _hud.wv=wtxt; wv.textContent=wtxt; } } }
+      { const ha9=(typeof b2HouseAt==='function')?b2HouseAt():780; if(gt>=ha9-60&&gt<ha9&&!P._endless) wtxt='☷ THE HOUSE IN '+Math.ceil(ha9-gt)+'s ☷'; } if(_hud.wv!==wtxt){ _hud.wv=wtxt; wv.textContent=wtxt; } } }
   { const tgt=P.coins; if(window._coinDisp===undefined||window._coinDisp>tgt) window._coinDisp=tgt;
     const dd=tgt-window._coinDisp;
     if(dd>60){ window._coinDisp+=Math.max(1,Math.ceil(dd*0.16)); // big gains ROLL like an odometer
@@ -611,7 +611,9 @@ const SOULS=[
  {id:'brute',  n:'THE BRUTE',  g:'⚒', col:'#ff9a3c', d:'Starts with Iron Stakes. +25% damage, +20 blood, −15% speed. Subtlety is for the thin.',
    pips:'♥♥♥♥♥ · 👢 · ⚔⚔⚔⚔', u:()=>(LT.kills||0)>=2500, uTxt:'2,500 LIFETIME KILLS', ap:()=>{ P.wlv={stakes:1}; P.damage*=1.25; P.maxHp+=20; P.hp=P.maxHp; P.speed*=0.85; }},
  {id:'yolk',   n:'THE YOLK',   g:'◌', col:'#fff2c0', d:'Hatched too early. Tiny, quick, 60 blood — wide pockets, and the reels lean toward pairs for it.',
-   pips:'♥ · 👢👢👢👢👢 · 🎲🎲🎲🎲', u:()=>SEC.has('theegg'), uTxt:'FIND THE EGG', ap:()=>{ P.wlv={razor:1}; P.radius*=0.7; P.speed*=1.2; P.maxHp=60; P.hp=60; P.pickup+=24; P.yolkFate=true; }}
+   pips:'♥ · 👢👢👢👢👢 · 🎲🎲🎲🎲', u:()=>SEC.has('theegg'), uTxt:'FIND THE EGG', ap:()=>{ P.wlv={razor:1}; P.radius*=0.7; P.speed*=1.2; P.maxHp=60; P.hp=60; P.pickup+=24; P.yolkFate=true; }},
+ {id:'sharp',  n:'THE CARDSHARP', g:'♣', col:'#3ddc84', stake:true, d:'Palms an extra card: +1 projectile on every shot, every dice target −1. Brittle hands: −30 max blood.',
+   pips:'♥ · 👢👢👢 · 🎲🎲🎲🎲🎲', u:()=>!!(typeof STK!=='undefined'&&STK.first&&STK.first[2]), uTxt:'CLEAR THE OBSIDIAN DECK', ap:()=>{ P.projectiles+=1; P.diceEase=(P.diceEase||0)+1; P.maxHp=Math.max(40,P.maxHp-30); P.hp=P.maxHp; }}
 ];
 function curSoul(){ const s=SOULS.find(x=>x.id===(IDX.sl||'vesper')); return (s&&s.u())?s:SOULS[0]; }
 // INDULGENCES — gilt buys the night a head start. Consumed when the run begins.
@@ -631,6 +633,7 @@ function openAnteRoom(){
     document.body.appendChild(p);
     $('anteClose').addEventListener('click',()=>{ p.classList.add('hidden'); renderChips(); SFX.casinoDing(); });
     $('anteBody').addEventListener('click',ev=>{
+      if(typeof b2AnteClick==='function' && b2AnteClick(ev)) return; // B2 stakes + adornments
       const sc=ev.target.closest('.soulCard'); if(sc && !sc.classList.contains('locked')){ IDX.sl=sc.dataset.id; idxSaveSoon(); renderAnteRoom(); SFX.uiDing(); return; }
       const fc=ev.target.closest('.floorCard'); if(fc && !fc.classList.contains('locked')){ IDX.fl=fc.dataset.id; idxSaveSoon(); renderAnteRoom(); SFX.uiDing(); return; }
       const cc=ev.target.closest('.ctChip'); if(cc){
@@ -677,6 +680,7 @@ function renderAnteRoom(){
     });
     html+='</div>';
   }
+  try{ if(typeof b2AnteHtml==='function') html+=b2AnteHtml(); }catch(e){}
   if(typeof RUN_CONTRACTS!=='undefined'){
     const act=IDX.ct||[]; const sl9=ctSlots();
     while(act.length>sl9) act.pop(); // stale saves respect the cap
@@ -710,7 +714,7 @@ function estatePct(){
     const idx=idxSeen()/Math.max(1,idxTotal());
     const pages=STORY_PAGES.filter(p=>storyUnlocked(p)).length/STORY_PAGES.length;
     const feats=unlocked.size/Math.max(1,ACH_TOTAL);
-    const souls=SOULS.filter(s=>s.u()).length/SOULS.length;
+    const SL9=SOULS.filter(s=>!s.stake); const souls=SL9.filter(s=>s.u()).length/SL9.length; // B2: stake souls are a bonus, never a debt
     const floors=FLOORS.filter(f=>f.u()).length/FLOORS.length;
     return Math.max(0,Math.min(100,Math.round((ranks*0.30 + wsp*0.15 + idx*0.20 + pages*0.10 + feats*0.15 + (souls+floors)/2*0.10)*100)));
   }catch(e){ return 0; }
@@ -748,7 +752,7 @@ function renderChips(){
       ll.addEventListener('click',()=>openAnteRoom()); }
     if(ll){ const s=curSoul(); const f=(typeof curFloor==='function')?curFloor():null;
       const cts=(IDX.ct||[]).length;
-      ll.innerHTML='<span style="color:'+s.col+'">'+s.g+' '+s.n+'</span>'+(f?' · <span style="color:'+f.col+'">'+f.g+' '+f.n+'</span>':'')+(cts?' · ✍ '+cts+' CONTRACT'+(cts>1?'S':''):'')+' <i>— change</i>'; } }
+      ll.innerHTML='<span style="color:'+s.col+'">'+s.g+' '+s.n+'</span>'+(f?' · <span style="color:'+f.col+'">'+f.g+' '+f.n+'</span>':'')+(cts?' · ✍ '+cts+' CONTRACT'+(cts>1?'S':''):'')+((typeof b2LoadoutTag==='function')?b2LoadoutTag():'')+' <i>— change</i>'; } }
   // the road ahead, visible: rank progress under the chips
   { let rb=$('menuRank');
     if(!rb){ rb=document.createElement('div'); rb.id='menuRank';
