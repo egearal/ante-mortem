@@ -822,12 +822,12 @@ function b2Tick(dt){
 }
 function b2Hud(force,pulse){
   let el=$('b2Mult');
-  if(!el){ const tm=$('timer'); if(!tm||!tm.parentNode) return; el=document.createElement('div'); el.id='b2Mult'; tm.parentNode.insertBefore(el,tm.nextSibling); }
+  if(!el){ const hud=$('hud'); if(!hud) return; el=document.createElement('div'); el.id='b2Mult'; hud.appendChild(el); }
   const s=(P&&P.stake)|0, st=STAKES[s];
   let txt='';
   if(s>0) txt+='<b style="color:'+st.col+'">'+st.g+' '+st.name.replace(' DECK','')+'</b>';
   if(P&&P._endless){ const es=Math.max(0,gt-P._endT0);
-    txt+=(txt?' · ':'')+'<span class="b2e">∞ +'+fmt(es)+'</span> · <span class="b2x">SCORE ×'+b2ScoreMult().toFixed(1)+'</span>'; }
+    txt+=(txt?'<br>':'')+'<span class="b2e">∞ ENDLESS +'+fmt(es)+'</span> <span class="b2x">×'+b2ScoreMult().toFixed(1)+'</span>'; }
   if(!force && el._t===txt) return;
   el._t=txt; el.innerHTML=txt; el.style.display=txt?'':'none';
   if(pulse){ el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); }
@@ -892,6 +892,7 @@ function b2NightWon(){
   }catch(e){ console.warn('[B2 win]', e); return false; }
 }
 function b2ShowGate(news){
+  if(state!=='b2gate') return; // the player already chose (or the night ended) — never resurrect the gate
   let g=$('b2Gate');
   if(!g){ g=document.createElement('div'); g.id='b2Gate'; document.body.appendChild(g);
     g.addEventListener('click',ev=>{ const b=ev.target.closest('button'); if(!b) return;
