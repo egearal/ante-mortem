@@ -94,7 +94,9 @@ async function finishSlot(page) { // let the bot play the rest of the visit out
     await page.evaluate(() => { P.hp = P.maxHp * 0.12; P.inv = 99; P.xp = P.xpNext - 0.5; });
     await page.evaluate(() => { window.__bot.god = false; });
     const ok = await until(page, "state==='slot' && slotStage==='ready'", 20000);
-    if (ok) { await page.evaluate(() => { window.__bot.renderEvery = 1; }); await live(page, 900); await shot(page, 's12_red_table'); }
+    if (ok) { await page.evaluate(() => { window.__bot.renderEvery = 1; });
+      await until(page, "$('jackpotLayer').classList.contains('hidden')", 600);
+      await live(page, 1200); await shot(page, 's12_red_table'); }
   }
 
   console.log(JSON.stringify({ out: path.relative(ROOT, OUT), errors: errors.slice(0, 8) }, null, 1));

@@ -931,17 +931,23 @@ function a2Lane(){
   const n=a2Notes(), W=innerWidth, H=innerHeight;
   const dead=(typeof state!=='undefined') && state==='dead' && !$('gameover').classList.contains('hidden');
   // what is open, and where does it stand?
-  let m=null;
+  let m=null, parts=[];
   if(!dead){
-    if(state==='slot') m=_a2union([_a2vis($('machine')), _a2vis($('payTable')), _a2vis($('sacCard'))]);
+    if(state==='slot'){ parts=[_a2vis($('machine')), _a2vis($('payTable')), _a2vis($('sacCard'))].filter(Boolean); m=_a2union(parts); }
     else if(state==='wheel') m=_a2vis(document.querySelector('#wheelLayer .wheelShell'));
     else if(state==='crash') m=_a2vis(document.querySelector('#crashLayer .wheelShell'));
   }
   const modal = dead || !!m;
   // tips and feat toasts join the column while a table or the ledger is open
   const co=$('coachToast'), at=$('achToasts');
-  if(modal){ if(co && co.parentNode!==n) n.appendChild(co); if(at && at.parentNode!==n) n.appendChild(at); }
-  else { if(co && co.parentNode===n) document.body.appendChild(co); if(at && at.parentNode===n) ($('wrap')||document.body).insertBefore(at, n); }
+  // feat toasts keep their bottom-left corner unless that corner would land on the open table
+  const zone={left:8, right:Math.min(W,340), top:H-130-Math.max(60,(at&&at.offsetHeight)||0), bottom:H-120};
+  const hitZ=r=>r && r.left<zone.right && r.right>zone.left && r.top<zone.bottom && r.bottom>zone.top;
+  const dockAt = dead || (!!m && (parts.length?parts:[m]).some(hitZ));
+  if(modal){ if(co && co.parentNode!==n) n.appendChild(co); }
+  else if(co && co.parentNode===n) document.body.appendChild(co);
+  if(dockAt){ if(at && at.parentNode!==n) n.appendChild(at); }
+  else if(at && at.parentNode===n) ($('wrap')||document.body).insertBefore(at, n);
   // fit the announce to the width it will get
   const an=$('announce');
   const go=$('gameover');
@@ -963,7 +969,7 @@ function a2Lane(){
   if(hN<4){ n.classList.add('a2above'); n.style.top='8px'; return; }
   if(m.top-10 >= hN+6){ n.classList.add('a2above'); n.style.top=Math.round(Math.max(6, m.top-10-hN))+'px'; return; }
   const L=m.left, R=W-m.right;
-  if(Math.max(L,R) >= 270){
+  if(Math.max(L,R) >= 210){
     const onLeft = L>=R; const w=Math.min(380, (onLeft?L:R)-28);
     n.classList.add('a2side'); n.style.width=Math.round(w)+'px';
     if(onLeft) n.style.left=Math.round(L-18-w)+'px'; else n.style.left=Math.round(m.right+18)+'px';

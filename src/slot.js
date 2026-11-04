@@ -863,6 +863,7 @@ Object.assign(SFX, {
 function a2Dress(){
   const m=$('machine'); if(!m || m._a2) return; m._a2=true;
   ['tl','tr','bl','br'].forEach(k=>{ const b=document.createElement('i'); b.className='a2Bolt '+k; m.appendChild(b); });
+  { const cr=document.createElement('div'); cr.className='a2Crest'; m.appendChild(cr); } // the House's seal, cast into the crown
   const rr=$('reelsRow');
   if(rr){ const g=document.createElement('div'); g.className='a2Glass'; rr.appendChild(g);
     const st=document.createElement('div'); st.className='a2Stamp'; st.id='a2Stamp'; rr.appendChild(st); }
