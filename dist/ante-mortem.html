@@ -2077,6 +2077,11 @@ body.b3calm .jackpotText,body.b3calm #jkMarq span,body.b3calm h1{animation-durat
 #dlyPlaque.paid .dpBtn{opacity:.8;}
 @keyframes dlyGlow{0%,100%{box-shadow:inset 0 0 0 3px rgba(10,4,7,.8),inset 0 0 0 4px rgba(232,182,76,.22),0 6px 22px rgba(0,0,0,.55),0 0 14px rgba(255,211,107,.08);}
   50%{box-shadow:inset 0 0 0 3px rgba(10,4,7,.8),inset 0 0 0 4px rgba(232,182,76,.36),0 6px 22px rgba(0,0,0,.55),0 0 26px rgba(255,211,107,.22);}}
+#dlyPlaque.side{margin:10px 0 0;max-width:none;width:100%;padding:9px 10px;}
+#dlyPlaque.side .dpName{font-size:13.5px;letter-spacing:.1em;}
+#dlyPlaque.side .dpTop{flex-direction:column;align-items:center;gap:2px;}
+#dlyPlaque.side .dpTerms{font-size:12.5px;}
+#dlyPlaque.side .dpFoot{gap:10px;}
 @keyframes dlyFresh{0%{filter:brightness(2.2);}100%{filter:none;}}
 #dlyBand{margin:0 auto 10px;max-width:560px;padding:8px 12px;text-align:center;font-family:var(--disp);
   background:linear-gradient(180deg,rgba(10,4,7,.88),rgba(42,15,22,.75));border:1px solid rgba(232,182,76,.6);border-radius:5px;
@@ -2179,6 +2184,18 @@ body.touchUI #hud #combo s{display:none;}
 @media (max-width:1180px){ body:not(.touchUI) #howBtnRow{bottom:78px;} }
 /* the ascension card the keyboard / pad will take (◀ ▶ walk it, SPACE / Ⓐ takes it) */
 .jkCard.b4sel{transform:translateY(-8px) scale(1.05);border-color:#8bffd0;box-shadow:0 0 0 1px #8bffd0,0 0 34px rgba(139,255,208,.5);}
+/* B2 × A2 — the stake surfaces wear the House's brass */
+#hud #b2Mult:not(:empty){padding:3px 11px 4px;border-radius:7px;background:linear-gradient(180deg,rgba(26,10,14,.80),rgba(8,3,5,.84));
+  box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(184,134,42,.55),0 0 0 3px rgba(20,10,3,.6),inset 0 1px 0 rgba(255,236,170,.14),inset 0 -2px 3px rgba(0,0,0,.55),0 3px 8px rgba(0,0,0,.45);}
+body.b2endless #hud #b2Mult{box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(154,92,255,.65),0 0 0 3px rgba(20,10,3,.6),inset 0 1px 0 rgba(230,200,255,.14),0 0 16px rgba(154,92,255,.35);}
+.stakeCard{border:2px solid transparent;background:var(--a2-velvet) padding-box,var(--a2-bronze) border-box;
+  box-shadow:0 0 0 1px #140a03,inset 0 1px 0 rgba(255,236,170,.08),0 4px 14px rgba(0,0,0,.5);}
+.stakeCard.on{background:linear-gradient(170deg,rgba(38,22,28,.96),rgba(16,8,12,.97)) padding-box,var(--a2-brass) border-box;
+  box-shadow:0 0 0 1px #140a03,0 0 22px color-mix(in srgb,var(--sc) 50%,transparent);}
+.stakeCard.locked{border:2px dashed rgba(168,118,46,.45);background:var(--a2-velvet);}
+.b2gCard{border:6px solid transparent;background:linear-gradient(170deg,rgba(38,18,24,.97),rgba(12,6,10,.98)) padding-box,var(--a2-brass) border-box;
+  box-shadow:0 0 0 1px #140a03,0 0 60px rgba(255,211,107,.25),inset 0 0 0 1px rgba(255,236,170,.12);}
+@media (max-width:480px){ .b2row{grid-template-columns:repeat(2,minmax(0,1fr));} .stakeCard .soulD{font-size:10.5px;} .b2gCard{padding:16px 12px 14px;} .b2gR .btn{flex-basis:100%;} }
 </style>
 </head>
 <body>
@@ -8793,6 +8810,8 @@ function a3Card(n){
   g.font='600 22px '+DISP; g.fillStyle='#bfae8c'; spaced('SURVIVED',W/2,190,8);
   g.font='700 150px '+DISP; g.shadowColor='rgba(255,211,107,.6)'; g.shadowBlur=36; g.fillStyle=gold(210,350);
   g.fillText(n.time,W/2,272); g.shadowBlur=0;
+  try{ const b2=(typeof b2CardLine==='function')?b2CardLine():null; // B2: the deck you played on, and how deep you went
+    if(b2){ g.font='600 19px '+DISP; g.fillStyle=b2.col; g.shadowColor=b2.col; g.shadowBlur=10; spaced(b2.txt,W/2,341,4); g.shadowBlur=0; } }catch(e){}
   // four plaques
   const st=[['LEVEL',n.level,'#ffd36b'],['SLAIN',n.kills.toLocaleString(),'#e6d9c2'],['JACKPOTS',n.jack,n.jack>0?'#8bffd0':'#bfae8c'],['BEST STREAK',n.streak,'#c98bff']];
   const pw=220, ph=104, gap=26, x0=W/2-(pw*4+gap*3)/2, py=356;
@@ -9843,6 +9862,15 @@ function b2LoadoutTag(){
   if(!STK.won) return '';
   const s=b2Sel(), st=STAKES[s];
   return ' · <span style="color:'+st.col+'">'+st.g+' '+st.name+'</span> <span class="b2pips">'+b2Pips(b2BestFor(b2SoulId()))+'</span>';
+}
+function b2CardLine(){
+  if(!P) return null;
+  const s=P.stake|0, parts=[];
+  if(s>0) parts.push(STAKES[s].g+' '+STAKES[s].name+' '+'◆'.repeat(s));
+  if(P._endless) parts.push('∞ ENDLESS +'+fmt(Math.max(0,gt-P._endT0)));
+  else if(window._b2won) parts.push('♛ THE NIGHT IS WON');
+  if(!parts.length) return null;
+  return {txt:parts.join('  ·  '), col:s>0?STAKES[s].col:'#d9a8ff'};
 }
 function b2ShareBits(){
   if(!P) return '';
@@ -12747,13 +12775,12 @@ function dlyPlaque(){
   const menu=$('menu'), pn=menu&&menu.querySelector('.panel'); if(!pn) return;
   let p=$('dlyPlaque');
   if(!p){ p=document.createElement('div'); p.id='dlyPlaque';
-    const anchor=$('loadoutLine')||$('startBtn');
-    if(anchor&&anchor.parentNode===pn) pn.insertBefore(p, anchor.nextSibling); else pn.appendChild(p);
     p.addEventListener('click',ev=>{ ev.stopPropagation(); dlyPlay(); }); }
+  dlyPlace(p, pn);
   const day=dlyToday(), t=dlyTerms(day), d=DLY.data, rec=d.days[day], st=dlyStreak();
   const played=!!rec;
   const today= !played ? 'UNPAID' : (rec.done ? fmt(rec.t)+(rec.track?' '+rec.track:'') : 'FORFEIT');
-  p.className=played?'paid':'';
+  p.classList.toggle('paid', played);
   p.innerHTML='<div class="dpTop"><b>☀ DAILY DEBT #'+t.n+'</b><span class="dpCd">NEXT DEBT IN <i id="dlyCd">'+dlyClock(dlyLeft())+'</i></span></div>'
     +'<div class="dpName">'+t.name+'</div>'
     +'<div class="dpTerms"><span style="color:'+dlySoulFor(t).col+'">'+dlySoulFor(t).g+' '+dlySoulFor(t).n+'</span> · <span style="color:'+dlyFloorFor(t).col+'">'+dlyFloorFor(t).g+' '+dlyFloorFor(t).n+'</span> · '+dlyModLine(t,true)+'</div>'
@@ -12761,6 +12788,17 @@ function dlyPlaque(){
     +'<button class="btn dpBtn" type="button">'+(played?'☀ PRACTICE THE DEBT':'☀ PAY TODAY\'S DEBT')+'</button>';
   p.dataset.day=day;
 }
+// desktop (A1's two-column menu): the plaque closes the parlor column under OPTIONS; phones: under PLAY TONIGHT
+function dlyPlace(p, pn){
+  const row=$('menuRow2');
+  const side=row && row.parentNode===pn && (typeof matchMedia==='function') && matchMedia('(min-width:900px) and (min-height:600px)').matches;
+  if(side){ if(p.parentNode!==row) row.appendChild(p); p.classList.add('side'); return; }
+  p.classList.remove('side');
+  const anchor=$('loadoutLine')||$('startBtn');
+  if(anchor&&anchor.parentNode===pn){ if(p.previousSibling!==anchor||p.parentNode!==pn) pn.insertBefore(p, anchor.nextSibling); }
+  else if(p.parentNode!==pn) pn.appendChild(p);
+}
+window.addEventListener('resize',()=>{ try{ const p=$('dlyPlaque'), pn=$('menu')&&$('menu').querySelector('.panel'); if(p&&pn) dlyPlace(p,pn); }catch(e){} });
 function dlySoulFor(t){ return SOULS.find(s=>s.id===t.soul)||SOULS[0]; }
 function dlyFloorFor(t){ return FLOORS.find(f=>f.id===t.floor)||FLOORS[0]; }
 function dlyPlay(){
