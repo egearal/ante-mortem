@@ -2262,6 +2262,41 @@ body.b2endless #hud #b2Mult{box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(154,92,2
   #arcanaReveal .arRib{padding:2px 10px;letter-spacing:.3em;font-size:8px;} #arcanaReveal .arText{font-size:9px;line-height:1.3;padding:0 10px;}
   #arcanaReveal .arKind{bottom:10px;font-size:9px;} #arcanaReveal .arBack span{font-size:44px;} }
 @media (max-height:520px) and (min-width:521px){ #arcanaReveal .arStage{width:160px;height:246px;} #arcanaReveal .arGlyph{font-size:44px;} #arcanaReveal .arText{font-size:9.5px;} }
+/* ==== C1 ==== THE PAIRINGS — the gilt PAIRING state (a layer on A2's machine), relic + Index */
+#machine.c1pair{animation:c1Gilt 1.6s ease-in-out infinite;}
+@keyframes c1Gilt{0%,100%{box-shadow:0 0 0 2px #e8b64c,0 0 40px rgba(255,211,107,.45),0 0 90px rgba(255,211,107,.18);}50%{box-shadow:0 0 0 3px #fff2c0,0 0 70px rgba(255,211,107,.75),0 0 140px rgba(255,211,107,.32);}}
+#machine.c1pair .marquee{color:#fff2c0;text-shadow:0 0 14px #ffd36b,0 0 30px #e8b64c;letter-spacing:.24em;}
+#slot .reelbox.c1lock{box-shadow:inset 0 0 0 2px #ffd36b,inset 0 0 26px rgba(255,211,107,.55),0 0 22px rgba(255,211,107,.55);}
+#slot .reelbox.c1fuse{animation:c1FuseBox .5s ease-in-out infinite;}
+@keyframes c1FuseBox{0%,100%{filter:brightness(1);}50%{filter:brightness(1.6) saturate(1.3);}}
+#slot .sym .c1q{font-family:var(--disp);font-weight:800;font-size:46px;color:#ffd36b;text-shadow:0 0 16px #ffd36b,0 0 34px #e8b64c;animation:c1Q .8s ease-in-out infinite;}
+@keyframes c1Q{0%,100%{opacity:.65;}50%{opacity:1;}}
+#slot .sym .c1g{font-size:46px;line-height:1;}
+#slot .sym .c1born{display:inline-block;animation:c1Born .9s cubic-bezier(.2,1.6,.35,1) both;}
+@keyframes c1Born{0%{transform:scale(.2) rotate(-30deg);filter:brightness(4);}55%{transform:scale(1.35) rotate(6deg);filter:brightness(2);}100%{transform:scale(1) rotate(0);filter:brightness(1);}}
+#reelsRow .c1fly{position:absolute;z-index:9;pointer-events:none;display:flex;align-items:center;justify-content:center;transition:transform .5s cubic-bezier(.5,0,.8,.4),opacity .5s ease-in;filter:drop-shadow(0 0 12px #ffd36b);}
+.a2Stamp.c1stamp{color:#fff8dc;text-shadow:0 0 18px #ffd36b,0 0 46px #ffd36b,0 0 80px #e8b64c,0 3px 0 #3a2408;}
+#payTable.c1pt .ptRow.c1r{opacity:1;color:var(--pc);border-color:color-mix(in srgb,var(--pc) 60%,transparent);}
+#payTable.c1pt .ptRow.c1q{animation:c1Q .8s ease-in-out infinite;}
+#payTable.c1pt .c1plus{text-align:center;font-family:var(--disp);font-weight:800;font-size:16px;color:#ffd36b;line-height:1.1;}
+#cardDesc .c1recipe{font-size:17px;}
+#cardDesc .c1recipe b{color:#ffd36b;padding:0 4px;}
+#cardDesc .c1desc{font-family:var(--body);font-size:13.5px;line-height:1.35;letter-spacing:.01em;color:#eadfc2;max-width:520px;margin:4px auto;}
+#cardDesc .c1rep{color:#ffd36b;letter-spacing:.14em;font-size:11px;}
+#cardDesc .c1hint{margin-top:5px;font-family:var(--disp);font-weight:700;font-size:12px;letter-spacing:.16em;color:#ffd36b;text-shadow:0 0 10px rgba(255,211,107,.6);animation:c1Q 1.2s ease-in-out infinite;}
+#slotBtns .btn.c1claim{animation:c1Gilt 1.2s ease-in-out infinite;}
+.relic.c1evo{box-shadow:0 0 0 2px #ffd36b,0 0 14px currentColor;animation:c1Relic 1.8s ease-in-out infinite;}
+.relic.c1evo .c1g{font-size:22px;line-height:1;}
+.relic.c1evo .c1pip{color:#ffd36b;letter-spacing:0;}
+@keyframes c1Relic{0%,100%{filter:brightness(1);}50%{filter:brightness(1.35);}}
+.c1grid .idxTile.c1tile{flex-direction:column;align-items:flex-start;gap:2px;width:178px;box-sizing:border-box;padding:6px 10px;}
+.c1tile .c1tn{font-size:11.5px;letter-spacing:.08em;}
+.c1tile .c1rec{font-size:10px;letter-spacing:.03em;color:#a89a80;line-height:1.3;}
+.c1tile .c1rec i{font-style:normal;}
+.c1tile .c1vague{font-style:italic;color:#6a5e50;}
+.c1tile.c1hinted{border-style:dashed;border-color:rgba(255,211,107,.35);}
+.c1tile.c1hinted .c1vague{color:#c9b78e;}
+.c1tile .c1cnt{font-size:10px;color:#ffd36b;letter-spacing:.1em;}
 </style>
 </head>
 <body>
@@ -3200,6 +3235,7 @@ function update(dt){
       tone(last?1568:520,last?0.14:0.05,last?'sine':'square',last?0.12:0.07); if(last){ sparkBurst(10); } } } }
   if(candL){ P.candT=(P.candT||0)-dt; if(P.candT<=0){ P.candT=Math.max(0.7,1.3-candL*0.09); fireCandles(candL); } }
   if(guilL){ P.guilT=(P.guilT||0)-dt; if(P.guilT<=0){ P.guilT=Math.max(2.6,4.6-guilL*0.35); dropGuillotine(guilL); } }
+  if(typeof tickPairings==='function') tickPairings(dt); // C1 — the evolved arsenal
   // ground machinery: waves ring out, stakes bite, pools rot, the blade falls
   for(let i=waves.length-1;i>=0;i--){ const w=waves[i]; w.t-=dt; w.r+=dt*300;
     if(w.t<=0){ waves.splice(i,1); continue; }
@@ -4389,6 +4425,7 @@ function render(){
     const gl=Math.sin(gt*7+k*2)*0.5+0.5; ctx.globalAlpha=gl*0.7; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(-2.5,-2.5,1.6,0,6.28); ctx.fill(); ctx.globalAlpha=1;
     ctx.restore(); } }
 
+  if(typeof drawPairings==='function') drawPairings(); // C1 — the evolved arsenal
   drawPlayer();
   try{ b2DrawAdorn(); }catch(e){}
   if(_bR) balSky(); // D3: the chandelier hanging over its circle, then falling
@@ -6994,6 +7031,314 @@ function grantWeaponLevels(def, levels){
   grantOverflow(levels-(nl-cur));
   return nl;
 }
+
+/* ==== C1 — THE PAIRINGS (weapon evolutions) ====
+   A weapon at MAX + its one paired skill (any level) → the next slot visit opens
+   THE PAIRING: the weapon is reborn as something the House keeps in the back
+   room. Evolved weapons REPLACE their parent's attack (the Bone Bolt is the
+   exception: the Ossuary rides on top of your main gun). State lives on P.evo
+   ({weaponId: pairingId}) so it dies with the run. All evolved projectiles run
+   through their own small engine here (evoShots/evoPlants), ticked by one hook
+   in update() and drawn by one hook in render(). */
+const PAIRINGS=[
+  {id:'ossuary', w:'bolt',     p:'proj',   n:'THE OSSUARY',        g:'💀', hint:'The bones want more mouths to fire from…',
+    d:l=>'Your bone bolts keep flying (+1 shard per volley), and every 0.75s a skull bursts from your chest: it hits for 400% damage, splits into 12 bone splinters (130%), and each splinter shatters again into 3 shards (70%).'},
+  {id:'stacked', w:'cards',    p:'snake',  n:'THE STACKED DECK',   g:'🃏', hint:'A dealer who never loses would need loaded eyes…',
+    d:l=>'Every 1.3s the House deals a full 13-card pinwheel around you — every card is a CRITICAL hit (110% × crit), piercing 3. One card is the ACE OF SPADES: 330% × crit, pierces everything, and detonates (90px) when it lands.'},
+  {id:'cuts',    w:'knives',   p:'fire',   n:'THE THOUSAND CUTS',  g:'✶', hint:'The knives ask for quicker hands…',
+    d:l=>'Two counter-spinning spigots spray a double helix of knives — 22 per second, 140% damage each, piercing 2. A wall of steel that never stops turning.'},
+  {id:'eye',     w:'lantern',  p:'mag',    n:'THE EYE IN THE SKY', g:'👁', hint:'The lantern wants to see your pockets…',
+    d:l=>'A casino searchlight sweeps around you (380px beam): 700% damage per second to all in its light, and it drags every coin and soul it touches into your pocket. Every 3s the Eye takes a photograph — a 800% flash (110px) at the beam\'s end.'},
+  {id:'ratking', w:'fangs',    p:'tithe',  n:"THE RAT KING'S FEAST",g:'🐀', hint:'The swarm would breed, if fed on blood…',
+    d:l=>'A horde of up to 14 plague-rats lives at your heel, hunting on their own and biting for 90% damage. Every kill a rat makes births two more (horde of 30) and returns 1 lifeblood.'},
+  {id:'maiden',  w:'coffin',   p:'corset', n:'THE IRON MAIDEN',    g:'♖', hint:'The nails would rather be a whole box… with ribs…',
+    d:l=>'Four spiked iron caskets orbit you, crushing for 700%/s and hurling foes away. Every 2.6s they fling out to 260px and slam back, each landing a 600% blast (60px). You wear the iron too: +3 armor.'},
+  {id:'hand',    w:'razor',    p:'leech',  n:'THE BLOODY HAND',    g:'🩸', hint:'The returning cards come back… thirsty…',
+    d:l=>'Every 1.1s a crimson hand opens: five blade-fingers trace a rose out to 230px and close back on you, cutting everything for 300% damage. Every cut returns 0.4 lifeblood.'},
+  {id:'cremat',  w:'cinders',  p:'thorn',  n:'THE CREMATORIUM',    g:'⚱', hint:'The embers would like to be provoked…',
+    d:l=>'Three jets of furnace fire turn around you (150px), burning 400%/s and setting foes ABLAZE (150%/s for 2.5s). Burning dead spread the fire. Any foe that strikes you triggers a 140px firestorm.'},
+  {id:'garden',  w:'stakes',   p:'pierce', n:"THE IMPALER'S GARDEN",g:'🌹', hint:'The stakes want to go all the way through…',
+    d:l=>'Fires 3 stakes per second that pierce EVERYTHING (160%) and plant for 5s. Planted stakes string barbed wire to their neighbours — anything crossing the wire bleeds 600%/s and is slowed.'},
+  {id:'russian', w:'cylinder', p:'exec',   n:'RUSSIAN ROULETTE',   g:'⚅', hint:'Six chambers, and an executioner\'s patience…',
+    d:l=>'Five golden rounds (each a guaranteed crit at 250%, piercing 4), one every 0.7s — and the SIXTH chamber is a screen-wide EXECUTION: every foe in sight takes 350% × crit, and lesser foes left under 30% are simply dead.'}
+];
+const PAIR_BY_W={}; PAIRINGS.forEach(pr=>{ PAIR_BY_W[pr.w]=pr; pr.rar='pairing'; pr.max=1; });
+let evoShots=[], evoPlants=[], _evoSeq=-1;
+function evoHas(wid){ return !!(typeof P!=='undefined' && P && P.evo && P.evo[wid]); }
+function evoOn(pid){ const pr=PAIRINGS.find(x=>x.id===pid); return !!(pr && P && P.evo && P.evo[pr.w]===pid); }
+function pairingFor(wid){ return PAIR_BY_W[wid]||null; }
+function pairReady(pr){ const W=WEAPONS.find(w=>w.id===pr.w); return !!(W && P && (P.wlv[pr.w]||0)>=W.max && skillLevel(pr.p)>0 && !(P.evo&&P.evo[pr.w])); }
+function readyPairing(){ if(typeof P==='undefined'||!P) return null; for(const pr of PAIRINGS) if(pairReady(pr)) return pr; return null; }
+function evoClaim(pr){
+  P.evo=P.evo||{}; P.evo[pr.w]=pr.id;
+  if(pr.id==='maiden') P.armor=(P.armor||0)+3;
+  if(pr.id==='ossuary') P.projectiles=(P.projectiles||1)+1;
+  P._evT=P._evT||{}; P._evT[pr.id]=0;
+  try{ LT.pairings=(LT.pairings||0)+1; LT.pairBy=LT.pairBy||{}; LT.pairBy[pr.id]=(LT.pairBy[pr.id]||0)+1; if(typeof achSaveSoon==='function') achSaveSoon(); }catch(e){}
+  try{ if(typeof IDX!=='undefined'){ if(!Array.isArray(IDX.pr)) IDX.pr=[]; idxSee('pr',pr.id); } }catch(e){}
+  RUN.pairings=(RUN.pairings||0)+1;
+}
+// replace the parents' attacks once the marriage is sealed
+{ const _c=fireCards;    fireCards=function(n){ if(evoHas('cards')) return; return _c.apply(this,arguments); }; }
+{ const _k=fireKnives;   fireKnives=function(n){ if(evoHas('knives')) return; return _k.apply(this,arguments); }; }
+{ const _l=fireLantern;  fireLantern=function(l){ if(evoHas('lantern')) return; return _l.apply(this,arguments); }; }
+{ const _f=fireFangs;    fireFangs=function(n){ if(evoHas('fangs')) return; return _f.apply(this,arguments); }; }
+{ const _o=fireCoffin;   fireCoffin=function(n){ if(evoHas('coffin')) return; return _o.apply(this,arguments); }; }
+{ const _r=fireRazor;    fireRazor=function(l){ if(evoHas('razor')) return; return _r.apply(this,arguments); }; }
+{ const _i=fireCinders;  fireCinders=function(l){ if(evoHas('cinders')) return; return _i.apply(this,arguments); }; }
+{ const _s=fireStakes;   fireStakes=function(l){ if(evoHas('stakes')) return; return _s.apply(this,arguments); }; }
+{ const _y=fireCylinder; fireCylinder=function(l){ if(evoHas('cylinder')) return; return _y.apply(this,arguments); }; }
+// a maxed weapon with a pairing whispers about it (once per run per weapon)
+{ const _g=grantWeaponLevels;
+  grantWeaponLevels=function(def, levels){ const nl=_g.apply(this,arguments); try{ evoMaxNote(def); }catch(e){} return nl; }; }
+function evoMaxNote(def){
+  const pr=def&&pairingFor(def.id); if(!pr||!P||(P.wlv[def.id]||0)<def.max) return;
+  P._evNote=P._evNote||{}; if(P._evNote[def.id]) return; P._evNote[def.id]=1;
+  try{ if(typeof IDX!=='undefined'){ if(!Array.isArray(IDX.pm)) IDX.pm=[]; idxSee('pm',def.id); } }catch(e){}
+  const known=(typeof IDX!=='undefined'&&Array.isArray(IDX.pr)&&IDX.pr.indexOf(pr.id)>=0);
+  const pd=PASSIVES.find(x=>x.id===pr.p);
+  const ready=skillLevel(pr.p)>0;
+  setTimeout(()=>announce(ready?'♛ '+def.n.toUpperCase()+' — A PAIRING IS READY · NEXT PULL ♛'
+    : (known?'♛ '+def.n.toUpperCase()+' AWAITS '+pd.n.toUpperCase()+' ♛':'♛ '+def.n.toUpperCase()+' IS MAXED — IT PAIRS WITH SOMETHING… ♛'), true), 900);
+  try{ tone(392,0.5,'sine',0.12); setTimeout(()=>tone(587,0.6,'sine',0.1),160); }catch(e){}
+}
+
+// ---- the evolved engine ----
+function evoHurt(e, dmg, col, crit){
+  if(!e || e.hp<=0) return false;
+  e.hp-=dmg; trackDmg(dmg); e.flash=Math.max(e.flash||0,0.1);
+  if(P.lifesteal>0) P.hp=Math.min(P.maxHp,P.hp+dmg*P.lifesteal*0.5);
+  if(crit || Math.random()<0.3) ftext(e.x,e.y-e.r,Math.round(dmg),crit?'#ffd36b':(col||'#f0e6d6'),crit);
+  if(e.unkillable){ e.hp=e.maxhp; return false; }
+  if(e.hp<=0){ const ix=enemies.indexOf(e); if(ix>=0){ killEnemy(e,ix); return true; } }
+  return false;
+}
+function evoShot(o){ const s=Object.assign({x:P.x,y:P.y,vx:0,vy:0,r:5,dmg:P.damage,life:1,pierce:0,col:'#fff',shape:'dot',t:0},o); s.max=s.life; s.hit=new Set(); evoShots.push(s); return s; }
+function evoNear(x,y,rg,skip){ let t=null,td=rg*rg; for(const e of enemies){ if(skip&&skip.has(e)) continue; const d2=(e.x-x)**2+(e.y-y)**2; if(d2<td){td=d2;t=e;} } return t; }
+function evoCd(e,key,t){ const k='_c1'+key; if((e[k]||0)>gt) return false; e[k]=gt+t; return true; }
+// point-to-segment distance² (wires, beams)
+function _segD2(px,py,ax,ay,bx,by){ const dx=bx-ax, dy=by-ay, L=dx*dx+dy*dy||1; let u=((px-ax)*dx+(py-ay)*dy)/L; u=u<0?0:(u>1?1:u); const qx=ax+dx*u-px, qy=ay+dy*u-py; return qx*qx+qy*qy; }
+const EVO_FIRE={
+  ossuary(){ const t=nearestFoe(520); const a=t?Math.atan2(t.y-P.y,t.x-P.x):P.aim;
+    evoShot({vx:Math.cos(a)*P.projSpeed*0.75,vy:Math.sin(a)*P.projSpeed*0.75,r:9,dmg:P.damage*4,life:0.95,col:'#e9ff70',shape:'skull',gen:0});
+    tone(620,0.06,'triangle',0.09); setTimeout(()=>tone(930,0.05,'triangle',0.06),40); },
+  stacked(){ const a0=rng('evo')*6.283, ace=(rng('evo')*13)|0;
+    for(let i=0;i<13;i++){ const a=a0+i*(6.283/13), big=i===ace, sp=P.projSpeed*0.72;
+      evoShot({vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:big?11:7,dmg:P.damage*(big?3.3:1.1)*P.critMult,crit:true,life:big?1.25:1.0,pierce:big?999:3,col:big?'#fff2c0':(i%2?'#ff3d6e':'#2a2030'),shape:'card',curl:2.2,spin:a,ace:big,suit:'♠♥♦♣'[i%4]}); }
+    SFX.card(); setTimeout(()=>SFX.card(),60); noise(0.18,0.08,3800); tone(1760,0.08,'triangle',0.08,2600); },
+  hand(){ const a0=rng('evo')*6.283;
+    for(let k=0;k<5;k++) evoShot({a0:a0+k*1.2566,r:8,dmg:P.damage*3,life:1.1,pierce:999,col:'#ff1f3d',shape:'petal',petal:true});
+    tone(330,0.18,'sawtooth',0.07,660); noise(0.12,0.06,2400); },
+  garden(){ const t=nearestFoe(480); const a0=t?Math.atan2(t.y-P.y,t.x-P.x):P.aim;
+    for(let k=-1;k<=1;k++){ const a=a0+k*0.35; evoShot({vx:Math.cos(a)*P.projSpeed*1.25,vy:Math.sin(a)*P.projSpeed*1.25,r:5,dmg:P.damage*1.6,life:0.5,pierce:999,col:'#ff4fd8',shape:'stake',plant:true}); }
+    tone(150,0.09,'square',0.1,70); },
+  russian(){ P._evCh=((P._evCh||0)%6)+1;
+    if(P._evCh<6){ const t=nearestFoe(520); const a=t?Math.atan2(t.y-P.y,t.x-P.x):P.aim;
+      evoShot({vx:Math.cos(a)*P.projSpeed*1.5,vy:Math.sin(a)*P.projSpeed*1.5,r:5,dmg:P.damage*2.5*P.critMult,crit:true,life:0.8,pierce:4,col:'#ffb020',shape:'round'});
+      tone(260,0.07,'square',0.12,110); noise(0.06,0.12,1800); tone(1200+P._evCh*120,0.03,'sine',0.05); }
+    else evoExecute(); }
+};
+const EVO_CD={ossuary:0.75, stacked:1.3, hand:1.1, garden:1.0, russian:0.7};
+function evoExecute(){ // the sixth chamber
+  let n=0, ex=0;
+  for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; if(!inView(e.x,e.y,20)) continue;
+    n++; const dmg=P.damage*3.5*P.critMult; const died=evoHurt(e,dmg,'#ffb020',true);
+    if(!died && !e.boss && !e.elite && !e.unkillable && e.hp>0 && e.hp<e.maxhp*0.30){ ftext(e.x,e.y-e.r-10,'EXECUTED','#ff3344',true); const ix=enemies.indexOf(e); if(ix>=0){ killEnemy(e,ix); ex++; } }
+    else if(died) ex++; }
+  flash(0.55,'#fff2c0'); shake=Math.min(26,shake+14); hitstop=Math.max(hitstop,0.06);
+  ring(P.x,P.y,Math.max(VW,VH)*0.6,'#ffb020'); ring(P.x,P.y,120,'#fff');
+  P._evBang=0.45;
+  tone(55,0.5,'sine',0.32,30); noise(0.35,0.32,900); setTimeout(()=>{ tone(1568,0.5,'sine',0.12); tone(2093,0.4,'sine',0.08); },60);
+  if(ex>=12) showStreak('⚅ THE SIXTH CHAMBER — '+ex+' EXECUTED ⚅');
+  RUN.evoExec=(RUN.evoExec||0)+ex;
+}
+function tickPairings(dt){
+  if(_evoSeq!==window._runSeq){ _evoSeq=window._runSeq; evoShots=[]; evoPlants=[]; }
+  if(!P||!P.evo) return;
+  P._evT=P._evT||{};
+  for(const w in P.evo){ const id=P.evo[w];
+    if(EVO_FIRE[id]){ P._evT[id]=(P._evT[id]||0)-dt; if(P._evT[id]<=0){ P._evT[id]=EVO_CD[id]; EVO_FIRE[id](); } } }
+  if(P._evBang>0) P._evBang-=dt;
+  // ✶ THE THOUSAND CUTS — a double helix, one knife every ~55ms
+  if(evoOn('cuts')){ P._evCut=(P._evCut||0)-dt; let g=0;
+    while(P._evCut<=0 && g++<4){ P._evCut+=0.045; P._evSide=!P._evSide; const a=P._evSide? gt*5 : -gt*5+Math.PI;
+      evoShot({vx:Math.cos(a)*P.projSpeed*1.05,vy:Math.sin(a)*P.projSpeed*1.05,r:4,dmg:P.damage*1.4,life:0.6,pierce:2,col:'#7ff6ff',shape:'knife',spin:a}); }
+    P._evSw=(P._evSw||0)-dt; if(P._evSw<=0){ P._evSw=0.33; tone(2200+Math.random()*400,0.03,'square',0.035,1400); noise(0.03,0.04,6000); } }
+  // 👁 THE EYE IN THE SKY — the searchlight
+  if(evoOn('eye')){ P._evEye=(P._evEye||0)+dt*1.5; const ba=P._evEye, L=380, hw=0.16, ca=Math.cos(ba), sa=Math.sin(ba);
+    for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i], dx=e.x-P.x, dy=e.y-P.y, d=Math.hypot(dx,dy); if(d>L+e.r) continue;
+      let da=Math.atan2(dy,dx)-ba; da=Math.atan2(Math.sin(da),Math.cos(da)); if(Math.abs(da)<hw+e.r/Math.max(30,d)){ evoHurt(e,P.damage*7*dt,'#ffe14d',false); if(Math.random()<0.08) burst(e.x,e.y,1,'#ffe14d'); } }
+    for(const arr of [coins,orbs]) for(const o of arr){ const dx=o.x-P.x, dy=o.y-P.y, d=Math.hypot(dx,dy)||1; if(d>L) continue; let da=Math.atan2(dy,dx)-ba; da=Math.atan2(Math.sin(da),Math.cos(da)); if(Math.abs(da)<hw*1.6){ o.x-=dx/d*620*dt; o.y-=dy/d*620*dt; } }
+    P._evPh=(P._evPh||0)-dt; if(P._evPh<=0){ P._evPh=3; const fx=P.x+ca*L*0.8, fy=P.y+sa*L*0.8;
+      for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; if(Math.hypot(e.x-fx,e.y-fy)<110) evoHurt(e,P.damage*8,'#fff2c0',true); }
+      ring(fx,fy,110,'#ffe14d'); ring(fx,fy,60,'#fff'); burst(fx,fy,14,'#fff2c0'); flash(0.22,'#fff6c8'); tone(3100,0.05,'square',0.06); noise(0.12,0.18,5200); } }
+  // 🐀 THE RAT KING'S FEAST — the horde keeps itself
+  if(evoOn('ratking')){ P._evRat=(P._evRat||0)-dt; let rats=0; for(const s of evoShots) if(s.shape==='rat') rats++;
+    if(P._evRat<=0 && rats<14){ P._evRat=0.5; const a=rng('evo')*6.283; evoShot({x:P.x+Math.cos(a)*20,y:P.y+Math.sin(a)*20,vx:Math.cos(a)*90,vy:Math.sin(a)*90,r:5,dmg:P.damage*0.9,life:6,pierce:9999,col:'#b4ff3a',shape:'rat',rat:true,spin:a}); if(Math.random()<0.4) tone(1900+Math.random()*700,0.04,'square',0.03); } }
+  // ♖ THE IRON MAIDEN — four caskets, out and back
+  if(evoOn('maiden')){ P._evMa=(P._evMa||0)+dt*2.4; P._evMt=(P._evMt||0)+dt; if(P._evMt>=2.6){ P._evMt=0; P._evMs=0; tone(80,0.3,'sawtooth',0.1,160); }
+    const ph=Math.min(1,(P._evMt)/0.9), ext=P._evMt<0.9? Math.sin(ph*Math.PI) : 0, R=80+180*ext;
+    if(P._evMt>=0.45 && !P._evMs){ P._evMs=1; for(let k=0;k<4;k++){ const a=P._evMa+k*1.5708, x=P.x+Math.cos(a)*R, y=P.y+Math.sin(a)*R;
+        for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; if(Math.hypot(e.x-x,e.y-y)<60+e.r) evoHurt(e,P.damage*6,'#6f8cff',false); } ring(x,y,60,'#6f8cff'); burst(x,y,8,'#c9d6ff'); }
+      shake=Math.min(16,shake+6); noise(0.18,0.2,600); tone(60,0.3,'sine',0.2,40); }
+    P._evMR=R;
+    for(let k=0;k<4;k++){ const a=P._evMa+k*1.5708, x=P.x+Math.cos(a)*R, y=P.y+Math.sin(a)*R;
+      for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i], dx=e.x-x, dy=e.y-y; if(dx*dx+dy*dy<(e.r+18)*(e.r+18)){ evoHurt(e,P.damage*7*dt,'#6f8cff',false); const d=Math.hypot(dx,dy)||1; e.kx+=dx/d*300*dt*8; e.ky+=dy/d*300*dt*8; } } } }
+  // ⚱ THE CREMATORIUM — three turning jets, and the burning dead spread it
+  if(evoOn('cremat')){ P._evCr=(P._evCr||0)+dt*2.2; const L=150, hw=0.28;
+    for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i], dx=e.x-P.x, dy=e.y-P.y, d=Math.hypot(dx,dy); if(d>L+e.r) continue;
+      const ea=Math.atan2(dy,dx); for(let k=0;k<3;k++){ let da=ea-(P._evCr+k*2.094); da=Math.atan2(Math.sin(da),Math.cos(da)); if(Math.abs(da)<hw){ e._c1burn=2.5; evoHurt(e,P.damage*4*dt,'#ff7a1a',false); break; } } }
+    if(Math.random()<(GFX.lite?0.3:0.7)){ const k=(Math.random()*3)|0, a=P._evCr+k*2.094+rnd(-0.2,0.2), s=rnd(160,300); parts.push({x:P.x+Math.cos(a)*14,y:P.y+Math.sin(a)*14,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:rnd(.25,.5),col:Math.random()<0.5?'#ff7a1a':'#ffd36b',r:rnd(1.6,3.2)}); }
+    P._evCs=(P._evCs||0)-dt; if(P._evCs<=0){ P._evCs=0.4; noise(0.4,0.035,900); } }
+  // burning foes (fire outlives the jets that lit it)
+  if(evoOn('cremat')){ for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; if(!(e._c1burn>0)) continue; e._c1burn-=dt;
+      const bx=e.x, by=e.y, died=evoHurt(e,P.damage*1.5*dt,'#ff7a1a',false); if(Math.random()<0.06) parts.push({x:bx+rnd(-6,6),y:by,vx:0,vy:-60,life:0.4,col:'#ff9a3c',r:2});
+      if(died){ for(const o of enemies){ if(!(o._c1burn>0) && Math.hypot(o.x-bx,o.y-by)<70) o._c1burn=2.5; } burst(bx,by,6,'#ff7a1a'); } } }
+  // 🌹 THE IMPALER'S GARDEN — planted stakes and the wire between them
+  for(let i=evoPlants.length-1;i>=0;i--){ const s=evoPlants[i]; s.t-=dt; if(s.t<=0){ evoPlants.splice(i,1); } }
+  if(evoPlants.length){ P._evWt=(P._evWt||0)-dt;
+    if(P._evWt<=0){ P._evWt=0.1; const T=0.1;
+      // each stake wires itself to its two nearest neighbours (≤260px)
+      const W=[]; for(let i=0;i<evoPlants.length;i++){ const a=evoPlants[i]; const nb=[];
+        for(let j=0;j<evoPlants.length;j++){ if(j===i) continue; const b=evoPlants[j], d2=(a.x-b.x)**2+(a.y-b.y)**2; if(d2<260*260) nb.push([d2,j]); }
+        nb.sort((p,q)=>p[0]-q[0]); for(let k=0;k<Math.min(2,nb.length);k++){ const j=nb[k][1], key=i<j?i*64+j:j*64+i; if(!W._k) W._k=new Set(); if(!W._k.has(key)){ W._k.add(key); W.push([a,evoPlants[j]]); } } }
+      P._evWires=W;
+      for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; let hit=false;
+        for(const s of evoPlants){ if((e.x-s.x)**2+(e.y-s.y)**2<(e.r+14)**2){ hit=true; break; } }
+        if(!hit) for(const w of W){ if(_segD2(e.x,e.y,w[0].x,w[0].y,w[1].x,w[1].y)<(e.r+5)*(e.r+5)){ hit=true; break; } }
+        if(hit){ e._slow=0.5; evoHurt(e,P.damage*6*T,'#ff4fd8',false); if(Math.random()<0.15) burst(e.x,e.y,1,'#ff4fd8'); } } } }
+  else P._evWires=null;
+  // move + collide every evolved projectile
+  const lite=GFX.lite;
+  for(let i=evoShots.length-1;i>=0;i--){ const s=evoShots[i]; s.t+=dt; s.life-=dt;
+    if(s.petal){ const f=s.t/s.max, R=230*Math.sin(Math.PI*Math.min(1,f)), a=s.a0+f*1.6; s.px=s.x; s.py=s.y; s.x=P.x+Math.cos(a)*R; s.y=P.y+Math.sin(a)*R; s.spin=a+Math.PI/2;
+      if(!lite && Math.random()<0.25) parts.push({x:s.x,y:s.y,vx:rnd(-20,20),vy:rnd(10,50),life:0.35,col:'#b0101e',r:rnd(1.4,2.4)}); }
+    else if(s.rat){ s._tg=(s._tgT=(s._tgT||0)-dt)<=0 || !s._tg || s._tg.hp<=0 ? (s._tgT=0.25, evoNear(s.x,s.y,520)) : s._tg;
+      if(s._tg){ const a=Math.atan2(s._tg.y-s.y,s._tg.x-s.x); s.vx+= (Math.cos(a)*260-s.vx)*Math.min(1,dt*5); s.vy+=(Math.sin(a)*260-s.vy)*Math.min(1,dt*5); }
+      else { const a=Math.atan2(P.y-s.y,P.x-s.x); s.vx+=(Math.cos(a)*160-s.vx)*dt*3; s.vy+=(Math.sin(a)*160-s.vy)*dt*3; }
+      s.x+=s.vx*dt; s.y+=s.vy*dt; s.spin=Math.atan2(s.vy,s.vx); }
+    else { if(s.curl){ const sp=Math.hypot(s.vx,s.vy), a=Math.atan2(s.vy,s.vx)+s.curl*dt; s.vx=Math.cos(a)*sp; s.vy=Math.sin(a)*sp; s.spin+=dt*9; }
+      s.x+=s.vx*dt; s.y+=s.vy*dt; }
+    if(s.life<=0){ evoEnd(s); evoShots.splice(i,1); continue; }
+    let gone=false;
+    for(let j=enemies.length-1;j>=0;j--){ const e=enemies[j]; if(!e) continue; const dx=e.x-s.x, dy=e.y-s.y, rr=e.r+s.r; if(dx*dx+dy*dy>=rr*rr) continue;
+      if(s.rat){ const cdm=s.cdm||(s.cdm=new Map()); if((cdm.get(e)||0)>gt) continue; cdm.set(e,gt+0.35); if(evoHurt(e,s.dmg,'#b4ff3a',false)){ if(!P.martyr) P.hp=Math.min(P.maxHp,P.hp+1); let n=0; for(const o of evoShots) if(o.rat) n++;
+          for(let k=0;k<2&&n+k<30;k++){ const a=rng('evo')*6.283; evoShot({x:s.x,y:s.y,vx:Math.cos(a)*200,vy:Math.sin(a)*200,r:5,dmg:P.damage*0.9,life:4,pierce:9999,col:'#b4ff3a',shape:'rat',rat:true,spin:a}); }
+          if(Math.random()<0.3) tone(2600,0.03,'square',0.03); } continue; }
+      if(s.hit.has(e)) continue; s.hit.add(e);
+      const died=evoHurt(e,s.dmg,s.col,!!s.crit);
+      if(s.petal && !P.martyr) P.hp=Math.min(P.maxHp,P.hp+0.4);
+      if(!s.petal && !s.rat){ const kd=Math.hypot(s.vx,s.vy)||1; e.kx+=s.vx/kd*90; e.ky+=s.vy/kd*90; }
+      if(s.crit && Math.random()<0.25) tone(2350,0.04,'triangle',0.05,1600);
+      if(s.shape==='skull' || (s.shape==='bone' && s.gen===1)){ evoEnd(s); gone=true; break; }
+      if(s.pierce>0) s.pierce--; else { evoEnd(s); gone=true; break; }
+      if(died) {}
+    }
+    if(gone) evoShots.splice(i,1);
+  }
+  if(evoShots.length>420) evoShots.splice(0,evoShots.length-420);
+}
+function evoEnd(s){
+  if(s._ended) return; s._ended=true;
+  if(s.shape==='skull'){ for(let k=0;k<12;k++){ const a=k*0.5236+rrnd('evo',-0.1,0.1), sp=rrnd('evo',320,420);
+      evoShot({x:s.x,y:s.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:3.5,dmg:P.damage*1.3,life:0.45,pierce:0,col:'#f2ead8',shape:'bone',gen:1,spin:a}); }
+    ring(s.x,s.y,48,'#e9ff70'); burst(s.x,s.y,8,'#f2ead8'); tone(880,0.05,'triangle',0.08); tone(440,0.08,'triangle',0.06); }
+  else if(s.shape==='bone' && s.gen===1){ for(let k=0;k<3;k++){ const a=Math.atan2(s.vy,s.vx)+(k-1)*0.9+rrnd('evo',-0.2,0.2), sp=280;
+      evoShot({x:s.x,y:s.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:2.5,dmg:P.damage*0.7,life:0.3,pierce:0,col:'#e9ff70',shape:'bone',gen:2,spin:a}); } }
+  else if(s.ace){ const R=90; for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; if(Math.hypot(e.x-s.x,e.y-s.y)<R) evoHurt(e,s.dmg*0.6,'#fff2c0',true); }
+    ring(s.x,s.y,R,'#fff2c0'); ring(s.x,s.y,R*0.5,'#ff3d6e'); burst(s.x,s.y,12,'#fff2c0'); shake=Math.min(12,shake+4); tone(1320,0.12,'sine',0.1); noise(0.1,0.12,2600); }
+  else if(s.plant){ evoPlants.push({x:s.x,y:s.y,t:5,a:Math.atan2(s.vy,s.vx)}); if(evoPlants.length>12) evoPlants.shift(); tone(120,0.06,'square',0.08); noise(0.04,0.08,2000); }
+}
+// ⚱ thorns provoke the furnace
+{ const _h=hurtPlayer;
+  hurtPlayer=function(dmg){ const inv=P&&P.inv>0; const r=_h.apply(this,arguments);
+    try{ if(!inv && P && evoOn('cremat') && state!=='dead' && (P._evFs||0)<=gt){ P._evFs=gt+0.8;
+      for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; if(Math.hypot(e.x-P.x,e.y-P.y)<140){ e._c1burn=2.5; evoHurt(e,P.damage*2,'#ff7a1a',false); } }
+      ring(P.x,P.y,140,'#ff7a1a'); ring(P.x,P.y,90,'#ffd36b'); noise(0.3,0.2,700); tone(110,0.3,'sawtooth',0.12,60); } }catch(e){}
+    return r; }; }
+// ---- the evolved look (world space; called from render() just before the player) ----
+function drawPairings(){
+  if(!P||!P.evo) { if(!evoShots.length) return; }
+  const lite=GFX.lite;
+  ctx.save();
+  // 🌹 the garden: wire first, then the stakes, roses at their feet
+  if(evoPlants.length){
+    if(P._evWires){ ctx.strokeStyle='rgba(255,79,216,0.75)'; ctx.lineWidth=1.6; ctx.setLineDash([5,3]);
+      ctx.beginPath(); for(const w of P._evWires){ ctx.moveTo(w[0].x,w[0].y-6); ctx.lineTo(w[1].x,w[1].y-6); } ctx.stroke(); ctx.setLineDash([]);
+      if(!lite){ ctx.fillStyle='#ffd0f4'; for(const w of P._evWires){ for(let f=0.2;f<1;f+=0.2){ ctx.fillRect(w[0].x+(w[1].x-w[0].x)*f-1,w[0].y-6+(w[1].y-w[0].y)*f-1,2,2); } } } }
+    for(const s of evoPlants){ ctx.globalAlpha=Math.min(1,s.t*2);
+      ctx.fillStyle='rgba(0,0,0,0.45)'; ctx.beginPath(); ctx.ellipse(s.x,s.y+3,10,4,0,0,6.28); ctx.fill();
+      ctx.fillStyle='#8a939c'; ctx.beginPath(); ctx.moveTo(s.x,s.y-20); ctx.lineTo(s.x+4,s.y+2); ctx.lineTo(s.x-4,s.y+2); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#ff4fd8'; ctx.beginPath(); ctx.arc(s.x+5,s.y,3.4,0,6.28); ctx.arc(s.x-4,s.y+1,2.6,0,6.28); ctx.fill();
+      ctx.fillStyle='#2f7a3a'; ctx.fillRect(s.x+1,s.y+1,3,2); }
+    ctx.globalAlpha=1; }
+  if(P && P.evo){
+    // 👁 the searchlight
+    if(evoOn('eye')){ const ba=P._evEye||0, L=380, hw=0.16;
+      ctx.save(); ctx.globalCompositeOperation='lighter';
+      let g=window._c1beam; if(!g){ g=ctx.createRadialGradient(0,0,0,0,0,L); g.addColorStop(0,'rgba(255,240,150,0.42)'); g.addColorStop(0.7,'rgba(255,225,77,0.16)'); g.addColorStop(1,'rgba(255,225,77,0)'); window._c1beam=g; }
+      ctx.translate(P.x,P.y); ctx.fillStyle=g; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,L,ba-hw,ba+hw); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle='rgba(255,246,200,0.45)'; ctx.lineWidth=1.2; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(ba)*L,Math.sin(ba)*L); ctx.stroke();
+      ctx.restore();
+      const ex=P.x+Math.cos(ba)*30, ey=P.y+Math.sin(ba)*30-26;
+      ctx.drawImage(glowSprite('rgba(255,230,120,0.8)','rgba(255,200,60,0)',16),ex-16,ey-16,32,32);
+      ctx.fillStyle='#fff6d0'; ctx.beginPath(); ctx.ellipse(ex,ey,8,4.6,0,0,6.28); ctx.fill();
+      ctx.fillStyle='#2a1a08'; ctx.beginPath(); ctx.arc(ex+Math.cos(ba)*2.6,ey+Math.sin(ba)*1.6,2.6,0,6.28); ctx.fill(); }
+    // ⚱ the furnace jets
+    if(evoOn('cremat')){ const L=150, hw=0.28; ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.translate(P.x,P.y);
+      let g=window._c1jet; if(!g){ g=ctx.createRadialGradient(0,0,8,0,0,L); g.addColorStop(0,'rgba(255,240,180,0.7)'); g.addColorStop(0.35,'rgba(255,140,30,0.5)'); g.addColorStop(1,'rgba(200,40,10,0)'); window._c1jet=g; }
+      ctx.fillStyle=g; for(let k=0;k<3;k++){ const a=(P._evCr||0)+k*2.094, fl=1+Math.sin(gt*23+k)*0.08;
+        ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,L*fl,a-hw,a+hw); ctx.closePath(); ctx.fill(); }
+      ctx.restore(); }
+    // ♖ the caskets
+    if(evoOn('maiden')){ const R=P._evMR||80;
+      for(let k=0;k<4;k++){ const a=(P._evMa||0)+k*1.5708, x=P.x+Math.cos(a)*R, y=P.y+Math.sin(a)*R;
+        ctx.save(); ctx.translate(x,y); ctx.rotate(a+Math.PI/2);
+        if(!lite){ ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.5; ctx.drawImage(glowSprite('rgba(111,140,255,0.8)','rgba(111,140,255,0)',22),-22,-22,44,44); ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over'; }
+        ctx.fillStyle='#22283a'; ctx.strokeStyle='#6f8cff'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(0,-18); ctx.lineTo(9,-10); ctx.lineTo(7,16); ctx.lineTo(-7,16); ctx.lineTo(-9,-10); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#c9d6ff'; for(let sp=-1;sp<=1;sp+=2){ for(let q=0;q<3;q++){ ctx.beginPath(); ctx.moveTo(sp*8.5,-6+q*8); ctx.lineTo(sp*13,-4+q*8); ctx.lineTo(sp*8,-2+q*8); ctx.closePath(); ctx.fill(); } }
+        ctx.strokeStyle='#9fb6ff'; ctx.lineWidth=1.2; ctx.beginPath(); ctx.moveTo(0,-11); ctx.lineTo(0,9); ctx.moveTo(-4,-5); ctx.lineTo(4,-5); ctx.stroke();
+        ctx.restore(); } }
+    // ⚅ the cylinder — six chambers, and the bang
+    if(evoOn('russian')){ const ch=P._evCh||0;
+      for(let k=0;k<6;k++){ const a=-Math.PI/2+k*1.047, x=P.x+Math.cos(a)*30, y=P.y-34+Math.sin(a)*8;
+        ctx.fillStyle=k<ch?'#3a2a10':(k===5?'#ff3344':'#ffb020'); ctx.beginPath(); ctx.arc(x,y,2.6,0,6.28); ctx.fill(); }
+      if(P._evBang>0){ const f=P._evBang/0.45; ctx.save(); ctx.globalAlpha=f; ctx.strokeStyle='#ff3344'; ctx.lineWidth=3;
+        const R=Math.max(VW,VH)*0.18*(1.6-f*0.6); ctx.beginPath(); ctx.arc(P.x,P.y,R,0,6.28); ctx.moveTo(P.x-R*1.4,P.y); ctx.lineTo(P.x+R*1.4,P.y); ctx.moveTo(P.x,P.y-R*1.4); ctx.lineTo(P.x,P.y+R*1.4); ctx.stroke(); ctx.restore(); } }
+  }
+  // every evolved projectile
+  for(const s of evoShots){ const fade=Math.min(1,s.life*6); ctx.globalAlpha=fade;
+    switch(s.shape){
+      case 'skull': ctx.drawImage(glowSprite('rgba(233,255,112,0.7)','rgba(233,255,112,0)',16),s.x-16,s.y-16,32,32);
+        ctx.fillStyle='#f2ead8'; ctx.beginPath(); ctx.arc(s.x,s.y-1,7,0,6.28); ctx.fill(); ctx.fillRect(s.x-4,s.y+3,8,5);
+        ctx.fillStyle='#1a1208'; ctx.beginPath(); ctx.arc(s.x-2.6,s.y-1.5,1.9,0,6.28); ctx.arc(s.x+2.6,s.y-1.5,1.9,0,6.28); ctx.fill(); break;
+      case 'bone': ctx.strokeStyle=s.col; ctx.lineWidth=s.gen===2?1.6:2.4; ctx.beginPath(); ctx.moveTo(s.x-Math.cos(s.spin)*5,s.y-Math.sin(s.spin)*5); ctx.lineTo(s.x+Math.cos(s.spin)*5,s.y+Math.sin(s.spin)*5); ctx.stroke(); break;
+      case 'card': { ctx.save(); ctx.translate(s.x,s.y); ctx.rotate(s.spin); const w=s.ace?11:7, h=s.ace?16:10;
+        if(s.ace && !lite) ctx.drawImage(glowSprite('rgba(255,242,192,0.8)','rgba(255,242,192,0)',20),-20,-20,40,40);
+        ctx.fillStyle='#f6efe0'; ctx.fillRect(-w,-h,w*2,h*2); ctx.strokeStyle=s.ace?'#ffd36b':'#ff3d6e'; ctx.lineWidth=1.4; ctx.strokeRect(-w,-h,w*2,h*2);
+        ctx.fillStyle=s.ace?'#1a1208':((s.suit==='♥'||s.suit==='♦')?'#d01438':'#1a1208'); ctx.font='700 '+(s.ace?16:11)+'px serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(s.ace?'♠':s.suit,0,1);
+        ctx.restore(); break; }
+      case 'knife': { ctx.strokeStyle='#7ff6ff'; ctx.lineWidth=2; const c=Math.cos(s.spin), sn=Math.sin(s.spin);
+        ctx.beginPath(); ctx.moveTo(s.x-c*7,s.y-sn*7); ctx.lineTo(s.x+c*6,s.y+sn*6); ctx.stroke();
+        ctx.fillStyle='#e8fdff'; ctx.beginPath(); ctx.arc(s.x+c*6,s.y+sn*6,1.4,0,6.28); ctx.fill(); break; }
+      case 'petal': { ctx.save(); ctx.translate(s.x,s.y); ctx.rotate(s.spin);
+        if(!lite) ctx.drawImage(glowSprite('rgba(255,31,61,0.7)','rgba(255,31,61,0)',18),-18,-18,36,36);
+        ctx.fillStyle='#ff1f3d'; ctx.beginPath(); ctx.moveTo(0,-13); ctx.quadraticCurveTo(8,0,0,13); ctx.quadraticCurveTo(3,0,0,-13); ctx.fill();
+        ctx.fillStyle='#ffd0d6'; ctx.fillRect(-1,-9,1.4,16); ctx.restore(); break; }
+      case 'stake': { const a=Math.atan2(s.vy,s.vx), c=Math.cos(a), sn=Math.sin(a); ctx.strokeStyle='#aeb8c2'; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.moveTo(s.x-c*12,s.y-sn*12); ctx.lineTo(s.x+c*8,s.y+sn*8); ctx.stroke(); ctx.fillStyle='#ff4fd8'; ctx.beginPath(); ctx.arc(s.x-c*12,s.y-sn*12,2.6,0,6.28); ctx.fill(); break; }
+      case 'round': { const a=Math.atan2(s.vy,s.vx), c=Math.cos(a), sn=Math.sin(a);
+        ctx.strokeStyle='rgba(255,176,32,0.55)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(s.x-c*22,s.y-sn*22); ctx.lineTo(s.x,s.y); ctx.stroke();
+        ctx.fillStyle='#ffe08a'; ctx.beginPath(); ctx.arc(s.x,s.y,4,0,6.28); ctx.fill(); break; }
+      case 'rat': { ctx.save(); ctx.translate(s.x,s.y); ctx.rotate(s.spin);
+        ctx.strokeStyle='#5a7a2a'; ctx.lineWidth=1.2; ctx.beginPath(); ctx.moveTo(-6,0); ctx.quadraticCurveTo(-11,Math.sin(gt*20+s.x)*4,-15,0); ctx.stroke();
+        ctx.fillStyle='#3a4a1c'; ctx.beginPath(); ctx.ellipse(0,0,7,4,0,0,6.28); ctx.fill();
+        ctx.fillStyle='#b4ff3a'; ctx.beginPath(); ctx.arc(5,-1.6,1.1,0,6.28); ctx.arc(5,1.6,1.1,0,6.28); ctx.fill(); ctx.restore(); break; }
+      default: ctx.fillStyle=s.col; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,6.28); ctx.fill();
+    } }
+  ctx.globalAlpha=1; ctx.restore();
+}
 const PASSIVES=[
   {id:'vital', n:'Iron Constitution',g:'✚',rar:'common',max:10,d:l=>'Thicker blood: +12 max HP per level.',ap:()=>{P.maxHp+=12;P.hp+=12;},sc:m=>{const a=Math.round(12*m);P.maxHp+=a;P.hp+=a;}},
   {id:'a_iron', fx:'+20 HP/lv', n:'IRONBLOOD',      g:'♜',rar:'ascend',max:5,d:l=>'Ascension: +'+(20*l)+' max HP.',ap:()=>{P.maxHp+=20;P.hp+=20;},sc:m=>{const a=Math.round(20*m);P.maxHp+=a;P.hp+=a;}},
@@ -9380,6 +9725,202 @@ function a2Payline(matchN, def){
   const _red=enterRedTable;
   enterRedTable=function(){ a2Dress(); const r=_red.apply(this, arguments); try{ setTimeout(a2LeverPull, 60); }catch(e){} return r; };
 }
+
+/* ============================================================
+   ==== C1 — THE PAIRING (the ceremony is a layer on A2's machine:
+   the reels, the glass, the stamp and the lever are A2's; this block
+   only drives them into the gilt PAIRING state and back out)
+   ============================================================ */
+Object.assign(SFX, {
+  // the House's own bell — a cathedral toll under the felt
+  c1Toll(){ tone(65,1.8,'sine',0.3,62); tone(130,1.4,'sine',0.13); tone(196,1.1,'triangle',0.06); tone(523,0.9,'sine',0.05); noise(0.7,0.05,420); },
+  // a gilt latch, heavier than any reel stop
+  c1Lock(n){ n=n||1; tone(104+n*28,0.22,'sine',0.28,60); tone(1568*Math.pow(1.19,n),0.22,'sine',0.13); tone(2093*Math.pow(1.19,n),0.16,'sine',0.06); noise(0.1,0.18,900); setTimeout(()=>{ tone(2900,0.02,'square',0.05); },22); },
+  // the two parents pulled together: a rising shimmer that ends in a held breath
+  c1Fuse(){ for(let i=0;i<16;i++) setTimeout(()=>{ tone(220*Math.pow(2,i/6),0.1,'sine',0.05+i*0.006); if(i%3===0) noise(0.04,0.05,5000); },i*30); tone(55,0.6,'sawtooth',0.06,110); },
+  // the fanfare — D minor walks to a D MAJOR it has no right to: Dm · B♭ · F · A · D
+  c1Fanfare(){ const ch=[[293.7,349.2,440],[233.1,293.7,349.2],[349.2,440,523.3],[440,554.4,659.3],[587.3,740,880,1174.7]];
+    ch.forEach((c,i)=>setTimeout(()=>{ const last=i===ch.length-1, d=last?1.6:0.36;
+      c.forEach(f=>{ tone(f,d,'triangle',last?0.11:0.09); tone(f/2,d,'sine',0.07); }); if(last){ tone(146.8,1.8,'sawtooth',0.05); noise(0.9,0.08,3600); } },i*190));
+    setTimeout(()=>{ for(let i=0;i<10;i++) setTimeout(()=>tone(2349*Math.pow(1.122,i%5),0.3,'sine',0.08),i*70); }, 960); }
+});
+Object.assign(PROJ_FX, {
+  ossuary: l=>'skull 400% → 12 splinters → 36 shards',
+  stacked: l=>'13-card pinwheel · all crits · ace bursts',
+  cuts:    l=>'22 knives/s · 140% · double helix',
+  eye:     l=>'searchlight 700%/s · pulls loot',
+  ratking: l=>'14 rats · kills breed 2 more',
+  maiden:  l=>'4 caskets · 700%/s · slam out · +3 armor',
+  hand:    l=>'5 blade rose · 300% · heals on cut',
+  cremat:  l=>'3 fire jets · ignite & spread',
+  garden:  l=>'3 stakes/s · plant 5s · barbed wire',
+  russian: l=>'5 crit rounds · 6th = EXECUTION'
+});
+{ const _ic=iconSvg;
+  iconSvg=function(id){ const pr=(typeof PAIRINGS!=='undefined')&&PAIRINGS.find(x=>x.id===id);
+    if(pr){ const c=(typeof GLYPH_COL!=='undefined'&&GLYPH_COL[id])||'#ffd36b'; return '<span class="gfall c1g" style="color:'+c+';text-shadow:0 0 10px '+c+'">'+pr.g+'</span>'; }
+    return _ic.apply(this,arguments); }; }
+let pairCur=null, pairTimers=[], pairPhase=0;
+function pairT(fn,ms){ const h=setTimeout(()=>{ try{ fn(); }catch(e){ console.error('[pairing]', e&&e.stack||e); } },ms); pairTimers.push(h); return h; }
+function pairCol(id){ return (typeof GLYPH_COL!=='undefined'&&GLYPH_COL[id])||'#ffd36b'; }
+function _c1Sym(html,col){ const d=document.createElement('div'); d.className='sym symBig'; d.innerHTML=html; if(col) d.style.color=col; return d; }
+function openPairing(pr){
+  pairCur=pr; pairTimers.forEach(clearTimeout); pairTimers=[]; pairPhase=0;
+  const W=WEAPONS.find(w=>w.id===pr.w), Pd=PASSIVES.find(p=>p.id===pr.p);
+  state='slot'; slotStage='pairing'; lastRites=false; gamble=null; window._slotFF=null; slotKind='weapon'; redStake=null;
+  try{ makeBulbs(); }catch(e){} ensureBulbs(); try{ a2Dress(); }catch(e){}
+  elSlot.classList.remove('hidden','lastrites','arsenal'); elSlot.classList.add('c1pair');
+  const m=$('machine'); m.classList.remove('win','jackpot','bust','pulling','dicing','deadly','hotdeck','selecting','tripleHold','c1born'); m.classList.add('c1pair');
+  { const sc=$('sacCard'); if(sc) sc.classList.add('hidden'); }
+  $('slotTag').textContent='♛ THE PAIRING ♛'; $('slotTag').title='';
+  $('reelsRow').style.display=''; $('diceRow').style.display='none'; $('riskWrap').style.display='none';
+  $('prizeTag').textContent='THE HOUSE OFFERS A MARRIAGE';
+  $('cardName').textContent='TWO BECOME ONE'; $('cardName').className='r-legendary bigname'; $('cardName').style.color='';
+  $('cardDesc').innerHTML='<div class="ofsub">'+W.n+' at its limit · '+Pd.n+' in your blood</div>';
+  $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> skip the ceremony';
+  ensurePayTable();
+  { const pt=$('payTable'); if(pt){ pt.classList.remove('red'); pt.classList.add('c1pt');
+    pt.innerHTML='<div class="ptHead">♛ PAIRING ♛</div>'
+      +'<div class="ptRow c1r" style="--pc:'+pairCol(W.id)+'"><span class="ptN">'+W.g+' '+W.n+'</span><span class="ptPips">MAX</span></div>'
+      +'<div class="c1plus">+</div>'
+      +'<div class="ptRow c1r" style="--pc:'+pairCol(Pd.id)+'"><span class="ptN">'+Pd.g+' '+Pd.n+'</span><span class="ptPips">LV '+skillLevel(Pd.id)+'</span></div>'
+      +'<div class="c1plus">=</div>'
+      +'<div class="ptRow c1r c1q" id="c1ptOut" style="--pc:#ffd36b"><span class="ptN">? ? ?</span><span class="ptPips">♛</span></div>'
+      +'<div class="ptFoot"><b>A WEAPON AT MAX</b><br>+ ITS ONE TRUE SKILL</div>'; } }
+  // the strips: noise above, the parents (and a gilt "?") where the payline will land
+  const pool=WEAPONS.filter(w=>weaponUnlocked(w.id)).map(w=>w.id).concat(PASSIVES.filter(s=>s.rar!=='ascend'&&s.rar!=='mythic').map(s=>s.id));
+  const strips=[$('strip0'),$('strip1'),$('strip2')], N=22, LAND=17;
+  strips.forEach((el,i)=>{ el.innerHTML=''; el.classList.remove('blur'); el.style.transition='none';
+    for(let k=0;k<N;k++){ let html, col;
+      if(k===LAND){ if(i===0){ html=iconSvg(W.id); col=pairCol(W.id); } else if(i===2){ html=iconSvg(Pd.id); col=pairCol(Pd.id); } else { html='<span class="gfall c1q">?</span>'; col='#ffd36b'; } }
+      else { const id=pool[(Math.random()*pool.length)|0], df=WEAPONS.find(x=>x.id===id)||PASSIVES.find(x=>x.id===id); html=iconSvg(id); col=RARC[df&&df.rar]||'#c9c1b4'; }
+      const d=_c1Sym(html,col); if(k===LAND) d.classList.add('c1land'); el.appendChild(d); }
+    el.style.transform='translateY(0px)'; });
+  document.querySelectorAll('.reelbox').forEach(b=>b.classList.remove('antici','slam','pick','locked','a2creep','c1lock','c1fuse'));
+  $('reelsRow').classList.remove('sweeping','a2pay1','a2pay2','a2pay3','a2tease');
+  SFX.levelUp(); SFX.c1Toll(); flash(0.45,'#ffd36b'); shake=Math.min(16,shake+7); excite=1;
+  try{ duckDrone&&duckDrone(5200); }catch(e){}
+  setTimeout(()=>announce('♛ THE PAIRING — '+W.n.toUpperCase()+' + '+Pd.n.toUpperCase()+' ♛', true), 120);
+  LT.pairOffers=(LT.pairOffers||0)+1;
+  showSlotButtons();
+  // ---- the timeline ----
+  const landAt=(el)=>{ const s=el.children[LAND], H=(s&&s.offsetHeight)||63, B=(el.parentElement&&el.parentElement.clientHeight)||189; return B/2-H*(LAND+0.5); };
+  pairT(()=>{ try{ a2LeverPull(); }catch(e){}
+    strips.forEach((el,i)=>{ const dur=[0.75,2.2,1.15][i]; el.classList.add('blur');
+      el.style.transition='transform '+dur+'s cubic-bezier(.12,.62,.25,1)'; el.style.transform='translateY('+landAt(el)+'px)'; });
+    tone(90,0.5,'sine',0.1,140); noise(0.35,0.05,700); }, 200);
+  const lock=(i,n)=>{ const el=strips[i], bx=el.parentElement; el.classList.remove('blur');
+    if(bx){ bx.classList.remove('slam'); void bx.offsetWidth; bx.classList.add('slam','c1lock'); bx.style.setProperty('--pkc','#ffd36b'); }
+    try{ SFX.a2Clunk(n); }catch(e){} SFX.c1Lock(n); SFX.reelHit(n); shake=Math.min(18,shake+4+n*2); flash(0.2+n*0.08, i===0?pairCol(W.id):(i===2?pairCol(Pd.id):'#ffd36b')); sparkBurst(10+n*8); };
+  pairT(()=>{ lock(0,1); pairPhase=1; }, 200+760);
+  pairT(()=>{ lock(2,2); pairPhase=2; const b1=strips[1].parentElement; if(b1) b1.classList.add('a2creep');
+    for(let i=0;i<6;i++) pairT(()=>{ try{ SFX.a2Ratchet(i); }catch(e){} }, 60+i*(80+i*26)); }, 200+1160);
+  pairT(()=>{ const b1=strips[1].parentElement; if(b1) b1.classList.remove('a2creep'); lock(1,3); pairPhase=3;
+    $('gambleMsg').innerHTML='<span style="color:#ffd36b">◈ THE PARENTS MEET ◈</span>'; }, 200+2220);
+  pairT(pairFuse, 200+2500);
+  pairT(pairBorn, 200+3100);
+  pairT(pairOffer, 200+5500); // the name slam (bigWin t4) holds ~2.6s — the card waits for it
+}
+function pairFuse(){ if(pairPhase>=4) return; pairPhase=4; const rr=$('reelsRow'); if(!rr) return;
+  const rb=rr.getBoundingClientRect(), mid=$('reelBox1').getBoundingClientRect();
+  [0,2].forEach(i=>{ const s=$('strip'+i).querySelector('.c1land'); if(!s) return; const r=s.getBoundingClientRect();
+    const c=s.cloneNode(true); c.classList.add('c1fly'); c.style.left=(r.left-rb.left)+'px'; c.style.top=(r.top-rb.top)+'px'; c.style.width=r.width+'px'; c.style.height=r.height+'px';
+    rr.appendChild(c); void c.offsetWidth;
+    c.style.transform='translate('+((mid.left+mid.width/2)-(r.left+r.width/2))+'px,'+((mid.top+mid.height/2)-(r.top+r.height/2))+'px) scale(.6)'; c.style.opacity='0.2';
+    setTimeout(()=>c.remove(), 700); });
+  document.querySelectorAll('.reelbox').forEach(b=>b.classList.add('c1fuse'));
+  SFX.c1Fuse(); flash(0.3,'#fff2c0'); shake=Math.min(18,shake+5);
+}
+function pairBorn(){ if(pairPhase>=5) return; pairPhase=5; const pr=pairCur; if(!pr) return;
+  const s=$('strip1').querySelector('.c1land'); if(s){ s.innerHTML='<span class="gfall c1g c1born" style="color:'+pairCol(pr.id)+';text-shadow:0 0 18px '+pairCol(pr.id)+'">'+pr.g+'</span>'; s.style.color=pairCol(pr.id); }
+  const m=$('machine'); m.classList.add('c1born','jackpot'); setTimeout(()=>m.classList.remove('jackpot'),2600);
+  document.querySelectorAll('.reelbox').forEach(b=>b.classList.remove('c1fuse'));
+  { const o=$('c1ptOut'); if(o){ o.classList.remove('c1q'); o.style.setProperty('--pc',pairCol(pr.id)); o.innerHTML='<span class="ptN">'+pr.g+' '+pr.n+'</span><span class="ptPips">♛</span>'; } }
+  const st=$('a2Stamp'); if(st){ st.textContent='♛ PAIRING ♛'; st.style.setProperty('--payc','#ffd36b'); st.className='a2Stamp go t3 c1stamp'; setTimeout(()=>{ st.className='a2Stamp'; }, 2400); }
+  const rw=$('reelsRow'); if(rw){ rw.style.setProperty('--payc','#ffd36b'); rw.classList.remove('a2pay3'); void rw.offsetWidth; rw.classList.add('a2pay3'); setTimeout(()=>rw.classList.remove('a2pay3'),2600); }
+  const mq=$('slotTag'); if(mq){ mq.textContent='♛ '+pr.n+' ♛'; mq.classList.remove('a2strobe'); void mq.offsetWidth; mq.classList.add('a2strobe'); setTimeout(()=>mq.classList.remove('a2strobe'),2400); }
+  // the loudest thing the House does short of a triple: every layer, by tier
+  const lite=typeof GFX!=='undefined'&&GFX.lite;
+  bigWin(pr.n, 4); SFX.c1Fanfare(); SFX.seraph();
+  domConfetti(lite?18:40,'slot'); coinRain(lite?14:30); sparkBurst(lite?16:40);
+  flash(0.6,'#fff2c0'); shake=Math.min(26,shake+14);
+  try{ SFX.a2Payline(3); }catch(e){}
+  setTimeout(()=>{ if(slotStage!=='pairing'&&slotStage!=='pairoffer') return; flash(0.4,pairCol(pr.id)); domConfetti(lite?8:22,'slot'); SFX.dingBells(); }, 420);
+  setTimeout(()=>{ if(slotStage!=='pairing'&&slotStage!=='pairoffer') return; coinRain(lite?8:18); sparkBurst(lite?10:26); }, 900);
+}
+function pairOffer(){ const pr=pairCur; if(!pr) return; if(pairPhase<5) pairBorn(); pairPhase=6;
+  { const jl=$('jackpotLayer'); if(jl) jl.classList.add('hidden'); }
+  const W=WEAPONS.find(w=>w.id===pr.w), Pd=PASSIVES.find(p=>p.id===pr.p);
+  slotStage='pairoffer';
+  $('prizeTag').textContent='♛ THE PAIRING ♛';
+  $('cardName').textContent=pr.n; $('cardName').className='r-legendary bigname'; $('cardName').style.color=pairCol(pr.id);
+  $('cardDesc').innerHTML='<div class="ofbig c1recipe"><span style="color:'+pairCol(W.id)+'">'+W.g+'</span> '+W.n+' <b>+</b> <span style="color:'+pairCol(Pd.id)+'">'+Pd.g+'</span> '+Pd.n+'</div>'
+    +'<div class="ofstat c1desc">'+pr.d(1)+'</div>'
+    +'<div class="ofsub c1rep">'+(pr.w==='bolt'?'RIDES ON TOP OF YOUR BONE BOLTS':'REPLACES '+W.n.toUpperCase()+' — FOR THE REST OF THE NIGHT')+'</div>';
+  $('gambleMsg').innerHTML='';
+  showSlotButtons();
+}
+function pairFF(){ // SPACE during the ceremony: land everything now, keep the climax
+  if(slotStage!=='pairing') return;
+  pairTimers.forEach(clearTimeout); pairTimers=[];
+  if(pairPhase>=5){ pairOffer(); return; } // a second SPACE after the birth goes straight to the card
+  [0,1,2].forEach(i=>{ const el=$('strip'+i); const s=el.children[17]; el.classList.remove('blur'); el.style.transition='none';
+    const H=(s&&s.offsetHeight)||63, B=(el.parentElement&&el.parentElement.clientHeight)||189; el.style.transform='translateY('+(B/2-H*17.5)+'px)';
+    const bx=el.parentElement; if(bx){ bx.classList.remove('a2creep'); bx.classList.add('c1lock'); } });
+  if(pairPhase<5){ SFX.c1Lock(3); pairBorn(); }
+  pairT(pairOffer, 1300);
+}
+function claimPairing(){
+  if(slotStage!=='pairoffer'||!pairCur) return;
+  const pr=pairCur; const W=WEAPONS.find(w=>w.id===pr.w);
+  const known=(typeof IDX!=='undefined'&&Array.isArray(IDX.pr)&&IDX.pr.indexOf(pr.id)>=0);
+  evoClaim(pr);
+  renderRelics();
+  SFX.winDing(); SFX.c1Lock(3); flash(0.4,pairCol(pr.id)); coinRain(10);
+  const col=pairCol(pr.id);
+  ring(P.x,P.y,220,col); ring(P.x,P.y,140,'#fff2c0'); burst(P.x,P.y,30,col); shake=Math.min(20,shake+8);
+  setTimeout(()=>announce('♛ '+pr.n+' IS BORN ♛', true), 80);
+  if(!known) setTimeout(()=>{ announce('📖 A NEW RECIPE IS INSCRIBED IN THE INDEX 📖', true); SFX.chipStack&&SFX.chipStack(); }, 1500);
+  if((LT.pairBy?Object.keys(LT.pairBy).length:0)>=PAIRINGS.length) setTimeout(()=>announce('♛ EVERY PAIRING THE HOUSE KNOWS — YOU HAVE MARRIED THEM ALL ♛', true), 3000);
+  closePairing();
+}
+function closePairing(){
+  pairTimers.forEach(clearTimeout); pairTimers=[]; pairCur=null; pairPhase=0;
+  window._slotFF=null;
+  elSlot.classList.remove('c1pair'); const m=$('machine'); m.classList.remove('c1pair','c1born','jackpot','win');
+  document.querySelectorAll('.reelbox').forEach(b=>b.classList.remove('c1lock','c1fuse','slam','a2creep'));
+  { const pt=$('payTable'); if(pt) pt.classList.remove('c1pt'); }
+  slotStage='idle'; spaceHold=false; holdProg=0; holdFired=false; ringShow(false);
+  elSlot.classList.add('hidden');
+  noise(0.18,0.05,900);
+  if(pending.length && state!=='dead'){ setTimeout(openNextSlot,250); }
+  else if(state==='slot'){ state='playing'; last=performance.now(); }
+}
+{ // wire THE PAIRING into the existing flow
+  const _ons=openNextSlot;
+  openNextSlot=function(){ if(pending.length && state!=='dead'){ let pr=null; try{ pr=readyPairing(); }catch(e){} if(pr){ openPairing(pr); return; } } return _ons.apply(this, arguments); };
+  const _tap=slotTap;
+  slotTap=function(){ if(slotStage==='pairing'){ pairFF(); tone(900,0.05,'sine',0.06); return; } if(slotStage==='pairoffer'){ claimPairing(); return; } return _tap.apply(this, arguments); };
+  const _btns=showSlotButtons;
+  showSlotButtons=function(){
+    if(slotStage==='pairing'||slotStage==='pairoffer'){ const box=$('slotBtns'); box.innerHTML='';
+      if(slotStage==='pairing') box.appendChild(makeBtn('♛ THE HOUSE IS DEALING','gold','SPACE · skip',()=>slotTap()));
+      else { const b=makeBtn('♛ CLAIM THE PAIRING','gold c1claim','press SPACE',()=>slotTap()); box.appendChild(b); }
+      return; }
+    return _btns.apply(this, arguments); };
+  // the cards whisper about a pairing once a weapon reaches its limit
+  const _of=openOffer;
+  openOffer=function(){ const r=_of.apply(this, arguments);
+    try{ const g=gamble; if(g && g.def){ const d=$('cardDesc'); let h='';
+      const known=id=>typeof IDX!=='undefined'&&Array.isArray(IDX.pr)&&IDX.pr.indexOf(id)>=0;
+      if(g.kind==='weapon'){ const pr=pairingFor(g.def.id); const tl=Math.min(g.def.max, skLevel(g.def)+g.reward);
+        if(pr && tl>=g.def.max){ const Pd=PASSIVES.find(p=>p.id===pr.p);
+          h = skillLevel(pr.p)>0 ? '♛ PAIRING READY — NEXT PULL' : (known(pr.id) ? '♛ PAIRS WITH '+Pd.g+' '+Pd.n.toUpperCase() : '♛ PAIRS WITH SOMETHING…'); } }
+      else { const pr=PAIRINGS.find(x=>x.p===g.def.id && known(x.id) && !(P.evo&&P.evo[x.w]));
+        if(pr){ const W=WEAPONS.find(w=>w.id===pr.w); if((P.wlv[pr.w]||0)>=W.max) h='♛ COMPLETES '+pr.n+' — NEXT PULL'; else if((P.wlv[pr.w]||0)>0) h='♛ HALF OF '+pr.n; } }
+      if(h && d){ const el=document.createElement('div'); el.className='c1hint'; el.textContent=h; d.appendChild(el); } } }catch(e){}
+    return r; };
+}
  let markerRef=null;
 
 /* ============================================================
@@ -10854,6 +11395,36 @@ function b2DrawAdorn(){
     ctx.globalAlpha=1; }
   ctx.restore();
 }
+/* ==== C1 — THE PAIRINGS in the Index (am_index_v1: additive fields pr = sealed
+   recipes, pm = weapons ever maxed — hints unlock from pm) ==== */
+if(!Array.isArray(IDX.pr)) IDX.pr=[];
+if(!Array.isArray(IDX.pm)) IDX.pm=[];
+{ const _il=idxLoad;
+  idxLoad=async function(){ const r=await _il.apply(this, arguments);
+    try{ if(store){ const v=await store.get(IDX_KEY,false); if(v&&v.value){ const o=JSON.parse(v.value);
+      if(Array.isArray(o.pr)) IDX.pr=o.pr.filter(x=>typeof x==='string');
+      if(Array.isArray(o.pm)) IDX.pm=o.pm.filter(x=>typeof x==='string'); } } }catch(e){}
+    if(!Array.isArray(IDX.pr)) IDX.pr=[]; if(!Array.isArray(IDX.pm)) IDX.pm=[];
+    return r; }; }
+function c1PairingsSection(){
+  if(typeof PAIRINGS==='undefined') return '';
+  const got=PAIRINGS.filter(p=>IDX.pr.indexOf(p.id)>=0).length, life=LT.pairings||0;
+  return '<div class="idxSec c1idx" style="--sc:#ffd36b"><div class="idxSecH"><b>♛ THE PAIRINGS</b><span>'+got+' / '+PAIRINGS.length+' · SEALED '+life+'× LIFETIME</span></div><div class="idxGrid c1grid">'
+    +PAIRINGS.map(pr=>{ const W=WEAPONS.find(w=>w.id===pr.w), Pd=PASSIVES.find(p=>p.id===pr.p), c=GLYPH_COL[pr.id]||'#ffd36b';
+      if(IDX.pr.indexOf(pr.id)>=0){ const n=(LT.pairBy&&LT.pairBy[pr.id])||0;
+        return '<div class="idxTile on c1tile" style="--ic:'+c+'"><span class="idxG">'+pr.g+'</span><b class="c1tn">'+pr.n+'</b>'
+          +'<span class="c1rec"><i style="color:'+(GLYPH_COL[W.id]||'#ffd36b')+'">'+W.g+'</i> '+W.n+' + <i style="color:'+(GLYPH_COL[Pd.id]||'#8bff9a')+'">'+Pd.g+'</i> '+Pd.n+'</span>'
+          +'<span class="c1cnt">×'+n+'</span></div>'; }
+      const hinted=IDX.pm.indexOf(pr.w)>=0;
+      return '<div class="idxTile c1tile'+(hinted?' c1hinted':'')+'"><span class="idxG">?</span><b class="c1tn">??? + ???</b>'
+        +(hinted?'<span class="c1rec c1vague">“'+pr.hint+'”</span>':'<span class="c1rec c1vague">max a weapon to hear it whisper</span>')+'</div>'; }).join('')
+    +'</div><div class="idxHint">A weapon at MAX + its one true skill → the next pull offers THE PAIRING.</div></div>';
+}
+{ const _oi=openIndexPanel;
+  openIndexPanel=function(){ const r=_oi.apply(this, arguments);
+    try{ const list=$('idxList'); if(list){ const old=list.querySelector('.c1idx'); if(old) old.remove();
+      const first=list.querySelector('.idxSec'); if(first) first.insertAdjacentHTML('afterend', c1PairingsSection()); else list.insertAdjacentHTML('afterbegin', c1PairingsSection()); } }catch(e){}
+    return r; }; }
 /* gilt persistence (personal) */
 async function loadGilt(){ try{ if(!store)return; const r=await store.get(GILT_KEY,false); if(r&&r.value){ const o=JSON.parse(r.value); gilt=Math.max(0,+o.gilt||0); best=Math.max(0,+o.best||0); } }catch(e){} }
 const VAULT={ lv:{} };
@@ -13452,6 +14023,20 @@ window.addEventListener('keydown',e=>{ try{ if(state==='slot' && slotStage==='re
     if(good){ SEATS.st.rage=(SEATS.st.rage||0)+1; seatsSaveSoon();
       if(P.banker){ const g=Math.max(10,Math.round(purse*0.16)); P.coins+=g; LT.coins+=g;
         setTimeout(()=>{ announce('♖ THE DIVIDEND — +'+g+' COINS ♖', true); try{ SFX.register(); }catch(e){} coinRain(Math.min(34,10+Math.floor(g/4))); flash(0.3,'#c4ff4d'); }, 500); } }
+    return r; }; }
+
+/* ==== C1 — THE PAIRINGS: colors + the evolved relic ==== */
+Object.assign(GLYPH_COL, {
+  ossuary:'#e9ff70', stacked:'#ff3d6e', cuts:'#7ff6ff', eye:'#ffe14d', ratking:'#b4ff3a',
+  maiden:'#6f8cff', hand:'#ff1f3d', cremat:'#ff7a1a', garden:'#ff4fd8', russian:'#ffb020'
+});
+{ const _rr=renderRelics;
+  renderRelics=function(){ const r=_rr.apply(this, arguments);
+    try{ if(P && P.evo){ const bw=$('relicsW'); const owned9=WEAPONS.filter(w=>(P.wlv[w.id]||0)>0);
+      owned9.forEach((w,i)=>{ const pid=P.evo[w.id]; const d=bw&&bw.children[i]; if(!pid||!d) return; const pr=PAIRINGS.find(x=>x.id===pid); if(!pr) return;
+        d.classList.add('c1evo'); d.style.color=GLYPH_COL[pid]||'#ffd36b';
+        d.innerHTML=iconSvg(pid)+'<span class="lvpips c1pip">♛</span>';
+        relicTip(d, pr.n, '♛', projFx(pr,1)); }); } }catch(e){}
     return r; }; }
 /* ==== B1 — DAILY DEBT ====
    One seeded night per UTC day, identical for every player in the world. The
