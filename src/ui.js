@@ -151,6 +151,7 @@ function quitToMenu(){
   hideTab(); tabHold=false; keys.clear(); touch.active=false;
   try{ stopDrone(); }catch(e){} try{ stopDrumroll(); }catch(e){}
   state='menu'; SFX.casinoDing();
+  try{ const g9=cv.getContext('2d'); g9.save(); g9.setTransform(1,0,0,1,0,0); g9.clearRect(0,0,cv.width,cv.height); g9.restore(); }catch(e){} // H2: a clean felt behind the menu, as on first boot
   try{ renderChips(); }catch(e){}
 }
 { let lastMute=0;
@@ -1079,18 +1080,19 @@ function renderChips(){
       rb.innerHTML='<div class="mrTop">⚜ RANK '+RANK.rank+' — '+RANKS[RANK.rank-1].n+'</div>'
         +'<div class="mrBar"><i style="width:'+pct+'%"></i></div>'
         +'<div class="mrSub">'+(RANK.marks-base)+' / '+(next-base)+' MARKS TO RANK '+(RANK.rank+1)+'</div>'; } }
+  const h2New=(LT.runs||0)<3; // H2: a stranger's first three nights — fewer, plainer chips
   const chips=[
-    best>0?['🏆',best.toLocaleString(),'#ffd36b']:null,
-    idxPct()>0?['📖',idxPct()+'%','#c98bff']:null,
-    SEC.size>0?['✦',SEC.size+'/'+WHISPER_TOTAL,'#8bffd0']:null,
-    _est>0?['🏛',_est+'% OF THE HOUSE — ranks 30 · index 20 · whispers 15 · feats 15 · pages 10 · souls&floors 10','#e8b64c']:null,
+    (best>0&&!h2New)?['🏆','BEST '+best.toLocaleString(),'#ffd36b']:null, // H2: chips name their number (BEST NIGHT already sits over PLAY)
+    idxPct()>0?['📖','INDEX '+idxPct()+'%','#c98bff']:null,
+    SEC.size>0?['✦','SECRETS '+SEC.size+'/'+WHISPER_TOTAL,'#8bffd0']:null,
+    _est>0?['🏛',_est+'% OF THE HOUSE'+(h2New?'':' — ranks 30 · index 20 · whispers 15 · feats 15 · pages 10 · souls&floors 10'),'#e8b64c']:null, // H2: the weights wait until night 3
     (LT.minutes||0)>=30?['⏱',((LT.minutes||0)/60).toFixed(1)+'h AT THE TABLE','#9adcff']:null,
     ...(function(){ const nx=nextArmUnlock(); if(!nx) return []; const wd=WEAPONS.find(x=>x.id===nx.id);
-      return wd?[['🗡','NEXT ARM: '+wd.n.toUpperCase()+' · RANK '+nx.thr,'#ff9a3c']]:[]; })(),
-    ['⚜','RANK '+RANK.rank+' · '+RANKS[RANK.rank-1].n,'#fff2c0'],
+      return wd?[['🗡','NEW WEAPON AT RANK '+nx.thr+': '+wd.n.toUpperCase(),'#ff9a3c']]:[]; })(),
+    h2New?null:['⚜','RANK '+RANK.rank+' · '+RANKS[RANK.rank-1].n,'#fff2c0'], // H2: the rank bar below already says it
     window._daily?['☀',window._daily,'#8bff9a']:null
   ].filter(Boolean);
-  const tipFor=(g)=>({'🏆':'FEATS — lifetime marks of skill','📖':'THE INDEX — everything catalogued','✦':'WHISPERS — riddles answered','🏛':'THE ESTATE — how much of the House is yours','🗡':'THE ARSENAL DRIP — the next blade and its rank','⚜':'HOUSE RANK — your standing tonight'})[g]||'';
+  const tipFor=(g)=>({'🏆':'BEST NIGHT — your highest tally','📖':'THE INDEX — everything catalogued','✦':'WHISPERS — riddles answered','🏛':'THE ESTATE — how much of the House is yours · ranks 30 · index 20 · whispers 15 · feats 15 · pages 10 · souls&floors 10','🗡':'THE ARSENAL DRIP — the next blade and its rank','⚜':'HOUSE RANK — your standing tonight'})[g]||'';
   const cr=$('chipRow'); if(cr) cr.innerHTML=chips.map(c=>'<span class="mChip" style="--cc:'+c[2]+'" title="'+tipFor(c[0])+'"><b>'+c[0]+'</b>'+c[1]+'</span>').join('');
   if(window._lastEst!==undefined && _est>window._lastEst && cr){ const ec=[...cr.children].find(x=>x.textContent.includes('OF THE HOUSE'));
     if(ec){ ec.classList.add('estGrow'); setTimeout(()=>ec.classList.remove('estGrow'),2600); SFX.tingle&&SFX.tingle(); } }
@@ -1145,7 +1147,7 @@ function openCredits(){
       LT.dayStreak=Math.max(1,Math.min(+LT.dayStreak||1,3650)); // 323: a moved clock can never mint a broken streak
       LT.lastDay=today; const bonus=25+LT.dayStreak*5;
       gilt+=bonus; saveGilt(); achSaveSoon();
-      window._daily='DAILY BLESSING +'+bonus+' ◈ · DAY '+LT.dayStreak;
+      window._daily='DAILY BLESSING +'+bonus+' GILT · DAY '+LT.dayStreak;
     } }
   if(!RANK._ld){ RANK._ld=1; await loadRank(); }
   if(window._ledgerRestored) setTimeout(()=>announce('◈ THE LEDGER WAS RESTORED FROM CARBON ◈', true), 900);

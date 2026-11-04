@@ -3388,7 +3388,7 @@ function frame(now){
   else if(state==='wheel'){ tickWheel(dt); }
   else if(state==='crash'){ tickCrash(dt); }
   else if(state==='slot'){ tickSlot(dt); }
-  if(P){ PROF.frameStart(); render(); PROF.frameEnd(); }
+  if(P && state!=='menu'){ PROF.frameStart(); render(); PROF.frameEnd(); } // H2: the menu never shows last night's frozen floor
   }catch(_e){ if(!window._amErr){ window._amErr=1; console.error('[ANTE MORTEM]',_e); } }
 }
 function startGame(){
@@ -3437,10 +3437,10 @@ function startGame(){
       IDX.ind=[]; idxSaveSoon(); } }
   if(LT.equal && !DLY_RNG){ P.coinMult*=1.05; P._goldTrail=true; } // THE HOUSE'S EQUAL — forever
   { const today=new Date().toISOString().slice(0,10);
-    if(LT.lastDay!==today){
-      const y=new Date(Date.now()-86400000).toISOString().slice(0,10);
-      LT.dayStreak=(LT.lastDay===y)?(LT.dayStreak||0)+1:1;
-      LT.lastDay=today; gilt+=15; saveGilt(); if(typeof achSaveSoon==='function') achSaveSoon();
+    // H2: its own field — boot's DAILY BLESSING writes LT.lastDay as toDateString(); the two formats never
+    // matched, so every reload was a "new day" and the blessing's DAY n climbed once per reload
+    if(LT.lastAnte!==today){
+      LT.lastAnte=today; gilt+=15; saveGilt(); if(typeof achSaveSoon==='function') achSaveSoon();
       setTimeout(()=>announce('☀ FIRST ANTE OF THE DAY — +15 GILT'+((LT.dayStreak||1)>1?' · '+LT.dayStreak+' NIGHTS RUNNING':'')+' ☀', true), 3000); } }
   try{ b2Start(); }catch(e){ console.warn('[B2 start]',e); }
   window._gt0=gt; // the night's true zero (contracts may shift the clock)
