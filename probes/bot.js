@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// npm run probe [-- --nights 5 --src --god --mobile --rank 20 --minutes 14 --soul martyr]
+// npm run probe [-- --nights 5 --src --god --mobile --rank 20 --minutes 14 --soul martyr --floor ballroom]
 // Plays N full nights with the autoplay bot on a virtual clock and prints a
 // JSON report. Exit code 1 on any runtime error.
 'use strict';
@@ -15,7 +15,7 @@ const which = opt('src', false) ? 'src' : 'dist';
     const mobile = !!opt('mobile', false);
     const { browser, page, errors } = await launch({ which, mobile, viewport: mobile ? { width: 390, height: 844 } : { width: 1280, height: 720 } });
     const rank = opt('rank', null);
-    await page.evaluate(({ god, rank }) => { window.__bot.god = god; if (rank) { try { RANK.rank = +rank; RANK._ld = 1; } catch (e) {} } }, { god: !!opt('god', false), rank });
+    await page.evaluate(({ god, rank, floor }) => { window.__bot.god = god; if (floor) window.__probeFloor = floor; if (rank) { try { RANK.rank = +rank; RANK._ld = 1; } catch (e) {} } }, { god: !!opt('god', false), rank, floor: opt('floor', null) });
     // --soul <id>: seat a soul for the night (D1) — unseals it for this page only
     const soul = opt('soul', null);
     if (soul) await page.evaluate((id) => { const s = SOULS.find(x => x.id === id); if (!s) throw new Error('no soul ' + id); s.u = () => true; IDX.sl = id; }, soul);
@@ -41,7 +41,7 @@ const which = opt('src', false) ? 'src' : 'dist';
   const deaths = results.filter(r => r.res).map(r => r.res.gt).sort((a, b) => a - b);
   const med = deaths.length ? deaths[deaths.length >> 1] : null;
   const fmt = s => s == null ? null : Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
-  const summary = { nights: NIGHTS, deaths: deaths.length, medianDeath: fmt(med), errors: allErrors.length, which, soul: opt('soul', null) };
+  const summary = { nights: NIGHTS, deaths: deaths.length, medianDeath: fmt(med), errors: allErrors.length, which, soul: opt('soul', null), floor: opt('floor', 'pit') };
   console.log(JSON.stringify({ summary, results }, null, 1));
   process.exit(allErrors.length ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(2); });
