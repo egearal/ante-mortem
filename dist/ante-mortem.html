@@ -2445,6 +2445,11 @@ body.b2endless #hud #b2Mult{box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(154,92,2
   #menuRow2 .btn.msm.e2Door{grid-column:1/-1;text-align:center;}
   #menuRow2 .btn.msm.e2Door .e2DoorS{margin-left:auto;margin-right:auto;}
 }
+/* F1: pairing recipes in the TAB codex */
+.tpPairs{display:flex;flex-direction:column;gap:3px;}
+.tpPair{font-size:12.5px;line-height:1.45;color:#e2d6b8;padding:3px 0;border-bottom:1px dotted rgba(255,242,192,.12);}
+.tpPair i{color:#a99a80;font-style:normal;}
+@media (max-width:600px){ .howTab{font-size:10.5px;padding:5px 8px;letter-spacing:.05em;} #howTabs{gap:5px;margin:6px 0 8px;} }
 </style>
 </head>
 <body>
@@ -11032,6 +11037,7 @@ async function actuallyDie(){
   // the door opens FIRST — no recap decoration may ever stand between a corpse and its ledger
   state='dead'; try{ keys.clear(); }catch(e){} try{ setFav('☠'); }catch(e){}
   elGO.classList.remove('hidden');
+  { const bb=$('bossBar'); if(bb) bb.classList.add('hidden'); } // F1: the House's bar must not sit on the ledger's title
   if(P.coins===0) secret('broke','BROKE AT THE END');
   { const g6=Math.floor(gt); if(g6>=425&&g6<=427) secret('sixsix',"THE BEAST'S HOUR"); }
   if(gt>=900 && (P._lastHurtGt===undefined || gt-P._lastHurtGt>=60)) secret('untouched60','THE UNTOUCHED MINUTE');
@@ -12620,7 +12626,35 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
       ['EVERY RUN ENDS','At 15:00 the House forecloses, always. The goal isn\'t to survive — it\'s to matter before you don\'t.'],
       ['THE HOUSE ALWAYS BLEEDS','…but it never loses. Play accordingly.']
     ]};
-    const TABS=[RULES_TAB, H4[0], H4[1], H4[2], H4[3]];
+    // F1: tonight's systems, in the House's voice
+    const NEW_TABS=[
+      {ico:'♛', name:'FATES', col:'#fff2c0', items:[
+        ['♛ PAIRINGS','Max a weapon while you hold its one true skill: the next slot fuses them into an evolved weapon. TAB shows each recipe.'],
+        ['✦ MAJOR ARCANA','Tarot in a column of gold light. Huge power, often a price: THE TOWER takes your coins. Read its name before you step on.'],
+        ['∞ PRESS ON','Live to 15:00 and the night is WON. PRESS ON into the endless dark, or CASH OUT.']
+      ]},
+      {ico:'⚔', name:'HIGH ROLLERS', col:'#ff9a5a', items:[
+        ['🃏 THE CROUPIER','His cards flip: ♠ blades, ♥ he heals (step on it, steal it), ♦ coins, ♣ frost. On his coin flip, SPACE when your face shows.'],
+        ['⚖ THE BOOKIE','When bets close, stand on an odds marker. 2:1 is safe, 10:1 is under his feet. Win: he bleeds. Lose: a curse.'],
+        ['☯ THE TWINS','Two masks, one life. Their roulette picks who bleeds — hit the twin wearing ×1. Never touch the chain.']
+      ]},
+      {ico:'☀', name:'NEW TABLES', col:'#8bffd0', items:[
+        ['☀ DAILY DEBT','One seeded night a day, the same for everyone. First try is SCORED; the rest are practice. Keep the streak.'],
+        ['◆ THE STAKES','A won night unseals five decks, each crueler and richer, each with a prize on its first clear.'],
+        ['⚖ BOOK OF DEBTS','The first door in the hall: every seal the House still owes you, nearest first.']
+      ]},
+      {ico:'♕', name:'NEW FACES', col:'#d9a3c0', items:[
+        ['♕ THE BALLROOM','A floor of mirror glass. It WALTZES you in circles, chandeliers crush the crowd (stay out of the ring), mirror twins step from the edges.'],
+        ['♣ ✝ SOULS','THE CARDSHARP sees each pull first. THE MARTYR never heals, but bleeding makes her stronger.'],
+        ['✧ ♖ SOULS','THE MAGPIE drags coins from afar. THE BANKER\'S GHOST earns interest on his purse.']
+      ]},
+      {ico:'⚙', name:'HANDS & DIALS', col:'#c98bff', items:[
+        ['🎮 PAD','L-STICK walks · Ⓐ every bet (hold to roll) · Ⓧ cash · Ⓨ codex · START pause · Ⓑ back.'],
+        ['☝ PHONE','Left thumb anywhere walks. The gold ◈ BET coin is SPACE. II pauses, ✦ CODEX opens your book.'],
+        ['⚙ SETTINGS','OPTIONS on the menu, SETTINGS on the pause: volume, shake, flash, REDUCE FLASHING, rumble.']
+      ]}
+    ];
+    const TABS=[RULES_TAB, H4[0], H4[1], H4[2], H4[3]].concat(NEW_TABS);
     window._howTabs=TABS; window._howTab=0;
     const tabBtn=(s,i)=>'<button class="howTab'+(i===0?' on':'')+'" data-t="'+i+'" style="--hc:'+s.col+'">'+s.ico+' '+s.name+'</button>';
     hp.innerHTML='<div id="howTitle">♠ HOW TO PLAY ♠</div>'
@@ -12742,6 +12776,14 @@ function showTab(){
       +'<em>'+(pdef?String(pdef.d(r.count)).slice(0,72):'')+'</em></div>'; });
   } else h+='<div class="tpEmpty">— empty-handed —</div>';
   h+='</div>';
+  // F1: the pairing recipes for the guns you carry, in plain sight
+  try{ if(typeof PAIRINGS!=='undefined'){ const rows=[];
+    WEAPONS.forEach(w=>{ const lv=P.wlv[w.id]||0; const pr=PAIR_BY_W[w.id]; if(!lv||!pr) return;
+      const ps=PASSIVES.find(p=>p.id===pr.p); const pn=ps?(ps.g+' '+ps.n):pr.p;
+      const st=(P.evo&&P.evo[w.id])?'<b style="color:#ffd36b">♛ EVOLVED</b>':(pairReady(pr)?'<b style="color:#8bffd0">✓ READY — NEXT LEVEL</b>':'<i>'+w.n+' '+lv+'/'+w.max+(skillLevel(pr.p)>0?' · skill ✓':'')+'</i>');
+      rows.push('<div class="tpPair">'+w.g+' MAX '+w.n+' + '+pn+' → <span style="color:'+(GLYPH_COL[pr.id]||'#fff2c0')+'">'+pr.g+' '+pr.n+'</span> · '+st+'</div>'); });
+    if(rows.length) h+='<div class="tpH">♛ PAIRINGS</div><div class="tpPairs">'+rows.join('')+'</div>';
+  } }catch(e){}
   if(P.scars && P.scars.length){
     h+='<div class="tpScars">☠ SCARS &nbsp;·&nbsp; '+P.scars.map(sc=>(sc.g||'☒')+' '+(sc.l||sc)).join(' &nbsp;·&nbsp; ')+'</div>';
   }
