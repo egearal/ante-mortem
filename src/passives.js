@@ -46,7 +46,7 @@ const PASSIVES=[
   {id:'regen', n:'Slow Bleed',     g:'♻',rar:'rare',max:6,d:l=>'Regenerate +'+(1.0*l).toFixed(1)+' lifeblood/sec.',ap:()=>{P.regen+=1.0;P.hp=Math.min(P.maxHp,P.hp+15);},sc:m=>{P.regen+=m;P.hp=Math.min(P.maxHp,P.hp+15);}},
   {id:'exec',  n:'Executioner',    g:'‡',rar:'epic',max:5,d:l=>'Brutal crits: +'+(0.4*l).toFixed(1)+'× critical damage.',ap:()=>{P.critMult+=0.4;},sc:m=>{P.critMult+=0.4*m;}}
 ];
-function auraRadius(){ const l=P.wlv.aura||0; return l? 86+l*12 : 0; }
+function auraRadius(){ const l=(P.evo&&P.evo.aura)?0:(P.wlv.aura||0); /* H3 */ return l? 86+l*12 : 0; }
 function addPassiveHUD(def){ idxSee('p',def.id); const e=P.passiveList.find(x=>x.id===def.id); if(e){ e.count++; } else { P.passiveList.push({id:def.id,g:def.g,n:def.n,rar:def.rar,count:1}); } }
 function passiveReward(pd){
   return { kind:'passive', id:pd.id, g:pd.g, n:pd.n, rar:pd.rar, u:pd.u,

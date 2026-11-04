@@ -2813,3 +2813,8 @@ function e2Ledger(){
   requestAnimationFrame(step);
 }
 { const _ad=actuallyDie; actuallyDie=async function(){ const r=await _ad.apply(this,arguments); try{ setTimeout(e2Ledger,60); }catch(e){} return r; }; }
+/* ==== H3 — TEN MORE PAIRINGS: colors ==== */
+Object.assign(GLYPH_COL, {
+  chaingang:'#9b8cff', carpet:'#ff4a00', craps:'#00ff6a', shark:'#0099ff', queen:'#c050ff',
+  ouro:'#00e0b0', champagne:'#ffb3d1', heart:'#ff0060', grand:'#7fd4ff', blackdeath:'#8fbf00'
+});

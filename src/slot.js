@@ -1159,3 +1159,16 @@ function closePairing(){
       if(h && d){ const el=document.createElement('div'); el.className='c1hint'; el.textContent=h; d.appendChild(el); } } }catch(e){}
     return r; };
 }
+/* ==== H3 — TEN MORE PAIRINGS: their short labels ==== */
+Object.assign(PROJ_FX, {
+  chaingang: l=>'chains 8 · knot slam 650% · 300% splash',
+  carpet:    l=>'8 marching blasts · 450% · 75px',
+  craps:     l=>'2 dice · face×110% · doubles/naturals',
+  shark:     l=>'circles 300%/s · lunge 600% · interest',
+  queen:     l=>'dust 320%/s + slow · 5 moths/1.6s',
+  ouro:      l=>'20-seg trail 260%/s · constrict 500%',
+  champagne: l=>'6 pools 350%/s · every 3rd TOAST 800%',
+  heart:     l=>'lub 220% · dub 120% · burst 900%',
+  grand:     l=>'falls 1400% · 16 shards · wax',
+  blackdeath:l=>'3 roaming clouds 380%/s · bloom on death'
+});

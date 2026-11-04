@@ -19,7 +19,9 @@ const argv = process.argv.slice(2);
 const opt = (k, d) => { const i = argv.indexOf('--' + k); return i < 0 ? d : (argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : true); };
 const which = opt('src', false) ? 'src' : 'dist';
 const SHOTS = opt('shots', null), NIGHT = !!opt('night', false);
-const ALL = ['ossuary','stacked','cuts','eye','ratking','maiden','hand','cremat','garden','russian'];
+const ALL = ['ossuary','stacked','cuts','eye','ratking','maiden','hand','cremat','garden','russian',
+  // H3 — the deeper back room
+  'chaingang','carpet','craps','shark','queen','ouro','champagne','heart','grand','blackdeath'];
 const ONLY = opt('only', null) ? String(opt('only')).split(',') : ALL;
 
 // 300 immortal, harmless dummies packed around the player: controlled DPS + real frame cost
@@ -40,7 +42,7 @@ async function arena(page) {
     const dps = Math.round(((P.dmgDealt || 0) - d0) / Math.max(0.01, gt - g0));
     window.__bot.renderEvery = 30; enemies.length = 0; for (const e of keep) enemies.push(e); P.hp = Math.max(P.hp, hp0); P.instakill = ik;
     ts.sort((a, b) => a - b);
-    return { dps, shots: typeof evoShots !== 'undefined' ? evoShots.length : 0, avg: +(ts.reduce((a, b) => a + b, 0) / ts.length).toFixed(2), p95: +ts[Math.floor(ts.length * 0.95)].toFixed(2) };
+    return { dps, shots: (typeof evoShots !== 'undefined' ? evoShots.length : 0) + (typeof h3S !== 'undefined' ? h3S.length + h3Z.length + h3D.length : 0), avg: +(ts.reduce((a, b) => a + b, 0) / ts.length).toFixed(2), p95: +ts[Math.floor(ts.length * 0.95)].toFixed(2) };
   });
 }
 async function dps(page, secs) {
