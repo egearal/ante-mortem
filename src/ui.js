@@ -333,7 +333,7 @@ function updateHUD(){
     const ch='×'+(P.comboMult||1).toFixed(1)+'  COMBO'+(P.bestStreak>killStreak?' <s>best '+P.bestStreak+'</s>':'');
     if(_hud.combo!==ch){ _hud.combo=ch; cm.innerHTML=ch; }
     cm.classList.toggle('flames', killStreak>=50);
-    cm.style.transform='translateX(-50%) scale('+(1+Math.min(0.5,killStreak*0.01))+')'; }
+    cm.style.transform='translateX(-50%) scale('+(1+Math.min(window._touchUI?0.15:0.5,killStreak*0.01))+')'; } // B4: on a phone the plaque has ~200px between the buttons — it swells less
   else cm.classList.add('hidden');
   const db=$('debuffs');
   if(db){ if(debuffs.length){
@@ -997,7 +997,8 @@ function coachMark(id, txt){
     if(typeof achSaveSoon==='function') achSaveSoon();
     let c=document.getElementById('coachToast');
     if(!c){ c=document.createElement('div'); c.id='coachToast'; document.body.appendChild(c);
-      window.addEventListener('keydown',()=>{ if(c.classList.contains('go')&&performance.now()-(c._born||0)>600) c.classList.remove('go'); }); }
+      window.addEventListener('keydown',()=>{ if(c.classList.contains('go')&&performance.now()-(c._born||0)>600) c.classList.remove('go'); });
+      window.addEventListener('pointerdown',()=>{ if(c.classList.contains('go')&&performance.now()-(c._born||0)>600) c.classList.remove('go'); },true); } // B4: a thumb dismisses the tip too
     c.innerHTML='✒ '+txt; c._born=performance.now();
     c.classList.remove('go'); void c.offsetWidth; c.classList.add('go');
     try{ SFX.tingle&&SFX.tingle(); }catch(e){}
@@ -1219,7 +1220,7 @@ function a2Lane(){
   const zone={left:8, right:Math.min(W,340), top:H-130-Math.max(60,(at&&at.offsetHeight)||0), bottom:H-120};
   const hitZ=r=>r && r.left<zone.right && r.right>zone.left && r.top<zone.bottom && r.bottom>zone.top;
   const dockAt = dead || (!!m && (parts.length?parts:[m]).some(hitZ));
-  if(modal){ if(co && co.parentNode!==n) n.appendChild(co); }
+  if(modal || document.body.classList.contains('touchUI')){ if(co && co.parentNode!==n) n.appendChild(co); } // B4: on a phone the tip stacks in the column — it used to sit on top of the banner
   else if(co && co.parentNode===n) document.body.appendChild(co);
   if(dockAt){ if(at && at.parentNode!==n) n.appendChild(at); }
   else if(at && at.parentNode===n) ($('wrap')||document.body).insertBefore(at, n);
