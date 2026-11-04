@@ -2464,3 +2464,5 @@ body.b2endless #hud #b2Mult{box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(154,92,2
   #gameover #e2Debt{margin-top:6px;padding-top:5px;padding-bottom:5px;}
   #gameover #againBtn{padding:12px 20px;margin-top:8px;}
 }
+/* G1: on a phone the How to Play title keeps its closing ♠ on the same line */
+@media (max-width:600px){ #howTitle{font-size:21px;letter-spacing:.16em;white-space:nowrap;margin-bottom:12px;} }
