@@ -41,12 +41,15 @@ const BASE_SCALE = Object.assign({}, CFG.scale);
 /* ---------- canvas ---------- */
 const cv = document.getElementById('c');
 const ctx = cv.getContext('2d',{alpha:false}); // opaque canvas — the compositor stops blending the page behind every frame
-let VW=0, VH=0, DPR=1;
+let VW=0, VH=0, DPR=1, ZOOM=1;
 function resize(){
   DPR = Math.min(window.devicePixelRatio||1, window._qPrev===true?1:2);
-  VW = window.innerWidth; VH = window.innerHeight;
-  cv.width = VW*DPR; cv.height = VH*DPR;
-  ctx.setTransform(DPR,0,0,DPR,0,0);
+  // A4: phones pull the camera back — visual scale only (VW/VH are logical px)
+  { const sw=window.innerWidth, sh=window.innerHeight, s=Math.min(sw,sh);
+    ZOOM = s<540 ? Math.max(0.72, s/540) : 1;
+    VW = sw/ZOOM; VH = sh/ZOOM;
+    cv.width = Math.round(sw*DPR); cv.height = Math.round(sh*DPR); }
+  ctx.setTransform(DPR*ZOOM,0,0,DPR*ZOOM,0,0);
   // opaque canvas boots black — paint the house dark immediately so the menu
   // never sits on a void (render() only runs once a run exists)
   ctx.fillStyle='#0a0507'; ctx.fillRect(0,0,VW,VH);
@@ -592,6 +595,7 @@ function update(dt){
       if(!a9&&window._gpA) window.dispatchEvent(new KeyboardEvent('keyup',{key:' ',bubbles:true}));
       if(b9&&!window._gpB) window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
       window._gpA=a9; window._gpB=b9; } }
+  if(touch.joy && mx===0 && my===0){ mx=touch.jx; my=touch.jy; } // A4: the floating stick
   if(touch.active && mx===0 && my===0){ const dx=touch.wx-P.x, dy=touch.wy-P.y, d=Math.hypot(dx,dy); if(d>6){ mx=dx/d; my=dy/d; } }
   const ml=Math.hypot(mx,my); if(ml>0){ mx/=ml; my/=ml; P.aim=Math.atan2(my,mx); }
   P.x=clamp(P.x+mx*P.speed*dt,14,CFG.arena-14);
@@ -1046,7 +1050,7 @@ function drawLandmarks(){
     ctx.fillText('◈ THE VAULT ◈', 0, 112);
     if(state==='playing' && Math.hypot(P.x-vaultProp.x,P.y-vaultProp.y)<115){
       ctx.fillStyle='rgba(139,255,154,'+(0.6+Math.sin(gt*6)*0.3)+')';
-      ctx.font="700 12px 'Cinzel',serif"; ctx.fillText('SPACE — ENTER', 0, 128); }
+      ctx.font="700 12px 'Cinzel',serif"; ctx.fillText(window._touchUI?'◈ BET — ENTER':'SPACE — ENTER', 0, 128); }
     ctx.restore(); }
   // ghost patrons — spirits of dead gamblers drifting the hall
   ctx.save();
@@ -2050,7 +2054,7 @@ function render(){
     if(stf<0.35){ ctx.shadowColor='#ff5566'; ctx.shadowBlur=8; }
     roundRect(VW-118,81,Math.max(2,100*stf),5,2.5); ctx.fill(); ctx.shadowBlur=0;
     if(killStreak>=27){ ctx.font="700 11px 'Cinzel',serif"; ctx.fillStyle='#8bff9a'; ctx.shadowBlur=8;
-      ctx.fillText('SPACE — CASH +'+Math.floor(killStreak/3)+' ◈', VW-18, 92); }
+      ctx.fillText((window._touchUI?'◈ BET':'SPACE')+' — CASH +'+Math.floor(killStreak/3)+' ◈', VW-18, 92); }
     ctx.restore();
   }
   ctx.restore();

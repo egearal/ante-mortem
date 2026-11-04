@@ -383,7 +383,7 @@ function renderRelics(){
    INPUT
    ============================================================ */
 const keys=new Set();
-const touch={active:false,wx:0,wy:0};
+const touch={active:false,wx:0,wy:0,joy:false,jx:0,jy:0};
 window.addEventListener('keyup',e=>{ if(e.key==='Tab'){ e.preventDefault(); tabHold=false; hideTab(); } });
 window.addEventListener('keydown',e=>{
   let k=e.key.toLowerCase();
@@ -516,16 +516,15 @@ window.addEventListener('keyup',e=>{
   }
   keys.delete(k);
 });
-function ptr(e){ const t=e.touches?e.touches[0]:e; touch.wx=t.clientX+camX; touch.wy=t.clientY+camY; }
-cv.addEventListener('pointerdown',e=>{ if(e.button!==0) return; touch.active=true; ptr(e); });
-cv.addEventListener('pointermove',e=>{ if(touch.active)ptr(e); });
-window.addEventListener('pointerup',()=>touch.active=false);
-window.addEventListener('pointercancel',()=>touch.active=false);
+// mouse: hold-to-walk toward the cursor. touch: the floating stick (A4 block, end of file)
+function ptr(e){ touch.wx=e.clientX/ZOOM+camX; touch.wy=e.clientY/ZOOM+camY; }
+cv.addEventListener('pointerdown',e=>{ if(e.pointerType==='touch'||e.pointerType==='pen'){ joyDown(e); return; } if(e.button!==0) return; touch.active=true; ptr(e); });
+cv.addEventListener('pointermove',e=>{ if(e.pointerType==='touch'||e.pointerType==='pen'){ joyMove(e); return; } if(touch.active)ptr(e); });
+window.addEventListener('pointerup',e=>{ if(e.pointerType==='touch'||e.pointerType==='pen'){ joyUp(e); return; } touch.active=false; });
+window.addEventListener('pointercancel',e=>{ joyUp(e); touch.active=false; });
 cv.addEventListener('contextmenu',e=>e.preventDefault());
-cv.addEventListener('touchstart',e=>{ touch.active=true; ptr(e); e.preventDefault(); },{passive:false});
-cv.addEventListener('touchmove',e=>{ ptr(e); e.preventDefault(); },{passive:false});
-cv.addEventListener('touchend',()=>touch.active=false);
-cv.addEventListener('touchcancel',()=>touch.active=false,{passive:true});
+cv.addEventListener('touchstart',e=>{ e.preventDefault(); },{passive:false});
+cv.addEventListener('touchmove',e=>{ e.preventDefault(); },{passive:false});
 $('startBtn').addEventListener('click',startGame);
 /* menu juice: plaque tilt toward cursor, piano-key hover chimes, press squash + ring burst */
 { const chime=b=>{ if(!AC||muted) return;
@@ -901,3 +900,197 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
   try{ tone(1450,0.02,'square',0.028); }catch(x){}
 },true);
+
+/* ============================================================
+   A4 — THE POCKET CASINO
+   A phone is a casino you carry. Left thumb: a floating gilt stick that
+   appears wherever it lands. Right thumb: the BET coin — it IS the space bar
+   (real keydown/keyup, so hold-to-roll and hold-to-re-ante just work).
+   II pauses, ✦ CODEX opens the book, CASH banks the ascent. On touch, every
+   "SPACE" the House prints becomes "◈ BET".
+   ============================================================ */
+const IS_TOUCH=(()=>{ try{ return matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints>0 && matchMedia('(hover: none)').matches); }catch(e){ return false; } })();
+window._touchUI=false;
+function tcKey(type,k){
+  const code=k===' '?'Space':k==='Escape'?'Escape':k==='Enter'?'Enter':'Key'+k.toUpperCase();
+  try{ window.dispatchEvent(new KeyboardEvent(type,{key:k,code,bubbles:true,cancelable:true})); }catch(e){}
+}
+function tcBuzz(ms){ try{ if(navigator.vibrate && !muted) navigator.vibrate(ms); }catch(e){} }
+// soft felt sounds for the thumb controls (synthesized, like everything else)
+function tcSfx(kind){ if(!AC||muted) return;
+  try{
+    if(kind==='stick'){ tone(196,0.05,'sine',0.05,140); }
+    else if(kind==='bet'){ tone(523,0.04,'triangle',0.05); tone(1046,0.03,'sine',0.025); }
+    else if(kind==='btn'){ tone(880,0.04,'sine',0.04); setTimeout(()=>tone(1318,0.04,'sine',0.03),40); }
+  }catch(e){} }
+
+/* ---------- the stick ---------- */
+const JOY={id:-1,ox:0,oy:0,R:56,el:null,knob:null};
+function joyEls(){
+  if(JOY.el) return;
+  const b=document.createElement('div'); b.id='tcStick'; b.innerHTML='<div class="tcRing"></div><div class="tcKnob"></div>';
+  $('wrap').appendChild(b); JOY.el=b; JOY.knob=b.querySelector('.tcKnob');
+}
+function joyPlace(){ if(!JOY.el) return; JOY.el.style.transform='translate('+(JOY.ox-JOY.R)+'px,'+(JOY.oy-JOY.R)+'px)'; }
+function joyDown(e){
+  setTouchUI(true);
+  if(state!=='playing' || JOY.id!==-1 || tabHold) return;
+  if(e.clientX>window.innerWidth*0.62) return; // the right thumb's half belongs to the BET coin
+  joyEls();
+  const sa=8; // keep the ring on screen
+  JOY.id=e.pointerId;
+  JOY.ox=clamp(e.clientX,JOY.R+sa,window.innerWidth-JOY.R-sa); JOY.oy=clamp(e.clientY,JOY.R+sa,window.innerHeight-JOY.R-sa);
+  joyPlace(); JOY.knob.style.transform='translate(0px,0px)'; JOY.el.classList.add('on');
+  try{ cv.setPointerCapture(e.pointerId); }catch(x){}
+  touch.joy=false; tcSfx('stick');
+}
+function joyMove(e){
+  if(e.pointerId!==JOY.id) return;
+  let dx=e.clientX-JOY.ox, dy=e.clientY-JOY.oy; const d=Math.hypot(dx,dy)||1;
+  if(d>JOY.R){ // the ring follows a thumb that overruns it
+    JOY.ox=e.clientX-dx/d*JOY.R; JOY.oy=e.clientY-dy/d*JOY.R; dx=dx/d*JOY.R; dy=dy/d*JOY.R; joyPlace(); }
+  JOY.knob.style.transform='translate('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px)';
+  if(d>JOY.R*0.16){ touch.joy=true; touch.jx=dx/Math.min(d,JOY.R); touch.jy=dy/Math.min(d,JOY.R); }
+  else touch.joy=false;
+}
+function joyUp(e){
+  if(e && e.pointerId!==undefined && e.pointerId!==JOY.id) return;
+  JOY.id=-1; touch.joy=false; touch.jx=touch.jy=0;
+  if(JOY.el) JOY.el.classList.remove('on');
+}
+window.addEventListener('blur',()=>joyUp());
+
+/* ---------- the thumb buttons ---------- */
+const TC={bet:null,cash:null,pause:null,codex:null,betDown:false,deadT:0,last:'',tab:false};
+function tcButton(id,html,title){ const b=document.createElement('button'); b.id=id; b.className='tcBtn'; b.type='button'; b.innerHTML=html; b.title=title;
+  b.addEventListener('contextmenu',e=>e.preventDefault()); $('wrap').appendChild(b); return b; }
+function tcBuild(){
+  if(TC.bet) return;
+  TC.bet=tcButton('tcBet','<span class="tcG">◈</span><span class="tcL">BET</span>','BET — the space bar');
+  TC.cash=tcButton('tcCash','<span class="tcG">▲</span><span class="tcL">CASH</span>','CASH OUT the ascent');
+  TC.pause=tcButton('tcPause','<span class="tcG">II</span>','Pause');
+  TC.codex=tcButton('tcCodex','<span class="tcG">✦</span><span class="tcL">CODEX</span>','Your codex');
+  // BET: pointerdown = keydown SPACE, pointerup = keyup SPACE. On the ledger it is R: hold to re-ante, tap to read on.
+  TC.bet.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); setTouchUI(true);
+    try{ TC.bet.setPointerCapture(e.pointerId); }catch(x){}
+    if(TC.betDown) return; TC.betDown=true; TC.bet.classList.add('on'); tcBuzz(8); tcSfx('bet');
+    if(state==='dead'){ TC.deadT=performance.now(); TC.bet.classList.add('holding'); tcKey('keydown','r'); }
+    else { TC.deadT=0; tcKey('keydown',' '); } });
+  const betUp=e=>{ if(!TC.betDown) return; TC.betDown=false; TC.bet.classList.remove('on','holding');
+    if(TC.deadT){ const held=performance.now()-TC.deadT; TC.deadT=0; tcKey('keyup','r');
+      if(held<400 && state==='dead'){ tcKey('keydown',' '); tcKey('keyup',' '); } }
+    else tcKey('keyup',' '); };
+  TC.bet.addEventListener('pointerup',betUp); TC.bet.addEventListener('pointercancel',betUp); TC.bet.addEventListener('lostpointercapture',betUp);
+  TC.cash.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); tcBuzz(14); tcKey('keydown','Enter'); tcKey('keyup','Enter'); });
+  TC.pause.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); tcSfx('btn'); tcKey('keydown','Escape'); tcKey('keyup','Escape'); });
+  TC.codex.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); tcCodex(); });
+  // the pause card gains thumbs: codex + leave the table (the card itself still resumes)
+  const pc=document.querySelector('.pauseCard');
+  if(pc && !$('tcPzRow')){ const r=document.createElement('div'); r.id='tcPzRow';
+    r.innerHTML='<button class="btn msm" id="tcPzCodex" type="button">✦ CODEX</button><button class="btn msm" id="tcPzQuit" type="button">♠ LEAVE THE TABLE</button><div class="tcPzHint">TAP ANYWHERE TO RESUME</div>';
+    pc.appendChild(r);
+    $('tcPzCodex').addEventListener('click',e=>{ e.stopPropagation(); tcCodex(); });
+    $('tcPzQuit').addEventListener('click',e=>{ e.stopPropagation(); if(state==='paused'){ joyUp(); quitToMenu(); } }); }
+}
+function tcCodex(){
+  const tp=$('tabPanel');
+  if(TC.tab && tp && tp.classList.contains('show')){ TC.tab=false; tabHold=false; hideTab(); SFX.casinoDing&&SFX.casinoDing(); return; }
+  if(!(state==='playing'||state==='slot'||state==='wheel'||state==='paused')) return;
+  joyUp(); TC.tab=true; tabHold=true; showTab(); SFX.uiDing&&SFX.uiDing(); tcBuzz(6);
+}
+// with the codex open by touch, a tap outside its columns closes it
+document.addEventListener('pointerdown',e=>{
+  if(!TC.tab || e.pointerType==='mouse') return;
+  const t=e.target; if(t.closest && (t.closest('.tpCol')||t.closest('#tcCodex')||t.closest('#tcPzCodex'))) return;
+  TC.tab=false; tabHold=false; hideTab(); e.stopPropagation(); e.preventDefault();
+},true);
+// the death roll is a mash: on touch, any tap on the layer is a press too
+document.addEventListener('pointerdown',e=>{
+  if(!window._touchUI || e.pointerType==='mouse' || state!=='marker') return;
+  if(e.target.closest && e.target.closest('button')) return;
+  tcKey('keydown',' '); tcKey('keyup',' ');
+},false);
+
+// which thumbs show, and what the coin says — cheap, class flips only on change
+function tcSync(){
+  if(!window._touchUI || !TC.bet) return;
+  if(state!=='playing' && JOY.id!==-1) joyUp();
+  if(TC.tab){ const tp=$('tabPanel'); if(!tp || !tp.classList.contains('show')) TC.tab=false; }
+  const crashLive = state==='crash' && typeof crash!=='undefined' && crash && crash.live && !crash.jk;
+  const betOn = ['playing','slot','wheel','crash','marker','dead'].includes(state) && !(state==='crash' && crash && crash.jk);
+  let lbl='BET';
+  if(state==='dead') lbl=(window._recapDone?'AGAIN':'READ');
+  else if(state==='marker') lbl='PRESS';
+  else if(state==='crash') lbl=crash&&crash.live?'PUSH':'LAUNCH';
+  else if(state==='slot' && typeof slotStage!=='undefined' && slotStage==='offer') lbl='HOLD';
+  const key=state+'|'+betOn+'|'+crashLive+'|'+lbl;
+  if(key===TC.last) return; TC.last=key;
+  TC.bet.classList.toggle('show',betOn);
+  TC.bet.classList.toggle('dead',state==='dead');
+  TC.bet.querySelector('.tcL').textContent=lbl;
+  TC.cash.classList.toggle('show',crashLive);
+  TC.pause.classList.toggle('show',state==='playing');
+  TC.codex.classList.toggle('show',state==='playing'||state==='slot'||state==='wheel');
+}
+setInterval(tcSync,90);
+
+/* ---------- the House speaks touch ---------- */
+const TC_PHRASES=[
+  [/⌨ WASD walk.*$/, '☝ LEFT THUMB walks · ◈ BET is every bet · CASH banks the ascent · II pause · ✦ CODEX · hold ◈ AGAIN to re-ante'],
+  [/— PRESS SPACE ✦/, '— TAP PLAY ✦'],
+  [/\b(press|PRESS) SPACE\b/g, 'TAP'],
+  [/\bHOLD SPACE\b/g, 'HOLD ◈ BET'],
+  [/\bMASH SPACE\b/g, 'MASH ◈ BET'],
+  [/\bWASD walks\b/g, 'Your left thumb walks'],
+  [/\bWASD\b/g, 'LEFT THUMB'],
+  [/\bSPACE\b/g, '◈ BET'],
+  [/\bENTER cashes\b/g, 'CASH cashes'],
+];
+function tcRelabelText(n){
+  const v=n.nodeValue; if(!v || !/SPACE|WASD|ENTER/.test(v)) return;
+  const par=n.parentNode; if(!par || par.nodeName==='SCRIPT' || par.nodeName==='STYLE' || par.nodeName==='TEXTAREA') return;
+  let o=v;
+  if(par.classList && par.classList.contains('keyhint')){ o=o.replace(/^\s*SPACE\s*$/,'◈ BET').replace(/^\s*ENTER\s*$/,'▲'); }
+  for(const [re,to] of TC_PHRASES) o=o.replace(re,to);
+  if(o!==v) n.nodeValue=o;
+}
+function tcRelabel(root){
+  if(!root) return;
+  if(root.nodeType===3){ tcRelabelText(root); return; }
+  if(root.nodeType!==1) return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT); let n; while((n=w.nextNode())) tcRelabelText(n);
+}
+let _tcMO=null;
+function setTouchUI(on){
+  if(!on || window._touchUI) return;
+  window._touchUI=true; document.body.classList.add('touchUI');
+  tcBuild(); tcRelabel(document.body); TC.last=''; tcSync();
+  try{ _tcMO=new MutationObserver(ms=>{ for(const m of ms){
+      if(m.type==='characterData') tcRelabelText(m.target);
+      else for(const a of m.addedNodes) tcRelabel(a); } });
+    _tcMO.observe(document.body,{subtree:true,childList:true,characterData:true}); }catch(e){}
+  // phones start on the lighter felt — auto-quality may still climb back if the device flies
+  try{ if(GFX.q==='auto' && state!=='playing'){ qLow=true; window._qFlipT=performance.now(); } }catch(e){}
+}
+// a touch device announces itself at boot; a touchscreen laptop on its first touch
+if(IS_TOUCH) setTouchUI(true);
+window.addEventListener('touchstart',()=>setTouchUI(true),{passive:true,capture:true});
+
+/* ---------- no zoom, no long-press menus, no stray selection ---------- */
+document.addEventListener('gesturestart',e=>e.preventDefault()); // iOS pinch
+document.addEventListener('dblclick',e=>{ if(window._touchUI) e.preventDefault(); });
+document.addEventListener('contextmenu',e=>{ if(window._touchUI && !(e.target.closest && e.target.closest('input,textarea'))) e.preventDefault(); });
+document.addEventListener('selectstart',e=>{ if(window._touchUI && !(e.target.closest && e.target.closest('input,textarea'))) e.preventDefault(); });
+// audio: iOS wants the context woken INSIDE a finished gesture, and a silent
+// buffer played through it, before it will ever sing
+{ const wake=()=>{ try{ initAudio(); if(AC){ if(AC.state==='suspended') AC.resume().catch(()=>{});
+      const b=AC.createBuffer(1,1,22050), s=AC.createBufferSource(); s.buffer=b; s.connect(AC.destination); s.start(0); }
+    if(AC && AC.state==='running'){ ['touchend','click','pointerup'].forEach(ev=>window.removeEventListener(ev,wake,true)); } }catch(e){} };
+  ['touchend','click','pointerup'].forEach(ev=>window.addEventListener(ev,wake,true)); }
+
+/* ---------- install as an app (hosted build only — never from file://) ---------- */
+if(/^https?:$/.test(location.protocol) && !document.querySelector('link[rel="manifest"]')){
+  const l=document.createElement('link'); l.rel='manifest'; l.href='./manifest.webmanifest'; document.head.appendChild(l); }
+if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
+  window.addEventListener('load',()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
+}
