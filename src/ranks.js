@@ -284,7 +284,7 @@ const IDX_KEY='am_index_v1';
 let IDX={w:[],p:[],c:[],t:[],e:[],b:[],st:[],sl:'vesper',fl:'pit',ct:[],ind:[],ctSlots:1};
 let _idxT=null;
 function idxSee(cat,id){ if(!id||typeof IDX==='undefined') return; const a=IDX[cat]; if(!a||a.indexOf(id)>=0) return; a.push(id); idxSaveSoon(); idxBump(); }
-function idxTotal(){ return WEAPONS.length + PASSIVES.length + DEBUFF_POOL.length + TAROT_FATES.length + Object.keys(CFG.enemy).length + WHISPER_TOTAL; } // CFG.enemy already includes the 4 bosses
+function idxTotal(){ return WEAPONS.length + PASSIVES.length + DEBUFF_POOL.length + TAROT_FATES.length + (typeof MAJOR_ARCANA!=='undefined'?MAJOR_ARCANA.length:0) + Object.keys(CFG.enemy).length + WHISPER_TOTAL; } // CFG.enemy already includes the 4 bosses
 function idxSeen(){ return IDX.w.length+IDX.p.length+IDX.c.length+IDX.t.length+IDX.e.length+IDX.b.length+SEC.size; }
 function idxPct(){ return Math.min(100,Math.floor(idxSeen()/idxTotal()*100)); }
 function idxBump(){ bump('index', idxPct()); }
@@ -396,6 +396,8 @@ function openIndexPanel(){
    +sec('▲','ASCENSIONS','#8bffd0', PASSIVES.filter(s=>s.rar==='ascend'||s.rar==='mythic').map(s=>[IDX.p.indexOf(s.id)>=0, s.g, s.n, GLYPH_COL[s.id]||'#8bffd0']))
    +sec('☠','CURSES ENDURED','#ff5560', DEBUFF_POOL.map(d=>[IDX.c.indexOf(d.label)>=0, '☠', d.label, '#ff5560']))
    +sec('★','THE TAROT','#c98bff', TAROT_FATES.map(f=>[IDX.t.indexOf(f.n)>=0, f.t>0?'★':'☠', IDX.t.indexOf(f.n)>=0?f.n+'|'+((f.dd||'')+' ['+(f.t>0?'BLESSING':'CURSE')+']'):f.n, f.c||'#c98bff']))
+   +sec('✦','THE MAJOR ARCANA','#ffd36b', MAJOR_ARCANA.map(m=>{ const got=IDX.t.indexOf('MAJOR:'+m.id)>=0; return [got, m.g, got?(m.num+' · '+m.n+'|'+m.dd+' ['+arcKindTxt(m)+']'):m.n, m.c]; }))
+     .replace(/<\/div><\/div>$/,'</div><div class="idxHint">Each tarot that manifests is MAJOR on a '+Math.round(ARC_ODDS.base*100)+'% chance, +'+Math.round(ARC_ODDS.perMin*100)+'% per minute survived (max '+Math.round(ARC_ODDS.cap*100)+'%). Each arcanum comes once a night.</div></div>')
    +sec('♟','THE COURT','#c22ca0', Object.keys(CFG.enemy).filter(k=>!BOSS_DEFS[k]).map(k=>[IDX.e.indexOf(k)>=0, '♟', k.toUpperCase(), CFG.enemy[k].col||'#c98bff']))
    +sec('♛','THE BOSSES','#ffd36b', Object.keys(BOSS_DEFS).map(k=>[IDX.b.indexOf(k)>=0, BOSS_DEFS[k].g||'♛', BOSS_DEFS[k].name, GLYPH_COL[k]||'#ffd36b']))
    +(typeof soulIdxRows==='function'?sec('♠','THE SEATS','#e6d9c2', soulIdxRows()):'') // D1

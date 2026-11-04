@@ -50,6 +50,7 @@ function weightedByRarity(arr, wOver){
   let t=0; keys.forEach(k=>t+=w[k]||1);
   let x=rng('slot')*t, chosen=keys[0];
   for(const k of keys){ if(x<(w[k]||1)){ chosen=k; break; } x-=(w[k]||1); }
+  if(typeof arcUp==='function') chosen=arcUp(chosen,buckets); // D4 — X WHEEL OF FORTUNE lifts every reel one rarity
   return rpick('slot',buckets[chosen]);
 }
 const DIE_PIP_POS={
