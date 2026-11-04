@@ -353,7 +353,7 @@ function updateHUD(){
       if(!window._coinTk||performance.now()-window._coinTk>70){ window._coinTk=performance.now(); try{ tone(680+Math.random()*240,0.02,'square',0.03); }catch(e){} } }
     else window._coinDisp=tgt;
     _hSet('coinCount',Math.round(window._coinDisp).toLocaleString()); }
-  const bb=$('bossBar'); const bs=enemies.find(x=>x.boss);
+  const bb=$('bossBar'); const bs=state==='dead'?null:enemies.find(x=>x.boss); // G1: a living boss must not re-raise its bar over the ledger
   if(bs){ bb.classList.remove('hidden'); const bp9=Math.max(0,bs.hp/bs.maxhp*100);
     _hSet('bossName',BOSS_DEFS[bs.bossKind].bar?BOSS_DEFS[bs.bossKind].bar(bs,bp9):BOSS_DEFS[bs.bossKind].name+' — '+Math.ceil(bp9)+'%'); _hW('bossFill',bp9.toFixed(1)+'%'); }
   else if(_hud.bossOn!==false) bb.classList.add('hidden');
