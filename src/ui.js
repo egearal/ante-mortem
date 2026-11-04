@@ -1408,7 +1408,7 @@ function b3Assign(act,k){
 function renderBinds(){
   const box=$('b3Binds'); if(!box) return;
   box.innerHTML=BIND_ACTS.map(a=>{ const cap=B3C.act===a; const k=bindKey(a);
-    return '<button class="b3Bind'+(cap?' cap':'')+(k!==a.canon?' moved':'')+'" data-act="'+a.id+'"><span class="b3BN">'+a.n+'</span><span class="b3Cap">'+(cap?'…':keyName(k))+'</span></button>'; }).join('');
+    return '<button class="b3Bind'+(cap?' cap':'')+(k!==a.canon?' moved':'')+'" data-act="'+a.id+'"><span class="b3BN">'+a.n+'</span><span class="b3Cap" data-cap="'+(cap?'…':keyName(k)).replace(/"/g,'&quot;')+'"></span></button>'; }).join(''); // keycap text lives in CSS — no prompt relabeler can touch it
 }
 
 /* ---------- the pad ---------- */
@@ -1697,3 +1697,8 @@ document.addEventListener('click',e=>{ if(e.target && e.target.id==='gfxClose' &
 { const row=$('howBtnRow'); if(row && !$('b3PzSet')){ const b=document.createElement('button'); b.className='pillBtn'; b.id='b3PzSet'; b.textContent='SETTINGS';
     const q=$('quitBtn'); if(q) row.insertBefore(b,q); else row.appendChild(b);
     b.addEventListener('click',e=>{ e.stopPropagation(); openDials(); }); } }
+// on a phone the pause card itself carries SETTINGS beside ✦ YOUR CODEX (four pills don't fit 390px)
+setInterval(()=>{ const r=$('tcPzRow'); if(!r || $('b3PzSet2')) return;
+  const b=document.createElement('button'); b.className='btn msm'; b.id='b3PzSet2'; b.type='button'; b.textContent='⚙ SETTINGS';
+  const cx=$('tcPzCodex'); if(cx && cx.nextSibling) r.insertBefore(b,cx.nextSibling); else r.appendChild(b);
+  b.addEventListener('click',e=>{ e.stopPropagation(); openDials(); }); },700);

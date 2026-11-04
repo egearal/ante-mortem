@@ -300,7 +300,7 @@ function musicTick(){
     if(tr){ const old=MUSIC.decks.find(d=>d.src===tr); if(old) old.target=1; else { try{ MUSIC.decks.push(musicDeck(tr)); }catch(e){} } } }
   if(!MUSIC.decks.length) return;
   if(now>MUSIC.duckUntil) MUSIC.duckTo=1;
-  MUSIC.duck += (MUSIC.duckTo-MUSIC.duck)*Math.min(1, dt*(MUSIC.duckTo<MUSIC.duck?14:1.6)); // snap down, breathe back up
+  MUSIC.duck += (MUSIC.duckTo-MUSIC.duck)*Math.min(1, dt*(MUSIC.duckTo<MUSIC.duck?14:2.2)); // snap down, breathe back up
   let lvl=Math.pow(b3Dial('music',0.8),2);
   if(typeof state!=='undefined'){ if(state==='paused') lvl*=0.45; else if(typeof tabHold!=='undefined'&&tabHold) lvl*=0.6; }
   const mute=(typeof muted!=='undefined'&&muted);
