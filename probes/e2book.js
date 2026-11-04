@@ -87,11 +87,11 @@ async function bookChecks(page, tag, phone) {
     await page.evaluate(() => { window.__bot.renderEvery = 30; document.getElementById('startBtn').click(); });
     await until(page, "state==='dead'", 90000);
     await until(page, "!!document.getElementById('e2Debt')", 600, { batch: 6 }); await vstep(page, 84);
-    const l0 = await page.evaluate(() => { const d = document.getElementById('e2Debt'); return d ? { t: d.textContent, w: d.querySelector('.e2Bar i') && d.querySelector('.e2Bar i').style.width } : null; });
+    const l0 = await page.evaluate(() => { const d = document.getElementById('e2Debt'); return d ? { t: d.textContent, paid: d.classList.contains('e2Dp'), w: d.querySelector('.e2Bar i') && d.querySelector('.e2Bar i').style.width } : null; });
     await vstep(page, 200); await page.waitForTimeout(200);
     const l1 = await page.evaluate(() => { const d = document.getElementById('e2Debt'); return d ? { t: d.textContent, w: d.querySelector('.e2Bar i') && d.querySelector('.e2Bar i').style.width, go: d.classList.contains('go') } : null; });
     ok(!!l1, 'ledger: the nearest debt is written under the rank bar', l1 && l1.t);
-    ok(!!l0 && !!l1 && (parseFloat(l1.w) >= parseFloat(l0.w)), 'ledger: its bar moves as the night is tallied', l0 && l1 && (l0.w + ' → ' + l1.w));
+    ok(!!l0 && !!l1 && (l0.paid || parseFloat(l1.w) > parseFloat(l0.w) || (l1.go && parseFloat(l1.w) >= parseFloat(l0.w))), 'ledger: its bar moves as the night is tallied (or a debt is stamped PAID)', l0 && l1 && (l0.paid ? 'PAID: ' + l0.t : l0.w + ' → ' + l1.w));
     await page.evaluate(() => { const r = document.getElementById('e2Debt'); r && r.scrollIntoView({ block: 'center' }); });
     await shot(page, 'fresh_d_ledger');
     errs.push(...errors); await browser.close(); }
@@ -127,6 +127,26 @@ async function bookChecks(page, tag, phone) {
     await shot(page, 'mid_d_pad');
     await press(1); await vstep(page, 20);
     ok(await page.evaluate(() => document.getElementById('e2Book').classList.contains('hidden') && state === 'menu'), 'pad: Ⓑ closes the book');
+    errs.push(...errors); await browser.close(); }
+  // 2b — the chapters other branches bring (C1 PAIRINGS, D4 MAJOR ARCANA): their real rows, injected as globals
+  { const { browser, page, errors } = await boot({}, MID);
+    await page.evaluate(() => {
+      window.PAIRINGS = [['ossuary','bolt','proj','THE OSSUARY','💀','The bones want more mouths to fire from…'],['stacked','cards','snake','THE STACKED DECK','🃏','A dealer who never loses would need loaded eyes…'],
+        ['cuts','knives','fire','THE THOUSAND CUTS','✶','The knives ask for quicker hands…'],['eye','lantern','mag','THE EYE IN THE SKY','👁','The lantern wants to see your pockets…'],
+        ['russian','cylinder','exec','RUSSIAN ROULETTE','⚅','Six chambers, and an executioner\'s patience…']].map(a => ({ id: a[0], w: a[1], p: a[2], n: a[3], g: a[4], hint: a[5] }));
+      window.MAJOR_ARCANA = [['wheel','X','WHEEL OF FORTUNE','☸','#ffb300'],['death','XIII','DEATH','☠','#d24dff'],['tower','XVI','THE TOWER','⚡','#ff3b2f'],['star','XVII','THE STAR','✷','#5ee6ff']]
+        .map(a => ({ id: a[0], num: a[1], n: a[2], g: a[3], c: a[4], dd: 'rule-bending card text' }));
+      window.ARC_ODDS = { base: 0.05, perMin: 0.01, cap: 0.12 };
+      IDX.pr = ['ossuary']; IDX.pm = ['cards']; IDX.t.push('MAJOR:tower');
+    });
+    await page.click('#e2BookBtn'); await vstep(page, 20);
+    const r = await page.evaluate(() => { const g = id => { const c = document.getElementById('e2ch_' + id); return c ? { n: c.querySelector('.e2ChN').textContent, t: [...c.querySelectorAll('.e2E')].map(e => e.querySelector('.e2N').textContent + ' / ' + e.querySelector('.e2C').textContent) } : null; };
+      return { pr: g('pairings'), ar: g('arcana'), undef: /undefined|NaN/.test(document.getElementById('e2Book').textContent) }; });
+    ok(r.pr && /1 \/ 5 PAID/.test(r.pr.n) && r.pr.t.some(t => /THE OSSUARY \/ BONE/.test(t)) && r.pr.t.some(t => /loaded eyes/.test(t)), 'integ: PAIRINGS chapter reads C1 rows (known recipe + whispered hint)', r.pr && r.pr.n);
+    ok(r.ar && /1 \/ 4 PAID/.test(r.ar.n) && /5% \+1%\/MIN \(MAX 12%\)/.test(r.ar.t.join()), 'integ: MAJOR ARCANA chapter reads D4 rows + odds', r.ar && r.ar.n);
+    ok(!r.undef, 'integ: no undefined/NaN');
+    await page.evaluate(() => { const n = document.querySelector('.e2NavB[data-ch="pairings"]'); n && n.click(); }); await page.waitForTimeout(700);
+    await shot(page, 'integ_pairings_arcana');
     errs.push(...errors); await browser.close(); }
   // 3 — phones
   for (const [tag, save] of [['fresh_m', null], ['mid_m', MID]]) {

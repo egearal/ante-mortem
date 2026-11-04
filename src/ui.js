@@ -2495,6 +2495,8 @@ function e2Parse(txt){
 function e2Mk(o){
   o.done=!!o.done; o.need=Math.max(1e-9,+o.need||1); o.have=Math.max(0,+o.have||0);
   o.pct=o.done?1:Math.max(0,Math.min(0.999,o.have/o.need));
+  // a rank gate is measured in MARKS (rank 1 of 12 is not 8% of the way there)
+  if(!o.done && o.unit==='RANK' && typeof rkCum==='function'){ try{ o.pct=Math.max(0,Math.min(0.999,RANK.marks/Math.max(1,rkCum(Math.round(o.need))))); }catch(e){} }
   return o;
 }
 function e2PT(e){ // the live progress text
@@ -2551,7 +2553,8 @@ function e2Chapters(){
     const E=RUN_CONTRACTS.map(c=>{ const done=!c.u||!!c.u(), pr=e2Parse(c.uTxt);
       return e2Mk({id:'ct:'+c.id, g:c.g, col:'#e6c27a', n:c.n, cond:(c.uTxt||'OPEN')+' — '+c.d, have:pr?pr[0]:(done?1:0), need:pr?pr[1]:1, unit:pr?pr[2]:'', done}); });
     if(typeof CT_SLOT_COST!=='undefined') for(let n=2;n<=CT_SLOT_COST.length;n++){ const cost=CT_SLOT_COST[n-1]; if(!cost) continue;
-      E.push(e2Mk({id:'ctslot:'+n, g:'✍', col:'#ffd36b', n:(n===2?'SECOND':'THIRD')+' CONTRACT SLOT', cond:'BUY IT IN THE ANTE ROOM — '+e2Fmt(cost)+' ◈ GILT', have:gilt, need:cost, unit:'GILT', done:ctSlots()>=n})); }
+      E.push(e2Mk({id:'ctslot:'+n, g:'✍', col:'#ffd36b', n:(n===2?'SECOND':'THIRD')+' CONTRACT SLOT', cond:'BUY IT IN THE ANTE ROOM — '+e2Fmt(cost)+' ◈ GILT', have:gilt, need:cost, unit:'GILT', done:ctSlots()>=n,
+        nopin:ctSlots()<n-1 || gilt<cost*0.25})); } // a purchase is only a marked debt once it is in reach
     ch('contracts','CONTRACTS','✍','#e6c27a',E); } }catch(e){}
   // VIII — RANK REWARDS (every 5th rank pays forever)
   try{ if(typeof RANKS!=='undefined'){ const E=[];
@@ -2574,7 +2577,11 @@ function e2Pins(all){
   const owed=e2Owed(all), out=[], seenCh={};
   for(const e of owed){ if(out.length>=3) break; if(seenCh[e.ch]) continue; seenCh[e.ch]=1; out.push(e); }
   for(const e of owed){ if(out.length>=3) break; if(!out.includes(e)) out.push(e); }
-  if(out.length<3) for(const e of all){ if(out.length>=3) break; if(!e.done && !e.nopin && !out.includes(e) && !/^\?/.test(e.n)) out.push(e); }
+  if(out.length<3){ // nothing measurable yet (a fresh save): the nearest honest goals, one per chapter
+    const pri=['ranks','souls','floors','stakes','bosses','contracts','daily'], rest=all.filter(e=>!e.done && !e.nopin && !out.includes(e) && !/^\?/.test(e.n))
+      .sort((a,b)=>((pri.indexOf(a.ch)+99)%99)-((pri.indexOf(b.ch)+99)%99));
+    for(const e of rest){ if(out.length>=3) break; if(seenCh[e.ch]) continue; seenCh[e.ch]=1; out.push(e); }
+    for(const e of rest){ if(out.length>=3) break; if(!out.includes(e)) out.push(e); } }
   return out;
 }
 function e2Ready(){ return E2._ld && typeof RANK!=='undefined' && RANK._ld && performance.now()>2500; }
@@ -2725,7 +2732,7 @@ function e2Ledger(){
     rk.appendChild(d);
     setTimeout(()=>{ try{ d.classList.add('go'); SFX.e2Paid(); flash(0.4,e.col); domConfetti(40,'gameover'); }catch(x){} }, 1500);
     return; }
-  const e=e2Owed(all)[0]; if(!e) return;
+  const e=e2Owed(all).filter(x=>x.ch!=='ranks')[0]; if(!e) return; // the rank bar right above already tells the rank story
   const s0=E2.snap[e.id]||{have:e.have,pct:e.pct}, p0=Math.min(s0.pct,e.pct), h0=Math.min(s0.have,e.have);
   d.style.setProperty('--ec',e.col);
   d.innerHTML='<div class="e2DT"><span class="e2DL">✒ NEAREST DEBT</span><b>'+e2Esc(e.n)+'</b><span class="e2DN">'+e2Esc(e2PT(Object.assign({},e,{have:h0})))+'</span></div>'

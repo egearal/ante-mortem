@@ -2150,7 +2150,7 @@ body.b3calm .jackpotText,body.b3calm #jkMarq span,body.b3calm h1{animation-durat
   background:radial-gradient(120% 40% at 50% -6%,rgba(139,22,32,.34),transparent 60%) padding-box,
     linear-gradient(180deg,rgba(26,11,15,.985),rgba(9,4,6,.99)) padding-box,var(--a2-bronze) border-box;
   box-shadow:0 0 0 1px #140a03,0 30px 90px rgba(0,0,0,.85),0 0 30px rgba(139,22,32,.3),inset 0 0 0 1px rgba(0,0,0,.7),inset 0 0 70px rgba(139,22,32,.12);}
-.e2Hd{text-align:center;margin-bottom:8px;}
+.e2Hd{text-align:center;margin-bottom:8px;flex:0 0 auto;}
 .e2T{font-family:var(--disp);font-size:26px;font-weight:800;letter-spacing:.2em;line-height:1.1;
   background:linear-gradient(180deg,#fff2c0 0%,#ffd36b 45%,#b8862a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
   filter:drop-shadow(0 2px 0 #000) drop-shadow(0 0 14px rgba(255,211,107,.25));}
@@ -2158,14 +2158,14 @@ body.b3calm .jackpotText,body.b3calm #jkMarq span,body.b3calm h1{animation-durat
 #e2Tot{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:8px;font-family:var(--disp);font-size:11px;letter-spacing:.16em;color:#c9b78e;}
 #e2Tot b{color:#ffd36b;font-size:14px;}
 #e2Tot .e2Bar{width:min(260px,40vw);}
-#e2Nav{display:flex;gap:6px;overflow-x:auto;padding:4px 2px 8px;margin:0 -4px 6px;scrollbar-width:thin;-webkit-overflow-scrolling:touch;
+#e2Nav{flex:0 0 auto;display:flex;gap:6px;overflow-x:auto;padding:4px 2px 8px;margin:0 -4px 6px;scrollbar-width:thin;-webkit-overflow-scrolling:touch;
   border-bottom:1px solid rgba(232,182,76,.18);}
 .e2NavB{flex:0 0 auto;font-family:var(--disp);font-size:10.5px;letter-spacing:.14em;color:#e6d9c2;padding:6px 11px;border-radius:999px;cursor:pointer;
   background:rgba(20,8,12,.85);border:1px solid color-mix(in srgb,var(--cc) 45%,transparent);transition:transform .12s,border-color .12s,box-shadow .12s;}
 .e2NavB i{font-style:normal;color:var(--cc);opacity:.9;margin-left:3px;}
 .e2NavB:hover{transform:translateY(-2px);border-color:var(--cc);box-shadow:0 0 14px color-mix(in srgb,var(--cc) 35%,transparent);}
 #e2Body{overflow-y:auto;flex:1;padding:2px 6px 6px 2px;min-height:0;-webkit-overflow-scrolling:touch;touch-action:pan-y;}
-#e2Close{margin-top:10px;align-self:center;min-width:180px;}
+#e2Close{flex:0 0 auto;margin-top:10px;align-self:center;min-width:180px;}
 /* the three marked debts */
 .e2PinH{font-family:var(--disp);font-size:13px;letter-spacing:.22em;color:#ffd36b;margin:6px 0 8px;text-shadow:0 0 12px rgba(255,211,107,.35);}
 .e2PinH span{font-size:10px;letter-spacing:.16em;color:#a8998a;text-shadow:none;}
@@ -2253,13 +2253,13 @@ body.b3calm .jackpotText,body.b3calm #jkMarq span,body.b3calm h1{animation-durat
 .e2SGc.open{color:color-mix(in srgb,var(--dc) 75%,#6a5e50);}
 .e2SGk{font-size:10px;letter-spacing:.08em;color:#8a7c66;padding:7px 10px;}
 /* the door in the hall */
-#menuRow2 .btn.msm.e2Door{position:relative;padding-right:64px;}
+#menuRow2 .btn.msm.e2Door{position:relative;white-space:nowrap;}
 #menuRow2 .btn.msm.e2Door .e2DoorT{display:block;}
 #menuRow2 .btn.msm.e2Door .e2DoorT{color:#ffd36b;}
-.e2DoorS{display:block;margin-top:2px;font-family:var(--disp);font-size:9px;letter-spacing:.12em;color:#a8998a;text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
-.e2Wax{display:none;right:8px;top:50%;margin-top:-12px;font-size:9.5px;padding:5px 8px;transform:rotate(10deg);z-index:2;}
+.e2DoorS{display:block;margin-top:2px;max-width:calc(100% - 58px)!important;font-family:var(--disp);font-size:9px;letter-spacing:.12em;color:#a8998a;text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.e2Wax{display:none;right:8px;bottom:5px;font-size:9px;padding:4px 7px;transform:rotate(8deg);z-index:2;}
 .e2Door.e2New .e2Wax{display:block;animation:e2wax 1.8s ease-in-out infinite;}
-@keyframes e2wax{0%,100%{transform:rotate(10deg) scale(1)}50%{transform:rotate(6deg) scale(1.12)}}
+@keyframes e2wax{0%,100%{transform:rotate(8deg) scale(1)}50%{transform:rotate(4deg) scale(1.12)}}
 /* the death ledger: the nearest debt, tallied */
 #e2Debt{margin:9px 0 2px;padding:8px 12px;border-radius:10px;text-align:left;border:1px solid color-mix(in srgb,var(--ec) 40%,rgba(232,182,76,.25));
   background:linear-gradient(170deg,rgba(30,12,18,.85),rgba(12,5,8,.9));transition:box-shadow .4s;}
@@ -2287,5 +2287,6 @@ body.b3calm .jackpotText,body.b3calm #jkMarq span,body.b3calm h1{animation-durat
   .e2SGr{grid-template-columns:minmax(84px,1.3fr) repeat(5,minmax(0,1fr));padding:6px 6px!important;}
   .e2SGd small{display:none;}
   .e2SGs{font-size:10px;}
-  #menuRow2 .btn.msm.e2Door{grid-column:1/-1;text-align:center;padding-left:64px;}
+  #menuRow2 .btn.msm.e2Door{grid-column:1/-1;text-align:center;}
+  #menuRow2 .btn.msm.e2Door .e2DoorS{margin-left:auto;margin-right:auto;}
 }
