@@ -1992,6 +1992,111 @@ body.touchUI #howBtnRow{bottom:calc(76px + var(--sab));gap:8px;white-space:nowra
   #soulToast .stD{font-size:11.5px;}
   #chipSlot{top:128px;}
 }
+
+/* ==== B1 ==== DAILY DEBT — the menu plaque + the ledger band */
+#dlyPlaque{position:relative;margin:12px 0 4px;max-width:440px;padding:10px 14px 10px;cursor:pointer;text-align:center;
+  background:linear-gradient(180deg,rgba(42,15,22,.92),rgba(16,6,9,.94));border:1px solid rgba(232,182,76,.55);border-radius:6px;
+  box-shadow:inset 0 0 0 3px rgba(10,4,7,.8),inset 0 0 0 4px rgba(232,182,76,.22),0 6px 22px rgba(0,0,0,.55),0 0 18px rgba(255,211,107,.10);
+  font-family:var(--disp);transition:transform .15s,box-shadow .2s;animation:dlyGlow 3.2s ease-in-out infinite;}
+#dlyPlaque:hover{transform:translateY(-1px);box-shadow:inset 0 0 0 3px rgba(10,4,7,.8),inset 0 0 0 4px rgba(232,182,76,.4),0 8px 26px rgba(0,0,0,.6),0 0 26px rgba(255,211,107,.24);}
+#dlyPlaque.paid{animation:none;border-color:rgba(201,139,255,.45);}
+#dlyPlaque.fresh{animation:dlyFresh 1.2s ease-out 3;}
+#dlyPlaque .dpTop{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:11px;letter-spacing:.22em;color:#e8b64c;}
+#dlyPlaque .dpTop b{color:#ffd36b;text-shadow:0 0 10px rgba(255,211,107,.45);font-weight:700;}
+#dlyPlaque .dpCd{font-size:9.5px;letter-spacing:.16em;color:#9c8f7c;white-space:nowrap;}
+#dlyPlaque .dpCd i{font-style:normal;color:#fff2c0;font-variant-numeric:tabular-nums;}
+#dlyPlaque .dpName{margin:5px 0 3px;font-size:15px;letter-spacing:.14em;color:#fff2c0;text-shadow:0 0 12px rgba(255,211,107,.25);}
+#dlyPlaque .dpTerms{font-family:var(--body);font-size:13px;font-style:italic;color:#c9b78e;line-height:1.35;}
+#dlyPlaque .dpFoot{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:6px;font-size:9.5px;letter-spacing:.18em;color:#9c8f7c;}
+#dlyPlaque .dpFoot b{color:#e6d9c2;font-weight:600;letter-spacing:.06em;}
+#dlyPlaque .dpBtn{margin:8px auto 0;padding:7px 18px;font-size:11.5px;letter-spacing:.2em;}
+#dlyPlaque.paid .dpBtn{opacity:.8;}
+@keyframes dlyGlow{0%,100%{box-shadow:inset 0 0 0 3px rgba(10,4,7,.8),inset 0 0 0 4px rgba(232,182,76,.22),0 6px 22px rgba(0,0,0,.55),0 0 14px rgba(255,211,107,.08);}
+  50%{box-shadow:inset 0 0 0 3px rgba(10,4,7,.8),inset 0 0 0 4px rgba(232,182,76,.36),0 6px 22px rgba(0,0,0,.55),0 0 26px rgba(255,211,107,.22);}}
+@keyframes dlyFresh{0%{filter:brightness(2.2);}100%{filter:none;}}
+#dlyBand{margin:0 auto 10px;max-width:560px;padding:8px 12px;text-align:center;font-family:var(--disp);
+  background:linear-gradient(180deg,rgba(10,4,7,.88),rgba(42,15,22,.75));border:1px solid rgba(232,182,76,.6);border-radius:5px;
+  box-shadow:inset 0 0 0 3px rgba(10,4,7,.7),inset 0 0 0 4px rgba(232,182,76,.2);}
+#dlyBand.practice{border-color:rgba(201,139,255,.55);}
+#dlyBand.go{animation:dlyBandIn .5s var(--ease-pop) both;}
+#dlyBand .dbTop{font-size:11px;letter-spacing:.24em;color:#e8b64c;}
+#dlyBand .dbTop b{margin-left:8px;padding:1px 7px;border:1px solid currentColor;border-radius:3px;color:#8bffd0;font-size:10px;}
+#dlyBand.practice .dbTop b{color:#c98bff;}
+#dlyBand .dbName{margin:3px 0 2px;font-size:14px;letter-spacing:.14em;color:#fff2c0;}
+#dlyBand .dbTerms{font-family:var(--body);font-style:italic;font-size:12.5px;color:#c9b78e;}
+#dlyBand .dbTrack{margin:6px 0 4px;font-size:22px;letter-spacing:.18em;line-height:1;}
+#dlyBand .dbTrack i{font-style:normal;text-shadow:0 0 8px currentColor;}
+#dlyBand .dbFoot{font-size:10px;letter-spacing:.18em;color:#9c8f7c;}
+#dlyBand .dbFoot b{color:#e6d9c2;letter-spacing:.06em;}
+#dlyBand .dbPay{margin-top:4px;font-size:12px;letter-spacing:.16em;color:#ffd36b;text-shadow:0 0 10px rgba(255,211,107,.4);}
+#dlyBand .dbPay span{font-size:9.5px;color:#9c8f7c;text-shadow:none;letter-spacing:.1em;}
+#dlyBand .dbPay.prac{color:#c98bff;font-size:10px;text-shadow:none;}
+#dlyBand .dbPb{margin-top:4px;font-size:13px;letter-spacing:.26em;color:#8bffd0;opacity:0;}
+#dlyBand .dbPb.go{animation:dlyPb 1.4s var(--ease-pop) both;}
+@keyframes dlyBandIn{from{opacity:0;transform:translateY(-8px) scale(.96);}to{opacity:1;transform:none;}}
+@keyframes dlyPb{0%{opacity:0;transform:scale(.6);}40%{opacity:1;transform:scale(1.25);text-shadow:0 0 24px #8bffd0;}100%{opacity:1;transform:none;text-shadow:0 0 10px rgba(139,255,208,.6);}}
+#dlyBand.side{position:absolute;left:calc(22px + env(safe-area-inset-left,0px));top:calc(64px + env(safe-area-inset-top,0px));width:300px;margin:0;z-index:3;}
+#dlyBand.side.go{animation:dlySideIn .55s var(--ease-pop) both;}
+@keyframes dlySideIn{from{opacity:0;transform:translateX(-14px);}to{opacity:1;transform:none;}}
+#gameover.dly .panel{max-height:100vh;max-height:100dvh;overflow-y:auto;}
+#gameover.dly #dlyBand{margin-top:34px;}
+@media (max-width:600px){ #dlyPlaque{margin:8px auto 2px;max-width:none;padding:8px 10px;} #dlyPlaque .dpName{font-size:13px;} #dlyPlaque .dpTerms{font-size:12px;}
+  #dlyPlaque .dpTop{font-size:10px;letter-spacing:.14em;} #dlyBand .dbTrack{font-size:18px;} }
+@media (prefers-reduced-motion: reduce){ #dlyPlaque,#dlyBand.go,#dlyBand .dbPb.go{animation:none;} #dlyBand .dbPb{opacity:1;} }
+
+/* ==== B2 ==== THE STAKES + THE ENDLESS FLOOR */
+#b2Mult{position:absolute;top:calc(50px + env(safe-area-inset-top,0px));left:calc(14px + env(safe-area-inset-left,0px));z-index:3;pointer-events:none;transform-origin:left center;
+  font-family:var(--disp);font-size:11px;letter-spacing:.16em;color:#c9b78e;line-height:1.5;white-space:nowrap;text-shadow:0 1px 3px #000;}
+#b2Mult .b2e{color:#d9a8ff;font-size:12px;text-shadow:0 0 10px rgba(201,139,255,.6),0 1px 3px #000;}
+#b2Mult .b2x{color:#fff2c0;font-size:22px;font-weight:700;letter-spacing:.06em;vertical-align:-3px;text-shadow:0 0 14px rgba(255,211,107,.85),0 1px 3px #000;}
+#b2Mult.pulse{animation:b2Pulse .7s cubic-bezier(.2,1.6,.4,1);}
+@keyframes b2Pulse{0%{transform:scale(1.55);filter:brightness(2.2);}100%{transform:scale(1);filter:none;}}
+#timer.b2endless{color:#e6c8ff;text-shadow:0 0 14px rgba(154,92,255,.75),0 0 2px #fff;}
+#b2Gate{position:absolute;inset:0;z-index:49;display:none;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at center,rgba(26,8,20,.55),rgba(4,2,6,.88) 70%);padding:16px;box-sizing:border-box;}
+#b2Gate.go{display:flex;animation:b2In .5s ease-out;}
+@keyframes b2In{from{opacity:0;transform:scale(1.06);}to{opacity:1;transform:none;}}
+.b2gCard{max-width:min(620px,94vw);text-align:center;padding:22px 22px 18px;border-radius:14px;border:1px solid rgba(255,211,107,.55);
+  background:linear-gradient(170deg,rgba(38,18,24,.96),rgba(12,6,10,.97));box-shadow:0 0 60px rgba(255,211,107,.22),inset 0 0 0 1px rgba(255,242,192,.08);}
+.b2gT{font-family:var(--disp);font-size:clamp(22px,5vw,34px);letter-spacing:.14em;color:#fff2c0;text-shadow:0 0 22px rgba(255,211,107,.8);}
+.b2gS{margin:8px 0 12px;font-size:15px;color:#e6d9c2;}
+.b2gN{display:flex;flex-direction:column;gap:5px;margin:0 0 14px;font-family:var(--disp);font-size:11.5px;letter-spacing:.1em;}
+.b2gN b{display:inline-block;width:1.4em;}
+.b2gR{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.b2gR .btn{flex:1 1 220px;display:flex;flex-direction:column;gap:4px;align-items:center;padding:12px 14px;min-height:44px;}
+.b2gR .btn b{font-family:var(--disp);font-size:17px;letter-spacing:.14em;}
+.b2gR .btn span{font-family:var(--body);font-size:14px;font-weight:500;text-transform:none;letter-spacing:.01em;color:#c8bba4;line-height:1.35;}
+.b2gR .btn em{font-style:normal;font-size:9.5px;letter-spacing:.22em;opacity:.6;}
+.b2gR .b2on{border-color:#9a5cff;box-shadow:0 0 22px rgba(154,92,255,.45);}
+.b2gR .b2on b{color:#d9a8ff;}
+.b2gR .b2out b{color:#ffd36b;}
+.b2deck{display:inline-flex;align-items:center;justify-content:center;width:30px;height:42px;border-radius:5px;margin-bottom:7px;
+  font-size:19px;color:var(--dc);background:linear-gradient(160deg,#1c0d14,#0a0508);border:1.5px solid var(--dc);
+  box-shadow:0 0 12px color-mix(in srgb,var(--dc) 45%,transparent),inset 0 0 0 2px rgba(0,0,0,.5),inset 0 0 0 3px color-mix(in srgb,var(--dc) 30%,transparent);}
+.b2deck.dark{opacity:.4;filter:grayscale(.6);box-shadow:none;}
+.b2row{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
+.stakeCard{padding:12px 12px 10px;border-radius:12px;border:1px solid color-mix(in srgb,var(--sc,#8a7c66) 40%,transparent);cursor:pointer;
+  background:linear-gradient(170deg,rgba(26,14,20,.85),rgba(12,6,10,.9));transition:all .15s;position:relative;}
+.stakeCard:hover{transform:translateY(-3px);border-color:var(--sc);box-shadow:0 8px 26px rgba(0,0,0,.5),0 0 18px color-mix(in srgb,var(--sc) 35%,transparent);}
+.stakeCard.on{border-color:var(--sc);box-shadow:0 0 22px color-mix(in srgb,var(--sc) 45%,transparent);background:linear-gradient(170deg,rgba(38,22,28,.92),rgba(16,8,12,.95));}
+.stakeCard.locked{opacity:.5;cursor:default;border-style:dashed;}
+.stakeCard .soulN{font-size:12.5px;}
+.stakeCard .soulD{font-size:11px;}
+.stakeCard .b2m{margin-top:6px;font-family:var(--disp);font-size:10px;letter-spacing:.14em;color:#8bff9a;}
+.stakeCard .b2rw{margin-top:4px;font-size:10.5px;color:#d8c9a8;line-height:1.4;}
+.stakeCard .b2c{position:absolute;top:10px;right:10px;font-family:var(--disp);font-size:9px;letter-spacing:.16em;color:var(--sc);}
+.b2seal{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px;border:1px dashed rgba(201,183,142,.35);border-radius:12px;}
+.b2seal .b2deck{margin:0;}
+.b2seal div{flex-basis:100%;font-family:var(--disp);font-size:11px;letter-spacing:.12em;color:#9a8f7e;}
+.b2end{margin-top:8px;font-family:var(--disp);font-size:11px;letter-spacing:.12em;color:#d9a8ff;}
+.b2pips i{font-style:normal;letter-spacing:.05em;}
+.cosChip{padding:10px 13px;border-radius:10px;border:1px solid color-mix(in srgb,var(--cc,#8a7c66) 45%,transparent);cursor:pointer;background:rgba(20,8,12,.7);transition:all .15s;}
+.cosChip b{display:block;font-family:var(--disp);font-size:12px;letter-spacing:.1em;color:#c9b78e;margin-bottom:3px;}
+.cosChip span{font-size:11.5px;color:#9a8f7e;line-height:1.5;}
+.cosChip.on{border-color:var(--cc,#c9b78e);box-shadow:0 0 16px color-mix(in srgb,var(--cc,#c9b78e) 40%,transparent);background:rgba(40,16,22,.85);}
+.cosChip.locked{opacity:.5;cursor:default;border-style:dashed;}
+.b2gl .b2p{letter-spacing:.06em;}
+.b2gl .b2rec{color:#d9a8ff;font-family:var(--disp);letter-spacing:.14em;}
 </style>
 </head>
 <body>
@@ -2257,6 +2362,19 @@ const elMenu=$('menu'), elHud=$('hud'), elSlot=$('slot'), elGO=$('gameover'), el
 /* ---------- helpers ---------- */
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const pick=a=>a[(Math.random()*a.length)|0];
+/* B1 DAILY DEBT — mode-scoped seeded randomness. Normal nights: plain Math.random.
+   A daily night: one mulberry32 stream per system (spawn/elite/slot/wheel/tarot/ascent/
+   drop/fate/combat), so slot pull #k is the same pull for every player in the world. */
+let DLY_RNG=null;
+function dlyHash(str){ let h=2166136261>>>0; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619); } return h|0; }
+function rng(s){ const R=DLY_RNG; if(!R) return Math.random();
+  let a=R[s]; if(a===undefined) a=dlyHash(R._seed+'|'+s);
+  a=(a+0x6D2B79F5)|0; R[s]=a;
+  let t=Math.imul(a^(a>>>15),1|a); t=(t+Math.imul(t^(t>>>7),61|t))^t;
+  return ((t^(t>>>14))>>>0)/4294967296; }
+function rrnd(s,a,b){ return a+rng(s)*(b-a); }
+function rpick(s,a){ return a[(rng(s)*a.length)|0]; }
+function dlyOn(){ return !!DLY_RNG; } // a Daily Debt night is live (or its corpse is on the ledger)
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const lerp=(a,b,t)=>a+(b-a)*t;
 function fmt(n){ n=Math.round(n); const m=Math.floor(n/60), s=n%60; return m+':'+(s<10?'0':'')+s; }
@@ -2295,20 +2413,20 @@ function tickMapProps(dt){
   if(P._srg<=0){ P._srg=9; ring(C6,C6,210,'#c81e2c'); ring(C6,C6,130,'#e8b64c'); }
   if(!bounty){ if(!houseActive){ bountyT-=dt;
     if(bountyT<=0){ const cands=enemies.filter(e2=>!e2.boss && e2.type!=='gilded' && Math.hypot(e2.x-P.x,e2.y-P.y)<760);
-      if(cands.length){ bounty={e:cands[(Math.random()*cands.length)|0], t:12};
+      if(cands.length){ bounty={e:cands[(rng('drop')*cands.length)|0], t:12};
         announce('☠ BOUNTY MARKED — 15 COINS ☠', true); SFX.casinoDing(); SFX.uiDing(); }
       else bountyT=6; } }
   } else { bounty.t-=dt;
     if(bounty.t<3){ bounty.bp=(bounty.bp||0)-dt; if(bounty.bp<=0){ bounty.bp=0.4; tone(1350,0.05,'square',0.09); } }
-    if(bounty.t<=0 || !enemies.includes(bounty.e)){ if(bounty.t<=0) bountyStk=0; bounty=null; bountyT=30+Math.random()*20; } }
+    if(bounty.t<=0 || !enemies.includes(bounty.e)){ if(bounty.t<=0) bountyStk=0; bounty=null; bountyT=30+rng('drop')*20; } }
   // spawn one random offering at a time
   if(!interactable){ if(!houseActive){ interT-=dt;
     if(interT<=0){
       const kinds=['fountain','roulette','chest'];
-      const kind=kinds[(Math.random()*kinds.length)|0];
-      const a5=Math.random()*6.283, d5=320+Math.random()*360;
+      const kind=kinds[(rng('drop')*kinds.length)|0];
+      const a5=rng('drop')*6.283, d5=320+rng('drop')*360;
       interactable={ kind, x:clamp(P.x+Math.cos(a5)*d5,80,CFG.arena-80), y:clamp(P.y+Math.sin(a5)*d5,80,CFG.arena-80),
-        life:(kind==='chest'?24:32), res:100, stand:0, spin:0, ph:0, rich:Math.random() };
+        life:(kind==='chest'?24:32), res:100, stand:0, spin:0, ph:0, rich:rng('drop') };
       const names={fountain:'🩸 A BLOOD FOUNTAIN RISES', roulette:'🎡 A FLOOR BET OPENS', chest:'✦ THE HOUSE LEAVES A GIFT'};
       showStreak(names[kind]); SFX.tingle(); SFX.casinoDing();
     } }
@@ -2351,13 +2469,13 @@ function tickMapProps(dt){
         flash(0.22,'#ffd36b'); SFX.reelLock();
         LT.chests=(LT.chests||0)+1; bump('chests',LT.chests);
         P._chestsRun=(P._chestsRun||0)+1; if(P._chestsRun>=3) secret('glutton','GIFT GLUTTON');
-        if(Math.random()<0.15){
+        if(rng('drop')<0.15){
           announce('☠ MIMIC! ☠', false); flash(0.5,'#8b1620'); SFX.bossRoar(); shake=Math.min(20,shake+10);
-          for(let i2=0;i2<6 && enemies.length<CFG.spawn.max;i2++){ const sa3=Math.random()*6.283;
+          for(let i2=0;i2<6 && enemies.length<CFG.spawn.max;i2++){ const sa3=rng('drop')*6.283;
             spawnEnemy(i2<2?'stalker':'swarm', clamp(it.x+Math.cos(sa3)*60,20,CFG.arena-20), clamp(it.y+Math.sin(sa3)*60,20,CFG.arena-20)); }
         } else {
-          const cg3=9+Math.round((it.rich!==undefined?it.rich:Math.random())*7); // the shimmer told the truth
-          for(let gi=0;gi<cg3;gi++) coins.push({x:it.x+rnd(-14,14),y:it.y+rnd(-14,14),r:6,vx:rnd(-140,140),vy:rnd(-140,140)});
+          const cg3=9+Math.round((it.rich!==undefined?it.rich:rng('drop'))*7); // the shimmer told the truth
+          for(let gi=0;gi<cg3;gi++) coins.push({x:it.x+rrnd('loot',-14,14),y:it.y+rrnd('loot',-14,14),r:6,vx:rrnd('loot',-140,140),vy:rrnd('loot',-140,140)});
           coinRain(16); SFX.cashout(); SFX.dingBells(); announce('✦ TREASURE +'+cg3+' COINS ✦', true); flash(0.4,'#ffd36b'); sparkBurst(22);
         }
         burst(it.x,it.y,14,'#e8b64c'); despawnInter(); return;
@@ -2406,20 +2524,20 @@ function tickMapProps(dt){
     }
   }
 }
-function despawnInter(){ if(interactable){ ring(interactable.x,interactable.y,50,'#5a4a3a'); } interactable=null; interT=16+Math.random()*18; }
+function despawnInter(){ if(interactable){ ring(interactable.x,interactable.y,50,'#5a4a3a'); } interactable=null; interT=16+rng('drop')*18; }
 function rouletteBet(rp){
   LT.roul=(LT.roul||0)+1; bump('roul',LT.roul);
   P._roulRun=(P._roulRun||0)+1; if(P._roulRun>=3) secret('wheeladdict','WHEEL ADDICT');
   SFX.reelLock(); SFX.diceRattle(); ring(rp.x,rp.y,80,'#e8b64c'); sparkBurst(18); shake=Math.min(14,shake+6);
-  const r3=Math.random();
-  if(r3<0.35){ const cg2=10+((Math.random()*8)|0); P.coins+=cg2; LT.coins+=cg2; bump('runCoins',P.coins); bump('ltCoins',LT.coins);
+  const r3=rng('drop');
+  if(r3<0.35){ const cg2=10+((rng('drop')*8)|0); P.coins+=cg2; LT.coins+=cg2; bump('runCoins',P.coins); bump('ltCoins',LT.coins);
     coinRain(14); SFX.cashout(); announce('◈ FLOOR BET PAYS +'+cg2+' COINS ◈', true); flash(0.35,'#ffd36b'); ftext(rp.x,rp.y-70,'+'+cg2+' ◈','#ffd36b',true); }
   else if(r3<0.60){ const hl2=Math.round(P.maxHp*0.15); P.hp=Math.min(P.maxHp,P.hp+hl2);
     announce('✚ FLOOR BET: +'+hl2+' BLOOD ✚', true); flash(0.35,'#8bff9a'); SFX.dingBells(); }
   else if(r3<0.80){ P.speed*=1.3; debuffs.push({label:'⚡ SWIFT WAGER +30%', t:8, dur:8, revert:()=>{ P.speed/=1.3; }, dot:0, poison:false});
     announce('⚡ FLOOR BET: +30% SPEED FOR 8s ⚡', true); flash(0.35,'#9adcff'); SFX.tingle(); }
   else { announce('☠ THE HOUSE CHEATS — AMBUSH! ☠', false); flash(0.45,'#8b1620'); SFX.bust();
-    for(let i2=0;i2<5 && enemies.length<CFG.spawn.max;i2++){ const sa2=Math.random()*6.283;
+    for(let i2=0;i2<5 && enemies.length<CFG.spawn.max;i2++){ const sa2=rng('drop')*6.283;
       spawnEnemy('swarm', clamp(rp.x+Math.cos(sa2)*90,20,CFG.arena-20), clamp(rp.y+Math.sin(sa2)*90,20,CFG.arena-20)); } }
 }
 // Prefer the artifact-env storage API; otherwise shim it over localStorage (same keys) so local play keeps progress
@@ -2472,7 +2590,7 @@ let RUN={};
 let eggProp=null, keyProp=null;
 function resetRun(){ RUN={diceTries:0,diceWins:0,diceP:0,pulls:{common:0,uncommon:0,rare:0,epic:0,legendary:0},wheelCs:[],crashPts:[],rollMargin:null,bestPull:null,curses:0};
   // THE EGG — one night in three, something small and golden hides far from the lights
-  eggProp = Math.random()<0.34 ? {x:200+Math.random()*(CFG.arena-400), y:200+Math.random()*(CFG.arena-400)} : null;
+  eggProp = rng('drop')<0.34 ? {x:200+rng('drop')*(CFG.arena-400), y:200+rng('drop')*(CFG.arena-400)} : null;
 }
 resetRun();
 
@@ -2485,13 +2603,13 @@ function spawnEnemy(type,x,y){
   ring(x,y,b.r+26,'#5a1a6a'); for(let sp=0;sp<5;sp++){ const sa=Math.random()*6.283; parts.push({x:x+Math.cos(sa)*b.r,y:y+Math.sin(sa)*b.r,vx:Math.cos(sa)*-40,vy:Math.sin(sa)*-40,life:rnd(.25,.5),col:'#7a3aa8',r:rnd(1.5,3)}); }
   const hpS=1+mins*S.hp, dmgS=(1+mins*S.dmg)*fnBite(), spdS=Math.min(S.spdCap,1+mins*S.spd)*(P.enemySpeedBoost||1);
   enemies.push({type,x,y,r:b.r,hp:b.hp*hpS,maxhp:b.hp*hpS,spd:b.spd*spdS*_fspd,dmg:b.dmg*dmgS,
-    xp:b.xp,coins:b.coins,cd:0,flash:0,kx:0,ky:0,ph:Math.random()*6.28,col:b.col,dark:b.dark,elite:type==='elite',
-    ranged:b.ranged||false, shootCd:rnd(0.8,2.6), born:gt, vt:(type==='bomber'?'husk':null)});
+    xp:b.xp,coins:b.coins,cd:0,flash:0,kx:0,ky:0,ph:rng('spawn')*6.28,col:b.col,dark:b.dark,elite:type==='elite',
+    ranged:b.ranged||false, shootCd:rrnd('spawn',0.8,2.6), born:gt, vt:(type==='bomber'?'husk':null)});
 }
 function spawnGuard(x,y){ // nothing materializes on top of the gambler
   const dx=x-P.x, dy=y-P.y, d=Math.hypot(dx,dy);
   if(d>=260) return {x,y};
-  if(d<1){ const a=Math.random()*6.283; return {x:clamp(P.x+Math.cos(a)*260,20,CFG.arena-20), y:clamp(P.y+Math.sin(a)*260,20,CFG.arena-20)}; }
+  if(d<1){ const a=rng('spawn')*6.283; return {x:clamp(P.x+Math.cos(a)*260,20,CFG.arena-20), y:clamp(P.y+Math.sin(a)*260,20,CFG.arena-20)}; }
   const s=260/d; return {x:clamp(P.x+dx*s,20,CFG.arena-20), y:clamp(P.y+dy*s,20,CFG.arena-20)};
 }
 function startWave(){
@@ -2499,11 +2617,12 @@ function startWave(){
   wave++;
   bump('wave',wave); recCheck('wave',wave,'Wave');
   if(wave>1){ SFX.casinoDing(); ftext(P.x,P.y-40,'WAVE '+wave,'#e8b64c',true); ring(P.x,P.y,64,'#e8b64c'); }
-  if(wave>=10 && wave%10===0) spawnBoss();
+  if(P&&P._endless){ try{ b2WaveStart(); }catch(e){} }
+  else if(wave>=10 && wave%10===0) spawnBoss();
   if(wave>0 && wave%7===0){ announce('✦ GOLDEN WAVE — THE GILDED WALK ✦', true); SFX.dingBells();
-    for(let gw=0;gw<2;gw++){ const ga2=Math.random()*6.283, gd2=Math.max(VW,VH)*0.5;
+    for(let gw=0;gw<2;gw++){ const ga2=rng('spawn')*6.283, gd2=Math.max(VW,VH)*0.5;
       spawnEnemy('gilded', clamp(P.x+Math.cos(ga2)*gd2,20,CFG.arena-20), clamp(P.y+Math.sin(ga2)*gd2,20,CFG.arena-20)); } }
-  if(wave>=4 && Math.random()<0.10){ const ga=Math.random()*6.283, gd=Math.max(VW,VH)*0.5;
+  if(wave>=4 && rng('spawn')<0.10){ const ga=rng('spawn')*6.283, gd=Math.max(VW,VH)*0.5;
     spawnEnemy('gilded', clamp(P.x+Math.cos(ga)*gd,20,CFG.arena-20), clamp(P.y+Math.sin(ga)*gd,20,CFG.arena-20));
     showStreak('✦ A GILDED SOUL APPEARS ✦'); SFX.tingle(); }
   // expire curses
@@ -2512,13 +2631,13 @@ function startWave(){
   if(wave>1 && wave%5===0){ CFG.scale.hp+=0.10; CFG.scale.dmg+=0.03; CFG.scale.spdCap=Math.min(2.3,CFG.scale.spdCap+0.08); showStreak('THE HOUSE GROWS CRUEL'); SFX.murmur(); flash(0.3,'#8b1620'); }
   const W=CFG.wave;
   // every wave rolls a little differently — the dealer shuffles, never repeats
-  const size=Math.min(W.cap, Math.round((W.first + (wave-1)*W.grow)*(P&&P.crowd?1.3:1)*rnd(0.85,1.2)*fnEase()));
-  const eliteWave = wave % W.eliteEvery === 0;
-  const wflav = (wave>=4 && Math.random()<0.15) ? ['husk','wraith','stalker','swarm','brute'][(Math.random()*5)|0] : null;
+  const size=Math.min(W.cap, Math.round((W.first + (wave-1)*W.grow)*(P&&P.crowd?1.3:1)*rrnd('spawn',0.85,1.2)*fnEase()));
+  const eliteWave = wave % ((P&&P._endless)?2:W.eliteEvery) === 0;
+  const wflav = (wave>=4 && rng('spawn')<0.15) ? ['husk','wraith','stalker','swarm','brute'][(rng('spawn')*5)|0] : null;
   for(let i=0;i<size && enemies.length<CFG.spawn.max;i++){
-    const a=Math.random()*6.283, d=Math.max(VW,VH)*0.6+rnd(30,220);
+    const a=rng('spawn')*6.283, d=Math.max(VW,VH)*0.6+rrnd('spawn',30,220);
     const x=clamp(P.x+Math.cos(a)*d,20,CFG.arena-20), y=clamp(P.y+Math.sin(a)*d,20,CFG.arena-20);
-    let t='shambler', roll=Math.random();
+    let t='shambler', roll=rng('spawn');
     if(wave>=2 && roll<0.30) t='husk';
     if(wave>=4 && roll>=0.30 && roll<0.36) t='bomber';
     if(wave>=5 && roll>=0.87 && roll<0.90) t='leech';
@@ -2529,32 +2648,36 @@ function startWave(){
     if(window._fmods&&window._fmods.noRanged&&(t==='shooter'||t==='hexer')) t='stalker';
     if(wave>=3 && roll>=0.90 && roll<0.955) t='brute';
     if(wave>=8 && roll>=0.955) t='revenant';
-    if(wflav && Math.random()<0.22) t=wflav;
+    if(wflav && rng('spawn')<0.22) t=wflav;
+    if(P&&P._endless) t=b2CourtType(t);
     spawnEnemy(t,x,y);
   }
   // HORDE: a fast swarm pours in from one flank
-  if(wave>=2 && ((P&&P.stampede) || wave%2===0 || Math.random()<0.55)){
-    const ha=Math.random()*6.283, hd=Math.max(VW,VH)*0.62;
+  if(wave>=2 && ((P&&P.stampede) || wave%2===0 || rng('spawn')<0.55)){
+    const ha=rng('spawn')*6.283, hd=Math.max(VW,VH)*0.62;
     const hx=clamp(P.x+Math.cos(ha)*hd,40,CFG.arena-40), hy=clamp(P.y+Math.sin(ha)*hd,40,CFG.arena-40);
-    const hn=Math.round((20+wave*3)*((window._fmods&&window._fmods.horde)||1)*(P&&P.crowd?1.3:1)*rnd(0.85,1.2)*fnEase());
+    const hn=Math.round((20+wave*3)*((window._fmods&&window._fmods.horde)||1)*(P&&P.crowd?1.3:1)*rrnd('spawn',0.85,1.2)*fnEase());
     ring(hx,hy,180,'#8b1620'); ring(hx,hy,120,'#c81e2c'); // the ground marks where they pour in
-    for(let k=0;k<hn && enemies.length<CFG.spawn.max;k++){ spawnEnemy('swarm', clamp(hx+rnd(-170,170),20,CFG.arena-20), clamp(hy+rnd(-170,170),20,CFG.arena-20)); }
+    for(let k=0;k<hn && enemies.length<CFG.spawn.max;k++){ spawnEnemy('swarm', clamp(hx+rrnd('spawn',-170,170),20,CFG.arena-20), clamp(hy+rrnd('spawn',-170,170),20,CFG.arena-20)); }
     setTimeout(()=>{ if(state==='playing'){ showStreak('HORDE INCOMING'); SFX.murmur(); } }, 260);
   }
   if(eliteWave){
-    const n=(1+Math.floor(wave/8))*((P&&P.noMercy)?2:1);
-    for(let k=0;k<n;k++){ const a=Math.random()*6.283, d=Math.max(VW,VH)*0.6;
+    const n=(1+Math.floor(wave/8))*((P&&P.noMercy&&P.b2pairs)?3:((P&&(P.noMercy||P.b2pairs))?2:1)); // B2 OBSIDIAN: elites walk in pairs
+    const nE=(P&&P._endless)?b2EliteCap(n):n;
+    for(let k=0;k<nE;k++){ const a=rng('elite')*6.283, d=Math.max(VW,VH)*0.6;
       const ex9=clamp(P.x+Math.cos(a)*d,20,CFG.arena-20), ey9=clamp(P.y+Math.sin(a)*d,20,CFG.arena-20);
-      spawnEnemy('elite',ex9,ey9); ring(ex9,ey9,160,'#c98bff'); ring(ex9,ey9,90,'#e8ccff'); }
+      spawnEnemy('elite',ex9,ey9); if(P&&P._endless) b2ScaleElite(enemies[enemies.length-1]); ring(ex9,ey9,160,'#c98bff'); ring(ex9,ey9,90,'#e8ccff'); }
     showStreak('WAVE '+wave+' · ELITE'); SFX.murmur(); flash(0.3,'#c98bff');
   } else {
     showStreak('WAVE '+wave);
   }
   waveClearTarget=Math.ceil(size*W.nextAt);
-  waveGap=W.gap*rnd(0.9,1.15);
+  waveGap=W.gap*rrnd('spawn',0.9,1.15);
 }
 function enemyShoot(e){
-  const base=Math.atan2(P.y-e.y,P.x-e.x), sp=200;
+  const sp=200; let tx9=P.x, ty9=P.y;
+  if(P.b2lead && P._b2vx!==undefined){ const tt9=Math.min(2.2,Math.hypot(P.x-e.x,P.y-e.y)/sp)*0.9; tx9+=P._b2vx*tt9; ty9+=P._b2vy*tt9; } // B2 CRIMSON: they shoot where you are going
+  const base=Math.atan2(ty9-e.y,tx9-e.x);
   const shots = e.type==='hexer'?3:1, spread=0.34;
   for(let i=0;i<shots;i++){
     const ang=base+(shots>1?(i-(shots-1)/2)*spread:0);
@@ -2572,7 +2695,7 @@ const BLESSINGS=[
   {l:'♥ MENDING — +3 BLOOD/s', ap:()=>{P.regen=(P.regen||0)+3;}, rv:()=>{P.regen-=3;}}
 ];
 function eliteBlessing(){
-  const b=BLESSINGS[(Math.random()*BLESSINGS.length)|0], dur=Math.round(rnd(12,18));
+  const b=BLESSINGS[(rng('drop')*BLESSINGS.length)|0], dur=Math.round(rrnd('drop',12,18));
   b.ap();
   debuffs.push({label:b.l, t:dur, dur, revert:b.rv, dot:0, poison:false, good:true});
   announce('✦ BLESSED — '+b.l+' · '+dur+'s ✦', true);
@@ -2592,7 +2715,7 @@ const SCARS=[
  {label:'CROOKED TABLE — NEXT DICE +1', g:'🎲', ap:()=>{ P.crookedT=true; }}
 ];
 function applyScar(){
-  const s=SCARS[(Math.random()*SCARS.length)|0];
+  const s=SCARS[(rng('fate')*SCARS.length)|0];
   s.ap(); (P.scars=P.scars||[]).push({l:s.label, g:s.g||'☒'});
   LT.scars=(LT.scars||0)+1; bump('scars',LT.scars);
   setTimeout(()=>announce('☒ SCARRED — '+s.label+', THIS RUN ☒', false), 250);
@@ -2643,7 +2766,7 @@ function killEnemy(e,idx){
     for(const o of enemies){ if(o!==e && Math.hypot(o.x-e.x,o.y-e.y)<74){ o.hp-=40; o.flash=0.1; } } }
   if(e.type==='gilded'){ LT.gilded++; bump('gilded',LT.gilded);
     if(feverOn) secret('goldongold','GOLD ON GOLD');
-    for(let gi=0;gi<(contractDone('dividend')?28:14);gi++) coins.push({x:e.x+rnd(-12,12),y:e.y+rnd(-12,12),r:6,vx:rnd(-130,130),vy:rnd(-130,130)});
+    for(let gi=0;gi<(contractDone('dividend')?28:14);gi++) coins.push({x:e.x+rrnd('loot',-12,12),y:e.y+rrnd('loot',-12,12),r:6,vx:rrnd('loot',-130,130),vy:rrnd('loot',-130,130)});
     coinRain(18); bigWin('GOLD RUSH',2); }
   if(bounty && bounty.e===e){ bounty=null; bountyT=30+Math.random()*20;
     bountyStk++; const brew=Math.round((10+5*bountyStk)*(1+(P.bountyPay||0)));
@@ -2664,10 +2787,10 @@ function killEnemy(e,idx){
     slowT=Math.max(slowT,0.45); flash(0.5,'#ffd36b'); // the fall is savored in slow-motion gold
     bigWin(BOSS_DEFS[e.bossKind].name+' FALLS',4); coinRain(30); stopDrone();
     pending.push({floor:'epic'});
-    for(let gi=0;gi<16;gi++) coins.push({x:e.x+rnd(-20,20),y:e.y+rnd(-20,20),r:6,vx:rnd(-150,150),vy:rnd(-150,150)}); }
-  orbs.push({x:e.x,y:e.y,xp:e.xp*0.75*(P.xpMult||1),r:5,vx:rnd(-30,30),vy:rnd(-30,30)});
+    for(let gi=0;gi<16;gi++) coins.push({x:e.x+rrnd('loot',-20,20),y:e.y+rrnd('loot',-20,20),r:6,vx:rrnd('loot',-150,150),vy:rrnd('loot',-150,150)}); }
+  orbs.push({x:e.x,y:e.y,xp:e.xp*0.75*(P.xpMult||1),r:5,vx:rrnd('loot',-30,30),vy:rrnd('loot',-30,30)});
   const cn=Math.round(e.coins*P.coinMult);
-  for(let i=0;i<cn;i++) coins.push({x:e.x+rnd(-8,8),y:e.y+rnd(-8,8),r:6,vx:rnd(-70,70),vy:rnd(-70,70)});
+  for(let i=0;i<cn;i++) coins.push({x:e.x+rrnd('loot',-8,8),y:e.y+rrnd('loot',-8,8),r:6,vx:rrnd('loot',-70,70),vy:rrnd('loot',-70,70)});
   burst(e.x,e.y,e.elite?34:14,e.elite?'#c98bff':'#c81e2c');
   ash(e.x,e.y,e.elite?16:7);
   // blood mist + rising soul wisp
@@ -2805,6 +2928,7 @@ function update(dt){
   if(rings.length>90) rings.splice(0,rings.length-90);
   if(sparks.length>320) sparks.splice(0,sparks.length-320);
   fnTick(dt); // A3 first night: first blood, first RAGE lesson + forgiveness
+  if(DLY_RNG) try{ dlyTick(dt); }catch(e){} // B1: the minute-by-minute track
   if(typeof soulTick==='function') soulTick(dt); // D1: the seat's own rules (martyr/magpie/banker)
   if(P.ovT>0){ P.ovAge+=dt;
     P.ovT-=dt*(3.3+P.ovAge*0.35);
@@ -2828,8 +2952,8 @@ function update(dt){
       announce('⚔ HOUSE DARE — '+dare.need+' KILLS IN 10s → +40 ◈ ⚔', true); SFX.casinoDing(); } }
   } else { dare.t-=dt;
     if(dare.got>=dare.need){ P.coins+=40; LT.coins+=40; bump('runCoins',P.coins); bump('ltCoins',LT.coins);
-      announce('⚔ DARE MET — +40 COINS ⚔', true); SFX.cashout(); SFX.dingBells(); coinRain(16); sparkBurst(26); flash(0.3,'#8bff9a'); dare=null; dareT=40+Math.random()*24; }
-    else if(dare.t<=0){ announce('… THE HOUSE SCOFFS …', false); SFX.thud(); dare=null; dareT=40+Math.random()*24; }
+      announce('⚔ DARE MET — +40 COINS ⚔', true); SFX.cashout(); SFX.dingBells(); coinRain(16); sparkBurst(26); flash(0.3,'#8bff9a'); dare=null; dareT=40+rng('drop')*24; }
+    else if(dare.t<=0){ announce('… THE HOUSE SCOFFS …', false); SFX.thud(); dare=null; dareT=40+rng('drop')*24; }
   }
   if(typeof droneGain!=='undefined' && droneGain && P.hp/P.maxHp<0.5){ try{ droneGain.gain.value=0.14*(1+(0.5-P.hp/P.maxHp)); }catch(e){} }
   if(P.hp/P.maxHp<0.25){ P._hb=(P._hb||0)-dt; if(P._hb<=0){ P._hb=0.85; tone(56,0.16,'sine',0.22,44); setTimeout(()=>tone(50,0.13,'sine',0.16,40),160);
@@ -2854,7 +2978,7 @@ function update(dt){
     try{ whisperSweep(); }catch(e){}
   }
   // 12:00 — one minute before the purge, the clock bleeds
-  if(gt>=720 && !P._stirred){ P._stirred=true; announce('☷ THE HOUSE STIRS — ONE MINUTE ☷', false); SFX.murmur(); flash(0.3,'#8b1620');
+  if(gt>=((typeof b2HouseAt==='function')?b2HouseAt():780)-60 && !P._stirred && !P._endless){ P._stirred=true; announce('☷ THE HOUSE STIRS — ONE MINUTE ☷', false); SFX.murmur(); flash(0.3,'#8b1620');
     const tm9=$('timer'); if(tm9) tm9.classList.add('stirs'); }
   // queued slots never wait for an XP pickup
   if(pending.length && state==='playing' && !houseActive) openNextSlot();
@@ -2951,8 +3075,9 @@ function update(dt){
     CFG.scale.hp+=0.06;
     showStreak('☷ THE FLOOR RISES ☷'); SFX.murmur(); flash(0.35,'#8b1620'); shake=Math.min(18,shake+8);
   }
+  try{ b2Tick(dt); }catch(e){} // B2 — stakes + the endless floor
   // ☷ THE HOUSE — at 13:00 the pit empties and the landlord walks the floor
-  if(!houseActive && gt>=780){
+  if(!houseActive && gt>=((typeof b2HouseAt==='function')?b2HouseAt():780) && !P._endless){
     houseActive=true;
     enemies.length=0; ebullets.length=0; bounty=null; tarots.length=0;
     wheelTok=null; crashTok=null; eggProp=null;
@@ -2962,7 +3087,7 @@ function update(dt){
     tone(38,1.6,'sine',0.32,24); SFX.bossRoar();
     showStreak('☷ EVERYTHING KNEELS ☷');
     setTimeout(()=>{ if(state==='dead'||typeof P==='undefined'||!P) return;
-      const a9=Math.random()*6.283;
+      const a9=rng('spawn')*6.283;
       spawnEnemy('housegod', clamp(P.x+Math.cos(a9)*560,80,CFG.arena-80), clamp(P.y+Math.sin(a9)*560,80,CFG.arena-80));
       const g9=enemies[enemies.length-1];
       if(g9){ g9.boss=true; g9.bossKind='housegod'; g9.hp=g9.maxhp=1000000; g9.dmg=300; g9.spd=385; g9.r=46; g9.unkillable=true; }
@@ -2974,6 +3099,7 @@ function update(dt){
   }
   // 15:00 — FORECLOSURE. Not death; repossession. The final press does not apply.
   if(houseActive && gt>=900 && state==='playing'){
+    if(typeof b2NightWon==='function' && b2NightWon()) return; // B2: standing at 15:00 = the night is won
     hitstop=Math.max(hitstop,0.5); // half a second of held breath
     announce('☷ THE HOUSE FORECLOSES ☷', false);
     P.markerUsed=true; P.hp=0; actuallyDie();
@@ -2992,7 +3118,7 @@ function update(dt){
       else if(d<range-60){ e.x-=dx/d*e.spd*0.7*dt; e.y-=dy/d*e.spd*0.7*dt; }
       else { e.x+=-dy/d*e.spd*0.5*dt; e.y+=dx/d*e.spd*0.5*dt; } // strafe
       e.shootCd-=dt;
-      if(e.shootCd<=0 && d<560){ e.shootCd=1.9+Math.random()*0.8; enemyShoot(e); }
+      if(e.shootCd<=0 && d<560){ e.shootCd=1.9+rng('combat')*0.8; enemyShoot(e); }
     } else {
       e.x+=dx/d*e.spd*dt; e.y+=dy/d*e.spd*dt;
     }
@@ -3063,7 +3189,7 @@ function update(dt){
         if(b.blast){ const br=b.blast; ring(b.x,b.y,br,'#ff9a3c'); ring(b.x,b.y,br*0.55,'#ffd36b'); shake=Math.min(12,shake+4); SFX.thud();
           for(let q=enemies.length-1;q>=0;q--){ const o=enemies[q]; if(o!==e && Math.hypot(o.x-b.x,o.y-b.y)<br){ o.hp-=b.dmg*0.75; o.flash=0.1; if(o.hp<=0) killEnemy(o,q); } } b.blast=0; }
         if(b.bounce>0){ b.bounce--; const cand=enemies.filter(o=>o!==e&&o.hp>0);
-          if(cand.length){ const t2=cand[(Math.random()*cand.length)|0], sp2=Math.hypot(b.vx,b.vy)||300, a2=Math.atan2(t2.y-b.y,t2.x-b.x);
+          if(cand.length){ const t2=cand[(rng('combat')*cand.length)|0], sp2=Math.hypot(b.vx,b.vy)||300, a2=Math.atan2(t2.y-b.y,t2.x-b.x);
             b.vx=Math.cos(a2)*sp2; b.vy=Math.sin(a2)*sp2; b.life=Math.max(b.life,0.9); ftext(b.x,b.y,'⚂','#c98bff'); tone(900+Math.random()*300,0.05,'square',0.06); break; } }
         hitstop=Math.max(hitstop,b.crit?0.045:0.015);
         if(spk){ let hits=0, from=e, jumps=spk+1; const used=new Set([j]); while(hits<jumps){ let ni=-1,nd=150*150; for(let k=0;k<enemies.length;k++){ if(used.has(k))continue; const o=enemies[k],od=(o.x-from.x)*(o.x-from.x)+(o.y-from.y)*(o.y-from.y); if(od<nd){nd=od;ni=k;} } if(ni<0)break; const o=enemies[ni]; spark(from.x,from.y,o.x,o.y); o.hp-=dmg*(0.45+0.05*spk); trackDmg(dmg*(0.45+0.05*spk)); o.flash=0.1; used.add(ni); from=o; hits++; } }
@@ -3553,7 +3679,11 @@ function bakeVign(danger,db,tb){
   { B.main=mk(); const x=B.main.getContext('2d');
     const g=x.createRadialGradient(w/2,h/2,Math.min(w,h)*(0.30-danger*0.12),w/2,h/2,Math.max(w,h)*0.74);
     g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(0.45,'rgba('+L(6,9)+','+L(3,5)+','+L(8,18)+','+(0.12+danger*0.2)+')'); g.addColorStop(0.75,'rgba('+L(6,9)+','+L(4,6)+','+L(10,22)+','+(0.5+danger*0.35)+')'); g.addColorStop(1,'rgba('+L(2,5)+','+L(2,4)+','+L(8,24)+','+Math.min(1,0.86+danger*0.3)+')'); // A1: edges fall into dark
-    x.fillStyle=g; x.fillRect(0,0,w,h); }
+    x.fillStyle=g; x.fillRect(0,0,w,h);
+    if(tb>=100){ // B2 — THE ENDLESS FLOOR: below the House's hour the grade sinks into blood-violet, deeper each minute
+      const ab=Math.min(1,(tb-99)/9), g2=x.createRadialGradient(w/2,h/2,Math.min(w,h)*(0.36-ab*0.14),w/2,h/2,Math.max(w,h)*0.7);
+      g2.addColorStop(0,'rgba(40,0,30,0)'); g2.addColorStop(0.6,'rgba(52,4,40,'+(0.18+ab*0.22).toFixed(3)+')'); g2.addColorStop(1,'rgba(20,0,18,'+(0.35+ab*0.35).toFixed(3)+')');
+      x.fillStyle=g2; x.fillRect(0,0,w,h); } }
   { B.heart=mk(); const x=B.heart.getContext('2d');
     const g=x.createRadialGradient(w/2,h/2,Math.min(w,h)*0.34,w/2,h/2,Math.max(w,h)*0.72);
     g.addColorStop(0,'rgba(140,10,20,0)'); g.addColorStop(1,'rgba(140,10,20,1)');
@@ -4085,6 +4215,7 @@ function render(){
     ctx.restore(); } }
 
   drawPlayer();
+  try{ b2DrawAdorn(); }catch(e){}
 
   // particles
   for(const p of parts){ ctx.globalAlpha=clamp(p.life*(p.ash?0.9:1.6),0,1); ctx.fillStyle=p.col; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,6.28); ctx.fill(); }
@@ -4126,7 +4257,7 @@ function render(){
   // vignette — warm heart, cold edges, darkening with danger (prebaked, alpha-modulated live)
   const danger = Math.min(0.40, ((P.level||1)-1)*0.020 + Math.min(0.12, gt/900));
   { const db=Math.round(danger*20);
-    const tb=(typeof houseActive!=='undefined'&&houseActive)?99:Math.min(12,Math.floor(gt/65));
+    const tb=(P&&P._endless)?100+Math.min(8,Math.floor((gt-P._endT0)/60)):(typeof houseActive!=='undefined'&&houseActive)?99:Math.min(12,Math.floor(gt/65));
     if(!vignB || vignB.w!==VW || vignB.h!==VH || vignB.db!==db || vignB.tb!==tb || vignB.grade!==GFX.grade) bakeVign(danger,db,tb);
     ctx.save(); ctx.globalCompositeOperation='screen'; ctx.globalAlpha=0.5+excite*0.5;
     ctx.drawImage(vignB.warm,0,0,VW,VH); ctx.restore();
@@ -4943,10 +5074,10 @@ function bossPlate(name){
   bp.innerHTML='<b>♛</b> '+name+' <b>♛</b>'; bp.classList.remove('go'); void bp.offsetWidth; bp.classList.add('go');
   SFX.bossRoar&&SFX.bossRoar(); setTimeout(()=>bp.classList.remove('go'),2600);
 }
-function spawnBoss(){
+function spawnBoss(kindOverride){
   const order=['pitboss','croupier','collector','thehouse'];
-  const kind=order[(Math.floor(wave/10)-1)%order.length];
-  const a=Math.random()*6.283, dd=Math.max(VW,VH)*0.55;
+  const kind=kindOverride||order[(Math.floor(wave/10)-1)%order.length];
+  const a=rng('spawn')*6.283, dd=Math.max(VW,VH)*0.55;
   const x=clamp(P.x+Math.cos(a)*dd,40,CFG.arena-40), y=clamp(P.y+Math.sin(a)*dd,40,CFG.arena-40);
   spawnEnemy(kind,x,y);
   try{ bossPlate(BOSS_DEFS[kind].name); }catch(e){}
@@ -4979,7 +5110,7 @@ function bossAI(e,dt,dx,dy,d){
     e.x+=dx/d*e.spd*dt; e.y+=dy/d*e.spd*dt;
     e.v1=(e.v1||0)-dt;
     if(e.v1<=0){ e.v1=4; ring(e.x,e.y,90,'#6a4ab5'); SFX.murmur();
-      for(let i2=0;i2<3 && enemies.length<CFG.spawn.max;i2++){ const an=Math.random()*6.283; spawnEnemy('swarm', clamp(e.x+Math.cos(an)*40,20,CFG.arena-20), clamp(e.y+Math.sin(an)*40,20,CFG.arena-20)); } }
+      for(let i2=0;i2<3 && enemies.length<CFG.spawn.max;i2++){ const an=rng('spawn')*6.283; spawnEnemy('swarm', clamp(e.x+Math.cos(an)*40,20,CFG.arena-20), clamp(e.y+Math.sin(an)*40,20,CFG.arena-20)); } }
     return true;
   }
   if(k==='thehouse' && e.bstate==='spiral'){
@@ -5067,6 +5198,7 @@ function frame(now){
   }catch(_e){ if(!window._amErr){ window._amErr=1; console.error('[ANTE MORTEM]',_e); } }
 }
 function startGame(){
+  try{ dlyBegin(); }catch(e){ DLY_RNG=null; } // B1: arms the seeded night when the DAILY DEBT plaque was played, else plain Math.random
   try{ fadeCut(); }catch(e){} try{ setFav('♠'); }catch(e){}
   initAudio(); houseActive=false;
   try{ startAmbience(); }catch(e){}
@@ -5085,7 +5217,7 @@ function startGame(){
   window._runSeq=(window._runSeq||0)+1; slotStage='idle'; gamble=null; window._slotFF=null; try{ clearInterval(window._antiHb); }catch(e){}
   gt=0; shake=0; hitstop=0; killStreak=0; streakT=0; goreT=null; _goreDryT=0; _goreDryI=0; _goreWinT=0; _goreWinN=0; excite=0; fireAcc=0; pending=[]; LT.runs++; bump('runs',LT.runs); fever=0; feverOn=false; feverT=0; tarots=[]; tarotT=14; decals=[]; wheelTok=null; wheelTokT=40; crashTok=null; crashTokT=50; bounty=null; bountyT=34; slotBank=0; vouchers=0; bountyStk=0; goldenT=0; ovBonusNext=false; slowT=0; prevHp=0; dare=null; dareT=46; ascTime=7; ascPend=0;
   if(!RANK._ld){ RANK._ld=1; loadRank(); }
-  applyRankPerks(); recToasted=new Set(); applyVault(); applyAchPerks();
+  if(!DLY_RNG){ applyRankPerks(); } recToasted=new Set(); if(!DLY_RNG){ applyVault(); applyAchPerks(); } // B1: the daily is a fair field
   // the soul at the table speaks last — then the floor, then the ink
   { const sd=(typeof curSoul==='function')?curSoul():null;
     if(sd){ try{ sd.ap(); }catch(e){} if(sd.id!=='vesper') announce(sd.g+' '+sd.n+' TAKES THE SEAT '+sd.g, true); }
@@ -5098,24 +5230,25 @@ function startGame(){
       if(fd.mods&&fd.mods.coin) P.coinMult=(P.coinMult||1)*fd.mods.coin;
       if(fd.mods&&fd.mods.xp) P.xpMult=(P.xpMult||1)*fd.mods.xp;
       if(fd.id!=='pit') setTimeout(()=>announce(fd.g+' TONIGHT: '+fd.n+' '+fd.g, true), 900); } }
-  { let act=(typeof RUN_CONTRACTS!=='undefined')?(IDX.ct||[]):[];
+  { let act=(typeof RUN_CONTRACTS!=='undefined' && !DLY_RNG)?(IDX.ct||[]):[];
     act=act.filter(id=>{ const c=RUN_CONTRACTS.find(x=>x.id===id); return c && (!c.u||c.u()); }).slice(0,(typeof ctSlots==='function')?ctSlots():2);
     act.forEach(id=>{ const ct=RUN_CONTRACTS.find(x=>x.id===id); if(ct){ try{ ct.ap(); }catch(e){} window._markMult*=1.25; } });
     if(act.length) setTimeout(()=>announce('✍ '+act.length+' CONTRACT'+(act.length>1?'S':'')+' SIGNED — ×'+window._markMult.toFixed(2)+' MARKS & GILT ✍', true), 1600); }
-  { const ind=(typeof INDULGENCES!=='undefined')?(IDX.ind||[]):[];
+  { const ind=(typeof INDULGENCES!=='undefined' && !DLY_RNG)?(IDX.ind||[]):[]; // B1: indulgences wait for a normal night
     if(ind.includes('pockets')){ P.coins+=60; }
     if(ind.includes('blood')){ P.maxHp+=25; P.hp+=25; }
     if(ind.includes('roller')){ P.hotSlots=3; }
     if(ind.includes('coffee')){ P.hotSlots=Math.max(P.hotSlots||0,1); }
     if(ind.length){ setTimeout(()=>announce('✦ '+ind.length+' INDULGENCE'+(ind.length>1?'S':'')+' HONORED ✦', true), 2100);
       IDX.ind=[]; idxSaveSoon(); } }
-  if(LT.equal){ P.coinMult*=1.05; P._goldTrail=true; } // THE HOUSE'S EQUAL — forever
+  if(LT.equal && !DLY_RNG){ P.coinMult*=1.05; P._goldTrail=true; } // THE HOUSE'S EQUAL — forever
   { const today=new Date().toISOString().slice(0,10);
     if(LT.lastDay!==today){
       const y=new Date(Date.now()-86400000).toISOString().slice(0,10);
       LT.dayStreak=(LT.lastDay===y)?(LT.dayStreak||0)+1:1;
       LT.lastDay=today; gilt+=15; saveGilt(); if(typeof achSaveSoon==='function') achSaveSoon();
       setTimeout(()=>announce('☀ FIRST ANTE OF THE DAY — +15 GILT'+((LT.dayStreak||1)>1?' · '+LT.dayStreak+' NIGHTS RUNNING':'')+' ☀', true), 3000); } }
+  try{ b2Start(); }catch(e){ console.warn('[B2 start]',e); }
   window._gt0=gt; // the night's true zero (contracts may shift the clock)
   P._idle=0; P._sigT=0; P._corners=new Set(); P._chestsRun=0; P._roulRun=0; P._pauses=0; P._1313=false;
   resetRun();
@@ -5128,6 +5261,7 @@ function startGame(){
   debuffs=[];
   elMenu.classList.add('hidden'); elGO.classList.add('hidden'); elHud.classList.remove('hidden');
   fnStart(); // A3 first night: ease + lessons for a stranger's first 3 nights
+  if(DLY_RNG) try{ dlyStart(); }catch(e){ console.error('[daily start]',e); } // B1: the debt's terms
   state='playing'; last=performance.now();
 }
 
@@ -5885,18 +6019,18 @@ function fireCoil(l){ const t=nearestFoe(240+l*25); if(!t) return;
   const a=Math.atan2(P.y-t.y,P.x-t.x); t.kx+=Math.cos(a)*260; t.ky+=Math.sin(a)*260;
   for(let i=0;i<7;i++){ const f=i/6; spark(P.x+(t.x-P.x)*f-3,P.y+(t.y-P.y)*f,P.x+(t.x-P.x)*f+3,P.y+(t.y-P.y)*f,'#ff7edb'); }
   tone(180,0.1,'sawtooth',0.1,90); SFX.hit(); if(t.hp<=0){ const ix=enemies.indexOf(t); if(ix>=0) killEnemy(t,ix); } }
-function fireMortar(l){ const t=nearestFoe(520)||{x:P.x+rnd(-200,200),y:P.y+rnd(-200,200)};
-  const a=Math.atan2(t.y-P.y,t.x-P.x)+rnd(-0.15,0.15), sp=P.projSpeed*0.55;
+function fireMortar(l){ const t=nearestFoe(520)||{x:P.x+rrnd('combat',-200,200),y:P.y+rrnd('combat',-200,200)};
+  const a=Math.atan2(t.y-P.y,t.x-P.x)+rrnd('combat',-0.15,0.15), sp=P.projSpeed*0.55;
   bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:8,dmg:P.damage*(0.9+0.2*l),life:1.1,blast:70+l*12,spin:0});
   tone(120,0.16,'sine',0.12,60); }
 function fireLantern(l){ const t=nearestFoe(430); if(!t) return;
   const lx=P.x+Math.cos(gt*1.7)*46, ly=P.y+Math.sin(gt*1.7)*46-22;
   parts.push({x:lx,y:ly,vx:0,vy:-20,life:0.3,col:'#ffb74d',r:4});
   const n=1+Math.floor(l/2);
-  for(let i=0;i<n;i++){ const a=Math.atan2(t.y-ly,t.x-lx)+rnd(-0.06,0.06);
+  for(let i=0;i<n;i++){ const a=Math.atan2(t.y-ly,t.x-lx)+rrnd('combat',-0.06,0.06);
     bullets.push({x:lx,y:ly,px:lx,py:ly,vx:Math.cos(a)*P.projSpeed*1.15,vy:Math.sin(a)*P.projSpeed*1.15,r:4,dmg:P.damage*0.85,life:0.9,spin:0}); }
   tone(1400,0.05,'sine',0.06); }
-function fireFangs(n){ for(let i=0;i<n;i++){ const a=Math.random()*6.283;
+function fireFangs(n){ for(let i=0;i<n;i++){ const a=rng('combat')*6.283;
     bullets.push({x:P.x+Math.cos(a)*18,y:P.y+Math.sin(a)*18,px:P.x,py:P.y,vx:Math.cos(a)*P.projSpeed*0.7,vy:Math.sin(a)*P.projSpeed*0.7,r:3.5,dmg:P.damage*0.55,life:2.2,seek:true,spin:0}); }
   tone(700,0.06,'square',0.05); }
 function funeralBell(l){ const R=130+l*20;
@@ -5917,7 +6051,7 @@ function fireCoffin(n){ const back=P.aim+Math.PI;
   for(let i=0;i<n;i++){ const a=back+(i-(n-1)/2)*0.28;
     bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*P.projSpeed,vy:Math.sin(a)*P.projSpeed,r:4,dmg:P.damage*0.95,life:0.8,pierce:1,spin:0}); }
   tone(150,0.08,'square',0.09,80); }
-function fireMoths(){ const a=Math.random()*6.283;
+function fireMoths(){ const a=rng('combat')*6.283;
   bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*P.projSpeed*0.5,vy:Math.sin(a)*P.projSpeed*0.5,r:3,dmg:P.damage*0.45,life:3.5,seek:true,spin:0});
   parts.push({x:P.x,y:P.y,vx:rnd(-30,30),vy:rnd(-40,-10),life:0.4,col:'#d7ffb8',r:2}); }
 /* ── the new arsenal (Batch 7) — each with its own silhouette in flight ── */
@@ -5928,9 +6062,9 @@ function fireRazor(l){ const t=nearestFoe(420); if(!t) return;
       r:6,dmg:P.damage*(1.0+0.22*l),life:1.7,kind:'razor',pierce:9,spin:0,_out:0.8}); }
   tone(1200,0.07,'square',0.07); noise(0.05,0.04,4200); }
 function fireCinders(l){ const t=nearestFoe(240), a0=t?Math.atan2(t.y-P.y,t.x-P.x):P.aim;
-  for(let i=0;i<5+l;i++){ const a=a0+rnd(-0.5,0.5), sp=P.projSpeed*(0.45+Math.random()*0.3);
+  for(let i=0;i<5+l;i++){ const a=a0+rrnd('combat',-0.5,0.5), sp=P.projSpeed*(0.45+rng('combat')*0.3);
     bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,
-      r:3,dmg:P.damage*0.38,life:0.34+Math.random()*0.12,kind:'ember',spin:0}); }
+      r:3,dmg:P.damage*0.38,life:0.34+rng('combat')*0.12,kind:'ember',spin:0}); }
   noise(0.12,0.08,1600); tone(220,0.1,'sawtooth',0.06,90); }
 function fireStakes(l){ const t=nearestFoe(460); if(!t) return;
   const a=Math.atan2(t.y-P.y,t.x-P.x);
@@ -5940,10 +6074,10 @@ function fireStakes(l){ const t=nearestFoe(460); if(!t) return;
 function fireSerpent(l){ const t=nearestFoe(430); if(!t) return;
   const a=Math.atan2(t.y-P.y,t.x-P.x);
   bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*P.projSpeed*0.8,vy:Math.sin(a)*P.projSpeed*0.8,
-    r:5,dmg:P.damage*(0.9+0.18*l),life:1.4,kind:'serpent',pierce:3+l,spin:0,_ph:Math.random()*6.28});
+    r:5,dmg:P.damage*(0.9+0.18*l),life:1.4,kind:'serpent',pierce:3+l,spin:0,_ph:rng('combat')*6.28});
   tone(740,0.12,'triangle',0.07,520); }
-function fireChalice(l){ const t=nearestFoe(420)||{x:P.x+rnd(-180,180),y:P.y+rnd(-180,180)};
-  const a=Math.atan2(t.y-P.y,t.x-P.x)+rnd(-0.1,0.1);
+function fireChalice(l){ const t=nearestFoe(420)||{x:P.x+rrnd('combat',-180,180),y:P.y+rrnd('combat',-180,180)};
+  const a=Math.atan2(t.y-P.y,t.x-P.x)+rrnd('combat',-0.1,0.1);
   bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*P.projSpeed*0.5,vy:Math.sin(a)*P.projSpeed*0.5,
     r:6,dmg:P.damage*0.4,life:0.85,kind:'chalice',spin:0,_pool:l});
   tone(980,0.08,'sine',0.06); noise(0.04,0.03,3000); }
@@ -5958,7 +6092,7 @@ function fireCylinder(l){ P._cylN=6; P._cylGap=0; P._cylLvl=l;
 function fireCandles(l){ // three orbiting candles snipe independently
   for(let i=0;i<3;i++){ const t=nearestFoe(430); if(!t) break;
     const ca=gt*1.4+i*2.094, cx=P.x+Math.cos(ca)*52, cy=P.y+Math.sin(ca)*52-14;
-    const a=Math.atan2(t.y-cy,t.x-cx)+rnd(-0.05,0.05);
+    const a=Math.atan2(t.y-cy,t.x-cx)+rrnd('combat',-0.05,0.05);
     bullets.push({x:cx,y:cy,px:cx,py:cy,vx:Math.cos(a)*P.projSpeed*1.1,vy:Math.sin(a)*P.projSpeed*1.1,
       r:3.5,dmg:P.damage*(0.6+0.1*l),life:0.9,kind:'flamebolt',spin:0}); }
   tone(1500,0.05,'sine',0.05); }
@@ -5989,10 +6123,10 @@ function fire(){
   for(let i=0;i<n;i++){
     const ang=baseAng+(n>1? (i-(n-1)/2)*spread : 0);
     P.shotCount=(P.shotCount||0)+1;
-    let crit=Math.random()<Math.min(0.9,P.crit);
+    let crit=rng('combat')<Math.min(0.9,P.crit);
     const lucky=(P.shotCount%50===0); if(lucky) crit=true;
     if(P.croup && P.shotCount%7===0) crit=true;
-    const kill=Math.random()<P.instakill;
+    const kill=rng('combat')<P.instakill;
     bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(ang)*P.projSpeed,vy:Math.sin(ang)*P.projSpeed,
       life:P.projLife,r:P.projRadius,dmg:dmgBase*(crit?P.critMult:1),crit,lucky,kill,pierce});
   }
@@ -6015,7 +6149,7 @@ function fireCards(n){
   for(let i=0;i<n;i++){
     const ang=base+(i-(n-1)/2)*(spread/Math.max(1,n-1))*2;
     bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(ang)*P.projSpeed*1.05,vy:Math.sin(ang)*P.projSpeed*1.05,
-      life:P.projLife*1.1,r:P.projRadius+1,dmg:P.damage*1.3,crit:Math.random()<P.crit,kill:false,pierce:2,kind:'card',spin:Math.random()*6.28});
+      life:P.projLife*1.1,r:P.projRadius+1,dmg:P.damage*1.3,crit:rng('combat')<P.crit,kill:false,pierce:2,kind:'card',spin:rng('combat')*6.28});
   }
   SFX.card();
 }
@@ -6030,9 +6164,9 @@ function bloodNova(level){
 }
 function fireSeekers(n){
   for(let i=0;i<n;i++){
-    const a=Math.random()*6.28;
+    const a=rng('combat')*6.28;
     bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*P.projSpeed*0.7,vy:Math.sin(a)*P.projSpeed*0.7,
-      life:2.4,r:P.projRadius+2,dmg:P.damage*1.8,crit:Math.random()<P.crit,kill:false,pierce:1,kind:'seeker',seek:true,spin:0});
+      life:2.4,r:P.projRadius+2,dmg:P.damage*1.8,crit:rng('combat')<P.crit,kill:false,pierce:1,kind:'seeker',seek:true,spin:0});
   }
   SFX.seeker();
 }
@@ -6041,7 +6175,7 @@ function ownedWeaponCount(){ return WEAPONS.filter(w=>(P.wlv[w.id]||0)>0).length
 // your RANK climbs. Pure derivation: old saves own everything at/below their
 // rank automatically, and nothing is ever taken away mid-run.
 const WEAPON_UNLOCKS={coil:3, chalice:5, spark:7, chand:9, dice:11, mortar:13, nova:15, bell:18, phantom:21, gramo:24, cylinder:27, seeker:30, moths:34, candelabra:38, guillotine:42};
-function weaponUnlocked(id){ const thr=WEAPON_UNLOCKS[id]; return !thr || (typeof RANK!=='undefined' && RANK.rank>=thr); }
+function weaponUnlocked(id){ if(DLY_RNG) return true; /* B1: the debt opens the whole armory, for everyone */ const thr=WEAPON_UNLOCKS[id]; return !thr || (typeof RANK!=='undefined' && RANK.rank>=thr); }
 function nextArmUnlock(){
   let best=null;
   for(const id in WEAPON_UNLOCKS){ const thr=WEAPON_UNLOCKS[id];
@@ -6154,7 +6288,7 @@ const DEBUFF_POOL=[
   {label:'COLD TABLE −30% XP', dur:18, ap:()=>{ const o=P.xpMult||1; P.xpMult=o*0.7; return ()=>{P.xpMult=o;}; }}
 ];
 function applyDebuff(d){
-  d = d || DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0];
+  d = d || DEBUFF_POOL[(rng('tarot')*DEBUFF_POOL.length)|0];
   const revert=d.ap();
   { const dd=Math.max(2,Math.round(d.dur*Math.max(0.5,P.curseCut||1))); debuffs.push({label:d.label, t:dd, dur:dd, revert, dot:d.dot||0, poison:!!d.dot}); }
   idxSee('c',d.label); if(typeof RUN!=='undefined') RUN.curses=(RUN.curses||0)+1;
@@ -6194,7 +6328,7 @@ const TAROT_FATES=[
  {n:'THE SUN', dd:'Full heal · +50% damage 10s · +20 coins',t:2,c:'#fff2c0',fx:()=>{ P.hp=P.maxHp; P.damage*=1.5; debuffs.push({label:'☀ STRENGTH +50%',t:10,dur:10,revert:()=>{P.damage/=1.5;},dot:0,poison:false,good:true}); P.coins+=20; LT.coins+=20; coinRain(14); }},
  {n:'THE WORLD', dd:'+2 levels · heal 30%',t:2,c:'#fff2c0',fx:()=>{ pending.push({}); pending.push({}); P.hp=Math.min(P.maxHp,P.hp+P.maxHp*0.3); SFX.levelUp(); }},
  {n:'WHEEL OF FORTUNE', dd:'+25 coins',t:1,c:'#e8b64c',fx:()=>{ P.coins+=25; LT.coins+=25; coinRain(20); SFX.cashout(); }},
- {n:'THE STAR', dd:'Heal 40%',t:1,c:'#9adcff',fx:()=>{ for(const o of orbs){ o.x=P.x+rnd(-30,30); o.y=P.y+rnd(-30,30); } for(const c2 of coins){ c2.x=P.x+rnd(-30,30); c2.y=P.y+rnd(-30,30); } ring(P.x,P.y,200,'#9adcff'); }},
+ {n:'THE STAR', dd:'Heal 40%',t:1,c:'#9adcff',fx:()=>{ for(const o of orbs){ o.x=P.x+rrnd('tarot',-30,30); o.y=P.y+rrnd('tarot',-30,30); } for(const c2 of coins){ c2.x=P.x+rrnd('tarot',-30,30); c2.y=P.y+rrnd('tarot',-30,30); } ring(P.x,P.y,200,'#9adcff'); }},
  {n:'STRENGTH', dd:'+20% damage 20s',t:1,c:'#ff9a5b',fx:()=>{ P.damage*=1.5; debuffs.push({label:'☀ STRENGTH +50%',t:12,dur:12,revert:()=>{P.damage/=1.5;},dot:0,poison:false,good:true}); }},
  {n:'TEMPERANCE', dd:'Heal 25% · cleanse curses',t:1,c:'#8bff9a',fx:()=>{ P.hp=Math.min(P.maxHp,P.hp+P.maxHp*0.35); }},
  {n:'THE EMPRESS', dd:'+15% coins this run',t:1,c:'#ffb0c8',fx:()=>{ P.coins+=15; LT.coins+=15; P.hp=Math.min(P.maxHp,P.hp+P.maxHp*0.15); coinRain(10); }},
@@ -6204,16 +6338,16 @@ const TAROT_FATES=[
  {n:'JUSTICE', dd:'Coins match your kills',t:1,c:'#ff5566',fx:()=>{ for(let i2=enemies.length-1;i2>=0;i2--){ const e=enemies[i2]; if(!e.boss&&!e.elite&&Math.hypot(e.x-P.x,e.y-P.y)<320) killEnemy(e,i2); } shake=Math.min(20,shake+10); }},
  {n:'THE HIEROPHANT', dd:'+10% XP this run',t:1,c:'#eaf3ff',fx:()=>{ P.inv=Math.max(P.inv,4); ring(P.x,P.y,60,'#eaf3ff'); }},
  {n:'THE TOWER', dd:'−25% blood, now',t:-1,c:'#ff5560',fx:()=>{ hurtPlayer(Math.round(P.maxHp*0.15)); }},
- {n:'THE MOON', dd:'−20% enemy speed 12s',t:-1,c:'#a794c4',fx:()=>{ applyDebuff(DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0]); }},
+ {n:'THE MOON', dd:'−20% enemy speed 12s',t:-1,c:'#a794c4',fx:()=>{ applyDebuff(DEBUFF_POOL[(rng('tarot')*DEBUFF_POOL.length)|0]); }},
  {n:'THE HANGED MAN', dd:'−30% speed 12s',t:-1,c:'#7a8aa0',fx:()=>{ P.speed*=0.7; debuffs.push({label:'⛓ SLOWED −30%',t:8,dur:8,revert:()=>{P.speed/=0.7;},dot:0,poison:false}); }},
- {n:'DEATH', dd:'Slay everything near',t:-1,c:'#c98bff',fx:()=>{ for(let i2=0;i2<4&&enemies.length<CFG.spawn.max;i2++){ const a2=Math.random()*6.283; spawnEnemy('swarm',clamp(P.x+Math.cos(a2)*140,20,CFG.arena-20),clamp(P.y+Math.sin(a2)*140,20,CFG.arena-20)); } }},
+ {n:'DEATH', dd:'Slay everything near',t:-1,c:'#c98bff',fx:()=>{ for(let i2=0;i2<4&&enemies.length<CFG.spawn.max;i2++){ const a2=rng('tarot')*6.283; spawnEnemy('swarm',clamp(P.x+Math.cos(a2)*140,20,CFG.arena-20),clamp(P.y+Math.sin(a2)*140,20,CFG.arena-20)); } }},
  {n:'THE DEVIL', dd:'Sweeps ALL ground coins',t:-1,c:'#ff5560',fx:()=>{ const n5=coins.length; for(const c5 of coins) burst(c5.x,c5.y,1,'#5a4a3a'); coins.length=0; if(n5>0) ftext(P.x,P.y-24,'−'+n5+' COINS SWEPT','#ff6b6b',true); SFX.thud(); }},
  {n:'FIVE OF CUPS', dd:'Lose 20% of your XP',t:-1,c:'#8a97b5',fx:()=>{ P.xp=Math.floor(P.xp*0.8); }},
- {n:'THE FOOL', dd:'Lose 15 coins',t:-1,c:'#e8d9c0',fx:()=>{ const a2=Math.random()*6.283,d2=300+Math.random()*200; P.x=clamp(P.x+Math.cos(a2)*d2,40,CFG.arena-40); P.y=clamp(P.y+Math.sin(a2)*d2,40,CFG.arena-40); P.inv=Math.max(P.inv,1.2); flash(0.4,'#e8d9c0'); }},
+ {n:'THE FOOL', dd:'Lose 15 coins',t:-1,c:'#e8d9c0',fx:()=>{ const a2=rng('tarot')*6.283,d2=300+rng('tarot')*200; P.x=clamp(P.x+Math.cos(a2)*d2,40,CFG.arena-40); P.y=clamp(P.y+Math.sin(a2)*d2,40,CFG.arena-40); P.inv=Math.max(P.inv,1.2); flash(0.4,'#e8d9c0'); }},
  {n:'SEVEN OF SWORDS', dd:'−20% damage 8s',t:-1,c:'#b0b8c8',fx:()=>{ P.damage*=0.8; debuffs.push({label:'🗡 −20% DMG',t:8,dur:8,revert:()=>{P.damage/=0.8;},dot:0,poison:false}); }},
  {n:'THE HERMIT', dd:'Enemies forget you 6s',t:-1,c:'#6a7488',fx:()=>{ P.speed*=0.8; debuffs.push({label:'🏮 −20% SPD',t:6,dur:6,revert:()=>{P.speed/=0.8;},dot:0,poison:false}); }},
  {n:'WHEEL REVERSED', dd:'Streak + fever drained',t:-1,c:'#a06a12',fx:()=>{ killStreak=0; streakT=0; fever=Math.max(0,fever-0.5); }},
- {n:'TOWER REVERSED', dd:'−30% blood + a curse',t:-2,c:'#e3b7ff',fx:()=>{ hurtPlayer(Math.round(P.maxHp*0.3)); applyDebuff(DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0]); }},
+ {n:'TOWER REVERSED', dd:'−30% blood + a curse',t:-2,c:'#e3b7ff',fx:()=>{ hurtPlayer(Math.round(P.maxHp*0.3)); applyDebuff(DEBUFF_POOL[(rng('tarot')*DEBUFF_POOL.length)|0]); }},
  {n:'DEATH REVERSED', dd:'Summons a hunting pack',t:-2,c:'#e3b7ff',fx:()=>{ if(enemies.length<CFG.spawn.max) spawnEnemy('elite',clamp(P.x+180,20,CFG.arena-20),clamp(P.y,20,CFG.arena-20)); for(let i2=0;i2<4&&enemies.length<CFG.spawn.max;i2++){ const a2=Math.random()*6.283; spawnEnemy('swarm',clamp(P.x+Math.cos(a2)*160,20,CFG.arena-20),clamp(P.y+Math.sin(a2)*160,20,CFG.arena-20)); } }}
 ];
 const TR_ROMAN=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI','XXII','XXIII','XXIV'];
@@ -6237,17 +6371,17 @@ function tickTarot(dt){
   if(houseActive){ tarots.length=0; return; }
   tarotT-=dt;
   if(tarotT<=0 && tarots.length<2){
-    tarotT=(14+Math.random()*10)/((window._fmods&&window._fmods.tarot)||1);
-    const a=Math.random()*6.283, dd=260+Math.random()*300;
-    tarots.push({x:clamp(P.x+Math.cos(a)*dd,40,CFG.arena-40), y:clamp(P.y+Math.sin(a)*dd,40,CFG.arena-40), ph:Math.random()*6.28, t:24});
+    tarotT=(14+rng('tarot')*10)/((window._fmods&&window._fmods.tarot)||1);
+    const a=rng('tarot')*6.283, dd=260+rng('tarot')*300;
+    tarots.push({x:clamp(P.x+Math.cos(a)*dd,40,CFG.arena-40), y:clamp(P.y+Math.sin(a)*dd,40,CFG.arena-40), ph:rng('tarot')*6.28, t:24});
     showStreak('☨ A TAROT CARD MANIFESTS ☨'); SFX.tingle();
   }
   for(let i=tarots.length-1;i>=0;i--){ const c=tarots[i]; c.t-=dt;
     if(c.t<=0){ tarots.splice(i,1); continue; }
     if(Math.hypot(P.x-c.x,P.y-c.y)<P.radius+16){
       tarots.splice(i,1);
-      let f=TAROT_FATES[(Math.random()*TAROT_FATES.length)|0];
-      if(f.t<0 && Math.random()<(P.tarotLuck||0)){ f=TAROT_FATES[(Math.random()*TAROT_FATES.length)|0]; announce('♠ MARKED CARDS — REDRAWN ♠',true); SFX.uiDing(); }
+      let f=TAROT_FATES[(rng('tarot')*TAROT_FATES.length)|0];
+      if(f.t<0 && rng('tarot')<(P.tarotLuck||0)){ f=TAROT_FATES[(rng('tarot')*TAROT_FATES.length)|0]; announce('♠ MARKED CARDS — REDRAWN ♠',true); SFX.uiDing(); }
       revealTarot(f); f.fx(); ring(P.x,P.y,95,f.c);
       announce('☨ '+f.n+' ☨', f.t>0); flash(0.4,f.c); sparkBurst(f.t>0?24:12);
       if(f.t<0){ shake=Math.min(14,shake+6); }
@@ -6343,7 +6477,7 @@ const WSEGS=[
  {n:'60 COINS', g:'◈', cs:'blue', c:'#c8860a', tier:1, w:46, f:(m)=>{ const g2=60*m; P.coins+=g2; LT.coins+=g2; coinRain(14*m); SFX.cashout(); announce('◈ +'+g2+' COINS ◈',true); }},
  {n:'HEAL 33%', g:'✚', cs:'blue', c:'#0e8a4a', tier:1, w:36, f:(m)=>{ if(P.drought){ const g5=40*m; P.coins+=g5; LT.coins+=g5; SFX.cashout(); announce('✕ THE DROUGHT — +'+g5+' COINS INSTEAD ✕',true); return; } const hl=Math.round(P.maxHp*0.33*m); P.hp=Math.min(P.maxHp,P.hp+hl); flash(0.4,'#8bff9a'); SFX.dingBells(); announce('✚ +'+hl+' BLOOD ✚',true); }},
  {n:'↻ FREE SPIN', g:'↻', cs:'blue', c:'#ff5fa2', tier:1, w:32, f:null},
- {n:'CURSE', g:'☠', cs:'blue', c:'#640a16', tier:0, w:26, f:()=>{ const dl=applyDebuff(DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0]); SFX.bust(); flash(0.45,'#8b1620'); announce('☠ '+dl+' ☠',false); }},
+ {n:'CURSE', g:'☠', cs:'blue', c:'#640a16', tier:0, w:26, f:()=>{ const dl=applyDebuff(DEBUFF_POOL[(rng('wheel')*DEBUFF_POOL.length)|0]); SFX.bust(); flash(0.45,'#8b1620'); announce('☠ '+dl+' ☠',false); }},
  // ── RESTRICTED PURPLE (40/200 = 20%)
  {n:'90 COINS', g:'◈', cs:'purple', c:'#e8a112', tier:2, w:12, f:(m)=>{ const g2=90*m; P.coins+=g2; LT.coins+=g2; coinRain(24); SFX.cashout(); SFX.dingBells(); announce('◈ +'+g2+' COINS ◈',true); }},
  {n:'GILT +35', g:'◆', cs:'purple', c:'#96700e', tier:2, w:10, f:(m)=>{ const g3=35*m; gilt+=g3; saveGilt(); SFX.chipStack(); SFX.casinoDing(); try{ ftext(P.x,P.y-40,'+'+g3+' ◈ GILT','#fff2c0',true); }catch(e){} announce('◈ +'+g3+' GILT BANKED ◈',true); }},
@@ -6354,8 +6488,8 @@ const WSEGS=[
  {n:'⚔ ARSENAL', g:'⚔', cs:'pink', c:'#c22ca0', tier:3, w:4, f:()=>{ slotForceWeapon=true; pending.push({}); SFX.levelUp(); announce('⚔ THE ARSENAL WHEEL AWAITS ⚔',true); }},
  {n:'⚔ SIDE ARM', g:'⚔', cs:'pink', c:'#2a9db8', tier:3, w:4, f:()=>{
    const fresh=availableWeapons().filter(w=>!(P.wlv[w.id]>0) && (w.rar==='common'||w.rar==='uncommon'));
-   let def=fresh.length?pick(fresh):null;
-   if(!def){ const grown=WEAPONS.filter(w=>(P.wlv[w.id]||0)>0 && (P.wlv[w.id]||0)<w.max); def=grown.length?pick(grown):null; }
+   let def=fresh.length?rpick('wheel',fresh):null;
+   if(!def){ const grown=WEAPONS.filter(w=>(P.wlv[w.id]||0)>0 && (P.wlv[w.id]||0)<w.max); def=grown.length?rpick('wheel',grown):null; }
    if(def){ grantWeaponLevels(def,1); flash(0.35,'#2a9db8'); }
    else { P.coins+=45; LT.coins+=45; coinRain(14); SFX.cashout(); announce('⚔ ARSENAL FULL — +45 COINS ⚔',true); }
  }},
@@ -6365,7 +6499,7 @@ const WSEGS=[
  // ── GOLD (2/200 = 1%) — the knife
  {n:'★ THE HOUSE BLADE', g:'★', cs:'gold', c:'#e4ae39', tier:4, w:2, f:()=>{
    const myth=PASSIVES.filter(p=>p.rar==='mythic' && !owned.has(p.id));
-   const pd=myth.length?pick(myth):PASSIVES.find(p=>p.id==='allin');
+   const pd=myth.length?rpick('wheel',myth):PASSIVES.find(p=>p.id==='allin');
    grantSkill(pd,1);
    gilt+=60; saveGilt(); coinRain(40);
    setTimeout(()=>announce('★ THE HOUSE BLADE — '+pd.n.toUpperCase()+' ★',true), 500);
@@ -6396,7 +6530,7 @@ const CHAIN_SETS=[
 function buildChains(){
   const seal=$('wheelSeal'); if(!seal) return;
   seal.querySelectorAll('.wsChain').forEach(c=>c.remove());
-  const set=CHAIN_SETS[(Math.random()*CHAIN_SETS.length)|0];
+  const set=CHAIN_SETS[(rng('wheel')*CHAIN_SETS.length)|0];
   wheel.chains=set.length; wheel._chainN=set.length; wheel.chainEls=[];
   set.forEach(cd=>{ const c=document.createElement('div'); c.className='wsChain';
     c.style.top=cd.t+'%'; c.style.transform='rotate('+cd.r+'deg)';
@@ -6436,7 +6570,7 @@ function unsealWheel(){
 function buildTickerStrip(){
   // the exact 200-card CS bag (weights sum to 200), shuffled with no adjacent twins
   const bag=[]; WSEGS.forEach((sg,i)=>{ const w=sg.w||5; for(let k=0;k<w;k++) bag.push(i); });
-  for(let i=bag.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; [bag[i],bag[j]]=[bag[j],bag[i]]; }
+  for(let i=bag.length-1;i>0;i--){ const j=(rng('wheel')*(i+1))|0; [bag[i],bag[j]]=[bag[j],bag[i]]; }
   for(let i=1;i<bag.length;i++){ if(bag[i]===bag[i-1]) { const j=(i+7)%bag.length; [bag[i],bag[j]]=[bag[j],bag[i]]; } }
   const strip=bag.slice();
   wheel.strip=strip;
@@ -6453,7 +6587,7 @@ function openWheel(){
   coachMark('wheel','SPACE snaps the chains — CONTRABAND is the finest shelf');
   buildWheelDom(); state='wheel';
   wheel={x:0, phase:'sealed', mult:1, lastSeg:-1, done:false, windT:0, setT:0, toAscent:false,
-    golden:Math.random()<(0.05+(P.goldenBoost||0)), windK:0, slowTicks:0, hbT:0, strip:[], tIdx:0, jit:0, rigSeg:(wheel&&wheel.rigSeg)||null};
+    golden:rng('wheel')<(0.05+(P.goldenBoost||0)), windK:0, slowTicks:0, hbT:0, strip:[], tIdx:0, jit:0, rigSeg:(wheel&&wheel.rigSeg)||null};
   wheel.cost=Math.ceil((P.coins||0)*0.25);
   buildTickerStrip();
   $('wheelMult').classList.add('hidden');
@@ -6482,7 +6616,7 @@ function launchWheel(){
 }
 function startRoll(){
   const box=$('tickerBox'); wheel.boxW=box.clientWidth||wheel.boxW||660;
-  let tIdx=120+((Math.random()*40)|0);
+  let tIdx=120+((rng('wheel')*40)|0);
   if(wheel.rigSeg){ let k=110; while(k<wheel.strip.length && WSEGS[wheel.strip[k]].n!==wheel.rigSeg) k++;
     if(k<wheel.strip.length) tIdx=k; else { let k2=8; while(k2<wheel.strip.length && WSEGS[wheel.strip[k2]].n!==wheel.rigSeg) k2++; if(k2<wheel.strip.length) tIdx=k2; }
     wheel.rigSeg=null; }
@@ -6490,12 +6624,12 @@ function startRoll(){
   if(WSEGS[wheel.strip[tIdx]].n==='CURSE' && typeof contractDone==='function' && contractDone('thefix')){
     tIdx++; setTimeout(()=>announce('♠ THE FIX IS IN — THE CURSE NEVER HOLDS ♠',true), 900); }
   wheel.tIdx=tIdx;
-  let jit=(Math.random()*0.68-0.34)*TK_STEP;
-  if(Math.abs(jit)<0.22*TK_STEP && Math.random()<0.6) jit=(jit<0?-1:1)*(0.26+Math.random()*0.08)*TK_STEP; // bias toward visible hangs
+  let jit=(rng('wheel')*0.68-0.34)*TK_STEP;
+  if(Math.abs(jit)<0.22*TK_STEP && rng('wheel')<0.6) jit=(jit<0?-1:1)*(0.26+rng('wheel')*0.08)*TK_STEP; // bias toward visible hangs
   wheel.jit=jit;
   wheel.xClean=-(tkCenter(tIdx)-wheel.boxW/2);
   wheel.rx0=wheel.x; wheel.rx1=wheel.xClean-jit;
-  wheel.rollT=0; wheel.rollDur=3.9+Math.random()*0.6; wheel.slowTicks=0; wheel.hbT=0; wheel.lastSeg=-1;
+  wheel.rollT=0; wheel.rollDur=3.9+rng('wheel')*0.6; wheel.slowTicks=0; wheel.hbT=0; wheel.lastSeg=-1;
   wheel.phase='roll';
   startWhirr();
   SFX.riser(); noise(0.3,0.22,2600); tone(150,0.5,'sawtooth',0.1,900);
@@ -6648,9 +6782,9 @@ function landWheel(seg){
 function tickWheelTok(dt){
   if(houseActive) return; // no cases on the House's floor
   if(!wheelTok){ wheelTokT-=dt;
-    if(wheelTokT<=0){ wheelTokT=(50+Math.random()*20-10)*(1-(P.wheelHaste||0)); // pity window: 40-60s, droughts impossible
-      const a=Math.random()*6.283, d=280+Math.random()*320;
-      wheelTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:20, ph:Math.random()*6.28};
+    if(wheelTokT<=0){ wheelTokT=(50+rng('wheel')*20-10)*(1-(P.wheelHaste||0)); // pity window: 40-60s, droughts impossible
+      const a=rng('wheel')*6.283, d=280+rng('wheel')*320;
+      wheelTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:20, ph:rng('wheel')*6.28};
       announce('☸ THE WHEEL OF SOULS MANIFESTS ☸', true); SFX.dingBells();
       [1046,1318,1568].forEach((f,i)=>setTimeout(()=>tone(f,0.14,'sine',0.08),i*110)); // come-play beckon
       ring(wheelTok.x,wheelTok.y,90,'#c98bff'); ring(wheelTok.x,wheelTok.y,54,'#ffd36b'); }
@@ -6724,8 +6858,8 @@ function rageAscend(){
   P._ovPass=true; gainXP(0);
 }
 function spawnAscentGate(){
-  const a=Math.random()*6.283, d=260+Math.random()*220;
-  crashTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:30, ph:Math.random()*6.28, blessed:true};
+  const a=rng('ascent')*6.283, d=260+rng('ascent')*220;
+  crashTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:30, ph:rng('ascent')*6.28, blessed:true};
   announce('▲ THE ASCENT HAS MANIFESTED — SEEK THE GATE ▲', true);
   coachMark('ascent','the GREEN GATE stakes your LEVEL — ride the multiplier, cash before the crash');
   SFX.dingBells(); SFX.casinoDing(); ring(crashTok.x,crashTok.y,120,'#8bff9a'); ring(crashTok.x,crashTok.y,70,'#fff2c0');
@@ -6790,7 +6924,7 @@ function openCrash(){
 // P(cp≥1.77)=75% · P(cp≥2.77)=40% · P(cp≥3.69)=15% · P(cp≥7.77)=4%
 const CP_ANCH=[[1.01,1],[1.77,0.75],[2.77,0.40],[3.69,0.15],[7.77,0.04],[40,0.001]];
 function rollCrashPoint(){
-  const u=Math.random();
+  const u=rng('ascent');
   for(let i=1;i<CP_ANCH.length;i++){ const a=CP_ANCH[i-1], b=CP_ANCH[i];
     if(u>=b[1]) return a[0]*Math.pow(b[0]/a[0],(a[1]-u)/(a[1]-b[1])); }
   return 40;
@@ -6881,7 +7015,7 @@ function gateFx(x){
 }
 function pushCrash(){
   if(!crash.live) return;
-  const inc=(0.01+Math.random()*0.19)*(1+crash.mult*0.08);
+  const inc=(0.01+rng('ascent')*0.19)*(1+crash.mult*0.08);
   crash.mult+=inc;
   // 7.77 is the ceiling of heaven — touch it and the jackpot claims you
   if(crash.mult>=7.77){
@@ -6985,12 +7119,12 @@ const ASC_TIERS=[['common',65,0],['rare',20,1.77],['epic',10,2.77],['mythic',5,3
 const RAR_LABEL={common:'COMMON',uncommon:'UNCOMMON',rare:'RARE',epic:'ULTRA RARE',legendary:'LEGENDARY',mythic:'MYTHIC'};
 function rollAscentPrize(m){
   const un=ASC_TIERS.filter(t=>m>=t[2]);
-  let tot=un.reduce((a,t)=>a+t[1],0), r=Math.random()*tot, tier='common';
+  let tot=un.reduce((a,t)=>a+t[1],0), r=rng('ascent')*tot, tier='common';
   for(const t of un){ r-=t[1]; if(r<=0){ tier=t[0]; break; } }
   let pool=PASSIVES.filter(p=>tier==='epic' ? (p.rar==='epic'||p.rar==='legendary') : tier==='common' ? (p.rar==='common'||p.rar==='uncommon') : p.rar===tier);
   if(tier==='mythic'){ pool=pool.filter(p=>!P.passiveList.find(x=>x.id===p.id)); if(!pool.length){ tier='epic'; pool=PASSIVES.filter(p=>p.rar==='epic'||p.rar==='legendary'); } }
   if(!pool.length) pool=PASSIVES.filter(p=>p.rar==='common'||p.rar==='uncommon');
-  const pd=pool[(Math.random()*pool.length)|0];
+  const pd=pool[(rng('ascent')*pool.length)|0];
   if(pd.sc) pd.sc(m); else pd.ap();
   if(pd.u) owned.add(pd.id);
   addPassiveHUD(pd); renderRelics();
@@ -7004,8 +7138,8 @@ function rollAscentPrize(m){
   }, 500);
 }
 function theFall(){
-  const d=DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0];
-  const dur=Math.round(5+Math.random()*10); // 5-15s, a different curse every fall
+  const d=DEBUFF_POOL[(rng('ascent')*DEBUFF_POOL.length)|0];
+  const dur=Math.round(5+rng('ascent')*10); // 5-15s, a different curse every fall
   const lbl=applyDebuff({label:d.label, dur:dur, dot:d.dot, ap:d.ap});
   flash(0.6,'#8b1620'); SFX.bust(); SFX.thud(); shake=Math.min(20,shake+10);
   setTimeout(()=>announce('☄ THE FALL — '+lbl+' ☄', false), 400);
@@ -7017,7 +7151,7 @@ function prerollAsc(){
   crash.prz={};
   for(let t=1;t<=3;t++){
     const pool=PASSIVES.filter(p=>ASC_POOLS[t].includes(p.id) && !P.passiveList.find(x=>x.id===p.id));
-    crash.prz[t]=pool.length?pool[(Math.random()*pool.length)|0]:null;
+    crash.prz[t]=pool.length?pool[(rng('ascent')*pool.length)|0]:null;
   }
 }
 function przLabel(t){ const p=crash.prz&&crash.prz[t]; return p?(p.n+' ('+p.fx+')'):'+'+(60*t)+' COINS'; }
@@ -7027,7 +7161,7 @@ function grantAscPassive(m){
   let pool=PASSIVES.filter(p=>pools[t].includes(p.id) && !P.passiveList.find(x=>x.id===p.id));
   if(!pool.length && t<3) pool=PASSIVES.filter(p=>pools[t+1].includes(p.id) && !P.passiveList.find(x=>x.id===p.id));
   if(!pool.length){ const g=Math.round(60*m); P.coins+=g; LT.coins+=g; coinRain(20); announce('◈ ALL PASSIVES HELD — +'+g+' COINS ◈',true); return null; }
-  const pd=pool[(Math.random()*pool.length)|0];
+  const pd=pool[(rng('ascent')*pool.length)|0];
   pd.ap(); addPassiveHUD(pd); renderRelics();
   return pd;
 }
@@ -7040,7 +7174,7 @@ function jackpotOffer(){
   const opts=[];
   let pool=PASSIVES.filter(p=>p.rar==='ascend' && skillLevel(p.id)===0);
   if(pool.length<3){ const up=PASSIVES.filter(p=>p.rar==='ascend' && skillLevel(p.id)>0 && skillLevel(p.id)<p.max && pool.indexOf(p)<0); pool=pool.concat(up); }
-  for(let i=0;i<3 && pool.length;i++){ const pk=pool[(Math.random()*pool.length)|0]; opts.push(pk); pool=pool.filter(w=>w!==pk); }
+  for(let i=0;i<3 && pool.length;i++){ const pk=pool[(rng('ascent')*pool.length)|0]; opts.push(pk); pool=pool.filter(w=>w!==pk); }
   crash.jkOpts=opts;
   if(!opts.length){ P.coins+=500; LT.coins+=500; announce('◈ ALL ASCENSIONS HELD — 500 COINS ◈',true); setTimeout(closeCrash,1600); return; }
   // PHASE A — the letters: drumroll under J·A·C·K·P·O·T slamming in one by one
@@ -7123,9 +7257,9 @@ function closeCrash(){ crash.jk=false; { const w9=$('jkWrap'); if(w9){ w9.classL
 function tickCrashTok(dt){
   if(houseActive) return;
   if(!crashTok){ crashTokT-=dt;
-    if(crashTokT<=0){ crashTokT=68+Math.random()*24-12; // pity window: 56-80s
-      const a=Math.random()*6.283, d=300+Math.random()*300;
-      crashTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:20, ph:Math.random()*6.28};
+    if(crashTokT<=0){ crashTokT=68+rng('ascent')*24-12; // pity window: 56-80s
+      const a=rng('ascent')*6.283, d=300+rng('ascent')*300;
+      crashTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:20, ph:rng('ascent')*6.28};
       announce('▲ THE ASCENT BECKONS ▲', true); SFX.dingBells();
       coachMark('ascent','the GREEN GATE stakes your LEVEL — ride the multiplier, cash before the crash');
       [988,1318,1760].forEach((f,i)=>setTimeout(()=>tone(f,0.14,'sine',0.08),i*110)); // come-play beckon
@@ -7178,11 +7312,11 @@ function rollMainReward(floor){
   cands.forEach(c=>have[c.rar]++);
   for(const k in w) if(!have[k]) w[k]=0;
   let total=0; for(const k in w) total+=w[k];
-  if(total<=0) return pick(cands.length?cands:[weaponReward(WEAPONS[0])]);
-  let x=Math.random()*total, chosen='common';
+  if(total<=0) return rpick('slot',cands.length?cands:[weaponReward(WEAPONS[0])]);
+  let x=rng('slot')*total, chosen='common';
   for(const k in w){ if(x<w[k]){ chosen=k; break; } x-=w[k]; }
   const tier=cands.filter(c=>c.rar===chosen);
-  return pick(tier.length?tier:cands);
+  return rpick('slot',tier.length?tier:cands);
 }
 
 /* ============================================================
@@ -7207,11 +7341,11 @@ const RED_W={common:16,uncommon:26,rare:30,epic:21,legendary:7}; // the red tabl
 function weightedByRarity(arr, wOver){
   const w=wOver||CFG.weights, buckets={};
   arr.forEach(o=>{ (buckets[o.rar]=buckets[o.rar]||[]).push(o); });
-  const keys=Object.keys(buckets); if(!keys.length) return pick(arr);
+  const keys=Object.keys(buckets); if(!keys.length) return rpick('slot',arr);
   let t=0; keys.forEach(k=>t+=w[k]||1);
-  let x=Math.random()*t, chosen=keys[0];
+  let x=rng('slot')*t, chosen=keys[0];
   for(const k of keys){ if(x<(w[k]||1)){ chosen=k; break; } x-=(w[k]||1); }
-  return pick(buckets[chosen]);
+  return rpick('slot',buckets[chosen]);
 }
 const DIE_PIP_POS={
   1:[[50,50]],
@@ -7233,7 +7367,7 @@ const MINIPOWERS=[
   {t:'+8 Pickup Range', ap:()=>{P.pickup+=8;}},
   {t:'+1% Crit', ap:()=>{P.crit=Math.min(0.9,P.crit+0.01);}}
 ];
-function grantMiniPower(){ const m=MINIPOWERS[(Math.random()*MINIPOWERS.length)|0]; m.ap(); return m.t; }
+function grantMiniPower(){ const m=MINIPOWERS[(rng('slot')*MINIPOWERS.length)|0]; m.ap(); return m.t; }
 let slotForceWeapon=false, _seanceOn=false;
 function endSeance(){
   if(_seanceOn){ _seanceOn=false; elSlot.classList.remove('seance'); if(!lastRites) stopDrone(); }
@@ -7263,7 +7397,7 @@ function openNextSlot(){
 function enterRedTable(){
   redForgiven=false;
   if(!P.passiveList||!P.passiveList.length){ redStake=null; return; } // nothing to stake — the house deals plain
-  const en=P.passiveList[(Math.random()*P.passiveList.length)|0];
+  const en=P.passiveList[(rng('slot')*P.passiveList.length)|0];
   redStake={id:en.id, n:en.n, g:en.g};
   let sc=$('sacCard');
   if(!sc){ sc=document.createElement('div'); sc.id='sacCard'; $('machine').appendChild(sc); }
@@ -7348,16 +7482,17 @@ let slotFate=null;
 let redStake=null, redForgiven=false; // THE SACRIFICE — a skill of yours on the side table
 function dealFate(seqs, pool){
   if(P&&P.sharp&&window._sharpTell){ const t=window._sharpTell; window._sharpTell=null; // D1 THE CARDSHARP: the tell you were shown IS the deal
-    const p1=(Math.random()*seqs[0].length)|0;
+    const p1=(rng('slot')*seqs[0].length)|0;
     seqs.forEach((sq,k)=>{ if(t.n===1&&k>0) return; for(let j=0;j<3;j++) sq[(p1+j*7)%sq.length]=t.s; });
     slotFate={n:t.n, s:t.s, sharp:true}; return; }
   if(P&&P.coldDeck){ slotFate={n:0}; return; } // the cold deck never matches
-  const u=Math.random();
+  const u=rng('slot');
   const pB=MFATE.P+((P&&P.yolkFate)?0.03:0); // the reels lean toward pairs for the Yolk
-  const n = u<MFATE.T ? 3 : (u<MFATE.T+pB ? 2 : 0);
+  const fm=(P&&P.fateMult)||1; // B1: a daily debt can lean the reels cold
+  const n = u<MFATE.T*fm ? 3 : (u<(MFATE.T+pB)*fm ? 2 : 0);
   if(!n){ slotFate={n:0}; return; }
   const s=weightedByRarity(pool, slotHot()).id;
-  const p0=(Math.random()*seqs[0].length)|0;
+  const p0=(rng('slot')*seqs[0].length)|0;
   seqs.forEach(sq=>{ for(let j=0;j<3;j++) sq[(p0+j*7)%sq.length]=s; });
   slotFate={n, s};
 }
@@ -7372,7 +7507,7 @@ function spinReels(){
   dealFate(seqs, pool);
   slotReels = strips.map((el,i)=>{
     buildStrip(el,seqs[i],defs); el.style.transition='none';
-    return {el,seq:seqs[i],N,offset:Math.random()*N,speed:19+i*1.8,stopped:false,landedSym:null,symH:63,boxH:189};
+    return {el,seq:seqs[i],N,offset:rng('slot')*N,speed:19+i*1.8,stopped:false,landedSym:null,symH:63,boxH:189};
   });
   LT.spins++; bump('spins',LT.spins);
   slotStage='spinning'; reelsStopped=0; stopLock=performance.now()+(RUN._pulled?40:780); RUN._pulled=1; // the first pull of the night savors its spin-up
@@ -7506,9 +7641,9 @@ function startSelector(){
   $('reelsRow').classList.add('sweeping');
   if(!lastRites){ elSlot.classList.add('seance'); _seanceOn=true; startDrone(); }
   $('machine').classList.add('selecting');
-  selWinner=(Math.random()*3)|0;
+  selWinner=(rng('slot')*3)|0;
   if(slotFate&&slotFate.sharp){ const k9=landed.indexOf(slotFate.s); if(k9>=0) selWinner=k9; } // D1: the cardsharp's single lands where the tell said
-  selPos=(Math.random()*3)|0; selT=0; selHop=0.05; selStopping=false; selHopsLeft=0; selTk=0;
+  selPos=(rng('slot')*3)|0; selT=0; selHop=0.05; selStopping=false; selHopsLeft=0; selTk=0;
   paintPick(selPos);
   SFX.selectorGo();
   $('cardName').textContent='FATE SPINS'; $('cardName').className='r-common';
@@ -7520,7 +7655,7 @@ function boxOf(i){ return $('reelBox'+i) || (slotReels[i]&&slotReels[i].el.paren
 function stopSelector(){
   if(slotStage!=='select' || selStopping) return;
   selStopping=true;
-  const loops = 2 + ((Math.random()*2)|0);
+  const loops = 2 + ((rng('slot')*2)|0);
   let h = loops*3 + ((((selWinner - selPos)%3)+3)%3);
   if(h < 6) h += 3;
   selHopsLeft = h;
@@ -7555,7 +7690,7 @@ function lockSelector(){
     return _pf(def,lv);
   }; }
 function finalizeReward(bestId, matchN){
-  let seraph=Math.random()<0.01; if(seraph&&matchN<3) matchN++;
+  let seraph=rng('slot')<0.01; if(seraph&&matchN<3) matchN++;
   if(slotFloor && matchN<2) matchN=2;
   if(matchN>=3){ LT.triples++; bump('triples',LT.triples); RUN.pulls._tr3=(RUN.pulls._tr3||0)+1; } else if(matchN===2){ LT.pairs++; bump('pairs',LT.pairs); }
   { const add9=matchN>=3?2:(matchN===2?1:0);
@@ -7575,7 +7710,7 @@ function finalizeReward(bestId, matchN){
   let usedOv=false, usedVch=false;
   if(ovBonusNext){ ovBonusNext=false; base+=1; usedOv=true; setTimeout(()=>announce('⚡ OVERCHARGED — +1 BONUS LEVEL ⚡', true), 700); }
   if(vouchers>0){ vouchers--; base+=1; usedVch=true; setTimeout(()=>{ announce('◈ HOUSE VOUCHER SPENT — +1 LEVEL ◈', true); flash(0.35,'#ffd36b'); SFX.casinoDing(); }, 1400); }
-  gamble={ _forgiven:redForgiven, def, kind:slotKind, base, reward:base, matchN, round:1, threshold:8-(vlv('dice')?1:0)-(P.diceEase||0)+(P.hexDice?1:0)+(P.crookedT?1:0), rites:lastRites, seraph, rollT:0, win:false, dL:0, dR:0, hist:[], diceN:0, _voucherUsed:usedVch, _ovUsed:usedOv };
+  gamble={ _forgiven:redForgiven, def, kind:slotKind, base, reward:base, matchN, round:1, threshold:8-(vlv('dice')?1:0)-(P.diceEase||0)+(P.hexDice?1:0)+(P.crookedT?1:0)+(P.b2dice||0), rites:lastRites, seraph, rollT:0, win:false, dL:0, dR:0, hist:[], diceN:0, _voucherUsed:usedVch, _ovUsed:usedOv };
   if(P.crookedT) P.crookedT=false; // the CROOKED TABLE scar bites once
   if(seraph) seraphCeremony();
   ceremony(matchN, def);
@@ -7644,7 +7779,7 @@ function openOffer(){
   coachMark('offer','TAKE keeps the prize · DICE gambles it one rung higher');
   const deadly = g.round>=3;
   $('machine').classList.toggle('deadly', deadly); // the blessing is close — the machine breathes red-gold
-  if(!deadly && !g.pendingCurse) g.pendingCurse=DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0];
+  if(!deadly && !g.pendingCurse) g.pendingCurse=DEBUFF_POOL[(rng('slot')*DEBUFF_POOL.length)|0];
   const curLv=skLevel(g.def);
   const takeLv=Math.min(g.def.max, curLv+g.reward);
   const takeOv=(curLv+g.reward)-takeLv;
@@ -7673,7 +7808,7 @@ function doRisk(){
   const g=gamble;
   $('reelsRow').style.display='none'; $('diceRow').style.display='';
   $('machine').classList.add('dicing'); $('machine').classList.remove('deadly');
-  if(!diceShown){ dice=[ {el:$('dieL'),val:1+((Math.random()*6)|0),rolling:false,ft:0}, {el:$('dieR'),val:1+((Math.random()*6)|0),rolling:false,ft:0} ]; diceShown=true; }
+  if(!diceShown){ dice=[ {el:$('dieL'),val:1+((rng('slot')*6)|0),rolling:false,ft:0}, {el:$('dieR'),val:1+((rng('slot')*6)|0),rolling:false,ft:0} ]; diceShown=true; }
   dice.forEach(d=>{ d.rolling=true; d.ft=0; d.el.classList.remove('settle','crit','hot'); d.el.classList.add('rolling'); renderDie(d.el,d.val); });
   slotStage='dicing'; stopLock=performance.now()+60;
   if(g.rites){ flash(0.3,'#8b1620'); SFX.thud(); } // the red table asks no blood — only nerve
@@ -7691,7 +7826,7 @@ function stopDie(){
   if(performance.now()<(stopLock||0)) return;
   const idx = dice[0].rolling ? 0 : 1;
   const d=dice[idx]; if(!d.rolling) return;
-  d.rolling=false; d.val=1+((Math.random()*6)|0); renderDie(d.el,d.val);
+  d.rolling=false; d.val=1+((rng('slot')*6)|0); renderDie(d.el,d.val);
   d.el.classList.remove('rolling'); d.el.classList.add('settle'); setTimeout(()=>{ if(d.el)d.el.classList.remove('settle'); },340);
   stopLock=performance.now()+60;
   const mag = gamble? gamble.round : 1;
@@ -8127,7 +8262,7 @@ function a2Payline(matchN, def){
 /* ============================================================
    DEATH + LEADERBOARD
    ============================================================ */
-function computeScore(){ return Math.floor(gt*7 + P.kills*6 + P.coins*3 + P.level*45); }
+function computeScore(){ return Math.floor((gt*7 + P.kills*6 + P.coins*3 + P.level*45)*((typeof b2ScoreMult==='function')?b2ScoreMult():1)); } // B2: the endless floor multiplies
 async function die(){
   if(state==='dead'||state==='marker') return;
   if(!P.markerUsed){ P.markerUsed=true; LT.markers=(LT.markers||0)+1; bump('markers',LT.markers); markerSpin(); return; }
@@ -8189,7 +8324,7 @@ function startFlicker(mk){
   const pPct=mk.p*100;
   $('jackpotSub').innerHTML='<div class="fpPct big">'+pPct.toFixed(3)+'<i>%</i> TO LIVE</div><div class="fpHint">THE HOUSE ROLLS…</div>';
   t.className='jackpotText marker';
-  const roll=Math.random()*100; // the truth, decided now
+  const roll=rng('fate')*100; // the truth, decided now
   mk.roll=roll; mk.margin=pPct-roll; RUN.rollMargin=mk.margin;
   let n=0, N=16;
   const step=()=>{
@@ -8238,7 +8373,7 @@ async function actuallyDie(){
   if(gt>=899 && !P._houseHurt){ const had=SEC.has('deathless'); secret('deathless','DEATHLESS');
     if(!had && SEC.has('deathless')){ gilt+=975; saveGilt(); setTimeout(()=>announce('♛ DEATHLESS — THE HOUSE PAYS 1,000 GILT ♛',true),1200); } }
   stopDrone(); SFX.death(); shake=18; flash(0.6,'#8b1620');
-  const score=computeScore(), giltEarned=Math.floor(score/40);
+  const score=computeScore(), giltEarned=Math.floor(score/40*(window._b2giltMult||1)); // B2: the stake pays gilt too
   gilt+=giltEarned; saveGilt();
   LT.deaths++; bump('deaths',LT.deaths);
   LT.gilt+=giltEarned; bump('gilt',LT.gilt);
@@ -8252,7 +8387,7 @@ async function actuallyDie(){
   saveAch();
   const newBest = score>best; if(newBest) best=score;
   $('goResult').textContent = newBest? 'A RECORD IN BLOOD' : 'YOU BLINKED OUT';
-  { const by=(gt>=900)?'THE FORECLOSURE':(window._hitBy||'').toUpperCase();
+  { const by=(gt>=900&&!P._endless)?(window._b2won?'':'THE FORECLOSURE'):(window._hitBy||'').toUpperCase();
     $('goSub').textContent = (newBest? 'The court will remember this run.' : 'The house collects its due.')+(by?(' — taken by '+by):''); }
   quillFlick();
   // THE RECKONING — stat rows slam in with rising dings, everything skippable, back in the pit in seconds
@@ -8301,7 +8436,7 @@ async function actuallyDie(){
       const wchips=WEAPONS.filter(w=>(P.wlv[w.id]||0)>0).map(w=>'<span class="glChip" style="color:'+(GLYPH_COL[w.id]||'#e8d9b0')+'">'+w.g+'<i>'+(P.wlv[w.id]||0)+'</i></span>').join('');
       const schips=(P.passiveList||[]).map(r=>'<span class="glChip" style="color:'+(GLYPH_COL[r.id]||'#8bff9a')+'">'+r.g+'<i>'+r.count+'</i></span>').join('');
       const bp=RUN.bestPull;
-      const lo9=(typeof curSoul==='function')?(curSoul().g+' '+curSoul().n+' · '+curFloor().g+' '+curFloor().n+((IDX.ct||[]).length?' · ✍ '+(IDX.ct||[]).length+' CONTRACT'+((IDX.ct||[]).length>1?'S':''):'')):'';
+      const lo9=(typeof curSoul==='function')?(curSoul().g+' '+curSoul().n+' · '+curFloor().g+' '+curFloor().n+((IDX.ct||[]).length&&!DLY_RNG?' · ✍ '+(IDX.ct||[]).length+' CONTRACT'+((IDX.ct||[]).length>1?'S':''):'')):'';
       gl.innerHTML=
         (lo9&&typeof soulPortraitImg==='function'?'<div class="glSoul" style="--sc:'+curSoul().col+'">'+soulPortraitImg(curSoul().id,'glPort')+'</div>':'')+ // D1: the soul who sat tonight
         (lo9?'<div class="glRow" style="color:#c9b78e;letter-spacing:.12em">'+lo9+'</div>':'')+
@@ -8309,6 +8444,7 @@ async function actuallyDie(){
         +(bp?'<span>BEST PULL</span><b style="color:'+RARC[bp]+'">'+SLOT_RAR[bp]+'</b>':'')+'</div>'
         +(wchips?'<div class="glRow glChips">'+wchips+'</div>':'')
         +(schips?'<div class="glRow glChips">'+schips+'</div>':'');
+      try{ b2Ledger(); }catch(e){}
     } }
   // LUCK — the verdict of the night, in seven grades
   { const lk=$('goLuck');
@@ -8385,7 +8521,7 @@ function quillFlick(){
    Fake fortunes only — the card never shows coins, gilt or anything that pays.  */
 const A3_URL='https://egearal.github.io/ante-mortem/';
 function a3Night(){
-  const by=(gt>=900)?'THE FORECLOSURE':String(window._hitBy||'').toUpperCase();
+  const by=(gt>=900&&!P._endless)?(window._b2won?'':'THE FORECLOSURE'):String(window._hitBy||'').toUpperCase();
   const bp=(RUN&&RUN.bestPull)||null;
   return { time:fmt(gt), level:P.level, kills:P.kills, jack:(RUN&&RUN.pulls&&RUN.pulls._tr3)||0,
     streak:P.bestStreak||0, by, night:LT.runs||1, wave:wave||0,
@@ -8394,7 +8530,7 @@ function a3Night(){
 }
 function a3Line(n){
   return '♠ ANTE MORTEM — survived '+n.time+' · level '+n.level+' · '+n.jack+' jackpot'+(n.jack===1?'':'s')
-    +(n.by?' · taken by '+n.by:'')+' · '+A3_URL;
+    +(n.by?' · taken by '+n.by:'')+((typeof b2ShareBits==='function')?b2ShareBits():'')+' · '+A3_URL;
 }
 function a3Copy(txt){
   const legacy=()=>{ try{ const ta=document.createElement('textarea'); ta.value=txt; ta.setAttribute('readonly','');
@@ -8840,7 +8976,7 @@ const ACH_PERKS={
  'index_75':    {n:'THE DEEP STACKS',   fx:'+300 GILT · +2% XP, FOREVER',     g:300, ap:()=>{P.xpMult=(P.xpMult||1)*1.02;}},
  'index_100':   {n:'MARGINALIA',        fx:'+777 GILT · +2% DAMAGE, FOREVER', g:777, ap:()=>{P.damage*=1.02;}}
 };
-function applyAchPerks(){ for(const id in ACH_PERKS){ const pk=ACH_PERKS[id]; if(pk.ap && unlocked.has(id)) try{ pk.ap(); }catch(e){} } }
+function applyAchPerks(){ if(DLY_RNG) return; for(const id in ACH_PERKS){ const pk=ACH_PERKS[id]; if(pk.ap && unlocked.has(id)) try{ pk.ap(); }catch(e){} } }
 function bump(stat,value){
   const arr=ACH_BY_STAT[stat]; if(!arr) return;
   for(const a of arr){ if(a.v>value) break; if(!unlocked.has(a.id)){ unlocked.add(a.id); achQ.push(a);
@@ -9197,6 +9333,7 @@ function awardMarks(m){
   return { up, reward, have:RANK.marks-base, need:next-base, pct:Math.min(100,Math.round((RANK.marks-base)/(next-base)*100)) };
 }
 function applyRankPerks(){
+  if(DLY_RNG) return; // B1: fair field
   for(let r=2;r<=RANK.rank;r++){ const e=RANKS[r-1]; if(e&&e.ap){ try{ e.ap(); }catch(x){} } }
 }
 
@@ -9217,6 +9354,7 @@ function fnEase(){
 // contact bite of anything born during the ramp: 0.6 → 1.0 alongside the spawn ease
 function fnBite(){ if(!fnOn()) return 1; const e=(fnEase()-FN.start)/(1-FN.start); return FN.bite+(1-FN.bite)*e; }
 function fnStart(){
+  if(typeof DLY_RNG!=='undefined' && DLY_RNG){ P._fn=false; return; } // B1: the daily is the same night for everyone — no gentle ramp
   P._fn = !window._fnOff && (LT.runs||0)<=FN.nights && (RANK.rank||1)<FN.rankVet;
   if(!P._fn) return;
   P._fnN=LT.runs||1; P._fnK=0; P._fnL=0; P._fnR=0; P._fnS=0;
@@ -9258,6 +9396,322 @@ function fnFirstLevel(){
   try{ SFX.seraph(); coinRain(14); flash(0.3,'#ffd36b'); ring(P.x,P.y,170,'#ffd36b'); ring(P.x,P.y,110,'#fff2c0');
     setTimeout(()=>{ try{ if(state==='slot') domConfetti(24,'slot'); }catch(e){} }, 60); }catch(e){}
 }
+
+/* ==== B2 — THE STAKES + THE ENDLESS FLOOR ====
+   Beat the night (be standing at 15:00 when the House's reign ends) and the
+   deck ladder opens: CRIMSON → OBSIDIAN → IVORY → BONE → GILT, each keeping the
+   last one's cruelty and adding its own. Every win then offers PRESS ON — the
+   ENDLESS FLOOR past 15:00: court-themed waves, scaled elites, a champion every
+   3:00, and a score multiplier that climbs every 30s. Persistence lives ONLY in
+   the new additive key am_stakes_v1 (no existing key is touched).             */
+const B2_KEY='am_stakes_v1';
+let STK={v:1, won:0, best:{}, sel:0, first:{}, cos:'', clears:{}, endless:{best:0, score:0, stake:0, soul:'', mult:1}};
+const STAKES=[
+ {n:0, id:'house',    name:'THE HOUSE DECK', g:'♠', col:'#c9b78e', mult:1,    mod:'The night as the House deals it. No extra cruelty.'},
+ {n:1, id:'crimson',  name:'CRIMSON DECK',   g:'♦', col:'#ff2a3c', mult:1.25, mod:'SHARPSHOOTERS — shooters and hexers lead their shots: they fire where you are GOING, not where you are.', reward:{gilt:500,  cos:'halo'}},
+ {n:2, id:'obsidian', name:'OBSIDIAN DECK',  g:'♣', col:'#9a5cff', mult:1.5,  mod:'THE PAIRED COURT — every elite walks in with a twin.', reward:{gilt:1000, soul:'twin'}},
+ {n:3, id:'ivory',    name:'IVORY DECK',     g:'♥', col:'#fff4d6', mult:1.75, mod:'MARKED CARDS — every dice target is +1. The House reads your hand.', reward:{gilt:2000, cos:'crown'}},
+ {n:4, id:'bone',     name:'BONE DECK',      g:'☠', col:'#7fe0ff', mult:2,    mod:'LONG CURSES — every timed curse lasts twice as long.', reward:{gilt:3500, cos:'choir'}},
+ {n:5, id:'gilt',     name:'GILT DECK',      g:'♛', col:'#ffd36b', mult:2.5,  mod:'THE EARLY LANDLORD — the House arrives at 12:00. Three whole minutes of its reign.', reward:{gilt:7500, cos:'mantle'}}
+];
+const B2_COS={
+ halo:  {n:'BLOOD HALO',  g:'✹', col:'#ff2a3c', d:'A crimson ring burns at your feet.'},
+ crown: {n:'IVORY CROWN', g:'♛', col:'#fff4d6', d:'A small ivory crown hovers over your hat.'},
+ choir: {n:'BONE CHOIR',  g:'☠', col:'#7fe0ff', d:'Two frost-bone skulls orbit you, singing nothing.'},
+ mantle:{n:'GILT MANTLE', g:'✵', col:'#ffd36b', d:'Gold motes rise off your coat. You paid for every one.'}
+};
+// the endless court — each endless wave is dealt one theme; ~60% of its walkers wear it
+const B2_COURTS=[
+ {n:'THE PROCESSION', t:['wraith','stalker','wraith'],   col:'#c98bff'},
+ {n:'THE GALLERY',    t:['shooter','hexer','shooter'],    col:'#ffce5a'},
+ {n:'THE OSSUARY',    t:['brute','revenant','brute'],     col:'#ff5560'},
+ {n:'THE TIDE',       t:['swarm','husk','bomber','swarm'],col:'#8fd977'},
+ {n:'THE LEECHING',   t:['leech','shambler','stalker'],   col:'#4adf8a'}
+];
+function b2Save(){ try{ if(store) store.set(B2_KEY, JSON.stringify(STK)); }catch(e){} }
+function b2Load(){
+  try{ if(!store) return;
+    store.get(B2_KEY).then(r=>{
+      if(r&&r.value){ try{ const o=JSON.parse(r.value);
+        if(o&&typeof o==='object'){
+          STK.won=Math.max(0,+o.won||0); STK.sel=Math.max(0,Math.min(5,+o.sel||0)); STK.cos=typeof o.cos==='string'?o.cos:'';
+          STK.best={}; if(o.best&&typeof o.best==='object') for(const k in o.best){ const v=+o.best[k]; if(isFinite(v)) STK.best[k]=Math.max(-1,Math.min(5,v|0)); }
+          STK.first=(o.first&&typeof o.first==='object')?o.first:{};
+          STK.clears=(o.clears&&typeof o.clears==='object')?o.clears:{};
+          if(o.endless&&typeof o.endless==='object') STK.endless=Object.assign(STK.endless,o.endless);
+        } }catch(e){} }
+      try{ if(state==='menu' && typeof renderChips==='function') renderChips(); }catch(e){}
+    }).catch(()=>{});
+  }catch(e){}
+}
+b2Load();
+function b2SoulId(){ try{ return curSoul().id; }catch(e){ return 'vesper'; } }
+function b2BestFor(id){ const v=STK.best&&STK.best[id]; return typeof v==='number'?v:-1; }
+function b2BestAny(){ let m=-1; for(const k in (STK.best||{})) m=Math.max(m,STK.best[k]); return m; }
+// stake 1 opens for every soul after the first win; deeper decks are earned per soul
+function b2Avail(n,soul){ if(n<=0) return true; if(!STK.won) return false; if(n===1) return true; return b2BestFor(soul||b2SoulId())>=n-1; }
+function b2Sel(){ let s=STK.sel|0; const so=b2SoulId(); while(s>0 && !b2Avail(s,so)) s--; return s; }
+function b2HouseAt(){ return (P&&P.stake>=5)?720:780; }
+function b2ScoreMult(){ return (P&&P._endless)?1+0.1*Math.floor(Math.max(0,gt-P._endT0)/30):1; }
+function b2Pips(best){ let s=''; for(let i=1;i<=5;i++) s+='<i style="color:'+(i<=best?STAKES[i].col:'#4a3a34')+'">'+(i<=best?'◆':'◇')+'</i>'; return s; }
+
+// ——— the night begins: deal the stake ———
+function b2Start(){
+  CFG.spawn.max=340; window._b2won=false; window._b2giltMult=1; b2HideGate();
+  const s=b2Sel(); P.stake=s; P._endless=false; P._b2gate=false; P._b2step=0; P._b2bossN=0;
+  if(s>=1) P.b2lead=true;
+  if(s>=2) P.b2pairs=true;
+  if(s>=3) P.b2dice=1;
+  if(s>=4) P.curseCut=(P.curseCut||1)*2;
+  if(s>0){ const st=STAKES[s]; window._markMult=(window._markMult||1)*st.mult; window._b2giltMult=st.mult;
+    setTimeout(()=>{ if(state!=='dead') announce(st.g+' THE '+st.name+' IS DEALT — ×'+st.mult+' MARKS & GILT '+st.g, true); try{ SFX.chipStack(); SFX.casinoDing(); }catch(e){} }, 2600); }
+  document.body.classList.remove('b2endless');
+  { const tm=$('timer'); if(tm) tm.classList.remove('b2endless'); }
+  b2Hud(true);
+}
+// ——— per-frame (game dt): velocity for the sharpshooters, the endless ramp, the HUD ———
+function b2Tick(dt){
+  if(!P) return;
+  if(P._b2px!==undefined && dt>0){ const vx=(P.x-P._b2px)/dt, vy=(P.y-P._b2py)/dt;
+    P._b2vx=(P._b2vx||0)*0.8+vx*0.2; P._b2vy=(P._b2vy||0)*0.8+vy*0.2; }
+  P._b2px=P.x; P._b2py=P.y;
+  if(P._endless){
+    const step=Math.floor(Math.max(0,gt-P._endT0)/30);
+    if(step>P._b2step){ P._b2step=step; const m=b2ScoreMult();
+      b2Hud(true,true);
+      try{ SFX.multDing&&SFX.multDing(Math.min(8,step)); }catch(e){} tone(440*Math.pow(1.06,Math.min(24,step)),0.12,'sine',0.07);
+      if(step%2===0){ CFG.scale.hp+=0.12; CFG.scale.dmg+=0.03; CFG.scale.spdCap=Math.min(2.5,CFG.scale.spdCap+0.03);
+        showStreak('∞ THE FLOOR SINKS — DEPTH '+(step/2)+' · SCORE ×'+m.toFixed(1)+' ∞'); SFX.murmur(); flash(0.25,'#5a1a6a'); }
+      else showStreak('∞ SCORE ×'+m.toFixed(1)+' ∞'); }
+    P._b2bossT-=dt;
+    if(P._b2bossT<=0){ P._b2bossT=180; b2Champion(); }
+  }
+  b2Hud(false);
+}
+function b2Hud(force,pulse){
+  let el=$('b2Mult');
+  if(!el){ const hud=$('hud'); if(!hud) return; el=document.createElement('div'); el.id='b2Mult'; hud.appendChild(el); }
+  const s=(P&&P.stake)|0, st=STAKES[s];
+  let txt='';
+  if(s>0) txt+='<b style="color:'+st.col+'">'+st.g+' '+st.name.replace(' DECK','')+'</b>';
+  if(P&&P._endless){ const es=Math.max(0,gt-P._endT0);
+    txt+=(txt?'<br>':'')+'<span class="b2e">∞ ENDLESS +'+fmt(es)+'</span> <span class="b2x">×'+b2ScoreMult().toFixed(1)+'</span>'; }
+  if(!force && el._t===txt) return;
+  el._t=txt; el.innerHTML=txt; el.style.display=txt?'':'none';
+  if(pulse){ el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); }
+}
+// ——— endless spawn hooks (called from startWave) ———
+function b2WaveStart(){
+  if(!P||!P._endless) return;
+  const c=B2_COURTS[(Math.random()*B2_COURTS.length)|0]; P._b2court=c;
+  setTimeout(()=>{ if(state==='playing') showStreak('∞ THE COURT DEALS '+c.n+' ∞'); }, 700);
+}
+function b2CourtType(t){
+  const c=P&&P._endless&&P._b2court; if(!c||t==='gilded') return t;
+  if(Math.random()<0.6){ let nt=c.t[(Math.random()*c.t.length)|0];
+    if(window._fmods&&window._fmods.noRanged&&(nt==='shooter'||nt==='hexer')) nt='stalker'; return nt; }
+  return t;
+}
+// the perf budget: never more than 8 elites alive on the endless floor (they never LOD to silhouettes),
+// and never past the 300-walker cap
+function b2EliteCap(n){ let a=0; for(const e of enemies) if(e.elite) a++; return Math.max(0, Math.min(n, 8-a, CFG.spawn.max-enemies.length)); }
+function b2ScaleElite(e){
+  if(!e||!P||!P._endless) return;
+  const k=1+0.3*Math.max(0,gt-P._endT0)/60;
+  e.hp*=k; e.maxhp*=k; e.r+=4; e.dmg*=1+0.1*Math.min(10,(gt-P._endT0)/60); e._b2sc=1;
+}
+// a champion of the existing roster every 3:00 of the endless floor, heavier each time
+function b2Champion(){
+  if(enemies.some(e=>e.boss)){ P._b2bossT=30; return; } // one champion at a time — the next waits its turn
+  const order=['pitboss','croupier','collector','thehouse'];
+  const kind=order[(P._b2bossN||0)%order.length]; P._b2bossN=(P._b2bossN||0)+1;
+  try{ spawnBoss(kind); }catch(e){ return; }
+  const b=enemies[enemies.length-1];
+  if(b&&b.boss){ const k=1+0.6*P._b2bossN; b.hp*=k; b.maxhp*=k; b.dmg*=1+0.15*P._b2bossN; }
+  announce('∞ THE FLOOR SENDS A CHAMPION — №'+P._b2bossN+' ∞', false);
+}
+
+// ——— 15:00 standing: the night is won ———
+function b2NightWon(){
+  try{
+    if(P._b2gate) return false; // already offered — fall through to the old foreclosure
+    P._b2gate=true; window._b2won=true;
+    const so=b2SoulId(), s=P.stake|0, prev=b2BestFor(so), firstWin=!STK.won;
+    STK.won=(STK.won||0)+1; STK.best=STK.best||{}; if(s>prev) STK.best[so]=s;
+    STK.clears=STK.clears||{}; STK.clears[s]=(STK.clears[s]||0)+1; STK.first=STK.first||{};
+    const news=[];
+    if(firstWin) news.push(['♦','THE STAKES ARE OPEN — THE CRIMSON DECK IS UNSEALED',STAKES[1].col]);
+    if(s>0 && !STK.first[s]){ STK.first[s]=1; const rw=STAKES[s].reward||{};
+      if(rw.gilt){ gilt+=rw.gilt; saveGilt(); news.push(['◈','FIRST '+STAKES[s].name+' CLEAR — +'+rw.gilt.toLocaleString()+' GILT','#ffd36b']); }
+      if(rw.cos){ if(!STK.cos) STK.cos=rw.cos; const c=B2_COS[rw.cos]; news.push([c.g,'ADORNMENT EARNED: '+c.n+' — WEAR IT IN THE ANTE ROOM',c.col]); }
+      if(rw.soul){ news.push(['♝','A NEW SOUL TAKES A SEAT: THE OBSIDIAN TWIN','#d36bff']); } }
+    if(s<5 && s>prev && s>=1) news.push([STAKES[s+1].g,'THE '+STAKES[s+1].name+' IS UNSEALED FOR THIS SOUL',STAKES[s+1].col]);
+    b2Save();
+    // the House steps back from the felt
+    enemies.length=0; ebullets.length=0; try{ stopDrone(); }catch(e){}
+    state='b2gate'; try{ keys.clear(); }catch(e){}
+    hitstop=0; P.inv=Math.max(P.inv||0,3);
+    try{ bigWin('THE NIGHT IS WON',5); }catch(e){}
+    try{ domConfetti(90,'jackpotLayer'); }catch(e){} try{ SFX.seraph(); }catch(e){}
+    flash(0.7,'#fff2c0'); shake=Math.min(28,(shake||0)+18);
+    try{ houseSpeak('...FINE. THE NIGHT IS YOURS. STAY, IF YOU DARE.'); }catch(e){}
+    setTimeout(()=>b2ShowGate(news), 1300);
+    return true;
+  }catch(e){ console.warn('[B2 win]', e); return false; }
+}
+function b2ShowGate(news){
+  if(state!=='b2gate') return; // the player already chose (or the night ended) — never resurrect the gate
+  let g=$('b2Gate');
+  if(!g){ g=document.createElement('div'); g.id='b2Gate'; document.body.appendChild(g);
+    g.addEventListener('click',ev=>{ const b=ev.target.closest('button'); if(!b) return;
+      if(b.dataset.a==='on') b2PressOn(); else if(b.dataset.a==='out') b2CashOut(); }); }
+  const st=STAKES[(P&&P.stake)|0];
+  g.innerHTML='<div class="b2gCard">'
+    +'<div class="b2gT">♛ THE NIGHT IS WON ♛</div>'
+    +'<div class="b2gS">You outlived the House on the <b style="color:'+st.col+'">'+st.g+' '+st.name+'</b>.</div>'
+    +(news.length?'<div class="b2gN">'+news.map(n=>'<div style="color:'+n[2]+'"><b>'+n[0]+'</b> '+n[1]+'</div>').join('')+'</div>':'')
+    +'<div class="b2gR">'
+    +'<button class="btn b2on" data-a="on"><b>∞ PRESS ON</b><span>the ENDLESS FLOOR — the score multiplier climbs ×0.1 every 30s · a champion every 3:00</span><em>SPACE</em></button>'
+    +'<button class="btn b2out" data-a="out"><b>◈ CASH OUT</b><span>take the won night to the ledger</span><em>X</em></button>'
+    +'</div></div>';
+  g._t0=performance.now(); g.classList.add('go');
+  try{ SFX.rarSting(5); SFX.dingBells(); }catch(e){}
+}
+function b2HideGate(){ const g=$('b2Gate'); if(g) g.classList.remove('go'); }
+function b2PressOn(){
+  if(state!=='b2gate') return; b2HideGate();
+  houseActive=false; P._endless=true; P._endT0=gt; P._b2step=0; P._b2bossT=90; P.inv=Math.max(P.inv||0,2.5);
+  CFG.spawn.max=300; // the perf budget: the endless court never stands more than 300 deep
+  waveClearTarget=0; waveGap=1.6; window._b2endless=true;
+  { const tm=$('timer'); if(tm){ tm.classList.remove('stirs'); tm.classList.add('b2endless'); } }
+  document.body.classList.add('b2endless');
+  state='playing'; last=performance.now();
+  try{ startDrone(); SFX.bossRoar(); }catch(e){}
+  tone(55,1.4,'sine',0.26,30); noise(0.6,0.12,500);
+  flash(0.55,'#9a5cff'); shake=Math.min(24,(shake||0)+14);
+  announce('∞ THE ENDLESS FLOOR — THE SCORE CLIMBS ∞', true);
+  b2Hud(true,true);
+}
+function b2CashOut(){
+  if(state!=='b2gate') return; b2HideGate();
+  state='playing';
+  announce('◈ CASHED OUT — THE NIGHT IS YOURS ◈', true);
+  try{ SFX.cashout(); }catch(e){}
+  P.markerUsed=true; P.hp=0; actuallyDie();
+}
+window.addEventListener('keydown',e=>{
+  if(state!=='b2gate') return;
+  const k=(e.key||'').toLowerCase(); const g=$('b2Gate');
+  e.preventDefault(); e.stopImmediatePropagation();
+  if(e.repeat || !g || performance.now()-(g._t0||0)<900) return; // mashers don't skip the ceremony
+  if(k===' '||k==='enter'){ try{ SFX.press(); }catch(x){} b2PressOn(); }
+  else if(k==='x'||k==='escape'){ try{ SFX.press(); }catch(x){} b2CashOut(); }
+}, true);
+
+// ——— the ledger: stake, the won night, the endless depth, the records ———
+function b2Ledger(){
+  if(!P) return;
+  const s=P.stake|0, st=STAKES[s];
+  let rows='';
+  if(s>0) rows+='<div class="glRow b2gl"><span style="color:'+st.col+'">'+st.g+' '+st.name+'</span><b>×'+st.mult+'</b><span>CLEARED</span><b class="b2p">'+b2Pips(b2BestFor(b2SoulId()))+'</b></div>';
+  if(window._b2won){
+    $('goResult').textContent=P._endless?'THE FLOOR TOOK YOU':'THE NIGHT IS WON';
+    if(!P._endless) $('goSub').textContent='You outlived the House. The ledger is yours to keep.'; }
+  if(P._endless){ const es=Math.max(0,Math.round(gt-P._endT0)); const m=b2ScoreMult();
+    const E=STK.endless||(STK.endless={best:0,score:0});
+    const rec=es>(E.best||0);
+    let sc=0; try{ sc=computeScore(); }catch(e){}
+    if(rec){ E.best=es; E.stake=s; E.soul=b2SoulId(); E.mult=m; }
+    if(sc>(E.score||0)) E.score=sc;
+    b2Save();
+    rows+='<div class="glRow b2gl"><span style="color:#c98bff">∞ ENDLESS</span><b>+'+fmt(es)+'</b><span>SCORE</span><b>×'+m.toFixed(1)+'</b>'
+      +(rec?'<span class="b2rec">✦ DEEPEST EVER ✦</span>':'<span>BEST</span><b>+'+fmt(E.best||0)+'</b>')+'</div>';
+    if(rec){ setTimeout(()=>{ try{ SFX.record&&SFX.record(); flash(0.35,'#c98bff'); }catch(e){} }, 900); } }
+  if(rows){ const gl=$('goLedger'); if(gl) gl.insertAdjacentHTML('afterbegin', rows); }
+}
+// ——— menu + share text ———
+function b2LoadoutTag(){
+  if(!STK.won) return '';
+  const s=b2Sel(), st=STAKES[s];
+  return ' · <span style="color:'+st.col+'">'+st.g+' '+st.name+'</span> <span class="b2pips">'+b2Pips(b2BestFor(b2SoulId()))+'</span>';
+}
+function b2ShareBits(){
+  if(!P) return '';
+  const s=P.stake|0; let t='';
+  if(s>0) t+=' · '+STAKES[s].g+' '+STAKES[s].name.toLowerCase()+' '+'◆'.repeat(s);
+  if(window._b2won && !P._endless) t+=' · the night is won';
+  if(P._endless) t+=' · endless +'+fmt(Math.max(0,gt-P._endT0));
+  return t;
+}
+// ——— the Ante Room: THE STAKES + ADORNMENTS ———
+function b2AnteHtml(){
+  const so=b2SoulId(), sel=b2Sel(), bf=b2BestFor(so);
+  let h='<div class="anteH">CHOOSE YOUR STAKE <span style="opacity:.6;font-size:11px">(each deck keeps every cruelty below it · cleared with this soul: '+b2Pips(bf)+')</span></div>';
+  if(!STK.won){
+    h+='<div class="b2seal">'+STAKES.slice(1).map(st=>'<span class="b2deck dark" style="--dc:'+st.col+'">'+st.g+'</span>').join('')
+      +'<div>🔒 BEAT THE NIGHT — BE STANDING AT 15:00 WHEN THE HOUSE\'S REIGN ENDS — AND THE STAKES OPEN</div></div>';
+    return h;
+  }
+  h+='<div class="soulRow b2row">';
+  STAKES.forEach(st=>{ const un=b2Avail(st.n,so), on=sel===st.n, clr=bf>=st.n && st.n>0;
+    const rw=st.reward; let rwt='';
+    if(rw){ rwt = STK.first&&STK.first[st.n] ? '✓ FIRST CLEAR PAID'
+      : 'FIRST CLEAR: '+(rw.cos?B2_COS[rw.cos].g+' '+B2_COS[rw.cos].n:'♝ THE OBSIDIAN TWIN')+' + '+rw.gilt.toLocaleString()+' GILT'; }
+    h+= un
+      ? '<div class="stakeCard'+(on?' on':'')+(clr?' clr':'')+'" data-n="'+st.n+'" style="--sc:'+st.col+'"><span class="b2deck" style="--dc:'+st.col+'">'+st.g+'</span>'
+        +'<div class="soulN">'+st.name+'</div><div class="soulD">'+st.mod+'</div>'
+        +(st.n>0?'<div class="b2m">×'+st.mult+' MARKS & GILT</div>':'')+(rwt?'<div class="b2rw">'+rwt+'</div>':'')
+        +(clr?'<div class="b2c">◆ CLEARED</div>':'')+(on?'<div class="soulPick">— TONIGHT —</div>':'')+'</div>'
+      : '<div class="stakeCard locked" style="--sc:'+st.col+'"><span class="b2deck dark" style="--dc:'+st.col+'">'+st.g+'</span><div class="soulN">'+st.name+'</div><div class="soulD">🔒 CLEAR THE '+STAKES[st.n-1].name+' WITH THIS SOUL</div></div>';
+  });
+  h+='</div>';
+  const E=STK.endless||{};
+  if(E.best>0) h+='<div class="b2end">∞ DEEPEST ENDLESS FLOOR: <b>+'+fmt(E.best)+'</b> on the '+STAKES[E.stake|0].name+' · best score '+(E.score||0).toLocaleString()+'</div>';
+  const got=Object.keys(B2_COS).filter(id=>b2CosOwned(id));
+  if(got.length){
+    h+='<div class="anteH">ADORNMENTS <span style="opacity:.6;font-size:11px">(cosmetic · earned on the stakes)</span></div><div class="ctRow">';
+    h+='<div class="cosChip'+(!STK.cos?' on':'')+'" data-c=""><b>— BARE —</b><span>Nothing but the coat.</span></div>';
+    Object.keys(B2_COS).forEach(id=>{ const c=B2_COS[id], own=b2CosOwned(id);
+      h+= own ? '<div class="cosChip'+(STK.cos===id?' on':'')+'" data-c="'+id+'" style="--cc:'+c.col+'"><b style="color:'+c.col+'">'+c.g+' '+c.n+'</b><span>'+c.d+'</span></div>'
+        : '<div class="cosChip locked"><b>🔒 SEALED</b><span>a first clear on a higher deck</span></div>'; });
+    h+='</div>';
+  }
+  return h;
+}
+function b2CosOwned(id){ for(let n=1;n<=5;n++){ const rw=STAKES[n].reward; if(rw&&rw.cos===id&&STK.first&&STK.first[n]) return true; } return false; }
+function b2AnteClick(ev){
+  const sc=ev.target.closest('.stakeCard');
+  if(sc){ if(sc.classList.contains('locked')){ try{ SFX.thud(); }catch(e){} return true; }
+    const n=+sc.dataset.n; STK.sel=n; b2Save(); renderAnteRoom();
+    try{ SFX.chipStack(); tone(330*Math.pow(1.12,n),0.18,'triangle',0.08); if(n>=3) SFX.murmur(); }catch(e){}
+    if(n>0){ flash(0.25,STAKES[n].col); } return true; }
+  const cc=ev.target.closest('.cosChip');
+  if(cc){ if(cc.classList.contains('locked')){ try{ SFX.thud(); }catch(e){} return true; }
+    STK.cos=cc.dataset.c||''; b2Save(); renderAnteRoom(); try{ SFX.uiDing(); SFX.tingle(); }catch(e){} return true; }
+  return false;
+}
+// ——— the adornment, drawn in world space right after the gambler ———
+function b2DrawAdorn(){
+  const id=STK.cos; if(!id||!P||state==='menu') return;
+  if(!b2CosOwned(id)) return;
+  const t=gt;
+  ctx.save(); ctx.translate(P.x,P.y);
+  if(id==='halo'){ ctx.globalCompositeOperation='lighter';
+    ctx.strokeStyle='rgba(255,42,60,'+(0.45+Math.sin(t*4)*0.15).toFixed(3)+')'; ctx.lineWidth=2.2;
+    ctx.beginPath(); ctx.ellipse(0,P.radius*0.9,P.radius*1.6,P.radius*0.55,0,0,6.283); ctx.stroke();
+    ctx.fillStyle='#ff2a3c'; for(let i=0;i<3;i++){ const a=t*2.4+i*2.094; ctx.beginPath(); ctx.arc(Math.cos(a)*P.radius*1.6,P.radius*0.9+Math.sin(a)*P.radius*0.55,1.8,0,6.283); ctx.fill(); } }
+  else if(id==='crown'){ const y=-P.radius*2.9+Math.sin(t*2.6)*2.2;
+    ctx.font='700 15px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle='#1a0a10'; ctx.fillText('♛',1,y+1); ctx.fillStyle='#fff4d6'; ctx.fillText('♛',0,y); }
+  else if(id==='choir'){ ctx.font='700 11px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    for(let i=0;i<2;i++){ const a=t*1.9+i*3.1416, x=Math.cos(a)*P.radius*2.3, y=Math.sin(a)*P.radius*1.4-4;
+      ctx.fillStyle='#0a1418'; ctx.fillText('☠',x+1,y+1); ctx.fillStyle='#7fe0ff'; ctx.fillText('☠',x,y); } }
+  else if(id==='mantle'){ ctx.globalCompositeOperation='lighter';
+    for(let i=0;i<6;i++){ const ph=(t*0.7+i/6)%1, x=Math.sin(i*2.3+t*1.3)*P.radius*1.1, y=P.radius*0.6-ph*P.radius*3.2;
+      ctx.globalAlpha=(1-ph)*0.8; ctx.fillStyle='#ffd36b'; ctx.beginPath(); ctx.arc(x,y,1.6+(1-ph),0,6.283); ctx.fill(); }
+    ctx.globalAlpha=1; }
+  ctx.restore();
+}
 /* gilt persistence (personal) */
 async function loadGilt(){ try{ if(!store)return; const r=await store.get(GILT_KEY,false); if(r&&r.value){ const o=JSON.parse(r.value); gilt=Math.max(0,+o.gilt||0); best=Math.max(0,+o.best||0); } }catch(e){} }
 const VAULT={ lv:{} };
@@ -9291,8 +9745,8 @@ const CONTRACTS=[
  {id:'dividend',  n:'GRAVE DIVIDEND',  d:'Gilded souls burst with double coin, forever', goal:50000, cur:()=>(LT.kills||0), gtxt:'50,000 lifetime kills'},
  {id:'codicil',   n:'BLOOD CODICIL',   d:'Your first miss at THE RED TABLE is forgiven, once per table, forever', goal:30, cur:()=>(LT.rites||0), gtxt:"Sit at the red table 30 times"}
 ];
-function contractDone(id){ const c=CONTRACTS.find(x=>x.id===id); return c && c.cur()>=c.goal; }
-function vlv(id){ return (VAULT.lv[id]|0); }
+function contractDone(id){ if(DLY_RNG) return false; const c=CONTRACTS.find(x=>x.id===id); return c && c.cur()>=c.goal; }
+function vlv(id){ return DLY_RNG?0:(VAULT.lv[id]|0); } // B1: no seals on the daily
 function vaultCost(def){ return Math.round(def.base*Math.pow(2.2, vlv(def.id))*(1-((P&&P.vaultDisc)||0))); }
 function vaultUnlocked(def){ return !def.req || def.req(); }
 function applyVault(){
@@ -9341,7 +9795,7 @@ function buyVault(id){
     announce('◈ '+cost.toLocaleString()+' GILT — PRESS AGAIN TO SEAL ◈', true); SFX.casinoDing();
     setTimeout(()=>{ if(window._vConfirm===id+vlv(id)) window._vConfirm=null; },4000); return; }
   window._vConfirm=null;
-  gilt-=cost; VAULT.lv[id]=vlv(id)+1;
+  gilt-=cost; VAULT.lv[id]=(VAULT.lv[id]|0)+1;
   saveGilt(); saveAch(); SFX.vaultBuy(); sparkBurst(20);
   try{ flyGlyphs('vaultPanel','vaultGilt','◈',7,'#ffd36b'); }catch(e){} // the gold visibly changes hands
   LT.seals=(LT.seals||0)+1; bump('seals',LT.seals);
@@ -9390,7 +9844,7 @@ function renderVault(){
   grid.querySelectorAll('.vBuy[data-vid]').forEach(b=>b.addEventListener('click',()=>buyVault(b.dataset.vid)));
 }
 function openVault(){ coachMark('vault','SEALS ARE FOREVER — bought once, owned every night after'); renderVault(); $('vaultPanel').classList.remove('hidden'); SFX.vaultOpen(); }
-function vaultWindowOpen(){ return !!P && gt>=180 && !(vaultLocked>0 && gt<vaultLocked); } // the door manifests at 3:00 — five seals a night
+function vaultWindowOpen(){ if(DLY_RNG) return false; return !!P && gt>=180 && !(vaultLocked>0 && gt<vaultLocked); } // the door manifests at 3:00 — five seals a night
 function tickVaultDoor(){
   if(vaultLocked>0 && gt>=vaultLocked){ vaultLocked=0; vaultBuys=0;
     announce('◈ THE VAULT BREATHES AGAIN — FIVE MORE SEALS ◈',true); SFX.vaultOpen(); SFX.dingBells();
@@ -9709,7 +10163,7 @@ function updateHUD(){
   { let wv=$('waveInfo'); if(!wv){ wv=document.createElement('div'); wv.id='waveInfo'; const tm=$('timer'); if(tm&&tm.parentNode) tm.parentNode.insertBefore(wv,tm.nextSibling); }
     if(wv) { const left9=Math.max(0,enemies.filter(e=>!e.boss).length-waveClearTarget);
       let wtxt='WAVE '+wave+(left9>0?' · '+left9+' TO THIN':'');
-      if(gt>=720&&gt<780) wtxt='☷ THE HOUSE IN '+Math.ceil(780-gt)+'s ☷'; if(_hud.wv!==wtxt){ _hud.wv=wtxt; wv.textContent=wtxt; } } }
+      { const ha9=(typeof b2HouseAt==='function')?b2HouseAt():780; if(gt>=ha9-60&&gt<ha9&&!P._endless) wtxt='☷ THE HOUSE IN '+Math.ceil(ha9-gt)+'s ☷'; } if(_hud.wv!==wtxt){ _hud.wv=wtxt; wv.textContent=wtxt; } } }
   { const tgt=P.coins; if(window._coinDisp===undefined||window._coinDisp>tgt) window._coinDisp=tgt;
     const dd=tgt-window._coinDisp;
     if(dd>60){ window._coinDisp+=Math.max(1,Math.ceil(dd*0.16)); // big gains ROLL like an odometer
@@ -9876,7 +10330,7 @@ window.addEventListener('keydown',e=>{
       const mk=markerRef;
       if(mk.p<mk.max){
         mk.presses++;
-        mk.p=Math.min(mk.max, mk.p+0.0025+Math.random()*0.005); // +0.25–0.75% a press — every decimal earned
+        mk.p=Math.min(mk.max, mk.p+0.0025+rng('fate')*0.005); // +0.25–0.75% a press — every decimal earned
         if(mk.p>=mk.max) secret('pressmax','THE CEILING');
         SFX.press();
         pressFx(mk);
@@ -9985,7 +10439,7 @@ const FLOORS=[
  {id:'chapel', n:'THE CHAPEL', g:'☨', col:'#fff2c0', d:'Where the House prays to itself. Everything runs 10% faster. XP +10%, tarot twice as often.',
    u:()=>(LT.houseMet||0)>=3, uTxt:'MEET THE HOUSE 3 TIMES', mods:{spd:1.1, xp:1.1, tarot:2, tint:'chapel'}}
 ];
-function curFloor(){ const f=FLOORS.find(x=>x.id===(IDX.fl||'pit')); return (f&&f.u())?f:FLOORS[0]; }
+function curFloor(){ if(DLY_RNG && typeof dlyFloor==='function') return dlyFloor(); const f=FLOORS.find(x=>x.id===(IDX.fl||'pit')); return (f&&f.u())?f:FLOORS[0]; }
 /* THE CONTRACTS — sign up to two; each pays ×1.25 marks & gilt at the ledger */
 const RUN_CONTRACTS=[
  {id:'glass',    g:'♡', n:'GLASS SOUL',     d:'Max blood halved. Every touch is a sentence.', u:()=>RANK.rank>=15, uTxt:'HOUSE RANK 15', ap:()=>{ P.maxHp=Math.max(20,Math.round(P.maxHp*0.5)); P.hp=P.maxHp; }},
@@ -10021,9 +10475,11 @@ const SOULS=[
  {id:'magpie', n:'THE MAGPIE',    g:'✧', col:'#2ee6ff', d:'Pickup reach ×2.5. Every coin has a 3% chance to be a GOLDEN CHIP — grab it and a free mini-slot spins: triple = a free level, pair = a free power, bust = coins. −20% damage.',
    pips:'♥♥♥ · 👢👢👢👢 · ◈◈◈◈', u:()=>(LT.coins||0)>=5000, uTxt:'PICK UP 5,000 LIFETIME COINS', ap:()=>{ P.magpie=true; P.pickup*=2.5; P.damage*=0.8; }},
  {id:'banker', n:'THE BANKER\'S GHOST', g:'♖', col:'#c4ff4d', d:'Interest: every 60s, +8% of the coins you hold. Cash RAGE at 90%+ and it pays DOUBLE that: +16% of your purse. The wheel won\'t spin for the dead — no Wheel of Souls. −10 max blood.',
-   pips:'♥♥ · 👢👢👢 · ◈◈◈◈◈', u:()=>((typeof SEATS!=='undefined'&&SEATS.st.rage)||0)>=15, uTxt:'CASH OUT RAGE AT 90%+ 15 TIMES', ap:()=>{ P.banker=true; P.maxHp=Math.max(40,P.maxHp-10); P.hp=P.maxHp; }}
+   pips:'♥♥ · 👢👢👢 · ◈◈◈◈◈', u:()=>((typeof SEATS!=='undefined'&&SEATS.st.rage)||0)>=15, uTxt:'CASH OUT RAGE AT 90%+ 15 TIMES', ap:()=>{ P.banker=true; P.maxHp=Math.max(40,P.maxHp-10); P.hp=P.maxHp; }},
+ {id:'twin',   n:'THE OBSIDIAN TWIN', g:'♝', col:'#d36bff', stake:true, d:'Fights beside its own shadow: +1 projectile on every shot, every dice target −1. Half a soul: −30 max blood.',
+   pips:'♥ · 👢👢👢 · 🎲🎲🎲🎲🎲', u:()=>!!(typeof STK!=='undefined'&&STK.first&&STK.first[2]), uTxt:'CLEAR THE OBSIDIAN DECK', ap:()=>{ P.projectiles+=1; P.diceEase=(P.diceEase||0)+1; P.maxHp=Math.max(40,P.maxHp-30); P.hp=P.maxHp; }}
 ];
-function curSoul(){ const s=SOULS.find(x=>x.id===(IDX.sl||'vesper')); return (s&&s.u())?s:SOULS[0]; }
+function curSoul(){ if(DLY_RNG && typeof dlySoul==='function') return dlySoul(); const s=SOULS.find(x=>x.id===(IDX.sl||'vesper')); return (s&&s.u())?s:SOULS[0]; }
 // INDULGENCES — gilt buys the night a head start. Consumed when the run begins.
 const INDULGENCES=[
  {id:'coffee', g:'☕', n:"DEALER'S COFFEE", cost:60,  d:'Your first slot of the night deals HOT — red-tier odds.'},
@@ -10041,6 +10497,7 @@ function openAnteRoom(){
     document.body.appendChild(p);
     $('anteClose').addEventListener('click',()=>{ p.classList.add('hidden'); renderChips(); SFX.casinoDing(); });
     $('anteBody').addEventListener('click',ev=>{
+      if(typeof b2AnteClick==='function' && b2AnteClick(ev)) return; // B2 stakes + adornments
       const sc=ev.target.closest('.soulCard'); if(sc && !sc.classList.contains('locked')){ IDX.sl=sc.dataset.id; idxSaveSoon(); renderAnteRoom(); SFX.uiDing(); return; }
       const fc=ev.target.closest('.floorCard'); if(fc && !fc.classList.contains('locked')){ IDX.fl=fc.dataset.id; idxSaveSoon(); renderAnteRoom(); SFX.uiDing(); return; }
       const cc=ev.target.closest('.ctChip'); if(cc){
@@ -10087,6 +10544,7 @@ function renderAnteRoom(){
     });
     html+='</div>';
   }
+  try{ if(typeof b2AnteHtml==='function') html+=b2AnteHtml(); }catch(e){}
   if(typeof RUN_CONTRACTS!=='undefined'){
     const act=IDX.ct||[]; const sl9=ctSlots();
     while(act.length>sl9) act.pop(); // stale saves respect the cap
@@ -10120,7 +10578,7 @@ function estatePct(){
     const idx=idxSeen()/Math.max(1,idxTotal());
     const pages=STORY_PAGES.filter(p=>storyUnlocked(p)).length/STORY_PAGES.length;
     const feats=unlocked.size/Math.max(1,ACH_TOTAL);
-    const souls=SOULS.filter(s=>s.u()).length/SOULS.length;
+    const SL9=SOULS.filter(s=>!s.stake); const souls=SL9.filter(s=>s.u()).length/SL9.length; // B2: stake souls are a bonus, never a debt
     const floors=FLOORS.filter(f=>f.u()).length/FLOORS.length;
     return Math.max(0,Math.min(100,Math.round((ranks*0.30 + wsp*0.15 + idx*0.20 + pages*0.10 + feats*0.15 + (souls+floors)/2*0.10)*100)));
   }catch(e){ return 0; }
@@ -10158,7 +10616,7 @@ function renderChips(){
       ll.addEventListener('click',()=>openAnteRoom()); }
     if(ll){ const s=curSoul(); const f=(typeof curFloor==='function')?curFloor():null;
       const cts=(IDX.ct||[]).length;
-      ll.innerHTML='<span style="color:'+s.col+'">'+s.g+' '+s.n+'</span>'+(f?' · <span style="color:'+f.col+'">'+f.g+' '+f.n+'</span>':'')+(cts?' · ✍ '+cts+' CONTRACT'+(cts>1?'S':''):'')+' <i>— change</i>'; } }
+      ll.innerHTML='<span style="color:'+s.col+'">'+s.g+' '+s.n+'</span>'+(f?' · <span style="color:'+f.col+'">'+f.g+' '+f.n+'</span>':'')+(cts?' · ✍ '+cts+' CONTRACT'+(cts>1?'S':''):'')+((typeof b2LoadoutTag==='function')?b2LoadoutTag():'')+' <i>— change</i>'; } }
   // the road ahead, visible: rank progress under the chips
   { let rb=$('menuRank');
     if(!rb){ rb=document.createElement('div'); rb.id='menuRank';
@@ -10694,11 +11152,12 @@ function seatsSaveSoon(){ clearTimeout(_seatsT); _seatsT=setTimeout(()=>{ try{ i
   SEATS._ld=true;
 })();
 Object.assign(GLYPH_COL,{ soul_vesper:'#e6d9c2', soul_dealer:'#6fb7ff', soul_widow:'#c98bff', soul_debtor:'#ffd36b', soul_brute:'#ff9a3c', soul_yolk:'#fff2c0',
-  soul_sharp:'#36f08a', soul_martyr:'#ff2448', soul_magpie:'#2ee6ff', soul_banker:'#c4ff4d' });
+  soul_sharp:'#36f08a', soul_martyr:'#ff2448', soul_magpie:'#2ee6ff', soul_banker:'#c4ff4d', soul_twin:'#d36bff' });
 // how close is a sealed seat? [have, need] — shown under the lock
 const SOUL_PROG={
   dealer:()=>[RANK.rank,12], widow:()=>[SEC.size,12], debtor:()=>[LT.deaths||0,25], brute:()=>[LT.kills||0,2500],
-  sharp:()=>[LT.triples||0,3], martyr:()=>[LT.rites||0,10], magpie:()=>[LT.coins||0,5000], banker:()=>[SEATS.st.rage||0,15] };
+  sharp:()=>[LT.triples||0,3], martyr:()=>[LT.rites||0,10], magpie:()=>[LT.coins||0,5000], banker:()=>[SEATS.st.rage||0,15],
+  twin:()=>[(typeof STK!=='undefined'&&STK.first&&STK.first[2])?1:0,1] }; // B2: the OBSIDIAN DECK's soul
 function _hexA(h,a){ const n=parseInt((h||'#ffffff').slice(1),16); return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')'; }
 
 /* ---------- SFX for the seats (all synthesized) ---------- */
@@ -11036,7 +11495,7 @@ function soulTick(dt){
       if(st>o){ const rn=['','I','II','III','IV','V','VI','VII','VIII','IX'][st];
         showStreak('✝ STIGMATA '+rn+' — +'+(st*6)+'% DMG · +'+(st*4)+'% FIRE ✝'); try{ SFX.stigmata(st); }catch(e){}
         flash(0.18+st*0.03,'#8b1620'); ring(P.x,P.y,60+st*8,'#ff2448'); if(st>=5) shake=Math.min(16,shake+st); } } }
-  if(P.magpie){ for(const c of coins){ if(!c._d1){ c._d1=1; if(Math.random()<0.03) c.gold=1; } } }
+  if(P.magpie){ for(const c of coins){ if(!c._d1){ c._d1=1; if(rng('loot')<0.03) c.gold=1; } } }
   if(P.banker){ P._bkT=(P._bkT||0)+dt;
     if(P._bkT>=55 && !P._bkW){ P._bkW=1; ftext(P.x,P.y-40,'♖ INTEREST IN 5…','#c4ff4d'); try{ tone(1318,0.06,'sine',0.05); }catch(e){} }
     if(P._bkT>=60){ P._bkT-=60; P._bkW=0;
@@ -11073,7 +11532,7 @@ function chipSpin(){
   const seq=window._runSeq;
   let el=document.getElementById('chipSlot');
   if(!el){ el=document.createElement('div'); el.id='chipSlot'; el.innerHTML='<div class="csH">✧ GOLDEN CHIP ✧</div><div class="csR"><b></b><b></b><b></b></div><div class="csO"></div>'; document.body.appendChild(el); }
-  const SY=['7','♠','♥','♦','♣','◈','★'], u=Math.random();
+  const SY=['7','♠','♥','♦','♣','◈','★'], u=rng('slot');
   const kind=u<0.12?3:(u<0.47?2:0);
   const fin = kind===3 ? ['7','7','7'] : (()=>{ const a=SY[(Math.random()*SY.length)|0]; if(kind===2){ const o=SY.filter(x=>x!==a); return [a,a,o[(Math.random()*o.length)|0]]; } const sh=SY.slice().sort(()=>Math.random()-0.5); return [sh[0],sh[1],sh[2]]; })();
   const reels=[...el.querySelectorAll('.csR b')]; reels.forEach(r=>{ r.className=''; });
@@ -11090,7 +11549,7 @@ function chipSpin(){
     else if(kind===2){ el.classList.add('win2'); let txt='A FREE POWER'; try{ txt=grantMiniPower()||txt; }catch(e){}
       out.textContent='PAIR — '+txt; announce('✧ CHIP PAIR — '+String(txt).toUpperCase()+' ✧', true); try{ SFX.dingBells(); SFX.casinoDing(); }catch(e){}
       coinRain(12); flash(0.3,'#2ee6ff'); }
-    else { el.classList.add('bust'); const g=8+((Math.random()*8)|0); P.coins+=g; LT.coins+=g; out.textContent='BUST — +'+g+' COINS';
+    else { el.classList.add('bust'); const g=8+((rng('drop')*8)|0); P.coins+=g; LT.coins+=g; out.textContent='BUST — +'+g+' COINS';
       try{ SFX.coinPling(); }catch(e){} ftext(P.x,P.y-30,'+'+g+' ◈','#ffd36b'); }
     setTimeout(()=>{ el.classList.remove('go'); setTimeout(chipSpin,260); }, 1300);
   }, 1200);
@@ -11100,7 +11559,7 @@ function sharpDeal(pool, redeal){
   if(!P||!P.sharp) { window._sharpTell=null; return; }
   if(!redeal) window._sharpRedealt=false;
   window._sharpPool=pool;
-  const u=Math.random(), pB=MFATE.P+(P.yolkFate?0.03:0);
+  const u=rng('slot'), pB=MFATE.P+(P.yolkFate?0.03:0);
   const n = P.coldDeck ? 1 : (u<MFATE.T ? 3 : (u<MFATE.T+pB ? 2 : 1));
   const d=weightedByRarity(pool, slotHot());
   window._sharpTell={n, s:d.id};
@@ -11141,6 +11600,287 @@ window.addEventListener('keydown',e=>{ try{ if(state==='slot' && slotStage==='re
       if(P.banker){ const g=Math.max(10,Math.round(purse*0.16)); P.coins+=g; LT.coins+=g;
         setTimeout(()=>{ announce('♖ THE DIVIDEND — +'+g+' COINS ♖', true); try{ SFX.register(); }catch(e){} coinRain(Math.min(34,10+Math.floor(g/4))); flash(0.3,'#c4ff4d'); }, 500); } }
     return r; }; }
+/* ==== B1 — DAILY DEBT ====
+   One seeded night per UTC day, identical for every player in the world. The
+   first attempt of the day is SCORED; any further attempt is PRACTICE.
+   - seed: the UTC date YYYYMMDD. startGame() calls dlyBegin(), which arms
+     DLY_RNG (core.js) only when the plaque was played; rng(stream) then serves
+     one mulberry32 stream per system. Normal nights never touch it.
+   - terms: a name + 1-2 modifiers + a fixed soul and floor, drawn from the seed.
+   - fair field: no vault seals, rank perks, favors, contracts or indulgences
+     (guards live at the call sites, each tagged B1). The whole armory is open.
+   - persistence: NEW additive key am_daily_v1 (per-day results, best, streak).
+   - ledger: a DAILY DEBT band + the share line/card variant (wraps A3's helpers).
+   Loaded LAST (after ui.js), so it may wrap globals that were declared earlier. */
+const DLY_KEY='am_daily_v1';
+const DLY_EPOCH=Date.UTC(2026,10,5); // 2026-11-05 is DAILY DEBT #1
+const DLY={ next:null, on:false, day:0, terms:null, scored:false, done:false,
+  data:{v:1, days:{}, bestT:0, bestDay:0, streak:0, lastDay:0},
+  track:[], _min:0, _tr3:0, _pairs:0, _boss:0, _seq:0 };
+
+/* ---------- the calendar ---------- */
+function dlyDayKey(ms){ const d=new Date(ms); return d.getUTCFullYear()*10000+(d.getUTCMonth()+1)*100+d.getUTCDate(); }
+function dlyToday(){ return (window._dlyDay|0) || dlyDayKey(Date.now()); } // _dlyDay: probe override
+function dlyMs(day){ return Date.UTC(Math.floor(day/10000), Math.floor(day/100)%100-1, day%100); }
+function dlyNum(day){ return Math.round((dlyMs(day)-DLY_EPOCH)/86400000)+1; }
+function dlyPrev(day){ return dlyDayKey(dlyMs(day)-86400000); }
+function dlyLeft(){ const now=Date.now(); const nx=dlyMs(dlyDayKey(now))+86400000; return Math.max(0, nx-now); }
+function dlyClock(ms){ const s=Math.floor(ms/1000), h=Math.floor(s/3600), m=Math.floor(s/60)%60, x=s%60; return h+':'+(m<10?'0':'')+m+':'+(x<10?'0':'')+x; }
+
+/* ---------- the terms of the debt ---------- */
+const DLY_NOUN=['DEBT','MARKER','TAB','LIEN','TITHE','BOND','NOTE','WAGER','PROMISE','RECKONING'];
+const DLY_ORD=['FIRST','SECOND','THIRD','FOURTH','FIFTH','SIXTH','SEVENTH','NINTH','THIRTEENTH','LAST'];
+const DLY_WHO=['WIDOW','BISHOP','CROUPIER','HANGMAN','DUCHESS','GRAVEDIGGER','MAGPIE','ORPHAN','HEIR','JESTER','ABBESS','LAMPLIGHTER','DROWNED SAILOR','PAWNBROKER','SEXTON','VIOLINIST'];
+// every modifier reuses a mechanic the game already has (contracts, floors, indulgences, souls)
+const DLY_MODS=[
+ {id:'pairs',    k:'hard', g:'☠', n:'elites in pairs',      d:'Every elite wave sends twice the elites.',                 ap:()=>{ P.noMercy=true; }},
+ {id:'cold',     k:'hard', g:'❄', n:'reels lean cold',      d:'Slot pairs and triples land half as often (×0.5).',       ap:()=>{ P.fateMult=0.5; }},
+ {id:'stampede', k:'hard', g:'♞', n:'a horde every wave',   d:'A swarm horde pours in on every wave from wave 2.',        ap:()=>{ P.stampede=true; }},
+ {id:'crowd',    k:'hard', g:'♟', n:'the pit runs heavy',   d:'Every wave and every horde brings +30% bodies.',          ap:()=>{ P.crowd=true; }},
+ {id:'drought',  k:'hard', g:'✕', n:'the fountains run dry',d:'Blood fountains refuse you. The wheel never heals.',       ap:()=>{ P.drought=true; }},
+ {id:'thin',     k:'hard', g:'♡', n:'thin blood',           d:'Max blood −25% for the night.',                            ap:()=>{ P.maxHp=Math.max(30,Math.round(P.maxHp*0.75)); P.hp=P.maxHp; }},
+ {id:'quick',    k:'hard', g:'⚡', n:'the court runs fast',  d:'Every enemy moves 10% faster.',                            ap:()=>{ window._fmods=Object.assign({},window._fmods,{spd:((window._fmods&&window._fmods.spd)||1)*1.1}); }},
+ {id:'interest', k:'hard', g:'⚖', n:'the interest',         d:'You take +10% damage from everything.',                    ap:()=>{ P.dmgTakenMult=(P.dmgTakenMult||1)+0.10; }},
+ {id:'hot',      k:'boon', g:'🔥', n:'hot reels',            d:'Your first 2 slots deal at red-table odds.',               ap:()=>{ P.hotSlots=Math.max(P.hotSlots||0,2); }},
+ {id:'rich',     k:'boon', g:'◈', n:'a gilded floor',       d:'Coins ×1.25 all night.',                                   ap:()=>{ P.coinMult=(P.coinMult||1)*1.25; }},
+ {id:'cards',    k:'boon', g:'☨', n:'the cards come early', d:'Tarot cards appear twice as often.',                       ap:()=>{ window._fmods=Object.assign({},window._fmods,{tarot:((window._fmods&&window._fmods.tarot)||1)*2}); }},
+ {id:'scholar',  k:'boon', g:'✦', n:'a learned night',      d:'XP +15% all night.',                                       ap:()=>{ P.xpMult=(P.xpMult||1)*1.15; }},
+ {id:'thick',    k:'boon', g:'♥', n:'thick blood',          d:'+25 max blood for the night.',                             ap:()=>{ P.maxHp+=25; P.hp=P.maxHp; }},
+ {id:'pockets',  k:'boon', g:'⚜', n:'loaded pockets',       d:'Start the night with +60 coins.',                          ap:()=>{ P.coins+=60; }}
+];
+const DLY_COL={pairs:'#ff3b5c', cold:'#5fd8ff', stampede:'#ff8a3c', crowd:'#d65cff', drought:'#e0c060', thin:'#ff6b9a', quick:'#ffe14a', interest:'#ff4f2e',
+  hot:'#ff5a1f', rich:'#ffd36b', cards:'#b98bff', scholar:'#7dffb0', thick:'#ff2d55', pockets:'#ffc93c'};
+try{ for(const id in DLY_COL) GLYPH_COL['dly_'+id]=DLY_COL[id]; }catch(e){}
+function dlyTerms(day){
+  let a=dlyHash('ANTE-MORTEM-TERMS|'+day);
+  const r=()=>{ a=(a+0x6D2B79F5)|0; let t=Math.imul(a^(a>>>15),1|a); t=(t+Math.imul(t^(t>>>7),61|t))^t; return ((t^(t>>>14))>>>0)/4294967296; };
+  const pk=arr=>arr[(r()*arr.length)|0];
+  const name='THE '+pk(DLY_NOUN)+' OF THE '+pk(DLY_ORD)+' '+pk(DLY_WHO);
+  // the seat: Vesper 3 in 8, every other soul 1 in 8 — locked souls included (a taste of what's sealed)
+  const sw=[['vesper',3],['dealer',1],['widow',1],['debtor',1],['brute',1],['yolk',1]];
+  let x=r()*8, soul='vesper'; for(const [id,w] of sw){ if(x<w){ soul=id; break; } x-=w; }
+  const fw=[['pit',2],['cellar',1],['chapel',1]];
+  let y=r()*4, floor='pit'; for(const [id,w] of fw){ if(y<w){ floor=id; break; } y-=w; }
+  const hard=DLY_MODS.filter(m=>m.k==='hard'), boon=DLY_MODS.filter(m=>m.k==='boon'&&!(floor==='chapel'&&m.id==='cards'));
+  const mods=[pk(hard)];
+  const roll=r();
+  if(roll<0.55) mods.push(pk(boon));                       // a curse and a kindness
+  else if(roll<0.75){ let m2=pk(hard); if(m2===mods[0]) m2=hard[(hard.indexOf(m2)+1)%hard.length]; mods.push(m2); } // a cruel night: two curses
+  return { day, n:dlyNum(day), name, soul, floor, mods };
+}
+function dlySoul(){ const t=DLY.terms; return (t&&SOULS.find(s=>s.id===t.soul))||SOULS[0]; }
+function dlyFloor(){ const t=DLY.terms; return (t&&FLOORS.find(f=>f.id===t.floor))||FLOORS[0]; }
+function dlyModLine(t,html){
+  return t.mods.map(m=> html ? '<span style="color:'+DLY_COL[m.id]+'" title="'+m.d+'">'+m.g+' '+m.n+'</span>' : m.g+' '+m.n).join(' · ');
+}
+
+/* ---------- persistence (am_daily_v1, additive) ---------- */
+async function dlyLoad(){ try{ if(!store) return; const r=await store.get(DLY_KEY,false);
+  if(r&&r.value){ const o=JSON.parse(r.value); if(o&&o.v===1&&o.days) DLY.data=Object.assign(DLY.data,o); } }catch(e){} }
+async function dlySave(){ try{ if(!store) return;
+  const ks=Object.keys(DLY.data.days).sort(); while(ks.length>90) delete DLY.data.days[ks.shift()]; // the ledger keeps ~three months
+  await store.set(DLY_KEY,JSON.stringify(DLY.data),false); }catch(e){} }
+function dlyStreak(){ const d=DLY.data, t=dlyToday(); return (d.lastDay===t||d.lastDay===dlyPrev(t))?(d.streak||0):0; }
+
+/* ---------- the night itself ---------- */
+function dlyBegin(){ // called first thing in startGame()
+  if(DLY.next!=='daily'){ DLY_RNG=null; DLY.on=false; return; }
+  const day=dlyToday();
+  DLY.on=true; DLY.day=day; DLY.terms=dlyTerms(day); DLY.done=false;
+  DLY_RNG={_seed:'ANTE-MORTEM-DAILY|'+day};
+  DLY.scored=!DLY.data.days[day];
+  if(DLY.scored){ const d=DLY.data;
+    d.streak = d.lastDay===dlyPrev(day) ? (d.streak||0)+1 : (d.lastDay===day ? (d.streak||1) : 1);
+    d.lastDay=day; d.days[day]={n:dlyNum(day), s:1}; dlySave(); } // the attempt is spent the moment the bell rings
+  DLY.track=[]; DLY._min=0; DLY._tr3=0; DLY._pairs=LT.pairs||0; DLY._boss=LT.bossKills||0;
+}
+function dlyStart(){ // called at the end of startGame(), after soul + floor
+  const t=DLY.terms; if(!t) return;
+  DLY._seq=window._runSeq;
+  t.mods.forEach(m=>{ try{ m.ap(); }catch(e){} });
+  try{ dlyBell(DLY.scored); }catch(e){}
+  try{ flash(0.35, DLY.scored?'#ffd36b':'#c98bff'); }catch(e){}
+  setTimeout(()=>{ if(window._runSeq!==DLY._seq) return;
+    announce('☀ DAILY DEBT #'+t.n+' — '+t.name+' ☀', true); }, 350);
+  setTimeout(()=>{ if(window._runSeq!==DLY._seq) return;
+    announce('☀ '+dlyModLine(t,false).toUpperCase()+' ☀', t.mods.every(m=>m.k==='boon')); }, 1200);
+  setTimeout(()=>{ if(window._runSeq!==DLY._seq) return;
+    announce(DLY.scored?'◈ THIS ONE IS SCORED — ONE ATTEMPT ◈':'◈ PRACTICE — THE LEDGER KEPT YOUR FIRST ◈', DLY.scored); }, 2400);
+}
+// per-frame: write one mark per minute survived
+function dlyTick(){
+  if(!DLY.on || window._runSeq!==DLY._seq) return;
+  const m=Math.floor((gt-(window._gt0||0))/60);
+  while(DLY._min<m && DLY.track.length<15){ DLY._min++; DLY.track.push(dlyMark()); try{ tone(1568,0.05,'sine',0.04); }catch(e){} }
+}
+function dlyMark(){ // the minute's best moment: ⚔ a boss fell · ★ a jackpot · ♦ a pair · ♠ survived
+  const tr3=(RUN&&RUN.pulls&&RUN.pulls._tr3)||0, pr=LT.pairs||0, bk=LT.bossKills||0;
+  let s='♠';
+  if(pr>DLY._pairs) s='♦';
+  if(tr3>DLY._tr3) s='★';
+  if(bk>DLY._boss) s='⚔';
+  DLY._tr3=tr3; DLY._pairs=pr; DLY._boss=bk;
+  return s;
+}
+const DLY_MARK_COL={'♠':'#e6d9c2','♦':'#ff4f6a','★':'#ffd36b','⚔':'#c98bff','☠':'#d4212f','♛':'#8bffd0'};
+function dlyTrackStr(){ return DLY.track.join(''); }
+
+/* ---------- the sound of the debt ---------- */
+function dlyBell(loud){ // a funeral bell in a counting house: low toll, gold shimmer on top
+  if(muted) return;
+  tone(110,2.2,'sine',0.16,104); tone(220,1.8,'sine',0.07,214); tone(331,1.4,'triangle',0.04);
+  setTimeout(()=>{ tone(1318,0.5,'sine',0.05); tone(1760,0.4,'sine',0.03); },140);
+  if(loud) setTimeout(()=>{ tone(98,1.6,'sine',0.12,92); try{ SFX.casinoDing(); }catch(e){} },620);
+}
+function dlyFanfare(){ // a new personal best: ascending gold peal over the bell
+  if(muted) return;
+  dlyBell(true);
+  [784,988,1175,1568,1976].forEach((f,i)=>setTimeout(()=>{ tone(f,0.32,'triangle',0.09); tone(f*2,0.2,'sine',0.03); },220+i*95));
+}
+
+/* ---------- the ledger ---------- */
+function dlyDeath(){
+  if(!DLY.on || DLY.done || window._runSeq!==DLY._seq) return;
+  DLY.done=true;
+  const t=DLY.terms, d=DLY.data, day=DLY.day;
+  const secs=Math.round(gt-(window._gt0||0));
+  if(DLY.track.length<15) DLY.track.push(gt>=900?'♛':'☠');
+  const res={ t:secs, lvl:P.level, kills:P.kills, track:dlyTrackStr() };
+  const rec=d.days[day]||(d.days[day]={n:t.n, s:1});
+  let pay=null, pb=false;
+  if(DLY.scored){
+    Object.assign(rec,res,{done:1});
+    pb = secs>(d.bestT||0);
+    if(pb){ d.bestT=secs; d.bestDay=day; }
+    const st=dlyStreak();
+    pay={ base:20, mins:4*Math.min(15,Math.floor(secs/60)), streak:5*Math.min(10,Math.max(0,st-1)), pb:pb?25:0 };
+    pay.total=pay.base+pay.mins+pay.streak+pay.pb;
+    gilt+=pay.total; saveGilt();
+    LT.gilt=(LT.gilt||0)+pay.total;
+  } else {
+    if(!rec.pt || secs>rec.pt){ rec.pt=secs; rec.pl=P.level; }
+  }
+  dlySave();
+  dlyBand(res, pay, pb);
+}
+function dlyBand(res, pay, pb){
+  const go=$('gameover'), pn=go&&go.querySelector('.panel'); if(!pn) return;
+  let b=$('dlyBand'); if(!b){ b=document.createElement('div'); b.id='dlyBand'; }
+  // wide screens: a plaque pinned beside the ledger (the panel is already full); narrow: top of the panel, which may scroll
+  const wide=(typeof matchMedia==='function') && matchMedia('(min-width: 1100px)').matches;
+  if(wide){ if(b.parentNode!==go) go.appendChild(b); }
+  else if(b.parentNode!==pn) pn.insertBefore(b, pn.firstChild);
+  if(go.classList.contains('dly')!==!wide) go.classList.toggle('dly', !wide);
+  const t=DLY.terms, d=DLY.data, rec=d.days[DLY.day]||{};
+  const trk=DLY.track.map(s=>'<i style="color:'+(DLY_MARK_COL[s]||'#e6d9c2')+'">'+s+'</i>').join('');
+  b.className=(DLY.scored?'scored':'practice')+(wide?' side':'');
+  b.innerHTML='<div class="dbTop">☀ DAILY DEBT #'+t.n+' <b>'+(DLY.scored?'SCORED':'PRACTICE')+'</b></div>'
+    +'<div class="dbName">'+t.name+'</div>'
+    +'<div class="dbTerms">'+dlyModLine(t,true)+'</div>'
+    +'<div class="dbTrack" title="one mark per minute — ♠ survived · ♦ a pair · ★ a jackpot · ⚔ a boss fell · ☠ the end">'+trk+'</div>'
+    +'<div class="dbFoot">'
+      +(DLY.scored
+        ? 'TODAY <b>'+fmt(res.t)+'</b> · BEST EVER <b>'+fmt(d.bestT||0)+'</b> · 🔥 STREAK <b>'+dlyStreak()+'</b>'
+        : 'SCORED TODAY <b>'+(rec.done?fmt(rec.t):'FORFEIT')+'</b> · THIS PRACTICE <b>'+fmt(res.t)+'</b>')
+    +'</div>'
+    +(pay?'<div class="dbPay">+'+pay.total+' ◈ GILT <span>(debt '+pay.base+' · minutes '+pay.mins+(pay.streak?' · streak '+pay.streak:'')+(pay.pb?' · best '+pay.pb:'')+')</span></div>'
+         :'<div class="dbPay prac">AGAIN = PRACTICE THE SAME NIGHT · NEXT DEBT IN '+dlyClock(dlyLeft())+'</div>')
+    +(pb?'<div class="dbPb">✦ A NEW DAILY BEST ✦</div>':'');
+  b.classList.remove('go'); void b.offsetWidth; b.classList.add('go');
+  try{ const gt9=$('goGiltTotal'); if(gt9) gt9.textContent=gilt; }catch(e){}
+  setTimeout(()=>{ try{ dlyBell(DLY.scored); }catch(e){} }, 300);
+  if(pay) setTimeout(()=>{ try{ SFX.cashout(); SFX.coinPling(); coinRain(10); }catch(e){} }, 1100);
+  if(pb) setTimeout(()=>{ try{
+    dlyFanfare(); bigWin('NEW DAILY BEST',3); domConfetti(60,'gameover'); flash(0.5,'#ffd36b');
+    announce('☀ A NEW DAILY BEST — '+fmt(res.t)+' ☀', true);
+    const pbe=b.querySelector('.dbPb'); if(pbe) pbe.classList.add('go'); }catch(e){} }, 1700);
+}
+
+/* ---------- share: the daily variant of A3's line and card ---------- */
+function dlyShareLine(){
+  const t=DLY.terms, secs=Math.round(gt-(window._gt0||0));
+  return '♠ ANTE MORTEM · DAILY DEBT #'+t.n+(DLY.scored?'':' (practice)')+' · survived '+fmt(secs)+' · lvl '+P.level
+    +'\n'+dlyTrackStr()+'\n'+(typeof A3_URL!=='undefined'?A3_URL:'');
+}
+if(typeof a3Line==='function'){ const _a3l=a3Line;
+  a3Line=function(n){ return (DLY_RNG&&DLY.on&&DLY.done)?dlyShareLine():_a3l(n); }; }
+if(typeof a3Night==='function'){ const _a3n=a3Night;
+  a3Night=function(){ const n=_a3n(); if(DLY_RNG&&DLY.on&&DLY.done){ n.pull=null; n.time=fmt(Math.round(gt-(window._gt0||0))); } return n; }; }
+if(typeof a3Card==='function'){ const _a3c=a3Card;
+  a3Card=function(n){ const c=_a3c(n); if(!(DLY_RNG&&DLY.on&&DLY.done)) return c;
+    try{ const g=c.getContext('2d'), W=c.width, H=c.height, t=DLY.terms;
+      const DISP="'Cinzel', 'Times New Roman', serif";
+      // the debt ribbon over the night line
+      g.save(); g.fillStyle='rgba(10,4,7,.92)'; g.fillRect(W/2-430,112,860,42);
+      g.strokeStyle='#e8b64c'; g.lineWidth=1.5; g.strokeRect(W/2-430+0.5,112.5,859,41);
+      g.textAlign='center'; g.textBaseline='middle';
+      g.font='700 22px '+DISP; g.fillStyle=DLY.scored?'#ffd36b':'#c98bff';
+      g.fillText('☀ DAILY DEBT #'+t.n+(DLY.scored?'':' · PRACTICE')+' · '+t.name+' ☀', W/2, 134);
+      // the night, minute by minute
+      const tr=DLY.track; const fs=tr.length>11?30:36; g.font='700 '+fs+'px '+DISP;
+      const sp=fs*1.25, x0=W/2-(tr.length-1)*sp/2;
+      tr.forEach((s,i)=>{ g.fillStyle=DLY_MARK_COL[s]||'#e6d9c2'; g.shadowColor=g.fillStyle; g.shadowBlur=10; g.fillText(s,x0+i*sp,548); });
+      g.restore();
+    }catch(e){ console.warn('[daily card]',e); }
+    return c; }; }
+
+/* ---------- the menu plaque ---------- */
+function dlyPlaque(){
+  const menu=$('menu'), pn=menu&&menu.querySelector('.panel'); if(!pn) return;
+  let p=$('dlyPlaque');
+  if(!p){ p=document.createElement('div'); p.id='dlyPlaque';
+    const anchor=$('loadoutLine')||$('startBtn');
+    if(anchor&&anchor.parentNode===pn) pn.insertBefore(p, anchor.nextSibling); else pn.appendChild(p);
+    p.addEventListener('click',ev=>{ ev.stopPropagation(); dlyPlay(); }); }
+  const day=dlyToday(), t=dlyTerms(day), d=DLY.data, rec=d.days[day], st=dlyStreak();
+  const played=!!rec;
+  const today= !played ? 'UNPAID' : (rec.done ? fmt(rec.t)+(rec.track?' '+rec.track:'') : 'FORFEIT');
+  p.className=played?'paid':'';
+  p.innerHTML='<div class="dpTop"><b>☀ DAILY DEBT #'+t.n+'</b><span class="dpCd">NEXT DEBT IN <i id="dlyCd">'+dlyClock(dlyLeft())+'</i></span></div>'
+    +'<div class="dpName">'+t.name+'</div>'
+    +'<div class="dpTerms"><span style="color:'+dlySoulFor(t).col+'">'+dlySoulFor(t).g+' '+dlySoulFor(t).n+'</span> · <span style="color:'+dlyFloorFor(t).col+'">'+dlyFloorFor(t).g+' '+dlyFloorFor(t).n+'</span> · '+dlyModLine(t,true)+'</div>'
+    +'<div class="dpFoot"><span>TODAY <b>'+today+'</b></span><span>BEST <b>'+(d.bestT?fmt(d.bestT):'—')+'</b></span><span>🔥 STREAK <b>'+st+'</b></span></div>'
+    +'<button class="btn dpBtn" type="button">'+(played?'☀ PRACTICE THE DEBT':'☀ PAY TODAY\'S DEBT')+'</button>';
+  p.dataset.day=day;
+}
+function dlySoulFor(t){ return SOULS.find(s=>s.id===t.soul)||SOULS[0]; }
+function dlyFloorFor(t){ return FLOORS.find(f=>f.id===t.floor)||FLOORS[0]; }
+function dlyPlay(){
+  if(state!=='menu') return;
+  DLY.next='daily';
+  try{ SFX.press&&SFX.press(); dlyBell(!DLY.data.days[dlyToday()]); }catch(e){}
+  try{ fadeVeil&&fadeVeil(); }catch(e){}
+  startGame();
+}
+// the countdown ticks while the menu is up; at midnight UTC a new debt is posted
+setInterval(()=>{ try{
+  if(state!=='menu') return; const p=$('dlyPlaque'); if(!p) return;
+  if(+p.dataset.day!==dlyToday()){ dlyPlaque(); dlyBell(true); p.classList.add('fresh'); return; }
+  const cd=$('dlyCd'); if(cd) cd.textContent=dlyClock(dlyLeft());
+}catch(e){} }, 1000);
+
+/* ---------- wiring ---------- */
+// PLAY TONIGHT is always a normal night; ANTE UP after a daily replays the debt (as practice)
+document.addEventListener('click',ev=>{ const b=ev.target&&ev.target.closest&&ev.target.closest('#startBtn'); if(b) DLY.next=null; },true);
+if(typeof quitToMenu==='function'){ const _q=quitToMenu;
+  quitToMenu=function(){
+    try{ if(DLY.on && !DLY.done && DLY.scored && P && window._runSeq===DLY._seq){ // fled mid-debt: the attempt stands as it was
+        const rec=DLY.data.days[DLY.day]; if(rec&&!rec.done){ rec.t=Math.round(gt-(window._gt0||0)); rec.lvl=P.level; rec.fled=1; dlySave(); } } }catch(e){}
+    DLY.next=null; DLY.on=false; DLY_RNG=null;
+    const r=_q.apply(this, arguments);
+    try{ dlyPlaque(); }catch(e){}
+    return r; }; }
+if(typeof actuallyDie==='function'){ const _ad=actuallyDie;
+  actuallyDie=async function(){ const was=state; const r=await _ad.apply(this, arguments);
+    try{ if(was!=='dead') dlyDeath(); }catch(e){ console.error('[daily death]',e); }
+    return r; }; }
+// a normal corpse never wears the daily band
+try{ new MutationObserver(()=>{ const go=$('gameover'); if(go && !go.classList.contains('hidden') && !(DLY_RNG&&DLY.on)){ const b=$('dlyBand'); if(b) b.remove(); if(go.classList.contains('dly')) go.classList.remove('dly'); } /* guarded: an unconditional classList write re-fires this observer forever */ })
+  .observe($('gameover'),{attributes:true, attributeFilter:['class']}); }catch(e){}
+if(typeof renderChips==='function'){ const _rc=renderChips;
+  renderChips=function(){ const r=_rc.apply(this, arguments); try{ dlyPlaque(); }catch(e){} return r; }; }
+try{ dlyPlaque(); }catch(e){}
+dlyLoad().then(()=>{ try{ dlyPlaque(); }catch(e){} });
 </script>
 </body>
 </html>
