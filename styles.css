@@ -2158,3 +2158,5 @@ body.touchUI #hud #combo s{display:none;}
 #a2Notes #coachToast{top:auto;}
 /* pause on narrow desktops (≤1180px): the brass blood bar (HUD rides above the pause veil) sat on top of RESUME — lift the row clear */
 @media (max-width:1180px){ body:not(.touchUI) #howBtnRow{bottom:78px;} }
+/* the ascension card the keyboard / pad will take (◀ ▶ walk it, SPACE / Ⓐ takes it) */
+.jkCard.b4sel{transform:translateY(-8px) scale(1.05);border-color:#8bffd0;box-shadow:0 0 0 1px #8bffd0,0 0 34px rgba(139,255,208,.5);}

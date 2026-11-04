@@ -465,7 +465,11 @@ window.addEventListener('keydown',e=>{
     return;
   }
   if(state==='crash'){
-    if(crash&&crash.jk){ if(k==='1'||k==='2'||k==='3'){ e.preventDefault(); pickJackpot(+k-1); } return; }
+    if(crash&&crash.jk){ e.preventDefault(); const n9=(crash.jkOpts||[]).length; // B4: the pick no longer needs a 1/2/3 key — a pad (Ⓐ = SPACE) was locked out of it forever
+      if(k==='1'||k==='2'||k==='3') pickJackpot(+k-1);
+      else if(n9 && !e.repeat && (k==='a'||k==='arrowleft'||k==='d'||k==='arrowright')){ crash.jkSel=((crash.jkSel||0)+((k==='a'||k==='arrowleft')?-1:1)+n9)%n9; jkPaint(); SFX.uiDing&&SFX.uiDing(); }
+      else if(n9 && !e.repeat && (k===' '||k==='enter') && performance.now()-(crash.jkT||0)>450) pickJackpot(crash.jkSel||0);
+      return; }
     e.preventDefault();
     if(k===' '){ if(crash.live){ SFX.press(); pressPulse('crashMsg'); pushCrash(); } else if(!crash.done){ SFX.press(); pressPulse('crashMsg'); launchCrash(); } }
     else if(k==='enter'){ if(crash.live){ SFX.press(); pressPulse('crashMsg'); cashCrash(); } }
@@ -1885,6 +1889,7 @@ function b3PadFrame(){
   if(rel(0) && PAD.aDown){ PAD.aDown=false; tcKey('keyup',' '); }
   if(edge(2)){ tcKey('keydown','Enter'); tcKey('keyup','Enter'); }
   if(edge(9)){ tcKey('keydown','Escape'); tcKey('keyup','Escape'); }
+  if(state==='crash' && typeof crash!=='undefined' && crash && crash.jk){ if(edge(14)) tcKey('keydown','ArrowLeft'); if(edge(15)) tcKey('keydown','ArrowRight'); } // B4: the d-pad walks the ascension cards
   if(edge(1) && (state==='slot'||state==='wheel')){ tcKey('keydown','Escape'); tcKey('keyup','Escape'); }
 }
 requestAnimationFrame(b3PadLoop);
