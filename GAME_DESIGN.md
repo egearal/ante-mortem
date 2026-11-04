@@ -449,5 +449,6 @@ Never rename or repurpose any of these — players must not lose progress. New f
 - `am_stakes_v1` — STAKES best deck cleared per soul, endless records (B2)
 - `am_dials_v1` — settings: volumes, rebinding, rumble, flash (B3)
 - `am_seats_v1` — soul unlock progress counters + seen-unlock flags (D1)
+- `am_seat_v1` — one-tab lock heartbeat (pre-existing, not progress)
 - `am_probe` — headless harness flag only, never used by real players
 
