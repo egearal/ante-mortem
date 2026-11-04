@@ -542,7 +542,7 @@ PAIRINGS.push(
   {id:'chaingang', w:'coil',    p:'chips',   n:'THE CHAIN GANG',       g:'⛓', hint:'The noose wants company… and heavier hands…',
     d:l=>'Every 1.5s a chain catches up to 8 foes (hopping up to 130px between them), drags the whole gang into one knot before you, and SLAMS them together: each takes 250% + 50% per prisoner (650% for a full gang). Anything near the knot (70px) takes 300%.'},
   {id:'carpet',    w:'mortar',  p:'reach',   n:'THE CARPET BOMB',      g:'💣', hint:'The mortar needs a longer table to walk on…',
-    d:l=>'Every 2.4s the House rolls out a carpet: 8 chips fall in a marching line from 80px to 490px toward the thickest crowd, each blast 450% damage in a 75px circle.'},
+    d:l=>'Every 2.4s the House rolls out a carpet: 8 chips fall in a marching line from 80px to 490px toward the thickest crowd, each blast 400% damage in a 75px circle.'},
   {id:'craps',     w:'dice',    p:'luck',    n:'THE CRAPS TABLE',      g:'🎲', hint:'The die is lonely… and a fool would roll it twice…',
     d:l=>'Every 2.2s you throw TWO big dice. Each lands for its face × 110% damage in a (60 + 10 × face)px blast. DOUBLES explode again for double. A NATURAL (7 or 11) sprays 7 golden pips from each die (150%, pierce 3). SNAKE EYES pays 500% × crit to every foe on screen.'},
   {id:'shark',     w:'phantom', p:'tip',     n:'THE LOAN SHARK',       g:'🦈', hint:'The card shark wants to collect… with interest…',
@@ -550,13 +550,13 @@ PAIRINGS.push(
   {id:'queen',     w:'moths',   p:'fortune', n:'THE MOTH QUEEN',       g:'🦋', hint:'The moths want a queen… dusted in gold…',
     d:l=>'A great moth queen hovers over the thickest crowd (up to 420px away), shedding a 120px cloud of grave-dust: 320%/s and every foe in it is slowed. Every 1.6s she lays a clutch of 5 hunting moths (140% each).'},
   {id:'ouro',      w:'serpent', p:'spd',     n:'THE OUROBOROS',        g:'🐍', hint:'The serpent would follow you anywhere… if you ran…',
-    d:l=>'A brass serpent 20 segments long follows the exact path you walk (stand still and it coils around you): every segment bites for 260%/s. Every 3.5s it eats its own tail: a ring at 240px CONSTRICTS to you, hitting everything it crosses for 500%.'},
+    d:l=>'A brass serpent 20 segments long follows the exact path you walk (stand still and it coils around you): every segment bites for 380%/s. Every 3.5s it eats its own tail: a ring at 240px CONSTRICTS to you, hitting everything it crosses for 700%.'},
   {id:'champagne', w:'chalice', p:'vital',   n:'THE CHAMPAGNE TOWER',  g:'🥂', hint:'The chalice wants a sturdier drinker… and more glasses…',
     d:l=>'Every 3s six goblets fly out in a ring (140–200px) and shatter into pools (70px, 4s) that rot foes for 350%/s and slow them. Every third tower is THE TOAST: every pool on the floor erupts for 800%.'},
   {id:'heart',     w:'nova',    p:'shell',   n:'THE TELL-TALE HEART',  g:'❣', hint:'The nova beats like something buried alive…',
-    d:l=>'A heart beats in your chest, lub-dub every 0.8s: LUB blasts 150px for 220%, DUB 100px for 120%. Every 6th beat it BURSTS: 340px, 900%, hurling foes back. Getting hit bursts it at once (every 4s) and keeps you untouchable 1s.'},
+    d:l=>'A heart beats in your chest, lub-dub every 0.8s: LUB blasts 200px for 300%, DUB 130px for 180%. Every 6th beat it BURSTS: 360px, 1200%, hurling foes back. Getting hit bursts it at once (every 4s) and keeps you untouchable 1s.'},
   {id:'grand',     w:'chand',   p:'dmg',     n:'THE GRAND CHANDELIER', g:'💎', hint:'The candlelight wants sharper crystal…',
-    d:l=>'Every 2.8s the whole ballroom chandelier falls on the thickest crowd: 1400% in 150px, 16 crystal shards fly out (160%, pierce 2), and burning wax pools for 2.5s (90px, 250%/s).'},
+    d:l=>'Every 2.8s the whole ballroom chandelier falls on the thickest crowd: 1100% in 150px, 16 crystal shards fly out (160%, pierce 2), and burning wax pools for 2.5s (90px, 250%/s).'},
   {id:'blackdeath',w:'aura',    p:'regen',   n:'THE BLACK DEATH',      g:'☣', hint:'The miasma is tired of the slow bleed — it wants to wander…',
     d:l=>'The miasma leaves your body: three plague clouds (105px) roam the floor, each hunting a crowd within 380px and rotting it for 380%/s. Foes that die inside a cloud burst into a new small cloud (60px, 3s, 250%/s; up to 10).'}
 );
@@ -636,22 +636,22 @@ function h3Ouro(dt){ const tr=P._h3tr||(P._h3tr=[{x:P.x,y:P.y}]); const h=tr[0];
   if(Math.hypot(nx-h.x,ny-h.y)>=7){ tr.unshift({x:nx,y:ny}); if(tr.length>60) tr.length=60; }
   // every 3rd trail point is a segment
   for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; if((e.x-P.x)**2+(e.y-P.y)**2>520*520) continue;
-    for(let k=0;k<tr.length;k+=3){ const p=tr[k], rr=e.r+9; if((e.x-p.x)**2+(e.y-p.y)**2<rr*rr){ evoHurt(e,P.damage*2.6*dt,'#00e0b0',false); break; } } }
+    for(let k=0;k<tr.length;k+=3){ const p=tr[k], rr=e.r+9; if((e.x-p.x)**2+(e.y-p.y)**2<rr*rr){ evoHurt(e,P.damage*3.8*dt,'#00e0b0',false); break; } } }
   P._h3oT=(P._h3oT||0)+dt;
   if(P._h3oT>=3.5){ P._h3oT=0; P._h3oc={t:0,hit:new Set()}; tone(330,0.7,'triangle',0.08,110); noise(0.5,0.05,3000); }
   const c=P._h3oc; if(c){ c.t+=dt; const R=240-210*Math.min(1,c.t/0.7); c.R=R;
-    for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; if(c.hit.has(e)) continue; const d=Math.hypot(e.x-P.x,e.y-P.y); if(d>R-12 && d<R+12+e.r){ c.hit.add(e); evoHurt(e,P.damage*5,'#00e0b0',false); } }
+    for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; if(c.hit.has(e)) continue; const d=Math.hypot(e.x-P.x,e.y-P.y); if(d>R-12 && d<R+12+e.r){ c.hit.add(e); evoHurt(e,P.damage*7,'#00e0b0',false); } }
     if(c.t>=0.7){ ring(P.x,P.y,60,'#00e0b0'); burst(P.x,P.y,GFX.lite?4:12,'#7fffe0'); tone(110,0.3,'sine',0.14,55); shake=Math.min(10,shake+3);
       if(c.hit.size>=10) showStreak('🐍 THE OUROBOROS SWALLOWS '+c.hit.size+' 🐍'); P._h3oc=null; } } }
 function h3Heart(dt,forced){ if(forced){ h3HeartBurst(); return; }
   P._h3hb=(P._h3hb||0.8)-dt;
   if(P._h3hb<=0){ P._h3hb=0.8; P._h3n=(P._h3n||0)+1; P._h3beat=1;
     if(P._h3n%6===0){ h3HeartBurst(); }
-    else { h3Area(P.x,P.y,150,P.damage*2.2,'#ff0060',false); ring(P.x,P.y,150,'#ff0060'); tone(70,0.18,'sine',0.2,45); P._h3dub=0.18; } }
-  if(P._h3dub>0){ P._h3dub-=dt; if(P._h3dub<=0){ h3Area(P.x,P.y,100,P.damage*1.2,'#ff6a9a',false); ring(P.x,P.y,100,'#ff6a9a'); tone(90,0.12,'sine',0.14,60); P._h3beat=0.7; } }
+    else { h3Area(P.x,P.y,200,P.damage*3,'#ff0060',false); ring(P.x,P.y,200,'#ff0060'); tone(70,0.18,'sine',0.2,45); P._h3dub=0.18; } }
+  if(P._h3dub>0){ P._h3dub-=dt; if(P._h3dub<=0){ h3Area(P.x,P.y,130,P.damage*1.8,'#ff6a9a',false); ring(P.x,P.y,130,'#ff6a9a'); tone(90,0.12,'sine',0.14,60); P._h3beat=0.7; } }
   if(P._h3beat>0) P._h3beat=Math.max(0,P._h3beat-dt*3); }
-function h3HeartBurst(){ for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i], d=Math.hypot(e.x-P.x,e.y-P.y); if(d>=340+e.r) continue; const kd=Math.max(1,d); e.kx+=(e.x-P.x)/kd*380; e.ky+=(e.y-P.y)/kd*380; evoHurt(e,P.damage*9,'#ff0060',false); }
-  ring(P.x,P.y,340,'#ff0060'); ring(P.x,P.y,240,'#ffd36b'); ring(P.x,P.y,120,'#fff'); flash(0.3,'#ff0060'); shake=Math.min(18,shake+8); P._h3beat=1.6;
+function h3HeartBurst(){ for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i], d=Math.hypot(e.x-P.x,e.y-P.y); if(d>=360+e.r) continue; const kd=Math.max(1,d); e.kx+=(e.x-P.x)/kd*380; e.ky+=(e.y-P.y)/kd*380; evoHurt(e,P.damage*12,'#ff0060',false); }
+  ring(P.x,P.y,360,'#ff0060'); ring(P.x,P.y,240,'#ffd36b'); ring(P.x,P.y,120,'#fff'); flash(0.3,'#ff0060'); shake=Math.min(18,shake+8); P._h3beat=1.6;
   tone(48,0.6,'sine',0.3,30); noise(0.3,0.2,800); setTimeout(()=>tone(52,0.4,'sine',0.2,30),140);
   if(!GFX.lite) for(let i=0;i<24;i++){ const a=i/24*6.283, s=rnd(220,380); parts.push({x:P.x,y:P.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:rnd(.3,.5),col:i%2?'#ff0060':'#ffd36b',r:rnd(2,3.5)}); } }
 function h3Plague(dt){ let C=P._h3bd; if(!C){ C=P._h3bd=[0,1,2].map(k=>({x:P.x+Math.cos(k*2.094)*120,y:P.y+Math.sin(k*2.094)*120,tx:P.x,ty:P.y,rt:k*0.4})); }
@@ -676,12 +676,12 @@ function h3Chain(dt){ const c=P._h3cg; if(!c) return; c.t+=dt;
 function h3Ground(dt){ const lite=GFX.lite;
   for(let i=h3Z.length-1;i>=0;i--){ const z=h3Z[i]; z.t-=dt;
     switch(z.k){
-      case 'bomb': if(z.t<=0){ h3Area(z.x,z.y,z.r,P.damage*4.5,'#ff4a00',false); ring(z.x,z.y,z.r,'#ff4a00'); ring(z.x,z.y,z.r*0.5,'#ffd36b'); burst(z.x,z.y,lite?4:10,'#ff8a3c');
+      case 'bomb': if(z.t<=0){ h3Area(z.x,z.y,z.r,P.damage*4,'#ff4a00',false); ring(z.x,z.y,z.r,'#ff4a00'); ring(z.x,z.y,z.r*0.5,'#ffd36b'); burst(z.x,z.y,lite?4:10,'#ff8a3c');
           shake=Math.min(12,shake+1.5); noise(0.16,0.14,700); tone(80,0.18,'sine',0.12,40); h3Z.splice(i,1); } break;
       case 'goblet': if(z.t<=0){ z.k='pool'; z.r=70; z.t=z.m=4; z.tk=0; burst(z.x,z.y,lite?3:8,'#ffe9f2'); if(Math.random()<0.5) tone(2600+Math.random()*600,0.05,'triangle',0.05); noise(0.05,0.05,6000); } break;
       case 'pool': if(z.pop>0) z.pop-=dt; z.tk=(z.tk||0)-dt; if(z.tk<=0){ z.tk=0.1; for(let j=enemies.length-1;j>=0;j--){ const e=enemies[j], rr=z.r+e.r; if((e.x-z.x)**2+(e.y-z.y)**2<rr*rr){ e._slow=0.5; evoHurt(e,P.damage*0.35,'#ffb3d1',false); } } }
         if(z.t<=0) h3Z.splice(i,1); break;
-      case 'chand': if(z.t<=0){ const k=h3Area(z.x,z.y,150,P.damage*14,'#7fd4ff',true);
+      case 'chand': if(z.t<=0){ const k=h3Area(z.x,z.y,150,P.damage*11,'#7fd4ff',true);
           for(let s=0;s<16;s++){ const a=s*0.3927; h3Shot({x:z.x,y:z.y,vx:Math.cos(a)*420,vy:Math.sin(a)*420,r:4,dmg:P.damage*1.6,life:0.5,pierce:2,col:'#7fd4ff',shape:'crystal',spin:a}); }
           h3Z.splice(i,1); h3Z.push({k:'wax',x:z.x,y:z.y,r:90,t:2.5,m:2.5,tk:0});
           ring(z.x,z.y,150,'#7fd4ff'); ring(z.x,z.y,90,'#fff2c0'); burst(z.x,z.y,lite?8:24,'#dff6ff'); flash(0.18,'#dff6ff'); shake=Math.min(20,shake+9); hitstop=Math.max(hitstop||0,0.03);
