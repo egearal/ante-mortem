@@ -2882,7 +2882,7 @@ function hrBossOrder(){
   if(window._hrOrdSeq!==window._runSeq || !window._hrOrd){
     window._hrOrdSeq=window._runSeq;
     const met=k=>(typeof IDX!=='undefined'&&IDX.b&&IDX.b.indexOf(k)>=0);
-    const pick=a=>{ const un=a.filter(k=>!met(k)); const pool=(un.length&&Math.random()<0.7)?un:a; return pool[(Math.random()*pool.length)|0]; };
+    const pick=a=>{ const un=dlyOn()?[]:a.filter(k=>!met(k)); const pool=(un.length&&rng('spawn')<0.7)?un:a; return pool[(rng('spawn')*pool.length)|0]; }; // Daily Debt: seeded, same lords for everyone
     const s1=pick(['pitboss','croupier','bookie']);
     const s2=pick(['croupier','bookie','collector'].filter(k=>k!==s1));
     window._hrOrd=[s1,s2,'twins','thehouse'];
@@ -2915,7 +2915,7 @@ function hrInit(b,kind){
     Object.assign(m,{boss:true,bossKind:'twins',vt:'hr_twin',tw:'bone',col:'#e6dccb',dark:'#3a3328',bstate:'stalk',bt:2,spiralA:0,hrGuard:true,oa:a2,hp:b.maxhp,maxhp:b.maxhp});
     const pool={hp:b.maxhp,max:b.maxhp,dead:false}; b.pool=m.pool=pool; b.mate=m; m.mate=b;
     b.v1=3.4; m.v1=2.2; b.dst='orbit';
-    hrWheel={t:8.2,a:0,v:0,spin:false,hot:Math.random()<0.5?'gold':'bone',tk:0};
+    hrWheel={t:8.2,a:0,v:0,spin:false,hot:rng('combat')<0.5?'gold':'bone',tk:0};
     setTimeout(()=>{ if(hrWheel) announce('◈ THE WHEEL SAYS '+(hrWheel.hot==='gold'?'GOLD':'BONE')+' — STRIKE THAT TWIN ◈', true); },2600);
   }
 }
@@ -2930,10 +2930,11 @@ function hrGuardKill(e,idx){
 }
 function hrTwinSync(e){
   const pool=e.pool; if(!pool) return;
-  if(e._hs===undefined) e._hs=e.hp;
+  if(e._hs===undefined){ e._hs=e.hp; if(e.maxhp>pool.max){ pool.hp+=e.maxhp-pool.max; pool.max=e.maxhp; e._hs=e.hp=pool.hp; } } // B2 champions scale one body — the pool takes the larger
+  e.maxhp=pool.max;
   const drop=e._hs-e.hp;
   if(drop>0){ const hot=hrWheel?hrWheel.hot:'gold', m=(e.tw===hot)?1:0.4; pool.hp-=drop*m;
-    if(m<1 && Math.random()<0.08) ftext(e.x,e.y-e.r-12,'×0.4','#8a8478'); }
+    if(m<1 && rng('combat')<0.08) ftext(e.x,e.y-e.r-12,'×0.4','#8a8478'); }
   e.hp=e._hs=Math.max(0,pool.hp);
 }
 // a boss's unique bounty — paid on top of the usual gilt + epic floor
@@ -2958,21 +2959,21 @@ function hrBar(bs,pct){
 /* ---------- THE CROUPIER ---------- */
 function hrDeal(e){
   const base=Math.atan2(P.y-e.y,P.x-e.x), n=5, sp=0.42, A=CFG.arena;
-  for(let i=0;i<n;i++){ const a=base+(i-(n-1)/2)*sp, R=150+Math.random()*30, r9=Math.random();
+  for(let i=0;i<n;i++){ const a=base+(i-(n-1)/2)*sp, R=150+rng('combat')*30, r9=rng('combat');
     const s=r9<0.40?'♠':r9<0.60?'♥':r9<0.75?'♦':'♣';
     hrCards.push({e,x:e.x,y:e.y,sx:e.x,sy:e.y,tx:clamp(e.x+Math.cos(a)*R,30,A-30),ty:clamp(e.y+Math.sin(a)*R,30,A-30),a,s,t:-i*0.07,rev:0.95+i*0.14,done:false,life:5.4,bl:0,blT:0,heal:0}); }
   e._dealFx=0.5; SFX.hrDeal();
 }
 function hrStartFlip(e){
-  const mine=Math.random()<0.5?0:1; // 0 = ♛ HEADS, 1 = ☠ TAILS
-  hrFlip={e,t:0,dur:3.6,ph:Math.random()*2,mine,res:-1,rt:0,face:-1,how:''};
+  const mine=rng('combat')<0.5?0:1; // 0 = ♛ HEADS, 1 = ☠ TAILS
+  hrFlip={e,t:0,dur:3.6,ph:rng('combat')*2,mine,res:-1,rt:0,face:-1,how:''};
   announce('◈ THE CROUPIER FLIPS — YOU HOLD '+(mine===0?'♛ HEADS':'☠ TAILS')+' — '+(window._touchUI?'◈ BET':'SPACE')+' WHEN IT SHOWS ◈', true);
   SFX.hrFlipStart(); flash(0.25,'#fff2c0'); hitstop=Math.max(hitstop,0.06);
 }
 function hrSpace(){
   if(!hrFlip || hrFlip.res>=0 || state!=='playing') return false;
   const u=hrFlip.ph-Math.floor(hrFlip.ph), flat=Math.sin(Math.PI*u)>0.5, face=Math.floor(hrFlip.ph)%2;
-  hrResolveFlip(flat?face:(Math.random()<0.5?0:1), flat?'CLEAN CATCH':'CAUGHT ON THE EDGE — 50/50');
+  hrResolveFlip(flat?face:(rng('combat')<0.5?0:1), flat?'CLEAN CATCH':'CAUGHT ON THE EDGE — 50/50');
   SFX.press&&SFX.press();
   return true;
 }
@@ -2996,7 +2997,7 @@ function hrCroupierAI(e,dt,dx,dy,d){
   if(e.stunT>0){ e.stunT-=dt; e.cd=Math.max(e.cd,0.25); if(e.stunT<=0) showStreak('THE CROUPIER RECOVERS'); }
   else if(hrFlip && hrFlip.e===e && hrFlip.res<0){ /* he watches the coin */ }
   else {
-    const rg=e.rageT>0?1.45:1; if(e.rageT>0){ e.rageT-=dt; if(Math.random()<0.25) burst(e.x,e.y-e.r,1,'#ff3355'); }
+    const rg=e.rageT>0?1.45:1; if(e.rageT>0){ e.rageT-=dt; if(rng('combat')<0.25) burst(e.x,e.y-e.r,1,'#ff3355'); }
     if(d>260){ e.x+=dx/d*e.spd*rg*dt; e.y+=dy/d*e.spd*rg*dt; } else { e.x+=-dy/d*e.spd*0.6*rg*dt; e.y+=dx/d*e.spd*0.6*rg*dt; if(d<200){ e.x-=dx/d*e.spd*0.5*dt; e.y-=dy/d*e.spd*0.5*dt; } }
     e.v1-=dt*rg; e.v2-=dt*rg;
     if(e.v1<=0){ e.v1=6.2; hrDeal(e); }
@@ -3008,7 +3009,7 @@ function hrCroupierAI(e,dt,dx,dy,d){
 
 /* ---------- THE BOOKIE ---------- */
 function hrOpenBoard(e){
-  const A=CFG.arena, ax=P.x-e.x, ay=P.y-e.y, ad=Math.hypot(ax,ay)||1, ux=ax/ad, uy=ay/ad, sd=Math.random()<0.5?1:-1;
+  const A=CFG.arena, ax=P.x-e.x, ay=P.y-e.y, ad=Math.hypot(ax,ay)||1, ux=ax/ad, uy=ay/ad, sd=rng('combat')<0.5?1:-1;
   const cl=v=>clamp(v,90,A-90);
   const m=[
     {x:cl(P.x+ux*190+uy*sd*90), y:cl(P.y+uy*190-ux*sd*90), o:2, p:0.55, dm:0.06, c:8,  col:'#e6d9c2'},
@@ -3028,7 +3029,7 @@ function hrBookieAI(e,dt,dx,dy,d){
     if(e.bt<=0 && !hrMarks) hrOpenBoard(e);
   } else { // the board is open: he parks on the long odds and sprays chalk
     const M=hrMarks&&hrMarks.m[2]; if(M){ const mx=M.x-e.x, my=M.y-e.y, md=Math.hypot(mx,my); if(md>4){ e.x+=mx/md*Math.min(md,e.spd*2.2*dt); e.y+=my/md*Math.min(md,e.spd*2.2*dt); } }
-    e.v1-=dt; if(e.v1<=0){ e.v1=1.25; const o=Math.random()*6.283;
+    e.v1-=dt; if(e.v1<=0){ e.v1=1.25; const o=rng('combat')*6.283;
       for(let i2=0;i2<8;i2++){ const an=o+i2/8*6.283; if(ebullets.length<90) ebullets.push({x:e.x,y:e.y,px:e.x,py:e.y,vx:Math.cos(an)*175,vy:Math.sin(an)*175,r:7,dmg:e.dmg*0.75,life:3.2}); }
       SFX.hrChalk(); }
     if(!hrMarks){ e.bph='roam'; e.bt=6.5; e.v1=1.6; }
@@ -3041,7 +3042,7 @@ function hrResolveBoard(){
   let mk=null; for(const m of H.m){ if(Math.hypot(P.x-m.x,P.y-m.y)<H.r){ mk=m; break; } }
   SFX.hrBell();
   if(!mk){ showStreak('NO BET — THE BOOKIE SHRUGS'); hrVoiceMaybe('bookie','NO STOMACH FOR IT? PITY.'); return; }
-  if(Math.random()<mk.p){
+  if(rng('combat')<mk.p){
     const dmg=e.maxhp*mk.dm; e.hp-=dmg; e.flash=0.3; e._paid=1.8; trackDmg&&trackDmg(dmg);
     const cn=Math.round(mk.c*(P.coinMult||1)); for(let i=0;i<cn;i++) coins.push({x:P.x+rnd(-20,20),y:P.y+rnd(-20,20),r:6,vx:rnd(-160,160),vy:rnd(-160,160)});
     ftext(e.x,e.y-e.r-20,'−'+Math.round(dmg),'#ffd36b',true); ring(e.x,e.y,120,'#ffd36b'); ring(e.x,e.y,190,'#fff2c0'); burst(e.x,e.y,30,'#ffd36b');
@@ -3065,7 +3066,7 @@ function hrTwinsAI(e,dt,dx,dy,d){
   if(e.tw==='gold' && e.dst!=='orbit'){
     e.bt-=dt;
     if(e.dst==='tele'){ e.flash=0.05; if(e.bt<=0){ e.dst='dash'; e.bt=0.44; SFX.thud(); shake=Math.min(14,shake+5); } }
-    else if(e.dst==='dash'){ e.x+=Math.cos(e.ca)*600*dt; e.y+=Math.sin(e.ca)*600*dt; if(Math.random()<0.5) burst(e.x,e.y,1,'#ffd36b');
+    else if(e.dst==='dash'){ e.x+=Math.cos(e.ca)*600*dt; e.y+=Math.sin(e.ca)*600*dt; if(rng('combat')<0.5) burst(e.x,e.y,1,'#ffd36b');
       if(e.bt<=0){ e.dst='orbit'; e.v1=3.6; e.oa=Math.atan2(e.y-P.y,e.x-P.x); } }
   } else {
     const tx=P.x+Math.cos(e.oa)*235, ty=P.y+Math.sin(e.oa)*235, mx=tx-e.x, my=ty-e.y, md=Math.hypot(mx,my)||1;
@@ -3107,7 +3108,7 @@ function hrUpdate(dt){
     if(!enemies.includes(f.e)) hrFlip=null;
     else if(f.res<0){ f.t+=dt; const fq=2.4+3.1*Math.min(1,f.t/f.dur), pf=Math.floor(f.ph); f.ph+=dt*fq;
       if(Math.floor(f.ph)!==pf) SFX.hrCoinTick(Math.min(1,f.t/f.dur));
-      if(f.t>=f.dur) hrResolveFlip(Math.random()<0.5?0:1,'NO CALL — THE COIN FALLS WHERE IT WILL'); }
+      if(f.t>=f.dur) hrResolveFlip(rng('combat')<0.5?0:1,'NO CALL — THE COIN FALLS WHERE IT WILL'); }
     else { f.rt+=dt; if(f.rt>1.8) hrFlip=null; } }
   // the board
   if(hrMarks){ const H=hrMarks;
@@ -3120,7 +3121,7 @@ function hrUpdate(dt){
     else { W.t-=dt;
       if(!W.spin && W.t<=1.8){ W.spin=true; W.v=15; showStreak('THE WHEEL SPINS'); SFX.hrWheelGo(); }
       if(W.spin){ W.v=Math.max(1.2,W.v*Math.pow(0.32,dt)); const pa=W.a; W.a+=W.v*dt; if(Math.floor(W.a/(6.283/12))!==Math.floor(pa/(6.283/12))) SFX.wheelTick&&SFX.wheelTick(Math.max(0,1-W.v/15)); }
-      if(W.t<=0){ W.spin=false; W.t=8; const prev=W.hot; W.hot=Math.random()<0.5?'gold':'bone';
+      if(W.t<=0){ W.spin=false; W.t=8; const prev=W.hot; W.hot=rng('combat')<0.5?'gold':'bone';
         { const st=6.283/12, ptr=-Math.PI/2; let best=W.a, bd=9; for(let k=0;k<12;k++){ if((k%2===0?'gold':'bone')!==W.hot) continue; const cand=ptr-(k+0.5)*st; const n=Math.round((W.a-cand)/6.283); const v=cand+n*6.283, dd=Math.abs(v-W.a); if(dd<bd){ bd=dd; best=v; } } W.a=best; }
         const tw=enemies.find(x=>x.bossKind==='twins'&&x.tw===W.hot);
         announce((W.hot==='gold'?'◈ GOLD':'☠ BONE')+(prev===W.hot?' AGAIN':'')+' — STRIKE THE '+(W.hot==='gold'?'GOLD':'BONE')+' TWIN '+(W.hot==='gold'?'◈':'☠'), true);
@@ -3130,8 +3131,8 @@ function hrUpdate(dt){
       if(window._hrChainCd<=0 && hrSegD(P.x,P.y,tw[0].x,tw[0].y,tw[1].x,tw[1].y)<11+P.radius*0.5){ window._hrChainCd=0.8; hurtPlayer(tw[0].dmg*0.45); SFX.hrChain(); } } }
   // loaded dice
   for(let i=hrDice.length-1;i>=0;i--){ const dc=hrDice[i]; dc.t-=dt;
-    if(!dc.landed){ dc.x+=dc.vx*dt; dc.y+=dc.vy*dt; dc.vx*=0.94; dc.vy*=0.94; if(Math.random()<0.3) dc.face=1+((Math.random()*6)|0);
-      if(dc.t<=0){ dc.landed=true; dc.t=1.4; dc.face=1+((Math.random()*6)|0); const f=[0.55,0.7,0.85,1.15,1.3,1.5][dc.face-1]; dc.f=f;
+    if(!dc.landed){ dc.x+=dc.vx*dt; dc.y+=dc.vy*dt; dc.vx*=0.94; dc.vy*=0.94; if(rng('combat')<0.3) dc.face=1+((rng('combat')*6)|0);
+      if(dc.t<=0){ dc.landed=true; dc.t=1.4; dc.face=1+((rng('combat')*6)|0); const f=[0.55,0.7,0.85,1.15,1.3,1.5][dc.face-1]; dc.f=f;
         let n=0; for(const o of enemies){ if(o.boss) continue; if(Math.hypot(o.x-dc.x,o.y-dc.y)<170){ o._ldF=f; o._ldT=6; n++; } }
         ring(dc.x,dc.y,170,f<1?'#8bff9a':'#ff3355'); ring(dc.x,dc.y,90,'#ff8af7'); SFX.hrDieLand(dc.face);
         ftext(dc.x,dc.y-26,(f<1?'SLOWED ×':'HASTED ×')+f,f<1?'#8bff9a':'#ff5566',true); } }
@@ -3141,12 +3142,12 @@ function hrUpdate(dt){
 function hrLoadedStep(e,dt,dx,dy,d){ if(!(e._ldT>0)) return; e._ldT-=dt; const k=(e._ldF-1)*e.spd*dt; e.x+=dx/d*k; e.y+=dy/d*k; }
 
 /* ---------- elite affixes ---------- */
-function hrAffix(e){ if(!e||e.boss) return; const r=Math.random(); if(r<0.24) e.affix='loaded'; else if(r<0.48) e.affix='marked'; if(e.affix){ e.v9=2.5; } }
+function hrAffix(e){ if(!e||e.boss) return; const r=rng('elite'); if(r<0.24) e.affix='loaded'; else if(r<0.48) e.affix='marked'; if(e.affix){ e.v9=2.5; } }
 function hrAffixAI(e,dt,dx,dy,d){
   if(e.affix==='loaded'){ e.v9-=dt; if(e.v9<=0 && d<620){ e.v9=4.6; hrDice.push({x:e.x,y:e.y,vx:rnd(-90,90),vy:rnd(-90,90),t:1.1,face:1,landed:false}); SFX.hrDieThrow(); } }
   if(e._split && e.affix==='marked'){ e._split=0; e.affix='split';
     e.hp*=0.5; e.maxhp*=0.5; e.r=Math.round(e.r*0.8); e.coins=Math.round(e.coins*0.5); e.xp*=0.5;
-    const c=Object.assign({},e,{x:e.x+rnd(-24,24),y:e.y+rnd(-24,24),ph:Math.random()*6.28,born:gt,_tr:null,kx:-(e.kx||0),ky:-(e.ky||0)});
+    const c=Object.assign({},e,{x:e.x+rnd(-24,24),y:e.y+rnd(-24,24),ph:rng('combat')*6.28,born:gt,_tr:null,kx:-(e.kx||0),ky:-(e.ky||0)});
     e.kx+=rnd(-160,160); e.ky+=rnd(-160,160);
     if(enemies.length<CFG.spawn.max+20) enemies.push(c);
     ring(e.x,e.y,80,'#ff5a1f'); burst(e.x,e.y,18,'#ff5a1f'); showStreak('THE MARK SPLITS'); SFX.hrSplit(); }
@@ -3295,7 +3296,7 @@ function hrDrawTop(){
       ctx.beginPath(); ctx.moveTo(tw[0].x,tw[0].y); ctx.lineTo(tw[1].x,tw[1].y); ctx.stroke(); ctx.restore();
       ctx.save(); ctx.strokeStyle='#2a2018'; ctx.lineWidth=1.5; ctx.setLineDash([3,5]); ctx.beginPath(); ctx.moveTo(tw[0].x,tw[0].y); ctx.lineTo(tw[1].x,tw[1].y); ctx.stroke(); ctx.restore(); }
     if(tw.length){ let mx=0,my=1e9; for(const t of tw){ mx+=t.x; my=Math.min(my,t.y); } mx/=tw.length;
-      const W=hrWheel, R=30, cx=clamp(mx,camX+60,camX+VW-60), cy=clamp(my-110,camY+110,camY+VH-80), st=6.283/12;
+      const W=hrWheel, R=30, cx=clamp(mx,camX+60,camX+VW-60), cy=clamp(my-110,camY+175,camY+VH-80), st=6.283/12;
       ctx.save(); ctx.translate(cx,cy);
       ctx.fillStyle='rgba(6,2,4,0.85)'; ctx.beginPath(); ctx.arc(0,0,R+6,0,6.28); ctx.fill();
       for(let k=0;k<12;k++){ ctx.fillStyle=(k%2===0)?'#c9962e':'#e6dccb'; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,R,W.a+k*st,W.a+(k+1)*st); ctx.closePath(); ctx.fill(); }

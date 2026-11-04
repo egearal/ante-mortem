@@ -863,7 +863,7 @@ function b2ScaleElite(e){
 // a champion of the existing roster every 3:00 of the endless floor, heavier each time
 function b2Champion(){
   if(enemies.some(e=>e.boss)){ P._b2bossT=30; return; } // one champion at a time — the next waits its turn
-  const order=['pitboss','croupier','collector','thehouse'];
+  const order=['pitboss','croupier','bookie','collector','twins','thehouse']; // C2: the high rollers take their turn
   const kind=order[(P._b2bossN||0)%order.length]; P._b2bossN=(P._b2bossN||0)+1;
   try{ spawnBoss(kind); }catch(e){ return; }
   const b=enemies[enemies.length-1];

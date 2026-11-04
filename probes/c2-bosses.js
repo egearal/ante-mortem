@@ -115,7 +115,9 @@ async function affixScene() {
     let splitSeen = 0, dice = 0, slowed = 0;
     const n0 = enemies.filter(e => e.elite).length;
     P.crit = 1; // every shot crits — MARKED must split exactly once
-    for (let i = 0; i < 420; i++) { window.__vc.step(16.7); window.__bot.step();
+    window.startWave = () => {};
+    for (let i = 0; i < 420; i++) { for (let k = enemies.length - 1; k >= 0; k--) if (!enemies[k].elite) enemies.splice(k, 1); // only the two elites on the felt, so the bolts find them
+      window.__vc.step(16.7); window.__bot.step();
       dice = Math.max(dice, hrDice.length); slowed = Math.max(slowed, enemies.filter(e => e._ldT > 0).length);
       if (enemies.some(e => e.affix === 'split')) splitSeen = 1; }
     return { n0, elitesNow: enemies.filter(e => e.elite).length, splitSeen, splits: enemies.filter(e => e.affix === 'split').length, dice, slowed, err: !!window._amErr };
@@ -128,11 +130,11 @@ async function affixScene() {
 }
 
 (async () => {
-  const kinds = only ? [only] : ['croupier', 'bookie', 'twins'];
+  const kinds = only === 'affixes' ? [] : only ? [only] : ['croupier', 'bookie', 'twins'];
   const results = []; let allErr = [], bad = false;
   for (const k of kinds) { const { r, errors } = await bossNight(k); results.push(r); allErr = allErr.concat(errors); if (!r.killed || r.amErr) bad = true;
     console.error(`${k}: ${r.killed ? 'SLAIN' : 'ALIVE'} after ${r.fightSec}s game · frame CPU p50 ${r.p50ms} / p85 ${r.p85ms} / p95 ${r.p95ms}ms · stall frames(>40ms) ${(r.stallFrac*100).toFixed(1)}% · errors ${r.errors.length}`); }
-  if (!only) { const { r, errors } = await affixScene(); results.push(r); allErr = allErr.concat(errors); if (r.err || !r.splitSeen) bad = true; console.error('affixes:', JSON.stringify(r)); }
+  if (!only || only === 'affixes') { const { r, errors } = await affixScene(); results.push(r); allErr = allErr.concat(errors); if (r.err || !r.splitSeen) bad = true; console.error('affixes:', JSON.stringify(r)); }
   console.log(JSON.stringify({ errors: allErr.length, results }, null, 1));
   process.exit(allErr.length || bad ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(2); });
