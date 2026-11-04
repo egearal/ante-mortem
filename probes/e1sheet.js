@@ -23,6 +23,23 @@ const out = process.argv[2] || path.join(__dirname, '..', 'shots', 'e1-after', '
       g.fillStyle = '#e6d9c2'; g.font = '12px serif'; g.fillText(t, 4, j * C + 14); });
     return cv.toDataURL('image/png');
   });
+  // the arsenal gallery: each new projectile drawn 3x with its trail (and the crit glint), on the game's own painter
+  const url2 = await page.evaluate(() => {
+    const W = 1200, H = 300; cv.width = W; cv.height = H; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#1a0a10'; ctx.fillRect(0, 0, W, H);
+    const L = [['bone bolt', { crit: false, pierce: 0, r: 5 }], ['bolt · CRIT', { crit: true, pierce: 0, r: 5 }], ['cylinder round', { crit: false, r: 4 }], ['coffin nail', { pierce: 1, r: 4 }],
+      ['lantern wisp', { r: 4 }], ['rat-king fang', { seek: true, r: 3.5 }], ['grave moth', { seek: true, r: 3 }], ['loaded die', { bounce: 3, r: 6, crit: false }],
+      ['chip mortar', { blast: 80, r: 8, life: 0.55 }], ['card shark wave', { r: 20, pierce: 5, crit: false }], ['dealer card (face)', { kind: 'card', spin: 0.15, r: 6, crit: false }],
+      ['dealer card (back)', { kind: 'card', spin: 2.9, r: 6, crit: false }], ['spinning knife', { kind: 'knife', spin: 0.9, r: 5, crit: false }]];
+    L.forEach(([name, o], i) => { const col = i % 7, row = (i / 7) | 0, x = 80 + col * 160, y = 70 + row * 150;
+      ctx.save(); ctx.translate(x, y); ctx.scale(2.6, 2.6); ctx.translate(-x, -y);
+      const b = Object.assign({ x, y, px: x - 9, py: y - 2, vx: 300, vy: 60, life: 1 }, o);
+      ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round'; arsenalTrail(b); ctx.restore();
+      arsenalDraw(b);
+      if (b.crit && b.kind !== 'card') { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.translate(x, y); const gs = 8 + b.r * 1.6; ctx.drawImage(_glintSp(), -gs, -gs, gs * 2, gs * 2); ctx.restore(); }
+      ctx.restore(); ctx.fillStyle = '#e6d9c2'; ctx.font = '13px serif'; ctx.textAlign = 'center'; ctx.fillText(name, x, y + 62); });
+    return cv.toDataURL('image/png');
+  });
+  fs.writeFileSync(out.replace(/\.png$/, '') + '_arsenal.png', Buffer.from(url2.split(',')[1], 'base64'));
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, Buffer.from(url.split(',')[1], 'base64'));
   await browser.close(); console.log(out, errors.slice(0, 4)); process.exit(errors.length ? 1 : 0);

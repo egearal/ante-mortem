@@ -233,7 +233,7 @@ function drawPops(){
    same frames. Live overlays are only what must track the world: eyes, the bow, the hexer's orb,
    the bomber's fuse. Bosses keep their own draw path (drawEnemy) untouched.
    ============================================================================================== */
-const COURT_VS={shambler:1.2,husk:1.22,swarm:1.32,bomber:1.26,leech:1.16,shooter:1.2,wraith:1.24,stalker:1.24,hexer:1.2,brute:1.12,revenant:1.12,elite:1.1,gilded:1.24};
+const COURT_VS={shambler:1.2,husk:1.22,swarm:1.3,bomber:1.26,leech:1.16,shooter:1.2,wraith:1.24,stalker:1.24,hexer:1.2,brute:1.12,revenant:1.12,elite:1.1,gilded:1.24};
 const COURT_FPS={shambler:4.2,husk:10,swarm:13,bomber:7,leech:3.4,shooter:3,wraith:4.5,stalker:11,hexer:3.6,brute:3.4,revenant:3.4,elite:3.6,gilded:11};
 const COURT_K={brute:1.3,revenant:1.3,elite:1.5,leech:1.15,hexer:1.1,wraith:1.1}; // bake resolution for the big bodies
 const COURT_FAM={shooter:'crumble',husk:'crumble',revenant:'crumble',gilded:'crumble',wraith:'dissolve',hexer:'dissolve',elite:'dissolve'}; // the rest burst
@@ -434,7 +434,7 @@ function _courtArt(g,T,R,f,col,dark){
     k.fill('M -0.3 -0.5 Q 0 -0.6 0.3 -0.5 L 0.24 0.7 L -0.24 0.7 Z',k.vg(-0.6,0.7,0,'#2a1438',1,'#0c0412'));
     k.line('M 0 -0.46 L 0 0.66','rgba(201,139,255,0.7)',0.04);
     k.fill('M -0.42 -0.44 L -0.28 -0.82 L -0.1 -0.5 L 0 -0.86 L 0.1 -0.5 L 0.28 -0.82 L 0.42 -0.44 Z','#1e0c2a',R*0.05);
-    k.fill('M -0.04 -0.72 Q -0.06 -1.02 0.16 -1.02 Q 0.4 -1.0 0.38 -0.72 Q 0.36 -0.5 0.16 -0.46 Q -0.02 -0.5 -0.04 -0.72 Z',k.vg(-1.02,-0.46,0,'#ffffff',1,'#cfc6dc'),R*0.05);
+    k.fill('M -0.04 -0.72 Q -0.06 -1.02 0.16 -1.02 Q 0.4 -1.0 0.38 -0.72 Q 0.36 -0.5 0.16 -0.46 Q -0.02 -0.5 -0.04 -0.72 Z',k.vg(-1.02,-0.46,0,'#ddd4e6',1,'#9a8fb0'),R*0.05);
     k.fill('M 0.0 -0.74 L 0.12 -0.7 L 0.0 -0.68 Z M 0.32 -0.74 L 0.2 -0.7 L 0.32 -0.68 Z','#3a1a52',0);
     k.line('M 0.07 -0.66 L 0.06 -0.54','#8b1620',0.025);
     k.fill('M 0.1 -0.56 Q 0.16 -0.52 0.22 -0.56 Q 0.16 -0.5 0.1 -0.56 Z','#3a1a52',0);
@@ -472,6 +472,11 @@ function courtBake(T,f,mode,col,dark){
     g.fillStyle=({w:'#ffffff',k:'rgba(4,1,3,0.9)',d:'#160408',h:'#ff7a1c',r:'#ffdcae'})[mode]||'#fff'; g.fillRect(0,0,S,S); }
   _CT.set(key,cv); return cv;
 }
+// per-palette sprite sets: an enemy holds its set, so a frame's lookups are array reads, not string keys
+const _CSET=new Map();
+function courtSet(T,col,dark){ const key=T+'|'+col+'|'+dark; let cs=_CSET.get(key); if(cs) return cs;
+  cs={T,col,dark,m:{}}; cs.get=function(mode,f){ const a=this.m[mode]||(this.m[mode]=[]); return a[f]||(a[f]=courtBake(this.T,f,mode,this.col,this.dark)); };
+  _CSET.set(key,cs); return cs; }
 function _courtMotion(T,cph,e,r){ // continuous motion between the baked frames: bob, squash, lean
   const m=_courtM; m.bob=0; m.sx=1; m.sy=1; m.rot=0; const sn=Math.sin(cph), ab=Math.abs(sn);
   if(T==='wraith'||T==='hexer'){ m.bob=Math.sin(gt*2.1+e.ph)*r*0.13-r*0.1; m.rot=Math.sin(gt*1.3+e.ph)*0.04; }
@@ -487,17 +492,18 @@ function _courtMotion(T,cph,e,r){ // continuous motion between the baked frames:
 const _courtM={bob:0,sx:1,sy:1,rot:0};
 function courtDraw(e){
   const T=e.type, vs=COURT_VS[T]; if(!vs) return false; // a type the court doesn't know (a later wave's) keeps the old painter
-  const r=e.r, R=26*(COURT_K[T]||1), u=r*vs/R*R; // u = world px per art unit
+  const r=e.r, R=26*(COURT_K[T]||1), u=r*vs; // u = world px per art unit
   const dxp=P.x-e.x; if(!e._fx) e._fx=dxp<0?-1:1; else if(dxp>16) e._fx=1; else if(dxp<-16) e._fx=-1; // faces her, with a dead zone
   const ph=gt*COURT_FPS[T]+e.ph*0.637, fr=(ph|0)&3, m=_courtMotion(T,ph*1.5708,e,r);
-  const b=courtBake(T,fr,'b',e.col,e.dark), hw=b.width*u/R/2, fx=e._fx;
+  let cs=e._cs; if(!cs||cs.col!==e.col||cs.T!==T) cs=e._cs=courtSet(T,e.col,e.dark);
+  const b=cs.get('b',fr), hw=b.width*u/R/2, fx=e._fx;
   ctx.save(); ctx.translate(e.x,e.y);
   const fly=(T==='wraith'||T==='hexer'||T==='swarm');
   ctx.fillStyle=fly?'rgba(0,0,0,0.22)':'rgba(0,0,0,0.36)'; ctx.beginPath(); ctx.ellipse(0,r*0.78*vs,r*(fly?0.55:0.84)*vs,r*0.26*vs,0,0,6.283); ctx.fill();
   if(e.flash>0){ const sq=Math.min(0.16,e.flash*1.4); ctx.scale(1+sq,1-sq); }
   if(e._lod){ // the far court: the very same frame, one blit
     ctx.translate(0,m.bob); ctx.scale(fx*m.sx,m.sy); ctx.drawImage(b,-hw,-hw,hw*2,hw*2);
-    if(e.flash>0){ ctx.globalAlpha=Math.min(0.95,e.flash*8); ctx.drawImage(courtBake(T,fr,'w',e.col,e.dark),-hw,-hw,hw*2,hw*2); }
+    if(e.flash>0){ ctx.globalAlpha=Math.min(0.95,e.flash*8); ctx.drawImage(cs.get('w',fr),-hw,-hw,hw*2,hw*2); }
     ctx.restore(); return true;
   }
   { const bs9=Math.min(1,(gt-(e.born||gt-1))/0.22); if(bs9<1){ ctx.scale(bs9,bs9); ctx.globalAlpha=bs9; } }
@@ -509,17 +515,17 @@ function courtDraw(e){
     ctx.strokeStyle='#ff8a2c'; ctx.lineWidth=2; if(!window._dense) ctx.setLineDash([7,6]); ctx.beginPath(); ctx.arc(0,0,74,0,6.283); ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
   ctx.translate(0,m.bob); if(m.rot) ctx.rotate(m.rot*fx); ctx.scale(fx*m.sx,m.sy);
   if(e.elite && !lite){ const pu=1.14+Math.sin(gt*5+e.ph)*0.05; ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=ga*0.7;
-    ctx.drawImage(courtBake(T,fr,'g#c98bff',e.col,e.dark),-hw*pu,-hw*pu,hw*2*pu,hw*2*pu); ctx.restore(); }
-  ctx.drawImage(courtBake(T,fr,'i',e.col,e.dark),-hw,-hw,hw*2,hw*2);
+    ctx.drawImage(cs.get('g#c98bff',fr),-hw*pu,-hw*pu,hw*2*pu,hw*2*pu); ctx.restore(); }
+  ctx.drawImage(cs.get('i',fr),-hw,-hw,hw*2,hw*2);
   // rim light in the body's own shape: a warm copy nudged toward her candle, the body laid over it
   if(!qLow){ const pa=Math.atan2(P.y-e.y,dxp), o=Math.max(1.2,r*0.1); ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=ga*(e.elite?0.7:0.55);
-    ctx.drawImage(courtBake(T,fr,'r',e.col,e.dark),-hw+Math.cos(pa)*o*fx,-hw+Math.sin(pa)*o,hw*2,hw*2); ctx.restore(); }
+    ctx.drawImage(cs.get('r',fr),-hw+Math.cos(pa)*o*fx,-hw+Math.sin(pa)*o,hw*2,hw*2); ctx.restore(); }
   if(T==='wraith'){ ctx.globalAlpha=ga*(0.82+Math.sin(gt*3.1+e.ph)*0.08); }
   ctx.drawImage(b,-hw,-hw,hw*2,hw*2); ctx.globalAlpha=ga;
   // ——— live telegraphs: only what must track the world ———
   if(T==='bomber'){ const fl=Math.random(), tx=(0.34+0.05*Math.cos(fr*1.5708))*u, ty=-0.98*u; // the fuse burns
     const near=d2<170*170?Math.min(1,(170-Math.sqrt(d2))/90):0;
-    if(near>0){ ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=ga*near*(0.3+0.3*Math.sin(gt*20)); ctx.drawImage(courtBake(T,fr,'h',e.col,e.dark),-hw,-hw,hw*2,hw*2); ctx.restore(); }
+    if(near>0){ ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=ga*near*(0.3+0.3*Math.sin(gt*20)); ctx.drawImage(cs.get('h',fr),-hw,-hw,hw*2,hw*2); ctx.restore(); }
     ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=ga*(0.7+fl*0.3); const fs=u*(0.36+fl*0.18+near*0.25);
     ctx.drawImage(glowSprite('rgba(255,230,150,1)','rgba(255,120,30,0)',16),tx-fs,ty-fs,fs*2,fs*2); ctx.restore();
     if(!window._dense && fl<0.18) parts.push({x:e.x+tx*fx,y:e.y+m.bob+ty,vx:rnd(-30,30),vy:rnd(-60,-20),life:rnd(.15,.3),col:'#ffd27a',r:rnd(0.8,1.6)}); }
@@ -529,14 +535,15 @@ function courtDraw(e){
   else if(T==='gilded'){ ctx.save(); ctx.globalCompositeOperation='lighter'; const gl3=((gt*1.6+e.ph)%2)-1;
     ctx.strokeStyle='rgba(255,240,190,0.45)'; ctx.lineWidth=u*0.22; ctx.beginPath(); ctx.moveTo(gl3*u-u*0.4,-u*0.9); ctx.lineTo(gl3*u+u*0.1,u*0.8); ctx.stroke(); ctx.restore(); }
   // eyes glow and drift toward her
-  if(!lite){ const ey=COURT_EYE[T], ec=COURT_EC[T]; if(ey){ const es=Math.max(4,r*0.55*vs), sp9=glowSprite('rgba('+ec+',0.95)','rgba('+ec+',0)',8), dl=Math.sqrt(d2)||1;
+  if(!lite){ const ey=COURT_EYE[T], ec=COURT_EC[T]; if(ey){ const es=Math.min(10,Math.max(4,r*0.55*vs)), sp9=glowSprite('rgba('+ec+',0.95)','rgba('+ec+',0)',8), dl=Math.sqrt(d2)||1;
       const ox=(dxp/dl)*u*0.04*fx, oy=((P.y-e.y)/dl)*u*0.04; ctx.save(); ctx.globalCompositeOperation='lighter';
       for(const p9 of ey) ctx.drawImage(sp9,p9[0]*u+ox-es/2,p9[1]*u+oy-es/2,es,es); ctx.restore(); } }
-  { const wnd=1-(e.hp/Math.max(1,e.maxhp)); if(wnd>0.25){ ctx.globalAlpha=ga*Math.min(0.42,(wnd-0.25)*0.7); ctx.drawImage(courtBake(T,fr,'d',e.col,e.dark),-hw,-hw,hw*2,hw*2); ctx.globalAlpha=ga; } }
-  if(e.flash>0){ ctx.globalAlpha=Math.min(0.92,e.flash*8); ctx.drawImage(courtBake(T,fr,'w',e.col,e.dark),-hw,-hw,hw*2,hw*2); ctx.globalAlpha=ga; }
+  { const wnd=1-(e.hp/Math.max(1,e.maxhp)); if(wnd>0.25){ ctx.globalAlpha=ga*Math.min(0.42,(wnd-0.25)*0.7); ctx.drawImage(cs.get('d',fr),-hw,-hw,hw*2,hw*2); ctx.globalAlpha=ga; } }
+  if(e.flash>0){ ctx.globalAlpha=Math.min(0.92,e.flash*8); ctx.drawImage(cs.get('w',fr),-hw,-hw,hw*2,hw*2); ctx.globalAlpha=ga; }
   ctx.scale(fx/m.sx,1/m.sy); // back to world-facing for the archer's aim, the warlock's orb and the crown
   if(T==='shooter'||T==='hexer') _courtCaster(e,T,u,fx,ga);
   if(e.elite){ _courtCrown(e,u,ga); }
+  if(e.affix && typeof hrDrawAffix==='function') hrDrawAffix(e,e.r); // C2's elite affixes (LOADED / MARKED), once that wave lands
   ctx.restore(); return true;
 }
 function _courtCaster(e,T,u,fx,ga){
@@ -730,7 +737,7 @@ function arsenalDraw(b){ // the bullet bodies we own; false hands the bullet bac
     ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.55; ctx.drawImage(glowSprite('rgba(201,139,255,0.9)','rgba(201,139,255,0)',16),-16,-16,32,32);
     ctx.globalCompositeOperation='source-over'; ctx.globalAlpha=1; ctx.rotate(gt*9+b._h); const s=Math.max(0.6,b.r/7.5); ctx.drawImage(_dieFace(face),-15*s,-15*s,30*s,30*s); ctx.restore(); return true; }
   if(v==='mortar'){ // a house chip lobbed in a high arc: its shadow runs the floor, the chip rides the air above it
-    const age=Math.max(0,1.1-b.life), h=Math.sin(Math.min(1,age/1.1)*Math.PI)*42;
+    const age=Math.max(0,1.1-b.life), h=Math.sin(Math.min(1,age/1.1)*Math.PI)*30;
     ctx.save(); ctx.translate(b.x,b.y); ctx.fillStyle='rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.ellipse(0,4,9-h*0.08,3.5-h*0.03,0,0,6.283); ctx.fill();
     ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.5; ctx.drawImage(glowSprite('rgba(255,150,60,0.9)','rgba(255,120,40,0)',16),-14,-h-14,28,28);
     ctx.globalCompositeOperation='source-over'; ctx.globalAlpha=1; ctx.translate(0,-h); ctx.rotate(gt*12+b._h); ctx.scale(1,0.55+0.45*Math.abs(Math.cos(gt*7+b._h)));

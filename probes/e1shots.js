@@ -30,7 +30,7 @@ async function frames(page, n) { // render every frame, no bot steering (the sce
 async function storm(page, minutes, n, near) {
   await page.evaluate(({ minutes, n, TYPES, near }) => {
     let s = 7; Math.random = () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; // seeded storm
-    gt = minutes * 60; enemies.length = 0; ebullets.length = 0; waveGap = 999; P.x = CFG.arena / 2; P.y = CFG.arena / 2;
+    gt = minutes * 60; P._hurtF = 0; P.inv = 0; enemies.length = 0; ebullets.length = 0; waveGap = 999; P.x = CFG.arena / 2; P.y = CFG.arena / 2;
     const T = TYPES.filter(t => t !== 'gilded');
     for (let i = 0; enemies.length < n && i < n * 2; i++) { const t = (i % 40 === 0) ? 'elite' : T[i % (T.length - 1)];
       const a = Math.random() * 6.283, d = near ? 110 + Math.random() * 300 : 90 + Math.pow(Math.random(), 0.7) * 820;
@@ -98,11 +98,13 @@ async function storm(page, minutes, n, near) {
       c_scythe_bell_chalice_guillotine_gramo_orbit: ['scythe', 'bell', 'chalice', 'guillotine', 'gramo', 'orbit'], d_seeker_razor_cinders_stakes_serpent_candles: ['seeker', 'razor', 'cinders', 'stakes', 'serpent', 'candelabra', 'spark', 'coil'] };
     for (const [name, ws] of Object.entries(GROUPS)) {
       await storm(page, 4, 60, true);
-      await page.evaluate((ws) => { P.wlv = {}; for (const id of ws) P.wlv[id] = WEAPONS.find(w => w.id === id).max; P.fireRate = 2.2; P.crit = 0.3; texts.length = 0;
+      await page.evaluate((ws) => { window.__bot.god = false; P.wlv = {}; for (const id of ws) P.wlv[id] = WEAPONS.find(w => w.id === id).max; P.fireRate = 2.2; P.crit = 0.3; texts.length = 0;
         for (const e of enemies) { e.hp *= 40; e.maxhp *= 40; } window.__hid = [...document.querySelectorAll('body *')].filter(el => el !== cv && !el.contains(cv) && el.style.visibility !== 'hidden'); window.__hid.forEach(el => el.style.visibility = 'hidden');
-        ZOOM = 1.6; VW = innerWidth / ZOOM; VH = innerHeight / ZOOM; ctx.setTransform(DPR * ZOOM, 0, 0, DPR * ZOOM, 0, 0); window.__noText = setInterval(() => { texts.length = 0; }, 4); }, ws);
+        ZOOM = 1.6; VW = innerWidth / ZOOM; VH = innerHeight / ZOOM; ctx.setTransform(DPR * ZOOM, 0, 0, DPR * ZOOM, 0, 0);
+        enemies.forEach((e, i) => { const a = i / enemies.length * 6.283 * 3, d = 150 + (i % 5) * 45; e._px = P.x + Math.cos(a) * d; e._py = P.y + Math.sin(a) * d * 0.8; });
+        window.__noText = setInterval(() => { texts.length = 0; for (const e of enemies) { if (e._px !== undefined) { e.x = e._px; e.y = e._py; } e.kx = 0; e.ky = 0; if (e.hp < e.maxhp * 0.3) e.hp = e.maxhp; } ebullets.length = 0; P.hp = P.maxHp; P.inv = 0; }, 4); }, ws);
       for (let k = 0; k < 2; k++) { await frames(page, k ? 53 : 140); await shot(page, 's7_' + name + (k ? '_2' : '')); }
-      await page.evaluate(() => { clearInterval(window.__noText); resize(); window.__hid.forEach(el => el.style.visibility = ''); });
+      await page.evaluate(() => { window.__bot.god = true; clearInterval(window.__noText); resize(); window.__hid.forEach(el => el.style.visibility = ''); });
     }
     // deaths: a ring of every family, all killed in one frame, caught mid-animation (zoomed, HUD hidden; the gilded soul is spared — its GOLD RUSH covers the screen)
     await page.evaluate((TYPES) => { P.wlv = { bolt: 1 }; P.fireRate = 0.0001; bullets.length = 0; enemies.length = 0; parts.length = 0; texts.length = 0;
@@ -116,6 +118,10 @@ async function storm(page, minutes, n, near) {
     await frames(page, 6); console.error('  after kill:', await page.evaluate(() => state + ' gt=' + gt.toFixed(2) + ' corpses=' + corpses.length)); await shot(page, 's6_deaths');
     await frames(page, 12); await shot(page, 's6b_deaths_late');
     await page.evaluate(() => { resize(); window.__hid.forEach(el => el.style.visibility = ''); });
+    // the cheap paths: q=low (no rim, plain fills) and the toaster preset (lite: no eyes, no motes, capped corpses)
+    await storm(page, 8, 300); await page.evaluate(() => { GFX.q = 'low'; qLow = true; }); await frames(page, 30); await shot(page, 's2q_storm_8m00_qlow');
+    await page.evaluate(() => { GFX.lite = true; }); await frames(page, 30); await shot(page, 's2l_storm_8m00_lite');
+    await page.evaluate(() => { GFX.lite = false; GFX.q = 'high'; qLow = false; });
   }
   await browser.close();
   res.errors = errors.slice(0, 8);
