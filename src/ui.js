@@ -901,3 +901,113 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
   try{ tone(1450,0.02,'square',0.028); }catch(x){}
 },true);
+
+/* ============================================================
+   ◈ A2 — THE LANES. Announces, secret cards, House tips and feat toasts
+   share one stacked column (#a2Notes) so they can never overlap each other,
+   and the column is parked wherever the open table/ledger is NOT: above it,
+   beside it, below it — or, on the death ledger, in the margin (wide) or
+   pushing the ledger down (narrow). Text scales to fit any width.
+   ============================================================ */
+const A2L={ el:null, raf:0, lastDead:false };
+function a2Notes(){
+  if(A2L.el) return A2L.el;
+  const n=document.createElement('div'); n.id='a2Notes'; n.className='a2play';
+  const w=$('wrap')||document.body; w.appendChild(n);
+  const an=$('announce'); if(an) n.appendChild(an);
+  let sr=$('secretReveal'); if(!sr){ sr=document.createElement('div'); sr.id='secretReveal'; sr.className='hidden'; }
+  n.appendChild(sr);
+  A2L.el=n;
+  try{ new MutationObserver(()=>a2LaneSoon()).observe(n,{subtree:true,childList:true,attributes:true,attributeFilter:['class'],characterData:true}); }catch(e){}
+  ['slot','gameover','wheelLayer','crashLayer','achToasts'].forEach(id=>{ const e=$(id); if(e) try{ new MutationObserver(()=>a2LaneSoon()).observe(e,{attributes:true,attributeFilter:['class'],childList:id==='achToasts'}); }catch(x){} });
+  window.addEventListener('resize',()=>a2LaneSoon());
+  return n;
+}
+function a2LaneSoon(){ if(A2L.raf) return; A2L.raf=requestAnimationFrame(()=>{ A2L.raf=0; try{ a2Lane(); }catch(e){} }); }
+function _a2vis(e){ if(!e) return null; if(e.closest('.hidden')) return null; const r=e.getBoundingClientRect(); return (r.width>0&&r.height>0)?r:null; }
+function _a2union(rs){ rs=rs.filter(Boolean); if(!rs.length) return null;
+  return { left:Math.min(...rs.map(r=>r.left)), right:Math.max(...rs.map(r=>r.right)), top:Math.min(...rs.map(r=>r.top)), bottom:Math.max(...rs.map(r=>r.bottom)) }; }
+function a2Lane(){
+  const n=a2Notes(), W=innerWidth, H=innerHeight;
+  const dead=(typeof state!=='undefined') && state==='dead' && !$('gameover').classList.contains('hidden');
+  // what is open, and where does it stand?
+  let m=null;
+  if(!dead){
+    if(state==='slot') m=_a2union([_a2vis($('machine')), _a2vis($('payTable')), _a2vis($('sacCard'))]);
+    else if(state==='wheel') m=_a2vis(document.querySelector('#wheelLayer .wheelShell'));
+    else if(state==='crash') m=_a2vis(document.querySelector('#crashLayer .wheelShell'));
+  }
+  const modal = dead || !!m;
+  // tips and feat toasts join the column while a table or the ledger is open
+  const co=$('coachToast'), at=$('achToasts');
+  if(modal){ if(co && co.parentNode!==n) n.appendChild(co); if(at && at.parentNode!==n) n.appendChild(at); }
+  else { if(co && co.parentNode===n) document.body.appendChild(co); if(at && at.parentNode===n) ($('wrap')||document.body).insertBefore(at, n); }
+  // fit the announce to the width it will get
+  const an=$('announce');
+  const go=$('gameover');
+  n.style.left=n.style.top=n.style.width=n.style.right=''; n.classList.remove('a2play','a2above','a2side','a2below','a2top','a2deadSide','a2deadTop');
+  let availW=Math.min(W-24, 980);
+  if(dead){
+    const p=_a2vis(go&&go.querySelector('.panel'));
+    const side = p && (W-p.right) >= 300;
+    if(side){ n.classList.add('a2deadSide'); n.style.left=Math.round(p.right+18)+'px'; n.style.width=Math.round(Math.min(380, W-p.right-32))+'px'; availW=Math.min(380, W-p.right-32); }
+    else { n.classList.add('a2deadTop'); }
+    a2FitAnn(an, availW);
+    if(go){ const hN = side?0:n.getBoundingClientRect().height; go.style.paddingTop = hN>4 ? Math.round(hN+16)+'px' : ''; }
+    A2L.lastDead=true; return;
+  }
+  if(A2L.lastDead && go){ go.style.paddingTop=''; A2L.lastDead=false; }
+  if(!m){ n.classList.add('a2play'); a2FitAnn(an, availW); return; }
+  a2FitAnn(an, availW);
+  let hN=n.getBoundingClientRect().height;
+  if(hN<4){ n.classList.add('a2above'); n.style.top='8px'; return; }
+  if(m.top-10 >= hN+6){ n.classList.add('a2above'); n.style.top=Math.round(Math.max(6, m.top-10-hN))+'px'; return; }
+  const L=m.left, R=W-m.right;
+  if(Math.max(L,R) >= 270){
+    const onLeft = L>=R; const w=Math.min(380, (onLeft?L:R)-28);
+    n.classList.add('a2side'); n.style.width=Math.round(w)+'px';
+    if(onLeft) n.style.left=Math.round(L-18-w)+'px'; else n.style.left=Math.round(m.right+18)+'px';
+    a2FitAnn(an, w); hN=n.getBoundingClientRect().height;
+    n.style.top=Math.round(Math.max(8, Math.min(m.top+8, H-hN-8)))+'px'; return;
+  }
+  if(H-m.bottom-10 >= hN+6){ n.classList.add('a2below'); n.style.top=Math.round(m.bottom+10)+'px'; return; }
+  n.classList.add('a2top'); n.style.top='6px'; // no clean room anywhere: hug the very top, compact
+}
+// the banner shrinks to its lane; if even the smallest size cannot hold it on one line, it wraps
+function a2FitAnn(an, availW){
+  if(!an || an.classList.contains('hidden')) return;
+  const len=Math.max(8,(an.textContent||'').length);
+  const fs=Math.max(14, Math.min(30, Math.floor((availW-56)/(len*0.86))));
+  an.style.fontSize=fs+'px';
+  an.classList.toggle('a2wrap', (len*fs*0.86) > (availW-56));
+}
+{ // a found secret already flips its own card (riddle → name → +25 GILT) — the duplicate banner is dropped
+  const _ann=announce;
+  announce=function(txt, good){
+    a2Notes();
+    if(typeof txt==='string' && txt.indexOf('🗝 SECRET — ')===0){
+      const nm=txt.slice(11).split(' · ')[0].trim();
+      setTimeout(()=>{ const sr=$('secretReveal'); if(sr && !sr.classList.contains('hidden') && sr.classList.contains('go') && nm && (sr.textContent||'').indexOf(nm)>=0) return; _ann(txt, good); }, 0);
+      return;
+    }
+    return _ann(txt, good);
+  };
+  try{ a2Notes(); }catch(e){}
+}
+
+/* ◈ A2 — THE LEDGER'S HEADER: how you died and how long, engraved under the verdict */
+function a2DressLedger(){
+  try{
+    const sub=$('goSub'); if(!sub) return;
+    const t=sub.textContent||'', k=t.indexOf(' — taken by ');
+    const by = k>=0 ? t.slice(k+12) : '';
+    let ep=$('a2Epitaph');
+    if(!ep){ ep=document.createElement('div'); ep.id='a2Epitaph'; sub.parentNode.insertBefore(ep, sub.nextSibling); }
+    ep.innerHTML='<span class="a2epBy">☠ '+(by?('TAKEN BY <b>'+by+'</b>'):'THE HOUSE COLLECTS')+'</span>'
+      +'<span class="a2epT">SURVIVED <b>'+fmt(gt)+'</b></span><span class="a2epL">LEVEL <b>'+(P?P.level:1)+'</b></span>';
+    if(k>=0) sub.textContent=t.slice(0,k);
+    const sc=$('goScore'); if(sc && !sc.dataset.a2){ sc.dataset.a2=1; const lb=document.createElement('div'); lb.className='a2scoreLbl'; lb.textContent='THE TALLY'; sc.parentNode.insertBefore(lb, sc); }
+  }catch(e){}
+}
+{ const _ad=actuallyDie;
+  actuallyDie=async function(){ const was=state; const r=_ad.apply(this, arguments); if(was!=='dead') a2DressLedger(); return r; }; }
