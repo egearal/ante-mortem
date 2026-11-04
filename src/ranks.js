@@ -311,7 +311,7 @@ const ACH_PERKS={
  'index_75':    {n:'THE DEEP STACKS',   fx:'+300 GILT · +2% XP, FOREVER',     g:300, ap:()=>{P.xpMult=(P.xpMult||1)*1.02;}},
  'index_100':   {n:'MARGINALIA',        fx:'+777 GILT · +2% DAMAGE, FOREVER', g:777, ap:()=>{P.damage*=1.02;}}
 };
-function applyAchPerks(){ for(const id in ACH_PERKS){ const pk=ACH_PERKS[id]; if(pk.ap && unlocked.has(id)) try{ pk.ap(); }catch(e){} } }
+function applyAchPerks(){ if(DLY_RNG) return; for(const id in ACH_PERKS){ const pk=ACH_PERKS[id]; if(pk.ap && unlocked.has(id)) try{ pk.ap(); }catch(e){} } }
 function bump(stat,value){
   const arr=ACH_BY_STAT[stat]; if(!arr) return;
   for(const a of arr){ if(a.v>value) break; if(!unlocked.has(a.id)){ unlocked.add(a.id); achQ.push(a);
@@ -667,6 +667,7 @@ function awardMarks(m){
   return { up, reward, have:RANK.marks-base, need:next-base, pct:Math.min(100,Math.round((RANK.marks-base)/(next-base)*100)) };
 }
 function applyRankPerks(){
+  if(DLY_RNG) return; // B1: fair field
   for(let r=2;r<=RANK.rank;r++){ const e=RANKS[r-1]; if(e&&e.ap){ try{ e.ap(); }catch(x){} } }
 }
 
@@ -687,6 +688,7 @@ function fnEase(){
 // contact bite of anything born during the ramp: 0.6 → 1.0 alongside the spawn ease
 function fnBite(){ if(!fnOn()) return 1; const e=(fnEase()-FN.start)/(1-FN.start); return FN.bite+(1-FN.bite)*e; }
 function fnStart(){
+  if(typeof DLY_RNG!=='undefined' && DLY_RNG){ P._fn=false; return; } // B1: the daily is the same night for everyone — no gentle ramp
   P._fn = !window._fnOff && (LT.runs||0)<=FN.nights && (RANK.rank||1)<FN.rankVet;
   if(!P._fn) return;
   P._fnN=LT.runs||1; P._fnK=0; P._fnL=0; P._fnR=0; P._fnS=0;
