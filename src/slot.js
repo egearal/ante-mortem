@@ -299,7 +299,7 @@ function stopNextReel(){
     let selDelay=300;
     { // TRIPLE lands with a held breath — the machine swells before the ceremony
       const l3=slotReels.map(x=>x.landedSym);
-      if(l3[0]===l3[1]&&l3[1]===l3[2]){ selDelay=1050; const m3=$('machine');
+      if(l3[0]===l3[1]&&l3[1]===l3[2]){ selDelay=1050; const m3=$('machine'); SFX.triple();
         m3.classList.add('tripleHold'); setTimeout(()=>{ m3.classList.remove('tripleHold'); flash(0.5,'#ffd36b'); shake=Math.min(20,shake+9); },380); } }
     { // near-miss: two matched, and the odd reel stopped ONE row away from completing the triple
       const landed=slotReels.map(x=>x.landedSym);

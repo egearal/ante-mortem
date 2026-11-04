@@ -11,7 +11,8 @@
     "shots": "node probes/shots.js",
     "phone": "node probes/phone.js",
     "pad": "node probes/pad.js",
-    "music": "node probes/music.js"
+    "music": "node probes/music.js",
+    "audio": "node probes/audio.js"
   },
   "devDependencies": {
     "vite": "^6.3.5"

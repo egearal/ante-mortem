@@ -501,7 +501,7 @@ function killEnemy(e,idx){
   if(P.explode){ for(const o of enemies){ if(o!==e && Math.hypot(o.x-e.x,o.y-e.y)<80){ o.hp-=P.damage*1.2; o.flash=0.1; } } burst(e.x,e.y,10,'#ff9a5b'); ring(e.x,e.y,80,'#ff9a5b'); }
   if(dare) dare.got++;
   killStreak++; streakT=1.0; if(killStreak>(P.bestStreak||0)) P.bestStreak=killStreak;
-  if(killStreak%25===0 && killStreak<=500) tone(700*Math.pow(1.0595,Math.min(24,killStreak/25)),0.09,'sine',0.12); // the streak climbs a scale too
+  if(killStreak%25===0 && killStreak<=500) SFX.streakStep(killStreak); // the streak climbs a scale too
   if(STREAK_MS.includes(killStreak)){
     const big9=killStreak>=100;
     announce('⚔ '+killStreak+' STREAK ⚔', true);
@@ -509,7 +509,7 @@ function killEnemy(e,idx){
     LT.milestone=Math.max(LT.milestone||0,killStreak); bump('milestone',killStreak);
     SFX.casinoDing(); if(big9){ SFX.dingBells(); flash(0.3,'#ffd36b'); sparkBurst(16); hitstop=Math.max(hitstop,0.07); ring(P.x,P.y,150,'#ffd36b'); }
     if(killStreak>=500){ secret('streak500','THE FIVE HUNDRED'); bigWin('500 STREAK',4); coinRain(40); }
-  } { const kf=440*Math.pow(1.0595,Math.min(24,killStreak)); tone(kf,0.07,'triangle',0.09,kf*2); tone(kf*2,0.05,'sine',0.045); } excite=Math.min(1,excite+(e.elite?0.5:0.05)); bump('streak',killStreak); recCheck('streak',killStreak,'Streak');
+  } SFX.kill(killStreak); excite=Math.min(1,excite+(e.elite?0.5:0.05)); bump('streak',killStreak); recCheck('streak',killStreak,'Streak');
   if(!feverOn){ const pf9=fever; fever=Math.min(1, fever+(e.elite?0.09:(e.boss?0.5:0.016))*(1+0.08*vlv('fever')));
     if(pf9<0.9&&fever>=0.9){ SFX.casinoDing(); flash(0.12,'#ffd36b'); }
     // the pit only burns once a minute — granted fevers (tarot, wheel) may still ignite
@@ -779,7 +779,7 @@ function update(dt){
     if(interactable) despawnInter();
     stopDrone();
     flash(0.6,'#07030a'); shake=Math.min(26,shake+16);
-    tone(38,1.6,'sine',0.32,24); SFX.bossRoar();
+    SFX.houseArrive(); SFX.bossRoar();
     showStreak('☷ EVERYTHING KNEELS ☷');
     setTimeout(()=>{ if(state==='dead'||typeof P==='undefined'||!P) return;
       const a9=rng('spawn')*6.283;
@@ -867,7 +867,7 @@ function update(dt){
         if(b.kill && !e.elite && !e.boss){ dmg=e.hp; burst(e.x,e.y,10,'#fff'); ftext(e.x,e.y,'FATAL','#ff5566',true); }
         if(P.godT>0 && !e.boss){ dmg=Math.max(dmg,e.hp+1); burst(b.x,b.y,5,'#8bff9a'); }
         { const hm=b.crit?9:5; spark(b.x-hm,b.y-hm,b.x+hm,b.y+hm,'#fff'); spark(b.x+hm,b.y-hm,b.x-hm,b.y+hm,b.crit?'#ffd36b':'#fff'); }
-        if(b.crit) tone(2350,0.05,'triangle',0.085,1600);
+        if(b.crit) SFX.crit();
         if(b.lucky){ dmg*=2; burst(b.x,b.y,10,'#ffd36b'); ftext(e.x,e.y-10,'LUCKY!','#ffd36b',true); SFX.casinoDing(); }
         e.hp-=dmg; e.flash=0.1; trackDmg(dmg);
         if(b.crit){ const n9=performance.now(); if(n9-(window._critT||0)>160){ window._critT=n9; tone(2350,0.05,'sine',0.06); tone(3520,0.03,'sine',0.03); } }
@@ -918,7 +918,7 @@ function update(dt){
     if(d<range){ const pull=P.lode?520:400; c.x+=dx/d*pull*dt; c.y+=dy/d*pull*dt; }
     if(d<P.radius+7){ if(c.gold&&typeof magpieChip==='function') magpieChip(c); if(P.ovT>0){ coins.splice(i,1); P.ovT=Math.min(100,P.ovT+2.5*(P.ovFeed||1)); tone(600+P.ovT*9,0.06,'sine',0.1); flash(0.06,'#ffd36b'); ftext(P.x,P.y-12,'+FUEL','#ffd36b'); burst(P.x,P.y,3,'#ff9a3c'); continue; } const gain=Math.max(1,Math.round(P.comboMult)); P.coins+=gain; LT.coins+=gain; if(P.coins===777) secret('sevens','TRIPLE SEVENS'); bump('runCoins',P.coins); bump('ltCoins',LT.coins); if(P.midas)P.midasStacks=Math.min(25,P.midasStacks+1); coins.splice(i,1);
       { const n8=performance.now(); P._coinCombo=(n8-(P._coinT||0)<800)?(P._coinCombo||0)+1:0; P._coinT=n8;
-        tone(700*Math.pow(2,(P._coinCombo%12)/12)*(P._coinCombo>=12?1.5:1),0.06,'sine',0.07);
+        SFX.coinStep(P._coinCombo);
         if(P._coinCombo>0 && P._coinCombo%10===0){ SFX.casinoDing(); sparkBurst(8); ftext(P.x,P.y-40,'COIN RUSH ×'+P._coinCombo,'#ffd36b'); }
         const cc9=$('coinCount'); if(cc9){ cc9.classList.remove('pop'); void cc9.offsetWidth; cc9.classList.add('pop'); } }
       burst(P.x,P.y,2,'#e8b64c'); }
@@ -1202,7 +1202,7 @@ function gainXP(n){
   { const nw=performance.now();
     P._xpCombo = (nw-(P._xpComboT||0)<1500) ? Math.min(14,(P._xpCombo||0)+1) : 0;
     P._xpComboT=nw;
-    tone(520*Math.pow(1.0595,P._xpCombo),0.05,'triangle',0.07+P._xpCombo*0.003);
+    SFX.xpStep(P._xpCombo);
     if(P._xpCombo===14 && !P._xpPeak){ P._xpPeak=true; SFX.tingle(); setTimeout(()=>P._xpPeak=false,3000); } }
   while(P.xp>=P.xpNext){ if(!P._ovPass && state==='playing' && P.hp>=P.maxHp*0.2){ startOvercharge(); break; } P._ovPass=false;
     P.xp-=P.xpNext; P.level++; P.xpNext=Math.floor(20+P.level*7+P.level*P.level*1.3); /* G5: late levels eased 1.5->1.3 - probes showed 3.5-min droughts past level 7 */ pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); { const lv9=$('level'); if(lv9){ lv9.classList.remove('pop'); void lv9.offsetWidth; lv9.classList.add('pop'); } } ring(P.x,P.y,120,'#c81e2c'); ring(P.x,P.y,70,'#ffd36b'); burst(P.x,P.y,16,'#e8b64c'); for(let i=0;i<16;i++){ parts.push({x:P.x+rnd(-10,10),y:P.y+rnd(-4,4),vx:rnd(-14,14),vy:-rnd(90,220),life:rnd(.4,.8),col:i%3?'#ffd36b':'#fff2c0',r:rnd(1.6,3.2)}); } flash(0.25,'#c81e2c'); }
