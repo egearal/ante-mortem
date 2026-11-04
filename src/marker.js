@@ -7,6 +7,7 @@
 function computeScore(){ return Math.floor((gt*7 + P.kills*6 + P.coins*3 + P.level*45)*((typeof b2ScoreMult==='function')?b2ScoreMult():1)); } // B2: the endless floor multiplies
 async function die(){
   if(state==='dead'||state==='marker') return;
+  if(typeof arcanaCheatDeath==='function' && arcanaCheatDeath()) return; // D4 — XIII DEATH passes you over once
   if(!P.markerUsed){ P.markerUsed=true; LT.markers=(LT.markers||0)+1; bump('markers',LT.markers); markerSpin(); return; }
   actuallyDie();
 }

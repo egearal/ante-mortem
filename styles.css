@@ -2142,3 +2142,48 @@ body.b3calm .jackpotText,body.b3calm #jkMarq span,body.b3calm h1{animation-durat
 .cosChip.locked{opacity:.5;cursor:default;border-style:dashed;}
 .b2gl .b2p{letter-spacing:.06em;}
 .b2gl .b2rec{color:#d9a8ff;font-family:var(--disp);letter-spacing:.14em;}
+/* ==== D4 ==== THE MAJOR ARCANA — gilt + violet reveal, louder than a common tarot */
+#arcanaReveal{position:absolute;inset:0;z-index:35;pointer-events:none;display:flex;align-items:flex-start;justify-content:center;padding-top:34px;--ac:#c98bff;overflow:hidden;}
+#arcanaReveal.hidden{display:none;}
+#arcanaReveal .arVeil{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 28%,rgba(20,6,34,.35),rgba(4,1,8,.66) 60%,rgba(0,0,0,.78));opacity:0;}
+#arcanaReveal .arRays{position:absolute;left:50%;top:184px;width:900px;height:900px;margin:-450px 0 0 -450px;border-radius:50%;opacity:0;
+  background:repeating-conic-gradient(from 0deg,rgba(255,211,107,.22) 0deg 5deg,transparent 5deg 15deg,rgba(201,139,255,.2) 15deg 20deg,transparent 20deg 30deg);
+  -webkit-mask:radial-gradient(circle,#000 8%,transparent 62%);mask:radial-gradient(circle,#000 8%,transparent 62%);}
+#arcanaReveal .arStage{position:relative;width:196px;height:300px;perspective:900px;opacity:0;}
+#arcanaReveal .arCard{position:absolute;inset:0;transform-style:preserve-3d;}
+#arcanaReveal .arBack,#arcanaReveal .arFace{position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border:3px solid #e8b64c;box-shadow:0 0 0 1px #5a3a0c,0 0 0 5px #1c0b30,0 0 0 7px #c98bff,0 0 60px rgba(201,139,255,.75),inset 0 0 24px rgba(0,0,0,.6);}
+#arcanaReveal .arBack{display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(45deg,#2a1250 0 8px,#22103f 8px 16px);}
+#arcanaReveal .arBack span{font-size:58px;color:#ffd36b;text-shadow:0 0 24px #ffd36b;}
+#arcanaReveal .arFace{transform:rotateY(180deg);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;padding-top:16px;
+  background:radial-gradient(ellipse at 50% 30%,rgba(201,139,255,.28),transparent 60%),linear-gradient(165deg,#2a1250,#12071f 70%);color:#fff2c0;}
+#arcanaReveal .arFace::before{content:'';position:absolute;inset:8px;border:1px solid rgba(255,211,107,.55);border-radius:9px;pointer-events:none;}
+#arcanaReveal .arFace::after{content:'';position:absolute;inset:4px;border-radius:11px;pointer-events:none;
+  background:radial-gradient(circle at 6px 6px,#ffd36b 2px,transparent 3px),radial-gradient(circle at calc(100% - 6px) 6px,#ffd36b 2px,transparent 3px),
+    radial-gradient(circle at 6px calc(100% - 6px),#ffd36b 2px,transparent 3px),radial-gradient(circle at calc(100% - 6px) calc(100% - 6px),#ffd36b 2px,transparent 3px);}
+#arcanaReveal .arNum{font-family:var(--disp);font-size:13px;letter-spacing:.4em;text-indent:.4em;color:#ffd36b;}
+#arcanaReveal .arGlyph{font-size:62px;line-height:1.05;color:var(--ac);text-shadow:0 0 18px var(--ac),0 0 40px var(--ac);}
+#arcanaReveal .arName{font-family:var(--disp);font-weight:800;font-size:16px;letter-spacing:.12em;text-align:center;padding:0 10px;color:#fff2c0;text-shadow:0 0 12px rgba(255,211,107,.6);}
+#arcanaReveal .arRib{font-family:var(--disp);font-size:9px;letter-spacing:.42em;text-indent:.42em;color:#ffd36b;padding:3px 22px;
+  background:linear-gradient(90deg,transparent,#5a2a9a 18%,#5a2a9a 82%,transparent);border-top:1px solid rgba(255,211,107,.4);border-bottom:1px solid rgba(255,211,107,.4);}
+#arcanaReveal .arText{font-size:10.5px;line-height:1.38;color:#e6d9c2;text-align:center;padding:2px 16px 0;}
+#arcanaReveal .arKind{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-family:var(--disp);font-size:10px;letter-spacing:.2em;color:var(--ac);text-shadow:0 0 8px var(--ac);}
+#arcanaReveal .arFlecks{position:absolute;left:50%;top:50%;width:0;height:0;}
+#arcanaReveal .arFlecks i{position:absolute;width:5px;height:5px;margin:-2.5px;border-radius:1px;transform:rotate(45deg);opacity:0;box-shadow:0 0 6px currentColor;}
+#arcanaReveal.go .arVeil{animation:arFade .35s ease forwards,arFadeOut .6s ease 4.05s forwards;}
+#arcanaReveal.go .arRays{animation:arRaysIn .9s ease .5s forwards,arSpin 9s linear infinite,arFadeOut .6s ease 4.05s forwards;}
+#arcanaReveal.go .arStage{animation:arIn .55s cubic-bezier(.2,1.5,.4,1) forwards,arOut .6s ease 4.0s forwards;}
+#arcanaReveal.go .arCard{animation:arFlip .6s cubic-bezier(.5,0,.3,1.25) .5s forwards;}
+#arcanaReveal.go .arFace{animation:arPulse 1.2s ease-in-out 1.2s infinite alternate;}
+#arcanaReveal.go .arFlecks i{animation:arFleck 1.1s cubic-bezier(.1,.7,.3,1) forwards;}
+@keyframes arFade{to{opacity:1;}}
+@keyframes arFadeOut{to{opacity:0;}}
+@keyframes arRaysIn{to{opacity:.9;}}
+@keyframes arSpin{from{transform:rotate(0);}to{transform:rotate(360deg);}}
+@keyframes arIn{from{opacity:0;transform:scale(.35) translateY(60px) rotate(-10deg);}65%{opacity:1;transform:scale(1.1) rotate(2deg);}to{opacity:1;transform:scale(1) rotate(0);}}
+@keyframes arOut{to{opacity:0;transform:scale(1.12) translateY(-40px);}}
+@keyframes arFlip{from{transform:rotateY(0);}to{transform:rotateY(180deg);}}
+@keyframes arPulse{from{filter:brightness(1) drop-shadow(0 0 10px var(--ac));}to{filter:brightness(1.15) drop-shadow(0 0 26px var(--ac));}}
+@keyframes arFleck{0%{opacity:1;transform:translate(0,0) rotate(45deg) scale(1.4);}100%{opacity:0;transform:translate(var(--fx),var(--fy)) rotate(225deg) scale(.6);}}
+@media (max-width:520px){ #arcanaReveal{padding-top:70px;} #arcanaReveal .arStage{width:172px;height:266px;} #arcanaReveal .arRays{top:203px;}
+  #arcanaReveal .arGlyph{font-size:52px;} #arcanaReveal .arName{font-size:14px;} #arcanaReveal .arText{font-size:9.5px;padding:0 12px;} }
