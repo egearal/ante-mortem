@@ -1905,7 +1905,8 @@ function render(){
 
   // drifting fog (screen space, atmospheric depth)
   if(!GFX.lite){ ctx.save();
-  for(const f of fogPuffs){ f.x+=f.vx/60; f.y+=f.vy/60; if(f.x<-f.r)f.x=VW+f.r; else if(f.x>VW+f.r)f.x=-f.r; if(f.y<-f.r)f.y=VH+f.r; else if(f.y>VH+f.r)f.y=-f.r;
+  // A1: half the haze — fog lifted the blacks (law 2) and was the single biggest fill cost (~2.4M px/frame)
+  for(let fi=0;fi<fogPuffs.length;fi+=2){ const f=fogPuffs[fi]; f.x+=f.vx/60; f.y+=f.vy/60; if(f.x<-f.r)f.x=VW+f.r; else if(f.x>VW+f.r)f.x=-f.r; if(f.y<-f.r)f.y=VH+f.r; else if(f.y>VH+f.r)f.y=-f.r;
     const col=f.warm?'150,90,60':'70,80,120'; ctx.globalAlpha=Math.max(0,Math.min(1,f.a*cf));
     ctx.drawImage(glowSprite('rgba('+col+',1)','rgba('+col+',0)',f.r), f.x-f.r, f.y-f.r, f.r*2, f.r*2); ctx.globalAlpha=1; }
   ctx.restore(); }
@@ -2143,7 +2144,7 @@ function silVar(T,mode,col){
 // eye anchors per type (in r units, before the type's own sway) — the glow follows the player
 const _EYE={ swarm:[[-0.18,-0.14],[0.18,-0.14]], stalker:[[0.5,-0.22]], wraith:[[-0.1,-0.46],[0.1,-0.46]], hexer:[[0,-0.5]],
   revenant:[[0,-0.68]], brute:[[-0.12,-0.64],[0.12,-0.64]], shooter:[[-0.11,-0.75],[0.11,-0.75]], husk:[[-0.14,-0.71],[0.14,-0.71]], _:[[0.21,-0.66]] };
-const _EYEC={ swarm:'255,90,90', stalker:'255,223,90', wraith:'200,235,255', hexer:'201,255,122', revenant:'255,77,77', brute:'255,77,77', shooter:'255,206,90', husk:'255,170,80' };
+const _EYEC={ swarm:'255,90,90', stalker:'255,223,90', wraith:'120,170,255', hexer:'201,255,122', revenant:'255,77,77', brute:'255,77,77', shooter:'255,206,90', husk:'255,170,80' };
 function drawEnemy(e){
   const t=gt*4+e.ph, T=e.vt||e.type, r=e.r;
   if(e._lod){ // distant court: one baked, shaped, rim-lit sprite
