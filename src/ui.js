@@ -219,7 +219,10 @@ const GFX_DEFS=[
 ];
 if(GFX.amb===undefined) GFX.amb=true;
 if(GFX.coach===undefined) GFX.coach=true;
-function gfxLabel(d){ const o=d.opts.find(o=>o[0]===GFX[d.k]); return o?o[1]:String(GFX[d.k]); }
+if(GFX.cb===undefined) GFX.cb=false; if(GFX.tabT===undefined) GFX.tabT=false; // B4: fresh saves printed 'UNDEFINED'
+function gfxLabel(d){ let o=d.opts.find(o=>o[0]===GFX[d.k]);
+  if(!o && typeof GFX[d.k]==='number') o=d.opts.reduce((a,b)=>Math.abs(b[0]-GFX[d.k])<Math.abs(a[0]-GFX[d.k])?b:a); // B4: preset values between stops (pcap 220) read as the nearest stop, not a raw number
+  return o?o[1]:String(GFX[d.k]); }
 function applyGfxPreset(name){
   const p=GFX_PRESETS[name]; if(!p) return;
   Object.assign(GFX,p); GFX.preset=name;
@@ -1189,9 +1192,10 @@ function a2Notes(){
   let sr=$('secretReveal'); if(!sr){ sr=document.createElement('div'); sr.id='secretReveal'; sr.className='hidden'; }
   n.appendChild(sr);
   A2L.el=n;
-  try{ new MutationObserver(()=>a2LaneSoon()).observe(n,{subtree:true,childList:true,attributes:true,attributeFilter:['class'],characterData:true}); }catch(e){}
+  try{ new MutationObserver(recs=>{ if(recs.some(r=>!(r.type==='attributes'&&r.target===n))) a2LaneSoon(); }).observe(n,{subtree:true,childList:true,attributes:true,attributeFilter:['class'],characterData:true}); }catch(e){} // B4: a2Lane's own class writes on the column must not re-arm it (it re-laid-out every frame, forever)
   ['slot','gameover','wheelLayer','crashLayer','achToasts'].forEach(id=>{ const e=$(id); if(e) try{ new MutationObserver(()=>a2LaneSoon()).observe(e,{attributes:true,attributeFilter:['class'],childList:id==='achToasts'}); }catch(x){} });
   window.addEventListener('resize',()=>a2LaneSoon());
+  setInterval(()=>{ if(state==='slot'||state==='wheel'||state==='crash'||state==='dead') a2LaneSoon(); },400); // B4: tables settle/scale without a class change — re-park the column a few times a second, not every frame
   return n;
 }
 function a2LaneSoon(){ if(A2L.raf) return; A2L.raf=requestAnimationFrame(()=>{ A2L.raf=0; try{ a2Lane(); }catch(e){} }); }

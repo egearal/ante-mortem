@@ -2142,3 +2142,8 @@ body.b3calm .jackpotText,body.b3calm #jkMarq span,body.b3calm h1{animation-durat
 .cosChip.locked{opacity:.5;cursor:default;border-style:dashed;}
 .b2gl .b2p{letter-spacing:.06em;}
 .b2gl .b2rec{color:#d9a8ff;font-family:var(--disp);letter-spacing:.14em;}
+
+/* ==== B4 ==== */
+/* the combo plaque floats centred under the XP bar — a later rule flipped it to position:relative, so its
+   translateX(-50%) dragged it off the left edge of the screen */
+#hud #combo{position:absolute;}

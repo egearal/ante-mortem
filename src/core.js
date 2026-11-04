@@ -505,7 +505,7 @@ function killEnemy(e,idx){
   if(STREAK_MS.includes(killStreak)){
     const big9=killStreak>=100;
     announce('⚔ '+killStreak+' STREAK ⚔', true);
-    if(killStreak===50||killStreak===100){ setTimeout(()=>{ showStreak(killStreak+' STREAK'); tone(392,0.5,'sine',0.045,240); tone(494,0.4,'sine',0.035,300); },1000); } // the big room echoes it back, softer
+    if(killStreak===50||killStreak===100){ setTimeout(()=>{ tone(392,0.5,'sine',0.045,240); tone(494,0.4,'sine',0.035,300); },1000); } // the big room echoes it back, softer (B4: sound only — the banner already says it)
     LT.milestone=Math.max(LT.milestone||0,killStreak); bump('milestone',killStreak);
     SFX.casinoDing(); if(big9){ SFX.dingBells(); flash(0.3,'#ffd36b'); sparkBurst(16); hitstop=Math.max(hitstop,0.07); ring(P.x,P.y,150,'#ffd36b'); }
     if(killStreak>=500){ secret('streak500','THE FIVE HUNDRED'); bigWin('500 STREAK',4); coinRain(40); }
@@ -516,7 +516,7 @@ function killEnemy(e,idx){
     if(fever>=1){ if(gt>=(window._feverLock||0)) startFever(); else fever=0.99; } }
   if(killStreak===10||killStreak===25||killStreak===50||killStreak===100||killStreak===200){
     const tier=killStreak>=200?5:killStreak>=100?4:killStreak>=50?3:killStreak>=25?2:1;
-    showStreak(killStreak+' STREAK'); SFX.cheer(); SFX.dingHit(tier); if(tier>=3) SFX.dingBells();
+    if(!STREAK_MS.includes(killStreak)) showStreak(killStreak+' STREAK'); SFX.cheer(); // B4: one voice per milestone — the ⚔ banner owns 10/50/100/200 SFX.dingHit(tier); if(tier>=3) SFX.dingBells();
     flash(0.2+tier*0.06,'#ffd36b'); shake=Math.min(18,shake+3+tier*2); coinRain(tier*4);
     ring(P.x,P.y,90+tier*30,'#ffd36b');
   }
@@ -2158,6 +2158,15 @@ function silSprite(T,dark,col){
   }
   return cv;
 }
+// B4 — the far court's sprite with its contact shadow baked under it (same pixels the LOD path drew per body)
+function lodSprite(T,dark,col){
+  const key='l|'+T+'|'+dark+'|'+col; let cv=_silC.get(key); if(cv) return cv;
+  const sp=silSprite(T,dark,col);
+  if(_silC.size>96){ let n=0; for(const k of _silC.keys()){ _silC.delete(k); if(++n>=24) break; } }
+  cv=document.createElement('canvas'); cv.width=64; cv.height=64; const g=cv.getContext('2d');
+  g.fillStyle='rgba(0,0,0,0.32)'; g.beginPath(); g.ellipse(32,32+20*0.72,20*0.78,20*0.26,0,0,6.28); g.fill();
+  g.drawImage(sp,0,0); _silC.set(key,cv); return cv;
+}
 // variants: 'ink' (near-court cut-out plate), 'white' (hit flash), 'glow' (elite/boss aura, tinted)
 function silVar(T,mode,col){
   const key='v|'+T+'|'+mode+'|'+(col||'');
@@ -2177,6 +2186,7 @@ const _EYEC={ swarm:'255,90,90', stalker:'255,223,90', wraith:'120,170,255', hex
 function drawEnemy(e){
   const t=gt*4+e.ph, T=e.vt||e.type, r=e.r;
   if(e._lod){ // distant court: one baked, shaped, rim-lit sprite
+    if(!(e.flash>0)){ const dw=r*3.2; ctx.drawImage(lodSprite(T,e.dark,e.col),e.x-dw/2,e.y-dw/2,dw,dw); return; } // B4: shadow baked in, no save/translate/path per body
     ctx.save(); ctx.translate(e.x,e.y);
     ctx.fillStyle='rgba(0,0,0,0.32)'; ctx.beginPath(); ctx.ellipse(0,r*0.72,r*0.78,r*0.26,0,0,6.28); ctx.fill();
     if(e.flash>0){ const sq=Math.min(0.16,e.flash*1.4); ctx.scale(1+sq,1-sq); }

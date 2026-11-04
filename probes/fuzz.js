@@ -36,7 +36,7 @@ const BOUNDS = { enemies: 900, bullets: 1500, ebullets: 900, parts: 3000, texts:
 const FUZZ = `(()=>{
   let s=0; const R=()=>{ s=(s*1664525+1013904223)>>>0; return s/4294967296; };
   const pick=a=>a[(R()*a.length)|0];
-  const F=window.__fz={ seed(v){ s=v>>>0; }, log:[], errs:0, maxArr:{}, ghosts:[], held:new Set(), hidden:false, assist:true, counts:{} };
+  const F=window.__fz={ seed(v){ s=v>>>0; }, log:[], errs:0, maxArr:{}, ghosts:[], held:new Set(), hidden:false, assist:true, counts:{}, visits:{} };
   // let the fuzzer flip visibility (the real headless tab never hides)
   try{ Object.defineProperty(document,'hidden',{configurable:true,get(){ return F.hidden; }});
        Object.defineProperty(document,'visibilityState',{configurable:true,get(){ return F.hidden?'hidden':'visible'; }}); }catch(e){}
@@ -81,7 +81,7 @@ const FUZZ = `(()=>{
   ];
   const TOT=ACTS.reduce((a,b)=>a+b[0],0);
   function act(){ let r=R()*TOT; for(const a of ACTS){ r-=a[0]; if(r<=0){ F.counts[a[1]]=(F.counts[a[1]]||0)+1; try{ a[2](); }catch(e){ F.log.push('act '+a[1]+' threw '+(e&&e.message)); } return a[1]; } } }
-  function frame(){ window.__vc.step(16.7); if(F.assist){ try{ window.__bot.step(); }catch(e){} } if(F.dieAt && window.__vc.vt-F.dieAt>300){ window.__bot.god=true; F.dieAt=0; } }
+  function frame(){ F.visits[state]=(F.visits[state]||0)+1; window.__vc.step(16.7); if(F.assist){ try{ window.__bot.step(); }catch(e){} } if(F.dieAt && window.__vc.vt-F.dieAt>300){ window.__bot.god=true; F.dieAt=0; } }
   function arrays(){ const o={}; for(const k of ${JSON.stringify(Object.keys(BOUNDS))}){ let v; try{ v=eval(k); }catch(e){ v=null; } if(Array.isArray(v)){ o[k]=v.length; if(!(F.maxArr[k]>=v.length)) F.maxArr[k]=v.length; } } return o; }
   const LAYERS={slot:'slot',pause:'pauseLayer',wheel:'wheelLayer',crash:'crashLayer',gameover:'gameover',menu:'menu',jackpot:'jackpotLayer'};
   function shown(id){ const el=document.getElementById(id); return !!el && !el.classList.contains('hidden') && getComputedStyle(el).display!=='none'; }
@@ -111,6 +111,9 @@ const FUZZ = `(()=>{
       pending: typeof pending!=='undefined'?pending.length:null, marker: typeof markerRef!=='undefined'&&markerRef?markerRef.phase:null };
   };
   F.arrays=arrays;
+  // a ghost must persist: transient slams (bigWin / BUST / PERFECT ride the jackpot layer) clear in <3s
+  F.persistent=()=>{ const a=F.consistency(); if(!a.length) return []; const s0=state;
+    for(let i=0;i<240;i++) frame(); if(state!==s0) return []; const b=F.consistency(); return a.filter(x=>b.includes(x)); };
 })();`;
 
 async function heapNow(cdp) {
@@ -142,14 +145,14 @@ async function heapNow(cdp) {
           // unstick so the run continues: back to the menu
           await page.evaluate(() => { try { quitToMenu(); } catch (e) {} });
         } else {
-          const bad = await page.evaluate(() => window.__fz.consistency());
+          const bad = await page.evaluate(() => window.__fz.persistent());
           if (bad.length) { R.ghosts.push({ at: R.events, bad }); console.error(`  ✗ ${pf.name} GHOST at ${R.events}: ${bad.join('; ')}`); }
         }
         R.recover.push(rec.vt);
       }
       if (R.events % 1000 === 0) console.error(`  ${pf.name}: ${R.events} events · ${errors.length} errors · ${Math.round((Date.now() - t0) / 1000)}s`);
     }
-    const fz = await page.evaluate(() => ({ errs: window.__fz.errs, log: window.__fz.log.slice(0, 20), maxArr: window.__fz.maxArr, counts: window.__fz.counts }));
+    const fz = await page.evaluate(() => ({ errs: window.__fz.errs, log: window.__fz.log.slice(0, 20), maxArr: window.__fz.maxArr, counts: window.__fz.counts, visits: window.__fz.visits }));
     Object.assign(R, fz);
     R.recoverMaxVt = Math.max(0, ...R.recover); delete R.recover;
     R.errors = errors.slice(0, 10); R.errorCount = errors.length;
