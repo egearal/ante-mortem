@@ -2058,6 +2058,11 @@ body.b3calm .jackpotText,body.b3calm #jkMarq span,body.b3calm h1{animation-durat
 #dlyPlaque.paid .dpBtn{opacity:.8;}
 @keyframes dlyGlow{0%,100%{box-shadow:inset 0 0 0 3px rgba(10,4,7,.8),inset 0 0 0 4px rgba(232,182,76,.22),0 6px 22px rgba(0,0,0,.55),0 0 14px rgba(255,211,107,.08);}
   50%{box-shadow:inset 0 0 0 3px rgba(10,4,7,.8),inset 0 0 0 4px rgba(232,182,76,.36),0 6px 22px rgba(0,0,0,.55),0 0 26px rgba(255,211,107,.22);}}
+#dlyPlaque.side{margin:10px 0 0;max-width:none;width:100%;padding:9px 10px;}
+#dlyPlaque.side .dpName{font-size:13.5px;letter-spacing:.1em;}
+#dlyPlaque.side .dpTop{flex-direction:column;align-items:center;gap:2px;}
+#dlyPlaque.side .dpTerms{font-size:12.5px;}
+#dlyPlaque.side .dpFoot{gap:10px;}
 @keyframes dlyFresh{0%{filter:brightness(2.2);}100%{filter:none;}}
 #dlyBand{margin:0 auto 10px;max-width:560px;padding:8px 12px;text-align:center;font-family:var(--disp);
   background:linear-gradient(180deg,rgba(10,4,7,.88),rgba(42,15,22,.75));border:1px solid rgba(232,182,76,.6);border-radius:5px;
@@ -2142,6 +2147,36 @@ body.b3calm .jackpotText,body.b3calm #jkMarq span,body.b3calm h1{animation-durat
 .cosChip.locked{opacity:.5;cursor:default;border-style:dashed;}
 .b2gl .b2p{letter-spacing:.06em;}
 .b2gl .b2rec{color:#d9a8ff;font-family:var(--disp);letter-spacing:.14em;}
+
+/* ==== B4 ==== */
+/* the combo plaque floats centred under the XP bar — a later rule flipped it to position:relative, so its
+   translateX(-50%) dragged it off the left edge of the screen */
+#hud #combo{position:absolute;}
+/* OPTIONS taller than the screen (720p, phones): scroll, never clip the title and QUALITY off the top */
+#gfxPanel{align-items:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+#gfxCard{margin:auto;}
+/* phones: the combo plaque sits between the ⏸ / codex buttons and the streak-cash tag instead of on top of them */
+body.touchUI #hud #combo{top:calc(60px + var(--sat,0px));font-size:14px;letter-spacing:.14em;white-space:nowrap;}
+body.touchUI #hud #combo s{display:none;}
+/* the House tip inside A2's notice column: A4's phone `top:` offset must not ride along (with position:relative it shoved
+   the tip ~100px below its slot — over feat toasts and the ledger title, outside the column the ledger is pushed past) */
+#a2Notes #coachToast{top:auto;}
+/* pause on narrow desktops (≤1180px): the brass blood bar (HUD rides above the pause veil) sat on top of RESUME — lift the row clear */
+@media (max-width:1180px){ body:not(.touchUI) #howBtnRow{bottom:78px;} }
+/* the ascension card the keyboard / pad will take (◀ ▶ walk it, SPACE / Ⓐ takes it) */
+.jkCard.b4sel{transform:translateY(-8px) scale(1.05);border-color:#8bffd0;box-shadow:0 0 0 1px #8bffd0,0 0 34px rgba(139,255,208,.5);}
+/* B2 × A2 — the stake surfaces wear the House's brass */
+#hud #b2Mult:not(:empty){padding:3px 11px 4px;border-radius:7px;background:linear-gradient(180deg,rgba(26,10,14,.80),rgba(8,3,5,.84));
+  box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(184,134,42,.55),0 0 0 3px rgba(20,10,3,.6),inset 0 1px 0 rgba(255,236,170,.14),inset 0 -2px 3px rgba(0,0,0,.55),0 3px 8px rgba(0,0,0,.45);}
+body.b2endless #hud #b2Mult{box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(154,92,255,.65),0 0 0 3px rgba(20,10,3,.6),inset 0 1px 0 rgba(230,200,255,.14),0 0 16px rgba(154,92,255,.35);}
+.stakeCard{border:2px solid transparent;background:var(--a2-velvet) padding-box,var(--a2-bronze) border-box;
+  box-shadow:0 0 0 1px #140a03,inset 0 1px 0 rgba(255,236,170,.08),0 4px 14px rgba(0,0,0,.5);}
+.stakeCard.on{background:linear-gradient(170deg,rgba(38,22,28,.96),rgba(16,8,12,.97)) padding-box,var(--a2-brass) border-box;
+  box-shadow:0 0 0 1px #140a03,0 0 22px color-mix(in srgb,var(--sc) 50%,transparent);}
+.stakeCard.locked{border:2px dashed rgba(168,118,46,.45);background:var(--a2-velvet);}
+.b2gCard{border:6px solid transparent;background:linear-gradient(170deg,rgba(38,18,24,.97),rgba(12,6,10,.98)) padding-box,var(--a2-brass) border-box;
+  box-shadow:0 0 0 1px #140a03,0 0 60px rgba(255,211,107,.25),inset 0 0 0 1px rgba(255,236,170,.12);}
+@media (max-width:480px){ .b2row{grid-template-columns:repeat(2,minmax(0,1fr));} .stakeCard .soulD{font-size:10.5px;} .b2gCard{padding:16px 12px 14px;} .b2gR .btn{flex-basis:100%;} }
 /* ==== E2 ==== */
 /* THE BOOK OF DEBTS — a bronze-bound ledger of everything left to win */
 #e2Book{z-index:60;background:radial-gradient(120% 90% at 50% 40%,rgba(20,6,10,.72),rgba(4,1,3,.92));}

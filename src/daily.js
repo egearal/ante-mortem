@@ -228,13 +228,12 @@ function dlyPlaque(){
   const menu=$('menu'), pn=menu&&menu.querySelector('.panel'); if(!pn) return;
   let p=$('dlyPlaque');
   if(!p){ p=document.createElement('div'); p.id='dlyPlaque';
-    const anchor=$('loadoutLine')||$('startBtn');
-    if(anchor&&anchor.parentNode===pn) pn.insertBefore(p, anchor.nextSibling); else pn.appendChild(p);
     p.addEventListener('click',ev=>{ ev.stopPropagation(); dlyPlay(); }); }
+  dlyPlace(p, pn);
   const day=dlyToday(), t=dlyTerms(day), d=DLY.data, rec=d.days[day], st=dlyStreak();
   const played=!!rec;
   const today= !played ? 'UNPAID' : (rec.done ? fmt(rec.t)+(rec.track?' '+rec.track:'') : 'FORFEIT');
-  p.className=played?'paid':'';
+  p.classList.toggle('paid', played);
   p.innerHTML='<div class="dpTop"><b>☀ DAILY DEBT #'+t.n+'</b><span class="dpCd">NEXT DEBT IN <i id="dlyCd">'+dlyClock(dlyLeft())+'</i></span></div>'
     +'<div class="dpName">'+t.name+'</div>'
     +'<div class="dpTerms"><span style="color:'+dlySoulFor(t).col+'">'+dlySoulFor(t).g+' '+dlySoulFor(t).n+'</span> · <span style="color:'+dlyFloorFor(t).col+'">'+dlyFloorFor(t).g+' '+dlyFloorFor(t).n+'</span> · '+dlyModLine(t,true)+'</div>'
@@ -242,6 +241,17 @@ function dlyPlaque(){
     +'<button class="btn dpBtn" type="button">'+(played?'☀ PRACTICE THE DEBT':'☀ PAY TODAY\'S DEBT')+'</button>';
   p.dataset.day=day;
 }
+// desktop (A1's two-column menu): the plaque closes the parlor column under OPTIONS; phones: under PLAY TONIGHT
+function dlyPlace(p, pn){
+  const row=$('menuRow2');
+  const side=row && row.parentNode===pn && (typeof matchMedia==='function') && matchMedia('(min-width:900px) and (min-height:600px)').matches;
+  if(side){ if(p.parentNode!==row) row.appendChild(p); p.classList.add('side'); return; }
+  p.classList.remove('side');
+  const anchor=$('loadoutLine')||$('startBtn');
+  if(anchor&&anchor.parentNode===pn){ if(p.previousSibling!==anchor||p.parentNode!==pn) pn.insertBefore(p, anchor.nextSibling); }
+  else if(p.parentNode!==pn) pn.appendChild(p);
+}
+window.addEventListener('resize',()=>{ try{ const p=$('dlyPlaque'), pn=$('menu')&&$('menu').querySelector('.panel'); if(p&&pn) dlyPlace(p,pn); }catch(e){} });
 function dlySoulFor(t){ return SOULS.find(s=>s.id===t.soul)||SOULS[0]; }
 function dlyFloorFor(t){ return FLOORS.find(f=>f.id===t.floor)||FLOORS[0]; }
 function dlyPlay(){

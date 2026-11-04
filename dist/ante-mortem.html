@@ -2077,6 +2077,11 @@ body.b3calm .jackpotText,body.b3calm #jkMarq span,body.b3calm h1{animation-durat
 #dlyPlaque.paid .dpBtn{opacity:.8;}
 @keyframes dlyGlow{0%,100%{box-shadow:inset 0 0 0 3px rgba(10,4,7,.8),inset 0 0 0 4px rgba(232,182,76,.22),0 6px 22px rgba(0,0,0,.55),0 0 14px rgba(255,211,107,.08);}
   50%{box-shadow:inset 0 0 0 3px rgba(10,4,7,.8),inset 0 0 0 4px rgba(232,182,76,.36),0 6px 22px rgba(0,0,0,.55),0 0 26px rgba(255,211,107,.22);}}
+#dlyPlaque.side{margin:10px 0 0;max-width:none;width:100%;padding:9px 10px;}
+#dlyPlaque.side .dpName{font-size:13.5px;letter-spacing:.1em;}
+#dlyPlaque.side .dpTop{flex-direction:column;align-items:center;gap:2px;}
+#dlyPlaque.side .dpTerms{font-size:12.5px;}
+#dlyPlaque.side .dpFoot{gap:10px;}
 @keyframes dlyFresh{0%{filter:brightness(2.2);}100%{filter:none;}}
 #dlyBand{margin:0 auto 10px;max-width:560px;padding:8px 12px;text-align:center;font-family:var(--disp);
   background:linear-gradient(180deg,rgba(10,4,7,.88),rgba(42,15,22,.75));border:1px solid rgba(232,182,76,.6);border-radius:5px;
@@ -2161,6 +2166,36 @@ body.b3calm .jackpotText,body.b3calm #jkMarq span,body.b3calm h1{animation-durat
 .cosChip.locked{opacity:.5;cursor:default;border-style:dashed;}
 .b2gl .b2p{letter-spacing:.06em;}
 .b2gl .b2rec{color:#d9a8ff;font-family:var(--disp);letter-spacing:.14em;}
+
+/* ==== B4 ==== */
+/* the combo plaque floats centred under the XP bar — a later rule flipped it to position:relative, so its
+   translateX(-50%) dragged it off the left edge of the screen */
+#hud #combo{position:absolute;}
+/* OPTIONS taller than the screen (720p, phones): scroll, never clip the title and QUALITY off the top */
+#gfxPanel{align-items:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+#gfxCard{margin:auto;}
+/* phones: the combo plaque sits between the ⏸ / codex buttons and the streak-cash tag instead of on top of them */
+body.touchUI #hud #combo{top:calc(60px + var(--sat,0px));font-size:14px;letter-spacing:.14em;white-space:nowrap;}
+body.touchUI #hud #combo s{display:none;}
+/* the House tip inside A2's notice column: A4's phone `top:` offset must not ride along (with position:relative it shoved
+   the tip ~100px below its slot — over feat toasts and the ledger title, outside the column the ledger is pushed past) */
+#a2Notes #coachToast{top:auto;}
+/* pause on narrow desktops (≤1180px): the brass blood bar (HUD rides above the pause veil) sat on top of RESUME — lift the row clear */
+@media (max-width:1180px){ body:not(.touchUI) #howBtnRow{bottom:78px;} }
+/* the ascension card the keyboard / pad will take (◀ ▶ walk it, SPACE / Ⓐ takes it) */
+.jkCard.b4sel{transform:translateY(-8px) scale(1.05);border-color:#8bffd0;box-shadow:0 0 0 1px #8bffd0,0 0 34px rgba(139,255,208,.5);}
+/* B2 × A2 — the stake surfaces wear the House's brass */
+#hud #b2Mult:not(:empty){padding:3px 11px 4px;border-radius:7px;background:linear-gradient(180deg,rgba(26,10,14,.80),rgba(8,3,5,.84));
+  box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(184,134,42,.55),0 0 0 3px rgba(20,10,3,.6),inset 0 1px 0 rgba(255,236,170,.14),inset 0 -2px 3px rgba(0,0,0,.55),0 3px 8px rgba(0,0,0,.45);}
+body.b2endless #hud #b2Mult{box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(154,92,255,.65),0 0 0 3px rgba(20,10,3,.6),inset 0 1px 0 rgba(230,200,255,.14),0 0 16px rgba(154,92,255,.35);}
+.stakeCard{border:2px solid transparent;background:var(--a2-velvet) padding-box,var(--a2-bronze) border-box;
+  box-shadow:0 0 0 1px #140a03,inset 0 1px 0 rgba(255,236,170,.08),0 4px 14px rgba(0,0,0,.5);}
+.stakeCard.on{background:linear-gradient(170deg,rgba(38,22,28,.96),rgba(16,8,12,.97)) padding-box,var(--a2-brass) border-box;
+  box-shadow:0 0 0 1px #140a03,0 0 22px color-mix(in srgb,var(--sc) 50%,transparent);}
+.stakeCard.locked{border:2px dashed rgba(168,118,46,.45);background:var(--a2-velvet);}
+.b2gCard{border:6px solid transparent;background:linear-gradient(170deg,rgba(38,18,24,.97),rgba(12,6,10,.98)) padding-box,var(--a2-brass) border-box;
+  box-shadow:0 0 0 1px #140a03,0 0 60px rgba(255,211,107,.25),inset 0 0 0 1px rgba(255,236,170,.12);}
+@media (max-width:480px){ .b2row{grid-template-columns:repeat(2,minmax(0,1fr));} .stakeCard .soulD{font-size:10.5px;} .b2gCard{padding:16px 12px 14px;} .b2gR .btn{flex-basis:100%;} }
 </style>
 </head>
 <body>
@@ -2869,7 +2904,7 @@ function killEnemy(e,idx){
   if(STREAK_MS.includes(killStreak)){
     const big9=killStreak>=100;
     announce('⚔ '+killStreak+' STREAK ⚔', true);
-    if(killStreak===50||killStreak===100){ setTimeout(()=>{ showStreak(killStreak+' STREAK'); tone(392,0.5,'sine',0.045,240); tone(494,0.4,'sine',0.035,300); },1000); } // the big room echoes it back, softer
+    if(killStreak===50||killStreak===100){ setTimeout(()=>{ tone(392,0.5,'sine',0.045,240); tone(494,0.4,'sine',0.035,300); },1000); } // the big room echoes it back, softer (B4: sound only — the banner already says it)
     LT.milestone=Math.max(LT.milestone||0,killStreak); bump('milestone',killStreak);
     SFX.casinoDing(); if(big9){ SFX.dingBells(); flash(0.3,'#ffd36b'); sparkBurst(16); hitstop=Math.max(hitstop,0.07); ring(P.x,P.y,150,'#ffd36b'); }
     if(killStreak>=500){ secret('streak500','THE FIVE HUNDRED'); bigWin('500 STREAK',4); coinRain(40); }
@@ -2880,7 +2915,7 @@ function killEnemy(e,idx){
     if(fever>=1){ if(gt>=(window._feverLock||0)) startFever(); else fever=0.99; } }
   if(killStreak===10||killStreak===25||killStreak===50||killStreak===100||killStreak===200){
     const tier=killStreak>=200?5:killStreak>=100?4:killStreak>=50?3:killStreak>=25?2:1;
-    showStreak(killStreak+' STREAK'); SFX.cheer(); SFX.dingHit(tier); if(tier>=3) SFX.dingBells();
+    if(!STREAK_MS.includes(killStreak)) showStreak(killStreak+' STREAK'); SFX.cheer(); // B4: one voice per milestone — the ⚔ banner owns 10/50/100/200 SFX.dingHit(tier); if(tier>=3) SFX.dingBells();
     flash(0.2+tier*0.06,'#ffd36b'); shake=Math.min(18,shake+3+tier*2); coinRain(tier*4);
     ring(P.x,P.y,90+tier*30,'#ffd36b');
   }
@@ -3818,6 +3853,12 @@ const PROF={ on:/[?&#]prof/.test(location.search+location.hash), t0:0, tS:0, cur
   reset(){ this.stages={}; this.ri=0; this.rn=0; this.spikes25=0; this.spikes40=0; this.spikeStage={}; this.frames=0; }
 };
 window.__prof=PROF;
+// B4 — the blood bar's box in canvas (logical) px, re-read twice a second (it moves only on resize / layout)
+function _b4HpRect(){ const n=performance.now(); let c=window._b4hp;
+  if(!c||n-c.t>500||n<c.t){ let v=null; const el=document.getElementById('hpwrap');
+    if(el){ const b=el.getBoundingClientRect(), z=(typeof ZOOM==='number'&&ZOOM>0)?ZOOM:1; if(b.width>0) v={l:b.left/z,r:b.right/z,t:b.top/z}; }
+    c=window._b4hp={t:n,v}; }
+  return c.v; }
 function render(){
   ctx.save();
   let sx=0,sy=0; if(shake>0){ const sh=shake*0.6*(GFX.shake!=null?Math.min(1.5,GFX.shake):1); sx=rnd(-sh,sh); sy=rnd(-sh,sh); } // B3: the SHAKE dial scales it
@@ -4373,7 +4414,11 @@ function render(){
   }
   // XP / RAGE — gilded gothic gauge, smooth-lerped
   if(state==='playing'){
-    const xw=Math.min(340,VW*0.44), xx=VW/2-xw/2, xy=VH-46, bh=14;
+    let xw=Math.min(340,VW*0.44), xx=VW/2-xw/2, xy=VH-46; const bh=14;
+    { const hr=_b4HpRect(); // B4: never under the blood bar — slide right of it, or (phones) ride just above it
+      if(hr && xx<hr.r+14 && hr.t<VH-20){ const room=VW-(hr.r+14)-96;
+        if(room>=170){ xx=hr.r+14; xw=Math.min(xw,room); }
+        else { xx=hr.l+22; xw=Math.max(120,Math.min(xw,hr.r-hr.l-22)); xy=Math.min(xy,hr.t-12-bh); } } }
     const rage=P.ovT>0;
     const target=rage?Math.max(0,P.ovT)/100:Math.min(1,P.xp/P.xpNext);
     const key=rage?'_ovDisp':'_xpDisp';
@@ -4418,7 +4463,7 @@ function render(){
     } else {
       ctx.font="700 11px 'Cinzel',serif"; ctx.textAlign='center';
       ctx.fillStyle='rgba(236,208,160,0.9)'; ctx.shadowColor='#000'; ctx.shadowBlur=4;
-      ctx.fillText('⚜ LEVEL CHARGE — '+Math.floor(P.xp)+' / '+P.xpNext+' XP'+(pending.length?'  ▸ A SLOT WAITS':''), VW/2, xy-11); ctx.shadowBlur=0;
+      ctx.fillText('⚜ LEVEL CHARGE — '+Math.floor(P.xp)+' / '+P.xpNext+' XP'+(pending.length?'  ▸ A SLOT WAITS':''), xx+xw/2, xy-11); ctx.shadowBlur=0;
       if(P.debt>0){ ctx.fillStyle='#ff6b6b'; ctx.shadowColor='#ff6b6b'; ctx.shadowBlur=6;
         ctx.fillText('☠ IN DEBT TO THE HOUSE: '+P.debt+' XP', VW/2, xy+28); ctx.shadowBlur=0; }
       if(f>0.85){
@@ -4522,6 +4567,15 @@ function silSprite(T,dark,col){
   }
   return cv;
 }
+// B4 — the far court's sprite with its contact shadow baked under it (same pixels the LOD path drew per body)
+function lodSprite(T,dark,col){
+  const key='l|'+T+'|'+dark+'|'+col; let cv=_silC.get(key); if(cv) return cv;
+  const sp=silSprite(T,dark,col);
+  if(_silC.size>96){ let n=0; for(const k of _silC.keys()){ _silC.delete(k); if(++n>=24) break; } }
+  cv=document.createElement('canvas'); cv.width=64; cv.height=64; const g=cv.getContext('2d');
+  g.fillStyle='rgba(0,0,0,0.32)'; g.beginPath(); g.ellipse(32,32+20*0.72,20*0.78,20*0.26,0,0,6.28); g.fill();
+  g.drawImage(sp,0,0); _silC.set(key,cv); return cv;
+}
 // variants: 'ink' (near-court cut-out plate), 'white' (hit flash), 'glow' (elite/boss aura, tinted)
 function silVar(T,mode,col){
   const key='v|'+T+'|'+mode+'|'+(col||'');
@@ -4541,6 +4595,7 @@ const _EYEC={ swarm:'255,90,90', stalker:'255,223,90', wraith:'120,170,255', hex
 function drawEnemy(e){
   const t=gt*4+e.ph, T=e.vt||e.type, r=e.r;
   if(e._lod){ // distant court: one baked, shaped, rim-lit sprite
+    if(!(e.flash>0)){ const dw=r*3.2; ctx.drawImage(lodSprite(T,e.dark,e.col),e.x-dw/2,e.y-dw/2,dw,dw); return; } // B4: shadow baked in, no save/translate/path per body
     ctx.save(); ctx.translate(e.x,e.y);
     ctx.fillStyle='rgba(0,0,0,0.32)'; ctx.beginPath(); ctx.ellipse(0,r*0.72,r*0.78,r*0.26,0,0,6.28); ctx.fill();
     if(e.flash>0){ const sq=Math.min(0.16,e.flash*1.4); ctx.scale(1+sq,1-sq); }
@@ -6487,28 +6542,29 @@ function tickFever(dt){
     if(feverT<=0) endFever();
   } else { fever=Math.max(0, fever-dt*0.012); }
 }
+// B4: every dd now says what its fx actually does (most had drifted onto a neighbour's text)
 const TAROT_FATES=[
  {n:'THE SUN', dd:'Full heal · +50% damage 10s · +20 coins',t:2,c:'#fff2c0',fx:()=>{ P.hp=P.maxHp; P.damage*=1.5; debuffs.push({label:'☀ STRENGTH +50%',t:10,dur:10,revert:()=>{P.damage/=1.5;},dot:0,poison:false,good:true}); P.coins+=20; LT.coins+=20; coinRain(14); }},
  {n:'THE WORLD', dd:'+2 levels · heal 30%',t:2,c:'#fff2c0',fx:()=>{ pending.push({}); pending.push({}); P.hp=Math.min(P.maxHp,P.hp+P.maxHp*0.3); SFX.levelUp(); }},
  {n:'WHEEL OF FORTUNE', dd:'+25 coins',t:1,c:'#e8b64c',fx:()=>{ P.coins+=25; LT.coins+=25; coinRain(20); SFX.cashout(); }},
- {n:'THE STAR', dd:'Heal 40%',t:1,c:'#9adcff',fx:()=>{ for(const o of orbs){ o.x=P.x+rrnd('tarot',-30,30); o.y=P.y+rrnd('tarot',-30,30); } for(const c2 of coins){ c2.x=P.x+rrnd('tarot',-30,30); c2.y=P.y+rrnd('tarot',-30,30); } ring(P.x,P.y,200,'#9adcff'); }},
- {n:'STRENGTH', dd:'+20% damage 20s',t:1,c:'#ff9a5b',fx:()=>{ P.damage*=1.5; debuffs.push({label:'☀ STRENGTH +50%',t:12,dur:12,revert:()=>{P.damage/=1.5;},dot:0,poison:false,good:true}); }},
- {n:'TEMPERANCE', dd:'Heal 25% · cleanse curses',t:1,c:'#8bff9a',fx:()=>{ P.hp=Math.min(P.maxHp,P.hp+P.maxHp*0.35); }},
- {n:'THE EMPRESS', dd:'+15% coins this run',t:1,c:'#ffb0c8',fx:()=>{ P.coins+=15; LT.coins+=15; P.hp=Math.min(P.maxHp,P.hp+P.maxHp*0.15); coinRain(10); }},
- {n:'THE CHARIOT', dd:'+60 speed 12s',t:1,c:'#9adcff',fx:()=>{ P.speed*=1.4; debuffs.push({label:'⚡ CHARIOT +40%',t:10,dur:10,revert:()=>{P.speed/=1.4;},dot:0,poison:false,good:true}); }},
- {n:'THE MAGICIAN', dd:'+25% fire rate 15s',t:1,c:'#c9ff7a',fx:()=>{ fever=Math.min(1,fever+0.35); if(fever>=1&&!feverOn) startFever(); }},
- {n:'THE EMPEROR', dd:'+2 armor this run',t:1,c:'#ffd36b',fx:()=>{ gilt+=10; saveGilt(); SFX.chipStack(); }},
- {n:'JUSTICE', dd:'Coins match your kills',t:1,c:'#ff5566',fx:()=>{ for(let i2=enemies.length-1;i2>=0;i2--){ const e=enemies[i2]; if(!e.boss&&!e.elite&&Math.hypot(e.x-P.x,e.y-P.y)<320) killEnemy(e,i2); } shake=Math.min(20,shake+10); }},
- {n:'THE HIEROPHANT', dd:'+10% XP this run',t:1,c:'#eaf3ff',fx:()=>{ P.inv=Math.max(P.inv,4); ring(P.x,P.y,60,'#eaf3ff'); }},
- {n:'THE TOWER', dd:'−25% blood, now',t:-1,c:'#ff5560',fx:()=>{ hurtPlayer(Math.round(P.maxHp*0.15)); }},
- {n:'THE MOON', dd:'−20% enemy speed 12s',t:-1,c:'#a794c4',fx:()=>{ applyDebuff(DEBUFF_POOL[(rng('tarot')*DEBUFF_POOL.length)|0]); }},
- {n:'THE HANGED MAN', dd:'−30% speed 12s',t:-1,c:'#7a8aa0',fx:()=>{ P.speed*=0.7; debuffs.push({label:'⛓ SLOWED −30%',t:8,dur:8,revert:()=>{P.speed/=0.7;},dot:0,poison:false}); }},
- {n:'DEATH', dd:'Slay everything near',t:-1,c:'#c98bff',fx:()=>{ for(let i2=0;i2<4&&enemies.length<CFG.spawn.max;i2++){ const a2=rng('tarot')*6.283; spawnEnemy('swarm',clamp(P.x+Math.cos(a2)*140,20,CFG.arena-20),clamp(P.y+Math.sin(a2)*140,20,CFG.arena-20)); } }},
+ {n:'THE STAR', dd:'Every soul and coin on the floor flies to you',t:1,c:'#9adcff',fx:()=>{ for(const o of orbs){ o.x=P.x+rrnd('tarot',-30,30); o.y=P.y+rrnd('tarot',-30,30); } for(const c2 of coins){ c2.x=P.x+rrnd('tarot',-30,30); c2.y=P.y+rrnd('tarot',-30,30); } ring(P.x,P.y,200,'#9adcff'); }},
+ {n:'STRENGTH', dd:'+50% damage 12s',t:1,c:'#ff9a5b',fx:()=>{ P.damage*=1.5; debuffs.push({label:'☀ STRENGTH +50%',t:12,dur:12,revert:()=>{P.damage/=1.5;},dot:0,poison:false,good:true}); }},
+ {n:'TEMPERANCE', dd:'Heal 35%',t:1,c:'#8bff9a',fx:()=>{ P.hp=Math.min(P.maxHp,P.hp+P.maxHp*0.35); }},
+ {n:'THE EMPRESS', dd:'+15 coins · heal 15%',t:1,c:'#ffb0c8',fx:()=>{ P.coins+=15; LT.coins+=15; P.hp=Math.min(P.maxHp,P.hp+P.maxHp*0.15); coinRain(10); }},
+ {n:'THE CHARIOT', dd:'+40% speed 10s',t:1,c:'#9adcff',fx:()=>{ P.speed*=1.4; debuffs.push({label:'⚡ CHARIOT +40%',t:10,dur:10,revert:()=>{P.speed/=1.4;},dot:0,poison:false,good:true}); }},
+ {n:'THE MAGICIAN', dd:'+35% fever charge — a full bar ignites FEVER',t:1,c:'#c9ff7a',fx:()=>{ fever=Math.min(1,fever+0.35); if(fever>=1&&!feverOn) startFever(); }},
+ {n:'THE EMPEROR', dd:'+10 gilt',t:1,c:'#ffd36b',fx:()=>{ gilt+=10; saveGilt(); SFX.chipStack(); }},
+ {n:'JUSTICE', dd:'Slays every common foe within 320px',t:1,c:'#ff5566',fx:()=>{ for(let i2=enemies.length-1;i2>=0;i2--){ const e=enemies[i2]; if(!e.boss&&!e.elite&&Math.hypot(e.x-P.x,e.y-P.y)<320) killEnemy(e,i2); } shake=Math.min(20,shake+10); }},
+ {n:'THE HIEROPHANT', dd:'Untouchable 4s',t:1,c:'#eaf3ff',fx:()=>{ P.inv=Math.max(P.inv,4); ring(P.x,P.y,60,'#eaf3ff'); }},
+ {n:'THE TOWER', dd:'−15% blood, now',t:-1,c:'#ff5560',fx:()=>{ hurtPlayer(Math.round(P.maxHp*0.15)); }},
+ {n:'THE MOON', dd:'A random curse',t:-1,c:'#a794c4',fx:()=>{ applyDebuff(DEBUFF_POOL[(rng('tarot')*DEBUFF_POOL.length)|0]); }},
+ {n:'THE HANGED MAN', dd:'−30% speed 8s',t:-1,c:'#7a8aa0',fx:()=>{ P.speed*=0.7; debuffs.push({label:'⛓ SLOWED −30%',t:8,dur:8,revert:()=>{P.speed/=0.7;},dot:0,poison:false}); }},
+ {n:'DEATH', dd:'Four bat-imps rise at your side',t:-1,c:'#c98bff',fx:()=>{ for(let i2=0;i2<4&&enemies.length<CFG.spawn.max;i2++){ const a2=rng('tarot')*6.283; spawnEnemy('swarm',clamp(P.x+Math.cos(a2)*140,20,CFG.arena-20),clamp(P.y+Math.sin(a2)*140,20,CFG.arena-20)); } }},
  {n:'THE DEVIL', dd:'Sweeps ALL ground coins',t:-1,c:'#ff5560',fx:()=>{ const n5=coins.length; for(const c5 of coins) burst(c5.x,c5.y,1,'#5a4a3a'); coins.length=0; if(n5>0) ftext(P.x,P.y-24,'−'+n5+' COINS SWEPT','#ff6b6b',true); SFX.thud(); }},
  {n:'FIVE OF CUPS', dd:'Lose 20% of your XP',t:-1,c:'#8a97b5',fx:()=>{ P.xp=Math.floor(P.xp*0.8); }},
- {n:'THE FOOL', dd:'Lose 15 coins',t:-1,c:'#e8d9c0',fx:()=>{ const a2=rng('tarot')*6.283,d2=300+rng('tarot')*200; P.x=clamp(P.x+Math.cos(a2)*d2,40,CFG.arena-40); P.y=clamp(P.y+Math.sin(a2)*d2,40,CFG.arena-40); P.inv=Math.max(P.inv,1.2); flash(0.4,'#e8d9c0'); }},
+ {n:'THE FOOL', dd:'Flung 300–500px across the floor',t:-1,c:'#e8d9c0',fx:()=>{ const a2=rng('tarot')*6.283,d2=300+rng('tarot')*200; P.x=clamp(P.x+Math.cos(a2)*d2,40,CFG.arena-40); P.y=clamp(P.y+Math.sin(a2)*d2,40,CFG.arena-40); P.inv=Math.max(P.inv,1.2); flash(0.4,'#e8d9c0'); }},
  {n:'SEVEN OF SWORDS', dd:'−20% damage 8s',t:-1,c:'#b0b8c8',fx:()=>{ P.damage*=0.8; debuffs.push({label:'🗡 −20% DMG',t:8,dur:8,revert:()=>{P.damage/=0.8;},dot:0,poison:false}); }},
- {n:'THE HERMIT', dd:'Enemies forget you 6s',t:-1,c:'#6a7488',fx:()=>{ P.speed*=0.8; debuffs.push({label:'🏮 −20% SPD',t:6,dur:6,revert:()=>{P.speed/=0.8;},dot:0,poison:false}); }},
+ {n:'THE HERMIT', dd:'−20% speed 6s',t:-1,c:'#6a7488',fx:()=>{ P.speed*=0.8; debuffs.push({label:'🏮 −20% SPD',t:6,dur:6,revert:()=>{P.speed/=0.8;},dot:0,poison:false}); }},
  {n:'WHEEL REVERSED', dd:'Streak + fever drained',t:-1,c:'#a06a12',fx:()=>{ killStreak=0; streakT=0; fever=Math.max(0,fever-0.5); }},
  {n:'TOWER REVERSED', dd:'−30% blood + a curse',t:-2,c:'#e3b7ff',fx:()=>{ hurtPlayer(Math.round(P.maxHp*0.3)); applyDebuff(DEBUFF_POOL[(rng('tarot')*DEBUFF_POOL.length)|0]); }},
  {n:'DEATH REVERSED', dd:'Summons a hunting pack',t:-2,c:'#e3b7ff',fx:()=>{ if(enemies.length<CFG.spawn.max) spawnEnemy('elite',clamp(P.x+180,20,CFG.arena-20),clamp(P.y,20,CFG.arena-20)); for(let i2=0;i2<4&&enemies.length<CFG.spawn.max;i2++){ const a2=Math.random()*6.283; spawnEnemy('swarm',clamp(P.x+Math.cos(a2)*160,20,CFG.arena-20),clamp(P.y+Math.sin(a2)*160,20,CFG.arena-20)); } }}
@@ -7365,9 +7421,11 @@ function jackpotOffer(){
           +'<div class="jkD">'+w.fx+'</div></div>'; }).join('')+'</div>';
     w9.classList.add('show');
     w9.querySelectorAll('.jkCard').forEach(c=>c.onclick=()=>pickJackpot(+c.dataset.i));
-    $('crashMsg').innerHTML='PRESS <span class="keyhint">1</span> <span class="keyhint">2</span> <span class="keyhint">3</span> OR CLICK';
+    crash.jkSel=0; crash.jkT=performance.now(); jkPaint(); // B4: card I starts lit — ◀ ▶ walk it, SPACE / Ⓐ takes it
+    $('crashMsg').innerHTML='<span class="keyhint">◀</span> <span class="keyhint">▶</span> CHOOSE · <span class="keyhint">SPACE</span> TAKES · OR <span class="keyhint">1</span> <span class="keyhint">2</span> <span class="keyhint">3</span> · OR CLICK';
   }, 1050);
 }
+function jkPaint(){ const w9=$('jkWrap'); if(!w9||!crash) return; w9.querySelectorAll('.jkCard').forEach((c,i)=>c.classList.toggle('b4sel', i===(crash.jkSel||0))); }
 function pickJackpot(i){
   if(!crash.jk) return; const def=crash.jkOpts[i]; if(!def) return;
   crash.jk=false;
@@ -8752,6 +8810,8 @@ function a3Card(n){
   g.font='600 22px '+DISP; g.fillStyle='#bfae8c'; spaced('SURVIVED',W/2,190,8);
   g.font='700 150px '+DISP; g.shadowColor='rgba(255,211,107,.6)'; g.shadowBlur=36; g.fillStyle=gold(210,350);
   g.fillText(n.time,W/2,272); g.shadowBlur=0;
+  try{ const b2=(typeof b2CardLine==='function')?b2CardLine():null; // B2: the deck you played on, and how deep you went
+    if(b2){ g.font='600 19px '+DISP; g.fillStyle=b2.col; g.shadowColor=b2.col; g.shadowBlur=10; spaced(b2.txt,W/2,341,4); g.shadowBlur=0; } }catch(e){}
   // four plaques
   const st=[['LEVEL',n.level,'#ffd36b'],['SLAIN',n.kills.toLocaleString(),'#e6d9c2'],['JACKPOTS',n.jack,n.jack>0?'#8bffd0':'#bfae8c'],['BEST STREAK',n.streak,'#c98bff']];
   const pw=220, ph=104, gap=26, x0=W/2-(pw*4+gap*3)/2, py=356;
@@ -9803,6 +9863,15 @@ function b2LoadoutTag(){
   const s=b2Sel(), st=STAKES[s];
   return ' · <span style="color:'+st.col+'">'+st.g+' '+st.name+'</span> <span class="b2pips">'+b2Pips(b2BestFor(b2SoulId()))+'</span>';
 }
+function b2CardLine(){
+  if(!P) return null;
+  const s=P.stake|0, parts=[];
+  if(s>0) parts.push(STAKES[s].g+' '+STAKES[s].name+' '+'◆'.repeat(s));
+  if(P._endless) parts.push('∞ ENDLESS +'+fmt(Math.max(0,gt-P._endT0)));
+  else if(window._b2won) parts.push('♛ THE NIGHT IS WON');
+  if(!parts.length) return null;
+  return {txt:parts.join('  ·  '), col:s>0?STAKES[s].col:'#d9a8ff'};
+}
 function b2ShareBits(){
   if(!P) return '';
   const s=P.stake|0; let t='';
@@ -10161,7 +10230,7 @@ $('idxClose').addEventListener('click',()=>{ $('indexPanel').classList.add('hidd
   const hp9=$('howPanel'); if(hp9){ hp9.classList.remove('hidden'); if(typeof window._howShow==='function') window._howShow(window._howTab||0); SFX.uiDing(); } }); }
 // F — the whole window belongs to the House
 window.addEventListener('keydown',e=>{ if(e.key.toLowerCase()==='f' && !e.repeat && (state==='menu'||state==='playing'||state==='paused')){
-  try{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }catch(x){} } });
+  try{ const fp=document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(); if(fp&&fp.catch) fp.catch(()=>{}); }catch(x){} } });
 // right-click stays native in menus, silent in the pit
 window.addEventListener('contextmenu',e=>{ if(state==='playing'||state==='slot'||state==='wheel'||state==='dead') e.preventDefault(); });
 $('mute').addEventListener('click',()=>{ muted=!muted; GFX.muted=muted; try{ saveGfx(); }catch(e){} try{ setMasterVol(true); }catch(e){} try{ if(!muted&&state==='playing') startAmbience(); else if(muted) stopAmbience(); }catch(e){} $('mute').textContent=muted?'♩':'♪'; $('mute').style.color=muted?'#5a4a3a':''; }); let tabHold=false;
@@ -10243,7 +10312,10 @@ const GFX_DEFS=[
 ];
 if(GFX.amb===undefined) GFX.amb=true;
 if(GFX.coach===undefined) GFX.coach=true;
-function gfxLabel(d){ const o=d.opts.find(o=>o[0]===GFX[d.k]); return o?o[1]:String(GFX[d.k]); }
+if(GFX.cb===undefined) GFX.cb=false; if(GFX.tabT===undefined) GFX.tabT=false; // B4: fresh saves printed 'UNDEFINED'
+function gfxLabel(d){ let o=d.opts.find(o=>o[0]===GFX[d.k]);
+  if(!o && typeof GFX[d.k]==='number') o=d.opts.reduce((a,b)=>Math.abs(b[0]-GFX[d.k])<Math.abs(a[0]-GFX[d.k])?b:a); // B4: preset values between stops (pcap 220) read as the nearest stop, not a raw number
+  return o?o[1]:String(GFX[d.k]); }
 function applyGfxPreset(name){
   const p=GFX_PRESETS[name]; if(!p) return;
   Object.assign(GFX,p); GFX.preset=name;
@@ -10284,7 +10356,7 @@ function buildGfxPanel(){
   $('gfxClose').addEventListener('click',()=>{ p.classList.add('hidden'); SFX.casinoDing(); });
   { const ex=p.querySelector('#gxExport'); if(ex) ex.addEventListener('click',()=>exportSave());
     const im=p.querySelector('#gxImport'); if(im) im.addEventListener('click',()=>importSave()); }
-  { const gf=p.querySelector('#gxFull'); if(gf) gf.addEventListener('click',()=>{ try{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }catch(x){} SFX.uiDing(); }); }
+  { const gf=p.querySelector('#gxFull'); if(gf) gf.addEventListener('click',()=>{ try{ const fp=document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(); if(fp&&fp.catch) fp.catch(()=>{}); }catch(x){} SFX.uiDing(); }); }
   { const gr=p.querySelector('#gxReset'); if(gr) gr.addEventListener('click',()=>{
       applyGfxPreset('medium'); GFX.vol=1; GFX.cb=false; GFX.fps=false; applyGfxSide(); saveGfx();
       const gv2=p.querySelector('#gxVol'); if(gv2) gv2.value=1;
@@ -10354,7 +10426,7 @@ function updateHUD(){
     const ch='×'+(P.comboMult||1).toFixed(1)+'  COMBO'+(P.bestStreak>killStreak?' <s>best '+P.bestStreak+'</s>':'');
     if(_hud.combo!==ch){ _hud.combo=ch; cm.innerHTML=ch; }
     cm.classList.toggle('flames', killStreak>=50);
-    cm.style.transform='translateX(-50%) scale('+(1+Math.min(0.5,killStreak*0.01))+')'; }
+    cm.style.transform='translateX(-50%) scale('+(1+Math.min(window._touchUI?0.15:0.5,killStreak*0.01))+')'; } // B4: on a phone the plaque has ~200px between the buttons — it swells less
   else cm.classList.add('hidden');
   const db=$('debuffs');
   if(db){ if(debuffs.length){
@@ -10486,7 +10558,11 @@ window.addEventListener('keydown',e=>{
     return;
   }
   if(state==='crash'){
-    if(crash&&crash.jk){ if(k==='1'||k==='2'||k==='3'){ e.preventDefault(); pickJackpot(+k-1); } return; }
+    if(crash&&crash.jk){ e.preventDefault(); const n9=(crash.jkOpts||[]).length; // B4: the pick no longer needs a 1/2/3 key — a pad (Ⓐ = SPACE) was locked out of it forever
+      if(k==='1'||k==='2'||k==='3') pickJackpot(+k-1);
+      else if(n9 && !e.repeat && (k==='a'||k==='arrowleft'||k==='d'||k==='arrowright')){ crash.jkSel=((crash.jkSel||0)+((k==='a'||k==='arrowleft')?-1:1)+n9)%n9; jkPaint(); SFX.uiDing&&SFX.uiDing(); }
+      else if(n9 && !e.repeat && (k===' '||k==='enter') && performance.now()-(crash.jkT||0)>450) pickJackpot(crash.jkSel||0);
+      return; }
     e.preventDefault();
     if(k===' '){ if(crash.live){ SFX.press(); pressPulse('crashMsg'); pushCrash(); } else if(!crash.done){ SFX.press(); pressPulse('crashMsg'); launchCrash(); } }
     else if(k==='enter'){ if(crash.live){ SFX.press(); pressPulse('crashMsg'); cashCrash(); } }
@@ -11018,7 +11094,8 @@ function coachMark(id, txt){
     if(typeof achSaveSoon==='function') achSaveSoon();
     let c=document.getElementById('coachToast');
     if(!c){ c=document.createElement('div'); c.id='coachToast'; document.body.appendChild(c);
-      window.addEventListener('keydown',()=>{ if(c.classList.contains('go')&&performance.now()-(c._born||0)>600) c.classList.remove('go'); }); }
+      window.addEventListener('keydown',()=>{ if(c.classList.contains('go')&&performance.now()-(c._born||0)>600) c.classList.remove('go'); });
+      window.addEventListener('pointerdown',()=>{ if(c.classList.contains('go')&&performance.now()-(c._born||0)>600) c.classList.remove('go'); },true); } // B4: a thumb dismisses the tip too
     c.innerHTML='✒ '+txt; c._born=performance.now();
     c.classList.remove('go'); void c.offsetWidth; c.classList.add('go');
     try{ SFX.tingle&&SFX.tingle(); }catch(e){}
@@ -11213,9 +11290,10 @@ function a2Notes(){
   let sr=$('secretReveal'); if(!sr){ sr=document.createElement('div'); sr.id='secretReveal'; sr.className='hidden'; }
   n.appendChild(sr);
   A2L.el=n;
-  try{ new MutationObserver(()=>a2LaneSoon()).observe(n,{subtree:true,childList:true,attributes:true,attributeFilter:['class'],characterData:true}); }catch(e){}
+  try{ new MutationObserver(recs=>{ if(recs.some(r=>!(r.type==='attributes'&&r.target===n))) a2LaneSoon(); }).observe(n,{subtree:true,childList:true,attributes:true,attributeFilter:['class'],characterData:true}); }catch(e){} // B4: a2Lane's own class writes on the column must not re-arm it (it re-laid-out every frame, forever)
   ['slot','gameover','wheelLayer','crashLayer','achToasts'].forEach(id=>{ const e=$(id); if(e) try{ new MutationObserver(()=>a2LaneSoon()).observe(e,{attributes:true,attributeFilter:['class'],childList:id==='achToasts'}); }catch(x){} });
   window.addEventListener('resize',()=>a2LaneSoon());
+  setInterval(()=>{ if(state==='slot'||state==='wheel'||state==='crash'||state==='dead') a2LaneSoon(); },400); // B4: tables settle/scale without a class change — re-park the column a few times a second, not every frame
   return n;
 }
 function a2LaneSoon(){ if(A2L.raf) return; A2L.raf=requestAnimationFrame(()=>{ A2L.raf=0; try{ a2Lane(); }catch(e){} }); }
@@ -11239,7 +11317,7 @@ function a2Lane(){
   const zone={left:8, right:Math.min(W,340), top:H-130-Math.max(60,(at&&at.offsetHeight)||0), bottom:H-120};
   const hitZ=r=>r && r.left<zone.right && r.right>zone.left && r.top<zone.bottom && r.bottom>zone.top;
   const dockAt = dead || (!!m && (parts.length?parts:[m]).some(hitZ));
-  if(modal){ if(co && co.parentNode!==n) n.appendChild(co); }
+  if(modal || document.body.classList.contains('touchUI')){ if(co && co.parentNode!==n) n.appendChild(co); } // B4: on a phone the tip stacks in the column — it used to sit on top of the banner
   else if(co && co.parentNode===n) document.body.appendChild(co);
   if(dockAt){ if(at && at.parentNode!==n) n.appendChild(at); }
   else if(at && at.parentNode===n) ($('wrap')||document.body).insertBefore(at, n);
@@ -11904,6 +11982,7 @@ function b3PadFrame(){
   if(rel(0) && PAD.aDown){ PAD.aDown=false; tcKey('keyup',' '); }
   if(edge(2)){ tcKey('keydown','Enter'); tcKey('keyup','Enter'); }
   if(edge(9)){ tcKey('keydown','Escape'); tcKey('keyup','Escape'); }
+  if(state==='crash' && typeof crash!=='undefined' && crash && crash.jk){ if(edge(14)) tcKey('keydown','ArrowLeft'); if(edge(15)) tcKey('keydown','ArrowRight'); } // B4: the d-pad walks the ascension cards
   if(edge(1) && (state==='slot'||state==='wheel')){ tcKey('keydown','Escape'); tcKey('keyup','Escape'); }
 }
 requestAnimationFrame(b3PadLoop);
@@ -12696,13 +12775,12 @@ function dlyPlaque(){
   const menu=$('menu'), pn=menu&&menu.querySelector('.panel'); if(!pn) return;
   let p=$('dlyPlaque');
   if(!p){ p=document.createElement('div'); p.id='dlyPlaque';
-    const anchor=$('loadoutLine')||$('startBtn');
-    if(anchor&&anchor.parentNode===pn) pn.insertBefore(p, anchor.nextSibling); else pn.appendChild(p);
     p.addEventListener('click',ev=>{ ev.stopPropagation(); dlyPlay(); }); }
+  dlyPlace(p, pn);
   const day=dlyToday(), t=dlyTerms(day), d=DLY.data, rec=d.days[day], st=dlyStreak();
   const played=!!rec;
   const today= !played ? 'UNPAID' : (rec.done ? fmt(rec.t)+(rec.track?' '+rec.track:'') : 'FORFEIT');
-  p.className=played?'paid':'';
+  p.classList.toggle('paid', played);
   p.innerHTML='<div class="dpTop"><b>☀ DAILY DEBT #'+t.n+'</b><span class="dpCd">NEXT DEBT IN <i id="dlyCd">'+dlyClock(dlyLeft())+'</i></span></div>'
     +'<div class="dpName">'+t.name+'</div>'
     +'<div class="dpTerms"><span style="color:'+dlySoulFor(t).col+'">'+dlySoulFor(t).g+' '+dlySoulFor(t).n+'</span> · <span style="color:'+dlyFloorFor(t).col+'">'+dlyFloorFor(t).g+' '+dlyFloorFor(t).n+'</span> · '+dlyModLine(t,true)+'</div>'
@@ -12710,6 +12788,17 @@ function dlyPlaque(){
     +'<button class="btn dpBtn" type="button">'+(played?'☀ PRACTICE THE DEBT':'☀ PAY TODAY\'S DEBT')+'</button>';
   p.dataset.day=day;
 }
+// desktop (A1's two-column menu): the plaque closes the parlor column under OPTIONS; phones: under PLAY TONIGHT
+function dlyPlace(p, pn){
+  const row=$('menuRow2');
+  const side=row && row.parentNode===pn && (typeof matchMedia==='function') && matchMedia('(min-width:900px) and (min-height:600px)').matches;
+  if(side){ if(p.parentNode!==row) row.appendChild(p); p.classList.add('side'); return; }
+  p.classList.remove('side');
+  const anchor=$('loadoutLine')||$('startBtn');
+  if(anchor&&anchor.parentNode===pn){ if(p.previousSibling!==anchor||p.parentNode!==pn) pn.insertBefore(p, anchor.nextSibling); }
+  else if(p.parentNode!==pn) pn.appendChild(p);
+}
+window.addEventListener('resize',()=>{ try{ const p=$('dlyPlaque'), pn=$('menu')&&$('menu').querySelector('.panel'); if(p&&pn) dlyPlace(p,pn); }catch(e){} });
 function dlySoulFor(t){ return SOULS.find(s=>s.id===t.soul)||SOULS[0]; }
 function dlyFloorFor(t){ return FLOORS.find(f=>f.id===t.floor)||FLOORS[0]; }
 function dlyPlay(){

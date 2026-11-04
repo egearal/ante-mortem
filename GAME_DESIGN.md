@@ -442,6 +442,16 @@ the floor); `node probes/b2perf.js` = the endless perf gate; `node probes/b2shot
 - **THE HOUSE BAND** (sfx.js B3 block): contexts menu / run / boss / ascent / house with fallback chains (house→boss→run, ascent→run, boss→run). Two-deck 1.6s crossfades; paused ×0.45, codex ×0.6; dead → silence until the recap is read, then menu. Big SFX duck it (`musicDuck`). Over http(s) tracks route through Web Audio (`musicBus`, works on iOS); from file:// they ride `element.volume`. **No 404s by design**: the build bakes `window.__AM_MUSIC` from `assets/music/` and copies the files beside the page; only LOOK FOR TRACKS (opt-in) probes unknown files. See `assets/music/README.md`.
 - Probes: `npm run pad` (39 checks, fake pad walks menu → Ante Room → DIALS → night → pause → settings → codex → ledger), `npm run music` (13 checks on a served stage with ffmpeg loops), `node probes/dialshots.js` (mouse/keyboard rebinding + phone).
 
+## Persistence keys (as of THE LONG NIGHT, 2026-11-04)
+Never rename or repurpose any of these — players must not lose progress. New features add NEW keys.
+- `am_rank_v1` (House rank/marks), `antemortem_gilt_v1` (gilt), `antemortem_ach_v2` (feats/achievements), `antemortem_gfx_v1` (graphics options), `am_index_v1` (THE INDEX; also soul/floor/contract selection)
+- `am_daily_v1` — DAILY DEBT per-day bests, streak, history (B1)
+- `am_stakes_v1` — STAKES best deck cleared per soul, endless records (B2)
+- `am_dials_v1` — settings: volumes, rebinding, rumble, flash (B3)
+- `am_seats_v1` — soul unlock progress counters + seen-unlock flags (D1)
+- `am_seat_v1` — one-tab lock heartbeat (pre-existing, not progress)
+- `am_probe` — headless harness flag only, never used by real players
+
 ## ⚖ THE BOOK OF DEBTS (E2)
 - **The door** (`#e2BookBtn`, first of the hall's doors; hotkey **B**) opens `#e2Book`: every unlock in the game as nine illuminated chapters — SOULS, FLOORS, STAKES (soul × deck grid), PAIRINGS, MAJOR ARCANA, BOSSES, CONTRACTS (+ the bought contract slots), RANK REWARDS (every 5th rank), DAILY STREAK. Each entry: sealed/paid, the exact condition, live progress.
 - **Nothing is typed twice.** `e2Chapters()` (ui.js E2 block) reads SOULS/`SOUL_PROG`, FLOORS, STAKES/`STK`/`b2Avail`, `PAIRINGS`+`IDX.pr/pm` (C1), `MAJOR_ARCANA`+`ARC_ODDS`+`IDX.t 'MAJOR:'` (D4), BOSS_DEFS+`LT.bossBy`+`IDX.b`, RUN_CONTRACTS, CT_SLOT_COST, RANKS/`rkCum`, `DLY`/`dlyStreak`. Text-only gates (`uTxt` like "5,000 LIFETIME KILLS", "SURVIVE 10:00 (OR CLEAR STAKE 1)") are parsed by `E2_RX` for their target; a new gate phrase needs one regex row there or it shows sealed with 0 / 1. Missing tables (a branch not merged) render as "THE HOUSE HAS NOT YET PRINTED THIS CHAPTER". Rank gates are measured in MARKS. The daily streak rungs mirror daily.js' streak pay (5 gilt × (streak−1), capped at 11 days).

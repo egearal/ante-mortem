@@ -379,9 +379,11 @@ function jackpotOffer(){
           +'<div class="jkD">'+w.fx+'</div></div>'; }).join('')+'</div>';
     w9.classList.add('show');
     w9.querySelectorAll('.jkCard').forEach(c=>c.onclick=()=>pickJackpot(+c.dataset.i));
-    $('crashMsg').innerHTML='PRESS <span class="keyhint">1</span> <span class="keyhint">2</span> <span class="keyhint">3</span> OR CLICK';
+    crash.jkSel=0; crash.jkT=performance.now(); jkPaint(); // B4: card I starts lit — ◀ ▶ walk it, SPACE / Ⓐ takes it
+    $('crashMsg').innerHTML='<span class="keyhint">◀</span> <span class="keyhint">▶</span> CHOOSE · <span class="keyhint">SPACE</span> TAKES · OR <span class="keyhint">1</span> <span class="keyhint">2</span> <span class="keyhint">3</span> · OR CLICK';
   }, 1050);
 }
+function jkPaint(){ const w9=$('jkWrap'); if(!w9||!crash) return; w9.querySelectorAll('.jkCard').forEach((c,i)=>c.classList.toggle('b4sel', i===(crash.jkSel||0))); }
 function pickJackpot(i){
   if(!crash.jk) return; const def=crash.jkOpts[i]; if(!def) return;
   crash.jk=false;

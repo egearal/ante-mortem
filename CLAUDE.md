@@ -15,7 +15,7 @@ Design goal: **maximum dopamine**. Every system should feel like a slot machine 
 1. **FAKE currency only.** Never real money, never real-money framing, ever.
 2. Never change persistent-save keys (`am_rank_v1`, gilt storage key) — players must not lose progress.
 3. The shippable product is always ONE self-contained file: `dist/ante-mortem.html` via `npm run build`.
-4. The code is 13 plain scripts in `src/` sharing global scope, loaded in fixed order. Do NOT convert to ES modules or introduce a state-object refactor without explicit approval.
+4. The code is 14 plain scripts in `src/` sharing global scope, loaded in fixed order (index.html tag order; `daily.js` loads last, after `ui.js`). A new script must be added to index.html in the right place — vite concatenates in tag order. Do NOT convert to ES modules or introduce a state-object refactor without explicit approval.
 5. **Glyph safety:** any new symbol shown in UI must render on all platforms. Stick to widely-supported Unicode (card suits, chess, stars ✦✧✵✷✸✹, ⚔⚡⚙☠, dice ⚀-⚅, common emoji). NO alchemical symbols (🜁🜂), NO rare geometric blocks. Every new item gets a distinct highly-saturated color in GLYPH_COL.
 6. Every new skill/weapon/curse needs: glyph + GLYPH_COL color + description function d(l) with real numbers + (weapons) PROJ_FX short label. Cards must always say exactly what a thing does.
 

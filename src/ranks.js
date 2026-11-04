@@ -975,6 +975,15 @@ function b2LoadoutTag(){
   const s=b2Sel(), st=STAKES[s];
   return ' · <span style="color:'+st.col+'">'+st.g+' '+st.name+'</span> <span class="b2pips">'+b2Pips(b2BestFor(b2SoulId()))+'</span>';
 }
+function b2CardLine(){
+  if(!P) return null;
+  const s=P.stake|0, parts=[];
+  if(s>0) parts.push(STAKES[s].g+' '+STAKES[s].name+' '+'◆'.repeat(s));
+  if(P._endless) parts.push('∞ ENDLESS +'+fmt(Math.max(0,gt-P._endT0)));
+  else if(window._b2won) parts.push('♛ THE NIGHT IS WON');
+  if(!parts.length) return null;
+  return {txt:parts.join('  ·  '), col:s>0?STAKES[s].col:'#d9a8ff'};
+}
 function b2ShareBits(){
   if(!P) return '';
   const s=P.stake|0; let t='';
