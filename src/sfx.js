@@ -322,3 +322,43 @@ setInterval(musicTick,50);
   for(const [k,ms,dp] of DUCKS){ const f=SFX[k]; if(typeof f!=='function') continue;
     SFX[k]=function(){ try{ musicDuck(ms,dp); }catch(e){} return f.apply(SFX,arguments); }; }
   const _dd=duckDrone; duckDrone=function(ms){ try{ musicDuck((ms||1200)+200,0.3); }catch(e){} return _dd(ms); }; }
+/* ==== C2 — THE HIGH ROLLERS: table sounds for the gambling bosses + elite affixes ==== */
+Object.assign(SFX,{
+  hrSting(k){ // each lord walks in on his own music
+    if(k==='croupier'){ for(let i=0;i<14;i++) setTimeout(()=>{ noise(0.025,0.12,3600-i*120); tone(1800-i*60,0.02,'square',0.04); },i*28); // the riffle
+      const mel=[440,523,494,415,440]; let at=480; mel.forEach((f,i)=>{ setTimeout(()=>{ tone(f,i===4?0.8:0.22,'triangle',0.16); tone(f/2,0.2,'sawtooth',0.05); },at); at+=(i===2?300:170); }); // a minor tango
+      [110,110,82,110].forEach((f,i)=>setTimeout(()=>tone(f,0.28,'sine',0.26,f*0.7),480+i*230)); }
+    else if(k==='bookie'){ for(let i=0;i<10;i++) setTimeout(()=>{ tone(2400+Math.random()*600,0.015,'square',0.05); noise(0.012,0.06,5200); },i*45); // ticker tape
+      setTimeout(()=>{ [196,247,294].forEach(f=>tone(f,0.5,'sawtooth',0.09,f*1.02)); tone(98,0.6,'sine',0.24); },500); // brass stab
+      setTimeout(()=>{ [262,330,392,523].forEach(f=>tone(f,0.7,'sawtooth',0.08)); tone(131,0.8,'sine',0.26); },820);
+      setTimeout(()=>{ tone(1568,0.9,'sine',0.18); tone(2093,0.6,'sine',0.08); },1300); } // ...and they're off
+    else if(k==='twins'){ const g=[784,988,1175,1568], b=[740,622,523,370]; // a music box in two minds
+      g.forEach((f,i)=>setTimeout(()=>tone(f,0.5,'sine',0.14),i*180)); b.forEach((f,i)=>setTimeout(()=>tone(f,0.5,'triangle',0.12),90+i*180));
+      setTimeout(()=>{ tone(440,1.2,'sine',0.13); tone(622,1.2,'sine',0.11); tone(55,1.2,'sine',0.24,40); },820);
+      for(let i=0;i<8;i++) setTimeout(()=>tone(2100-i*130,0.03,'square',0.05),900+i*(60+i*14)); }
+  },
+  hrDeal(){ for(let i=0;i<5;i++) setTimeout(()=>{ noise(0.05,0.1,3200); tone(900+i*80,0.04,'triangle',0.06,1400); },i*70); },
+  hrFlipCard(s){ tone(1400,0.03,'square',0.08); noise(0.03,0.08,4200); const f={'♠':330,'♥':523,'♦':1046,'♣':262}[s]||440; setTimeout(()=>tone(f,0.18,'triangle',0.12),40); },
+  hrBlade(){ tone(2600,0.09,'sawtooth',0.06,900); noise(0.06,0.08,6000); },
+  hrDiamond(){ [1568,2093,2637].forEach((f,i)=>setTimeout(()=>tone(f,0.16,'sine',0.13),i*50)); SFX.chipStack(); },
+  hrClub(){ tone(110,0.6,'sine',0.2,70); noise(0.4,0.06,500); },
+  hrPalm(){ tone(523,0.12,'sine',0.14); setTimeout(()=>tone(784,0.2,'sine',0.14),80); },
+  hrFlipStart(){ tone(1200,0.08,'square',0.12,2400); setTimeout(()=>tone(2400,0.3,'sine',0.12,1800),60); },
+  hrCoinTick(p){ tone(1500+p*1400,0.025,'square',0.07); },
+  hrCoinWin(){ tone(2637,0.4,'sine',0.2); tone(3136,0.3,'sine',0.1); SFX.dingBells(); },
+  hrCoinLose(){ tone(220,0.5,'sawtooth',0.18,70); setTimeout(()=>tone(110,0.6,'sawtooth',0.14,50),150); noise(0.3,0.1,500); },
+  hrBoard(){ for(let i=0;i<6;i++) setTimeout(()=>tone(1900+Math.random()*500,0.015,'square',0.06),i*40); setTimeout(()=>{ tone(1568,0.5,'sine',0.18); tone(1976,0.4,'sine',0.1); },260); },
+  hrTick(s){ tone(1200+(4-s)*300,0.06,'square',0.12); tone(60,0.12,'sine',0.2); },
+  hrBell(){ tone(1568,0.9,'sine',0.2); tone(2349,0.6,'sine',0.1); tone(784,0.9,'triangle',0.08); },
+  hrBetWin(o){ const n=o>=10?7:o>=5?5:3; [523,659,784,1047,1319,1568,2093].slice(0,n).forEach((f,i)=>setTimeout(()=>tone(f,0.3,'sine',0.18),i*70)); SFX.chipStack(); },
+  hrBetLose(){ tone(330,0.3,'sawtooth',0.14,180); setTimeout(()=>tone(196,0.5,'sawtooth',0.14,90),180); noise(0.2,0.08,700); },
+  hrSlip(){ noise(0.08,0.08,2600); tone(700,0.05,'triangle',0.06,1100); },
+  hrChalk(){ noise(0.12,0.1,1800); tone(260,0.08,'square',0.05,180); },
+  hrWheelGo(){ tone(300,0.5,'sawtooth',0.08,1200); noise(0.3,0.06,2200); },
+  hrWheelLand(h){ if(h==='gold') [1047,1319,1568].forEach((f,i)=>setTimeout(()=>tone(f,0.3,'sine',0.17),i*60)); else [392,311,262].forEach((f,i)=>setTimeout(()=>tone(f,0.36,'triangle',0.17),i*70)); tone(90,0.3,'sine',0.22,50); },
+  hrBone(){ tone(820,0.05,'square',0.08,520); noise(0.04,0.08,3000); },
+  hrChain(){ for(let i=0;i<3;i++) setTimeout(()=>tone(1100+i*240,0.04,'square',0.08),i*30); noise(0.1,0.08,2400); },
+  hrDieThrow(){ for(let i=0;i<4;i++) setTimeout(()=>{ noise(0.03,0.1,2600); tone(300+Math.random()*300,0.025,'square',0.06); },i*60); },
+  hrDieLand(n){ tone(n<=3?300:180,0.16,'sine',0.18,n<=3?520:90); noise(0.05,0.12,1200); },
+  hrSplit(){ tone(1800,0.06,'sawtooth',0.1,500); noise(0.1,0.12,4200); tone(90,0.2,'sine',0.2,50); }
+});
