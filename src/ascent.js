@@ -35,8 +35,8 @@ function rageAscend(){
   P._ovPass=true; gainXP(0);
 }
 function spawnAscentGate(){
-  const a=Math.random()*6.283, d=260+Math.random()*220;
-  crashTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:30, ph:Math.random()*6.28, blessed:true};
+  const a=rng('ascent')*6.283, d=260+rng('ascent')*220;
+  crashTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:30, ph:rng('ascent')*6.28, blessed:true};
   announce('▲ THE ASCENT HAS MANIFESTED — SEEK THE GATE ▲', true);
   coachMark('ascent','the GREEN GATE stakes your LEVEL — ride the multiplier, cash before the crash');
   SFX.dingBells(); SFX.casinoDing(); ring(crashTok.x,crashTok.y,120,'#8bff9a'); ring(crashTok.x,crashTok.y,70,'#fff2c0');
@@ -101,7 +101,7 @@ function openCrash(){
 // P(cp≥1.77)=75% · P(cp≥2.77)=40% · P(cp≥3.69)=15% · P(cp≥7.77)=4%
 const CP_ANCH=[[1.01,1],[1.77,0.75],[2.77,0.40],[3.69,0.15],[7.77,0.04],[40,0.001]];
 function rollCrashPoint(){
-  const u=Math.random();
+  const u=rng('ascent');
   for(let i=1;i<CP_ANCH.length;i++){ const a=CP_ANCH[i-1], b=CP_ANCH[i];
     if(u>=b[1]) return a[0]*Math.pow(b[0]/a[0],(a[1]-u)/(a[1]-b[1])); }
   return 40;
@@ -192,7 +192,7 @@ function gateFx(x){
 }
 function pushCrash(){
   if(!crash.live) return;
-  const inc=(0.01+Math.random()*0.19)*(1+crash.mult*0.08);
+  const inc=(0.01+rng('ascent')*0.19)*(1+crash.mult*0.08);
   crash.mult+=inc;
   // 7.77 is the ceiling of heaven — touch it and the jackpot claims you
   if(crash.mult>=7.77){
@@ -296,12 +296,12 @@ const ASC_TIERS=[['common',65,0],['rare',20,1.77],['epic',10,2.77],['mythic',5,3
 const RAR_LABEL={common:'COMMON',uncommon:'UNCOMMON',rare:'RARE',epic:'ULTRA RARE',legendary:'LEGENDARY',mythic:'MYTHIC'};
 function rollAscentPrize(m){
   const un=ASC_TIERS.filter(t=>m>=t[2]);
-  let tot=un.reduce((a,t)=>a+t[1],0), r=Math.random()*tot, tier='common';
+  let tot=un.reduce((a,t)=>a+t[1],0), r=rng('ascent')*tot, tier='common';
   for(const t of un){ r-=t[1]; if(r<=0){ tier=t[0]; break; } }
   let pool=PASSIVES.filter(p=>tier==='epic' ? (p.rar==='epic'||p.rar==='legendary') : tier==='common' ? (p.rar==='common'||p.rar==='uncommon') : p.rar===tier);
   if(tier==='mythic'){ pool=pool.filter(p=>!P.passiveList.find(x=>x.id===p.id)); if(!pool.length){ tier='epic'; pool=PASSIVES.filter(p=>p.rar==='epic'||p.rar==='legendary'); } }
   if(!pool.length) pool=PASSIVES.filter(p=>p.rar==='common'||p.rar==='uncommon');
-  const pd=pool[(Math.random()*pool.length)|0];
+  const pd=pool[(rng('ascent')*pool.length)|0];
   if(pd.sc) pd.sc(m); else pd.ap();
   if(pd.u) owned.add(pd.id);
   addPassiveHUD(pd); renderRelics();
@@ -315,8 +315,8 @@ function rollAscentPrize(m){
   }, 500);
 }
 function theFall(){
-  const d=DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0];
-  const dur=Math.round(5+Math.random()*10); // 5-15s, a different curse every fall
+  const d=DEBUFF_POOL[(rng('ascent')*DEBUFF_POOL.length)|0];
+  const dur=Math.round(5+rng('ascent')*10); // 5-15s, a different curse every fall
   const lbl=applyDebuff({label:d.label, dur:dur, dot:d.dot, ap:d.ap});
   flash(0.6,'#8b1620'); SFX.bust(); SFX.thud(); shake=Math.min(20,shake+10);
   setTimeout(()=>announce('☄ THE FALL — '+lbl+' ☄', false), 400);
@@ -328,7 +328,7 @@ function prerollAsc(){
   crash.prz={};
   for(let t=1;t<=3;t++){
     const pool=PASSIVES.filter(p=>ASC_POOLS[t].includes(p.id) && !P.passiveList.find(x=>x.id===p.id));
-    crash.prz[t]=pool.length?pool[(Math.random()*pool.length)|0]:null;
+    crash.prz[t]=pool.length?pool[(rng('ascent')*pool.length)|0]:null;
   }
 }
 function przLabel(t){ const p=crash.prz&&crash.prz[t]; return p?(p.n+' ('+p.fx+')'):'+'+(60*t)+' COINS'; }
@@ -338,7 +338,7 @@ function grantAscPassive(m){
   let pool=PASSIVES.filter(p=>pools[t].includes(p.id) && !P.passiveList.find(x=>x.id===p.id));
   if(!pool.length && t<3) pool=PASSIVES.filter(p=>pools[t+1].includes(p.id) && !P.passiveList.find(x=>x.id===p.id));
   if(!pool.length){ const g=Math.round(60*m); P.coins+=g; LT.coins+=g; coinRain(20); announce('◈ ALL PASSIVES HELD — +'+g+' COINS ◈',true); return null; }
-  const pd=pool[(Math.random()*pool.length)|0];
+  const pd=pool[(rng('ascent')*pool.length)|0];
   pd.ap(); addPassiveHUD(pd); renderRelics();
   return pd;
 }
@@ -351,7 +351,7 @@ function jackpotOffer(){
   const opts=[];
   let pool=PASSIVES.filter(p=>p.rar==='ascend' && skillLevel(p.id)===0);
   if(pool.length<3){ const up=PASSIVES.filter(p=>p.rar==='ascend' && skillLevel(p.id)>0 && skillLevel(p.id)<p.max && pool.indexOf(p)<0); pool=pool.concat(up); }
-  for(let i=0;i<3 && pool.length;i++){ const pk=pool[(Math.random()*pool.length)|0]; opts.push(pk); pool=pool.filter(w=>w!==pk); }
+  for(let i=0;i<3 && pool.length;i++){ const pk=pool[(rng('ascent')*pool.length)|0]; opts.push(pk); pool=pool.filter(w=>w!==pk); }
   crash.jkOpts=opts;
   if(!opts.length){ P.coins+=500; LT.coins+=500; announce('◈ ALL ASCENSIONS HELD — 500 COINS ◈',true); setTimeout(closeCrash,1600); return; }
   // PHASE A — the letters: drumroll under J·A·C·K·P·O·T slamming in one by one
@@ -434,9 +434,9 @@ function closeCrash(){ crash.jk=false; { const w9=$('jkWrap'); if(w9){ w9.classL
 function tickCrashTok(dt){
   if(houseActive) return;
   if(!crashTok){ crashTokT-=dt;
-    if(crashTokT<=0){ crashTokT=68+Math.random()*24-12; // pity window: 56-80s
-      const a=Math.random()*6.283, d=300+Math.random()*300;
-      crashTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:20, ph:Math.random()*6.28};
+    if(crashTokT<=0){ crashTokT=68+rng('ascent')*24-12; // pity window: 56-80s
+      const a=rng('ascent')*6.283, d=300+rng('ascent')*300;
+      crashTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:20, ph:rng('ascent')*6.28};
       announce('▲ THE ASCENT BECKONS ▲', true); SFX.dingBells();
       coachMark('ascent','the GREEN GATE stakes your LEVEL — ride the multiplier, cash before the crash');
       [988,1318,1760].forEach((f,i)=>setTimeout(()=>tone(f,0.14,'sine',0.08),i*110)); // come-play beckon

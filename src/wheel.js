@@ -10,7 +10,7 @@ const WSEGS=[
  {n:'60 COINS', g:'◈', cs:'blue', c:'#c8860a', tier:1, w:46, f:(m)=>{ const g2=60*m; P.coins+=g2; LT.coins+=g2; coinRain(14*m); SFX.cashout(); announce('◈ +'+g2+' COINS ◈',true); }},
  {n:'HEAL 33%', g:'✚', cs:'blue', c:'#0e8a4a', tier:1, w:36, f:(m)=>{ if(P.drought){ const g5=40*m; P.coins+=g5; LT.coins+=g5; SFX.cashout(); announce('✕ THE DROUGHT — +'+g5+' COINS INSTEAD ✕',true); return; } const hl=Math.round(P.maxHp*0.33*m); P.hp=Math.min(P.maxHp,P.hp+hl); flash(0.4,'#8bff9a'); SFX.dingBells(); announce('✚ +'+hl+' BLOOD ✚',true); }},
  {n:'↻ FREE SPIN', g:'↻', cs:'blue', c:'#ff5fa2', tier:1, w:32, f:null},
- {n:'CURSE', g:'☠', cs:'blue', c:'#640a16', tier:0, w:26, f:()=>{ const dl=applyDebuff(DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0]); SFX.bust(); flash(0.45,'#8b1620'); announce('☠ '+dl+' ☠',false); }},
+ {n:'CURSE', g:'☠', cs:'blue', c:'#640a16', tier:0, w:26, f:()=>{ const dl=applyDebuff(DEBUFF_POOL[(rng('wheel')*DEBUFF_POOL.length)|0]); SFX.bust(); flash(0.45,'#8b1620'); announce('☠ '+dl+' ☠',false); }},
  // ── RESTRICTED PURPLE (40/200 = 20%)
  {n:'90 COINS', g:'◈', cs:'purple', c:'#e8a112', tier:2, w:12, f:(m)=>{ const g2=90*m; P.coins+=g2; LT.coins+=g2; coinRain(24); SFX.cashout(); SFX.dingBells(); announce('◈ +'+g2+' COINS ◈',true); }},
  {n:'GILT +35', g:'◆', cs:'purple', c:'#96700e', tier:2, w:10, f:(m)=>{ const g3=35*m; gilt+=g3; saveGilt(); SFX.chipStack(); SFX.casinoDing(); try{ ftext(P.x,P.y-40,'+'+g3+' ◈ GILT','#fff2c0',true); }catch(e){} announce('◈ +'+g3+' GILT BANKED ◈',true); }},
@@ -21,8 +21,8 @@ const WSEGS=[
  {n:'⚔ ARSENAL', g:'⚔', cs:'pink', c:'#c22ca0', tier:3, w:4, f:()=>{ slotForceWeapon=true; pending.push({}); SFX.levelUp(); announce('⚔ THE ARSENAL WHEEL AWAITS ⚔',true); }},
  {n:'⚔ SIDE ARM', g:'⚔', cs:'pink', c:'#2a9db8', tier:3, w:4, f:()=>{
    const fresh=availableWeapons().filter(w=>!(P.wlv[w.id]>0) && (w.rar==='common'||w.rar==='uncommon'));
-   let def=fresh.length?pick(fresh):null;
-   if(!def){ const grown=WEAPONS.filter(w=>(P.wlv[w.id]||0)>0 && (P.wlv[w.id]||0)<w.max); def=grown.length?pick(grown):null; }
+   let def=fresh.length?rpick('wheel',fresh):null;
+   if(!def){ const grown=WEAPONS.filter(w=>(P.wlv[w.id]||0)>0 && (P.wlv[w.id]||0)<w.max); def=grown.length?rpick('wheel',grown):null; }
    if(def){ grantWeaponLevels(def,1); flash(0.35,'#2a9db8'); }
    else { P.coins+=45; LT.coins+=45; coinRain(14); SFX.cashout(); announce('⚔ ARSENAL FULL — +45 COINS ⚔',true); }
  }},
@@ -32,7 +32,7 @@ const WSEGS=[
  // ── GOLD (2/200 = 1%) — the knife
  {n:'★ THE HOUSE BLADE', g:'★', cs:'gold', c:'#e4ae39', tier:4, w:2, f:()=>{
    const myth=PASSIVES.filter(p=>p.rar==='mythic' && !owned.has(p.id));
-   const pd=myth.length?pick(myth):PASSIVES.find(p=>p.id==='allin');
+   const pd=myth.length?rpick('wheel',myth):PASSIVES.find(p=>p.id==='allin');
    grantSkill(pd,1);
    gilt+=60; saveGilt(); coinRain(40);
    setTimeout(()=>announce('★ THE HOUSE BLADE — '+pd.n.toUpperCase()+' ★',true), 500);
@@ -63,7 +63,7 @@ const CHAIN_SETS=[
 function buildChains(){
   const seal=$('wheelSeal'); if(!seal) return;
   seal.querySelectorAll('.wsChain').forEach(c=>c.remove());
-  const set=CHAIN_SETS[(Math.random()*CHAIN_SETS.length)|0];
+  const set=CHAIN_SETS[(rng('wheel')*CHAIN_SETS.length)|0];
   wheel.chains=set.length; wheel._chainN=set.length; wheel.chainEls=[];
   set.forEach(cd=>{ const c=document.createElement('div'); c.className='wsChain';
     c.style.top=cd.t+'%'; c.style.transform='rotate('+cd.r+'deg)';
@@ -103,7 +103,7 @@ function unsealWheel(){
 function buildTickerStrip(){
   // the exact 200-card CS bag (weights sum to 200), shuffled with no adjacent twins
   const bag=[]; WSEGS.forEach((sg,i)=>{ const w=sg.w||5; for(let k=0;k<w;k++) bag.push(i); });
-  for(let i=bag.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; [bag[i],bag[j]]=[bag[j],bag[i]]; }
+  for(let i=bag.length-1;i>0;i--){ const j=(rng('wheel')*(i+1))|0; [bag[i],bag[j]]=[bag[j],bag[i]]; }
   for(let i=1;i<bag.length;i++){ if(bag[i]===bag[i-1]) { const j=(i+7)%bag.length; [bag[i],bag[j]]=[bag[j],bag[i]]; } }
   const strip=bag.slice();
   wheel.strip=strip;
@@ -120,7 +120,7 @@ function openWheel(){
   coachMark('wheel','SPACE snaps the chains — CONTRABAND is the finest shelf');
   buildWheelDom(); state='wheel';
   wheel={x:0, phase:'sealed', mult:1, lastSeg:-1, done:false, windT:0, setT:0, toAscent:false,
-    golden:Math.random()<(0.05+(P.goldenBoost||0)), windK:0, slowTicks:0, hbT:0, strip:[], tIdx:0, jit:0, rigSeg:(wheel&&wheel.rigSeg)||null};
+    golden:rng('wheel')<(0.05+(P.goldenBoost||0)), windK:0, slowTicks:0, hbT:0, strip:[], tIdx:0, jit:0, rigSeg:(wheel&&wheel.rigSeg)||null};
   wheel.cost=Math.ceil((P.coins||0)*0.25);
   buildTickerStrip();
   $('wheelMult').classList.add('hidden');
@@ -149,7 +149,7 @@ function launchWheel(){
 }
 function startRoll(){
   const box=$('tickerBox'); wheel.boxW=box.clientWidth||wheel.boxW||660;
-  let tIdx=120+((Math.random()*40)|0);
+  let tIdx=120+((rng('wheel')*40)|0);
   if(wheel.rigSeg){ let k=110; while(k<wheel.strip.length && WSEGS[wheel.strip[k]].n!==wheel.rigSeg) k++;
     if(k<wheel.strip.length) tIdx=k; else { let k2=8; while(k2<wheel.strip.length && WSEGS[wheel.strip[k2]].n!==wheel.rigSeg) k2++; if(k2<wheel.strip.length) tIdx=k2; }
     wheel.rigSeg=null; }
@@ -157,12 +157,12 @@ function startRoll(){
   if(WSEGS[wheel.strip[tIdx]].n==='CURSE' && typeof contractDone==='function' && contractDone('thefix')){
     tIdx++; setTimeout(()=>announce('♠ THE FIX IS IN — THE CURSE NEVER HOLDS ♠',true), 900); }
   wheel.tIdx=tIdx;
-  let jit=(Math.random()*0.68-0.34)*TK_STEP;
-  if(Math.abs(jit)<0.22*TK_STEP && Math.random()<0.6) jit=(jit<0?-1:1)*(0.26+Math.random()*0.08)*TK_STEP; // bias toward visible hangs
+  let jit=(rng('wheel')*0.68-0.34)*TK_STEP;
+  if(Math.abs(jit)<0.22*TK_STEP && rng('wheel')<0.6) jit=(jit<0?-1:1)*(0.26+rng('wheel')*0.08)*TK_STEP; // bias toward visible hangs
   wheel.jit=jit;
   wheel.xClean=-(tkCenter(tIdx)-wheel.boxW/2);
   wheel.rx0=wheel.x; wheel.rx1=wheel.xClean-jit;
-  wheel.rollT=0; wheel.rollDur=3.9+Math.random()*0.6; wheel.slowTicks=0; wheel.hbT=0; wheel.lastSeg=-1;
+  wheel.rollT=0; wheel.rollDur=3.9+rng('wheel')*0.6; wheel.slowTicks=0; wheel.hbT=0; wheel.lastSeg=-1;
   wheel.phase='roll';
   startWhirr();
   SFX.riser(); noise(0.3,0.22,2600); tone(150,0.5,'sawtooth',0.1,900);
@@ -315,9 +315,9 @@ function landWheel(seg){
 function tickWheelTok(dt){
   if(houseActive) return; // no cases on the House's floor
   if(!wheelTok){ wheelTokT-=dt;
-    if(wheelTokT<=0){ wheelTokT=(50+Math.random()*20-10)*(1-(P.wheelHaste||0)); // pity window: 40-60s, droughts impossible
-      const a=Math.random()*6.283, d=280+Math.random()*320;
-      wheelTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:20, ph:Math.random()*6.28};
+    if(wheelTokT<=0){ wheelTokT=(50+rng('wheel')*20-10)*(1-(P.wheelHaste||0)); // pity window: 40-60s, droughts impossible
+      const a=rng('wheel')*6.283, d=280+rng('wheel')*320;
+      wheelTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:20, ph:rng('wheel')*6.28};
       announce('☸ THE WHEEL OF SOULS MANIFESTS ☸', true); SFX.dingBells();
       [1046,1318,1568].forEach((f,i)=>setTimeout(()=>tone(f,0.14,'sine',0.08),i*110)); // come-play beckon
       ring(wheelTok.x,wheelTok.y,90,'#c98bff'); ring(wheelTok.x,wheelTok.y,54,'#ffd36b'); }

@@ -1438,3 +1438,49 @@ button[id$="Close"]:active{transform:translateY(1px);}
 @media (max-width:600px){ #a3Share{right:calc(40px + env(safe-area-inset-right,0px));top:calc(10px + env(safe-area-inset-top,0px));}
   #a3Share .a3ShareBtn{font-size:10.5px;padding:8px 11px;letter-spacing:.14em;} }
 @media (prefers-reduced-motion: reduce){ #a3Share .a3ShareOut.go .a3ShareSheet,#a3Share .a3ShareBtn{animation:none;} }
+
+/* ==== B1 ==== DAILY DEBT — the menu plaque + the ledger band */
+#dlyPlaque{position:relative;margin:12px auto 4px;max-width:520px;padding:10px 14px 10px;cursor:pointer;text-align:center;
+  background:linear-gradient(180deg,rgba(42,15,22,.92),rgba(16,6,9,.94));border:1px solid rgba(232,182,76,.55);border-radius:6px;
+  box-shadow:inset 0 0 0 3px rgba(10,4,7,.8),inset 0 0 0 4px rgba(232,182,76,.22),0 6px 22px rgba(0,0,0,.55),0 0 18px rgba(255,211,107,.10);
+  font-family:var(--disp);transition:transform .15s,box-shadow .2s;animation:dlyGlow 3.2s ease-in-out infinite;}
+#dlyPlaque:hover{transform:translateY(-1px);box-shadow:inset 0 0 0 3px rgba(10,4,7,.8),inset 0 0 0 4px rgba(232,182,76,.4),0 8px 26px rgba(0,0,0,.6),0 0 26px rgba(255,211,107,.24);}
+#dlyPlaque.paid{animation:none;border-color:rgba(201,139,255,.45);}
+#dlyPlaque.fresh{animation:dlyFresh 1.2s ease-out 3;}
+#dlyPlaque .dpTop{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:11px;letter-spacing:.22em;color:#e8b64c;}
+#dlyPlaque .dpTop b{color:#ffd36b;text-shadow:0 0 10px rgba(255,211,107,.45);font-weight:700;}
+#dlyPlaque .dpCd{font-size:9.5px;letter-spacing:.16em;color:#9c8f7c;white-space:nowrap;}
+#dlyPlaque .dpCd i{font-style:normal;color:#fff2c0;font-variant-numeric:tabular-nums;}
+#dlyPlaque .dpName{margin:5px 0 3px;font-size:15px;letter-spacing:.14em;color:#fff2c0;text-shadow:0 0 12px rgba(255,211,107,.25);}
+#dlyPlaque .dpTerms{font-family:var(--body);font-size:13px;font-style:italic;color:#c9b78e;line-height:1.35;}
+#dlyPlaque .dpFoot{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:6px;font-size:9.5px;letter-spacing:.18em;color:#9c8f7c;}
+#dlyPlaque .dpFoot b{color:#e6d9c2;font-weight:600;letter-spacing:.06em;}
+#dlyPlaque .dpBtn{margin:8px auto 0;padding:7px 18px;font-size:11.5px;letter-spacing:.2em;}
+#dlyPlaque.paid .dpBtn{opacity:.8;}
+@keyframes dlyGlow{0%,100%{box-shadow:inset 0 0 0 3px rgba(10,4,7,.8),inset 0 0 0 4px rgba(232,182,76,.22),0 6px 22px rgba(0,0,0,.55),0 0 14px rgba(255,211,107,.08);}
+  50%{box-shadow:inset 0 0 0 3px rgba(10,4,7,.8),inset 0 0 0 4px rgba(232,182,76,.36),0 6px 22px rgba(0,0,0,.55),0 0 26px rgba(255,211,107,.22);}}
+@keyframes dlyFresh{0%{filter:brightness(2.2);}100%{filter:none;}}
+#dlyBand{margin:0 auto 10px;max-width:560px;padding:8px 12px;text-align:center;font-family:var(--disp);
+  background:linear-gradient(180deg,rgba(10,4,7,.88),rgba(42,15,22,.75));border:1px solid rgba(232,182,76,.6);border-radius:5px;
+  box-shadow:inset 0 0 0 3px rgba(10,4,7,.7),inset 0 0 0 4px rgba(232,182,76,.2);}
+#dlyBand.practice{border-color:rgba(201,139,255,.55);}
+#dlyBand.go{animation:dlyBandIn .5s var(--ease-pop) both;}
+#dlyBand .dbTop{font-size:11px;letter-spacing:.24em;color:#e8b64c;}
+#dlyBand .dbTop b{margin-left:8px;padding:1px 7px;border:1px solid currentColor;border-radius:3px;color:#8bffd0;font-size:10px;}
+#dlyBand.practice .dbTop b{color:#c98bff;}
+#dlyBand .dbName{margin:3px 0 2px;font-size:14px;letter-spacing:.14em;color:#fff2c0;}
+#dlyBand .dbTerms{font-family:var(--body);font-style:italic;font-size:12.5px;color:#c9b78e;}
+#dlyBand .dbTrack{margin:6px 0 4px;font-size:22px;letter-spacing:.18em;line-height:1;}
+#dlyBand .dbTrack i{font-style:normal;text-shadow:0 0 8px currentColor;}
+#dlyBand .dbFoot{font-size:10px;letter-spacing:.18em;color:#9c8f7c;}
+#dlyBand .dbFoot b{color:#e6d9c2;letter-spacing:.06em;}
+#dlyBand .dbPay{margin-top:4px;font-size:12px;letter-spacing:.16em;color:#ffd36b;text-shadow:0 0 10px rgba(255,211,107,.4);}
+#dlyBand .dbPay span{font-size:9.5px;color:#9c8f7c;text-shadow:none;letter-spacing:.1em;}
+#dlyBand .dbPay.prac{color:#c98bff;font-size:10px;text-shadow:none;}
+#dlyBand .dbPb{margin-top:4px;font-size:13px;letter-spacing:.26em;color:#8bffd0;opacity:0;}
+#dlyBand .dbPb.go{animation:dlyPb 1.4s var(--ease-pop) both;}
+@keyframes dlyBandIn{from{opacity:0;transform:translateY(-8px) scale(.96);}to{opacity:1;transform:none;}}
+@keyframes dlyPb{0%{opacity:0;transform:scale(.6);}40%{opacity:1;transform:scale(1.25);text-shadow:0 0 24px #8bffd0;}100%{opacity:1;transform:none;text-shadow:0 0 10px rgba(139,255,208,.6);}}
+@media (max-width:600px){ #dlyPlaque{margin:8px auto 2px;padding:8px 10px;} #dlyPlaque .dpName{font-size:13px;} #dlyPlaque .dpTerms{font-size:12px;}
+  #dlyPlaque .dpTop{font-size:10px;letter-spacing:.14em;} #dlyBand .dbTrack{font-size:18px;} }
+@media (prefers-reduced-motion: reduce){ #dlyPlaque,#dlyBand.go,#dlyBand .dbPb.go{animation:none;} #dlyBand .dbPb{opacity:1;} }

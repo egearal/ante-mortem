@@ -474,7 +474,7 @@ window.addEventListener('keydown',e=>{
       const mk=markerRef;
       if(mk.p<mk.max){
         mk.presses++;
-        mk.p=Math.min(mk.max, mk.p+0.0025+Math.random()*0.005); // +0.25–0.75% a press — every decimal earned
+        mk.p=Math.min(mk.max, mk.p+0.0025+rng('fate')*0.005); // +0.25–0.75% a press — every decimal earned
         if(mk.p>=mk.max) secret('pressmax','THE CEILING');
         SFX.press();
         pressFx(mk);
@@ -584,7 +584,7 @@ const FLOORS=[
  {id:'chapel', n:'THE CHAPEL', g:'☨', col:'#fff2c0', d:'Where the House prays to itself. Everything runs 10% faster. XP +10%, tarot twice as often.',
    u:()=>(LT.houseMet||0)>=3, uTxt:'MEET THE HOUSE 3 TIMES', mods:{spd:1.1, xp:1.1, tarot:2, tint:'chapel'}}
 ];
-function curFloor(){ const f=FLOORS.find(x=>x.id===(IDX.fl||'pit')); return (f&&f.u())?f:FLOORS[0]; }
+function curFloor(){ if(DLY_RNG && typeof dlyFloor==='function') return dlyFloor(); const f=FLOORS.find(x=>x.id===(IDX.fl||'pit')); return (f&&f.u())?f:FLOORS[0]; }
 /* THE CONTRACTS — sign up to two; each pays ×1.25 marks & gilt at the ledger */
 const RUN_CONTRACTS=[
  {id:'glass',    g:'♡', n:'GLASS SOUL',     d:'Max blood halved. Every touch is a sentence.', u:()=>RANK.rank>=15, uTxt:'HOUSE RANK 15', ap:()=>{ P.maxHp=Math.max(20,Math.round(P.maxHp*0.5)); P.hp=P.maxHp; }},
@@ -613,7 +613,7 @@ const SOULS=[
  {id:'yolk',   n:'THE YOLK',   g:'◌', col:'#fff2c0', d:'Hatched too early. Tiny, quick, 60 blood — wide pockets, and the reels lean toward pairs for it.',
    pips:'♥ · 👢👢👢👢👢 · 🎲🎲🎲🎲', u:()=>SEC.has('theegg'), uTxt:'FIND THE EGG', ap:()=>{ P.wlv={razor:1}; P.radius*=0.7; P.speed*=1.2; P.maxHp=60; P.hp=60; P.pickup+=24; P.yolkFate=true; }}
 ];
-function curSoul(){ const s=SOULS.find(x=>x.id===(IDX.sl||'vesper')); return (s&&s.u())?s:SOULS[0]; }
+function curSoul(){ if(DLY_RNG && typeof dlySoul==='function') return dlySoul(); const s=SOULS.find(x=>x.id===(IDX.sl||'vesper')); return (s&&s.u())?s:SOULS[0]; }
 // INDULGENCES — gilt buys the night a head start. Consumed when the run begins.
 const INDULGENCES=[
  {id:'coffee', g:'☕', n:"DEALER'S COFFEE", cost:60,  d:'Your first slot of the night deals HOT — red-tier odds.'},
