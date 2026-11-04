@@ -2169,7 +2169,7 @@ body.b3calm .jackpotText,body.b3calm #jkMarq span,body.b3calm h1{animation-durat
 .relic.c1evo .c1g{font-size:22px;line-height:1;}
 .relic.c1evo .c1pip{color:#ffd36b;letter-spacing:0;}
 @keyframes c1Relic{0%,100%{filter:brightness(1);}50%{filter:brightness(1.35);}}
-.c1grid .idxTile.c1tile{flex-direction:column;align-items:flex-start;gap:2px;min-width:150px;max-width:220px;padding:6px 10px;}
+.c1grid .idxTile.c1tile{flex-direction:column;align-items:flex-start;gap:2px;width:178px;box-sizing:border-box;padding:6px 10px;}
 .c1tile .c1tn{font-size:11.5px;letter-spacing:.08em;}
 .c1tile .c1rec{font-size:10px;letter-spacing:.03em;color:#a89a80;line-height:1.3;}
 .c1tile .c1rec i{font-style:normal;}

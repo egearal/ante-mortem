@@ -107,7 +107,7 @@ Ten specific feats seal small PERMANENT bonuses (ACH_PERKS in ranks.js, keyed by
 **Recipe law:** a weapon at MAX + its one paired skill at ANY level → the NEXT slot visit opens **THE PAIRING** before the normal pull (the pull is not consumed — the pairing is a bonus layered in front of it). `readyPairing()` (weapons.js) decides; the `openNextSlot` wrapper (slot.js C1 block) hijacks the visit. One pairing per visit; several ready → one per level-up, in PAIRINGS order.
 | Evolved | Weapon (max) | + Skill | Signature |
 |---|---|---|---|
-| 💀 THE OSSUARY | ♠ Bone Bolt (6) | ❖ Extra Ante | skull every 0.75s 400% → 12 splinters 130% → 3 shards 70% each. Rides ON TOP of the bolt (bolt is never replaced) |
+| 💀 THE OSSUARY | ♠ Bone Bolt (6) | ❖ Extra Ante | skull every 0.75s 400% → 12 splinters 130% → 3 shards 70% each. Rides ON TOP of the bolt (bolt is never replaced) and adds +1 bolt per volley |
 | 🃏 THE STACKED DECK | ♣ Dealer's Hand | ⚁ Snake Eyes | 13-card curling pinwheel / 1.3s, all crits 110%, pierce 3; one ACE 330%×crit, infinite pierce, 90px detonation |
 | ✶ THE THOUSAND CUTS | ※ Fan of Knives | ♗ Swift Hands | 2 counter-rotating spigots, 22 knives/s, 140%, pierce 2 |
 | 👁 THE EYE IN THE SKY | 🏮 Dead Lantern | ◎ Deep Pockets | rotating 380px searchlight 700%/s, vacuums coins+souls; photo-flash 800% 110px every 3s |

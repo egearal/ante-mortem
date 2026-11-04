@@ -1017,7 +1017,7 @@ function openPairing(pr){
   $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> skip the ceremony';
   ensurePayTable();
   { const pt=$('payTable'); if(pt){ pt.classList.remove('red'); pt.classList.add('c1pt');
-    pt.innerHTML='<div class="ptHead">♛ THE PAIRING ♛</div>'
+    pt.innerHTML='<div class="ptHead">♛ PAIRING ♛</div>'
       +'<div class="ptRow c1r" style="--pc:'+pairCol(W.id)+'"><span class="ptN">'+W.g+' '+W.n+'</span><span class="ptPips">MAX</span></div>'
       +'<div class="c1plus">+</div>'
       +'<div class="ptRow c1r" style="--pc:'+pairCol(Pd.id)+'"><span class="ptN">'+Pd.g+' '+Pd.n+'</span><span class="ptPips">LV '+skillLevel(Pd.id)+'</span></div>'
@@ -1056,7 +1056,7 @@ function openPairing(pr){
     $('gambleMsg').innerHTML='<span style="color:#ffd36b">◈ THE PARENTS MEET ◈</span>'; }, 200+2220);
   pairT(pairFuse, 200+2500);
   pairT(pairBorn, 200+3100);
-  pairT(pairOffer, 200+3600);
+  pairT(pairOffer, 200+5500); // the name slam (bigWin t4) holds ~2.6s — the card waits for it
 }
 function pairFuse(){ if(pairPhase>=4) return; pairPhase=4; const rr=$('reelsRow'); if(!rr) return;
   const rb=rr.getBoundingClientRect(), mid=$('reelBox1').getBoundingClientRect();
@@ -1086,6 +1086,7 @@ function pairBorn(){ if(pairPhase>=5) return; pairPhase=5; const pr=pairCur; if(
   setTimeout(()=>{ if(slotStage!=='pairing'&&slotStage!=='pairoffer') return; coinRain(lite?8:18); sparkBurst(lite?10:26); }, 900);
 }
 function pairOffer(){ const pr=pairCur; if(!pr) return; if(pairPhase<5) pairBorn(); pairPhase=6;
+  { const jl=$('jackpotLayer'); if(jl) jl.classList.add('hidden'); }
   const W=WEAPONS.find(w=>w.id===pr.w), Pd=PASSIVES.find(p=>p.id===pr.p);
   slotStage='pairoffer';
   $('prizeTag').textContent='♛ THE PAIRING ♛';
@@ -1099,11 +1100,12 @@ function pairOffer(){ const pr=pairCur; if(!pr) return; if(pairPhase<5) pairBorn
 function pairFF(){ // SPACE during the ceremony: land everything now, keep the climax
   if(slotStage!=='pairing') return;
   pairTimers.forEach(clearTimeout); pairTimers=[];
+  if(pairPhase>=5){ pairOffer(); return; } // a second SPACE after the birth goes straight to the card
   [0,1,2].forEach(i=>{ const el=$('strip'+i); const s=el.children[17]; el.classList.remove('blur'); el.style.transition='none';
     const H=(s&&s.offsetHeight)||63, B=(el.parentElement&&el.parentElement.clientHeight)||189; el.style.transform='translateY('+(B/2-H*17.5)+'px)';
     const bx=el.parentElement; if(bx){ bx.classList.remove('a2creep'); bx.classList.add('c1lock'); } });
   if(pairPhase<5){ SFX.c1Lock(3); pairBorn(); }
-  pairT(pairOffer, 380);
+  pairT(pairOffer, 1300);
 }
 function claimPairing(){
   if(slotStage!=='pairoffer'||!pairCur) return;

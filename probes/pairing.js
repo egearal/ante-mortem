@@ -73,18 +73,19 @@ async function dps(page, secs) {
       const base = await dps(page, 15);
       const perfBase = await arena(page);
       // queue a level-up; the pairing must take the pull
-      await page.evaluate(() => { window.__hold = false; window.__bot.noSlotTap = true; pending.push({}); if (state === 'playing') openNextSlot(); });
+      await until(page, `state==='playing'`, 20000);
+      await page.evaluate(() => { window.__hold = false; window.__bot.noSlotTap = true; pending.length = 0; pending.push({}); if (state === 'playing') openNextSlot(); });
       const opened = await page.evaluate(() => ({ state, stage: slotStage, tag: (document.getElementById('slotTag') || {}).textContent }));
       if (SHOTS) { const dir = path.join(__dirname, '..', 'shots', SHOTS); fs.mkdirSync(dir, { recursive: true }); }
       const shot = async (n) => { if (!SHOTS) return; await page.screenshot({ path: path.join(__dirname, '..', 'shots', SHOTS, id + '_' + n + '.jpg'), type: 'jpeg', quality: 82 }); };
       // the ceremony runs on its own clock: real-time step so CSS transitions keep pace
       const tl = [];
-      for (let ms = 0; ms < 4400; ms += 100) {
+      for (let ms = 0; ms < 7000; ms += 100) {
         await page.evaluate(() => { for (let i = 0; i < 6; i++) window.__vc.step(16.7); });
         await page.waitForTimeout(100);
         const st = await page.evaluate(() => slotStage);
         if (!tl.length || tl[tl.length - 1][1] !== st) tl.push([ms, st]);
-        if (SHOTS && (ms === 1100 || ms === 2900 || ms === 3400)) await shot('cer' + ms);
+        if (SHOTS && (ms === 1100 || ms === 2900 || ms === 3700)) await shot('cer' + ms);
         if (st === 'pairoffer') { await page.waitForTimeout(400); await shot('offer'); break; }
       }
       const offer = await page.evaluate(() => ({ stage: slotStage, name: document.getElementById('cardName').textContent, desc: document.getElementById('cardDesc').textContent.slice(0, 160) }));

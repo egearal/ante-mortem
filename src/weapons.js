@@ -232,7 +232,7 @@ function grantWeaponLevels(def, levels){
    in update() and drawn by one hook in render(). */
 const PAIRINGS=[
   {id:'ossuary', w:'bolt',     p:'proj',   n:'THE OSSUARY',        g:'💀', hint:'The bones want more mouths to fire from…',
-    d:l=>'Your bone bolts keep flying, and every 0.75s a skull bursts from your chest: it hits for 400% damage, splits into 12 bone splinters (130%), and each splinter shatters again into 3 shards (70%).'},
+    d:l=>'Your bone bolts keep flying (+1 shard per volley), and every 0.75s a skull bursts from your chest: it hits for 400% damage, splits into 12 bone splinters (130%), and each splinter shatters again into 3 shards (70%).'},
   {id:'stacked', w:'cards',    p:'snake',  n:'THE STACKED DECK',   g:'🃏', hint:'A dealer who never loses would need loaded eyes…',
     d:l=>'Every 1.3s the House deals a full 13-card pinwheel around you — every card is a CRITICAL hit (110% × crit), piercing 3. One card is the ACE OF SPADES: 330% × crit, pierces everything, and detonates (90px) when it lands.'},
   {id:'cuts',    w:'knives',   p:'fire',   n:'THE THOUSAND CUTS',  g:'✶', hint:'The knives ask for quicker hands…',
@@ -262,6 +262,7 @@ function readyPairing(){ if(typeof P==='undefined'||!P) return null; for(const p
 function evoClaim(pr){
   P.evo=P.evo||{}; P.evo[pr.w]=pr.id;
   if(pr.id==='maiden') P.armor=(P.armor||0)+3;
+  if(pr.id==='ossuary') P.projectiles=(P.projectiles||1)+1;
   P._evT=P._evT||{}; P._evT[pr.id]=0;
   try{ LT.pairings=(LT.pairings||0)+1; LT.pairBy=LT.pairBy||{}; LT.pairBy[pr.id]=(LT.pairBy[pr.id]||0)+1; if(typeof achSaveSoon==='function') achSaveSoon(); }catch(e){}
   try{ if(typeof IDX!=='undefined'){ if(!Array.isArray(IDX.pr)) IDX.pr=[]; idxSee('pr',pr.id); } }catch(e){}
