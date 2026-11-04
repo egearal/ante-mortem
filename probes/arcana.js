@@ -66,7 +66,7 @@ const CHECK = {
   chariot0: `[Math.abs(P.speed/window.__pre.spd-1.3)<0.01, 'speed ×'+(P.speed/window.__pre.spd).toFixed(2)]`,
   chariot: `[ARC.st.wheel>0, 'wheel strikes '+ARC.st.wheel]`,
   moon: `[ARC.st.beam>0, 'moonbeams '+ARC.st.beam]`,
-  judgement: `[arcActive('judgement') && orbs.every(o=>o._jx), 'orbs marked ×2: '+orbs.length]`,
+  judgement: `(()=>{ const o={x:P.x+300,y:P.y,xp:10,r:5,vx:0,vy:0}; orbs.push(o); tickMajors(0.016); return [arcActive('judgement') && o.xp===20 && o._jx===1, 'fresh orb xp 10→'+o.xp]; })()`,
   lovers: `[ARC.st.twin>0, 'twin bolts '+ARC.st.twin]`,
 };
 // after expiry, the reverts must have landed exactly
@@ -108,7 +108,8 @@ const AFTER = {
     if (id === 'star' || id === 'lovers' || id === 'chariot') await until(page, `ARC.st.${{ star: 'zap', lovers: 'twin', chariot: 'wheel' }[id]}>0`, 3000);
     const during = await frameCost(page, 180);
     if (SHOTS && ['moon', 'chariot', 'star', 'sun', 'lovers'].includes(id)) {
-      if (id === 'moon') await until(page, 'ARC.beams.some(b=>!b.hit && b.t<0.2)', 600, { batch: 1 });
+      await until(page, "state==='playing'", 6000);
+      if (id === 'moon') await until(page, "ARC.beams.some(b=>b.hit && b.fade>0.22) && $('jackpotLayer').classList.contains('hidden')", 3000, { batch: 1 });
       if (id === 'star') await until(page, 'ARC.bolts.length>0', 600, { batch: 1 });
       await snap(page, 'fx_' + id, 120);
     }

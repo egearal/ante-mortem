@@ -223,7 +223,7 @@ function arcThr(k,ms){ const n=performance.now(); if(n-(_arcThr[k]||-1e9)<ms) re
 // one hit from an arcanum — iterate enemies BACKWARD when you call this (killEnemy splices)
 function arcHit(e,i,dmg,col,txt){
   if(!e || e.hp<=0) return;
-  e.hp-=dmg; trackDmg(dmg); e.flash=0.12;
+  e.hp-=dmg; trackDmg(dmg); if(txt!==null) e.flash=0.12; // null = a quiet burn tick, no white flash
   if(txt) ftext(e.x,e.y-e.r,Math.round(dmg),col||'#fff2c0',dmg>=150);
   if(e.unkillable){ e.hp=e.maxhp; return; }
   if(e.hp<=0){ const j=(enemies[i]===e)?i:enemies.indexOf(e); if(j>=0) killEnemy(e,j); }
@@ -386,7 +386,7 @@ function tickMajors(dt){
       const dmg=e.maxhp*(e.boss?0.015:0.07)*dt; e._sunA=(e._sunA||0)+dmg;
       const show=e._sunA>=Math.max(8,e.maxhp*0.05); if(show) e._sunA=0;
       if(Math.random()<dt*3) parts.push({x:e.x+rnd(-e.r,e.r),y:e.y+rnd(-e.r,e.r*0.5),vx:rnd(-10,10),vy:-rnd(40,90),life:rnd(.25,.5),col:Math.random()<0.5?'#ffe14d':'#ff8a1f',r:rnd(1.4,2.6)});
-      arcHit(e,i,dmg,'#ffe14d',show); } }
+      arcHit(e,i,dmg,'#ffe14d',show?true:null); } }
   // THE CHARIOT — three wheels of fire
   if(arcActive('chariot')){ A.wheelA+=dt*4.2;
     for(let k=0;k<3;k++){ const a=A.wheelA+k*2.094, wx=P.x+Math.cos(a)*72, wy=P.y+Math.sin(a)*72;
@@ -509,10 +509,10 @@ function drawMajorsFX(){
     ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.5;
     const g=ctx.createRadialGradient(tx,ty,0,tx,ty,26); g.addColorStop(0,'rgba(255,95,208,0.6)'); g.addColorStop(1,'rgba(255,95,208,0)');
     ctx.fillStyle=g; ctx.beginPath(); ctx.arc(tx,ty,26,0,6.28); ctx.fill();
-    ctx.globalAlpha=0.75; ctx.fillStyle='#ffb3ea';
-    ctx.beginPath(); ctx.moveTo(tx,ty-14); ctx.lineTo(tx+9,ty+12); ctx.lineTo(tx-9,ty+12); ctx.closePath(); ctx.fill();
-    ctx.beginPath(); ctx.arc(tx,ty-13,5,0,6.28); ctx.fill();
-    ctx.fillStyle='#ff5fd0'; ctx.font='700 9px serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('♥',tx,ty+2);
+    ctx.globalAlpha=0.8; ctx.fillStyle='#ffb3ea'; ctx.translate(tx,ty); ctx.scale(1.45,1.45); // a coat, a hat brim, a heart — Vesper's shade
+    ctx.beginPath(); ctx.moveTo(0,-10); ctx.lineTo(9,13); ctx.lineTo(-9,13); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.arc(0,-12,4.5,0,6.28); ctx.fill(); ctx.fillRect(-8,-17,16,2.2);
+    ctx.fillStyle='#ff5fd0'; ctx.font='700 9px serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('♥',0,3);
     ctx.restore(); }
   // the scales hang around you (JUSTICE)
   if(arcActive('justice')){ ctx.save(); ctx.globalAlpha=0.22+Math.sin(gt*3)*0.08; ctx.strokeStyle='#4d6bff'; ctx.lineWidth=1.5; ctx.setLineDash([3,9]);
