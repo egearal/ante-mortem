@@ -754,6 +754,7 @@ function update(dt){
       noise(0.4,0.3,300); tone(70,0.5,'sine',0.3,40); SFX.reelLock();
     } else if(g9.fell && g9.t<=0){ guils.splice(i,1); } }
 
+  if(window._fmods&&window._fmods.ballroom&&typeof balUpdate==='function') balUpdate(dt); // D3: THE BALLROOM's waltz, chandeliers, mirrors
   // waves — the House suffers no other guests after 13:00
   if(!houseActive){
     if(enemies.length<=waveClearTarget){ waveGap-=dt;
@@ -1489,19 +1490,20 @@ function render(){
     }
     window._tileC.set(key,sp); return sp;
   };
+  const _bR=!!(window._fmods&&window._fmods.ballroom&&typeof balTile==='function'); // D3: THE BALLROOM bakes its own mirror floor
   const cx0=Math.floor(camX/cs), cy0=Math.floor(camY/cs);
   const cxn=Math.ceil((camX+VW)/cs), cyn=Math.ceil((camY+VH)/cs);
   for(let gx=cx0;gx<=cxn;gx++) for(let gy=cy0;gy<=cyn;gy++){
     const dark=(((gx+gy)&1)===0);
     const h=((gx*73856093)^(gy*19349663))>>>0;
-    ctx.drawImage(tileSprite(dark,h%24), gx*cs, gy*cs);
+    ctx.drawImage(_bR?balTile(dark,h%24):tileSprite(dark,h%24), gx*cs, gy*cs);
   }
   ctx.strokeStyle='rgba(0,0,0,0.45)'; ctx.lineWidth=2;
   for(let gx=cx0;gx<=cxn;gx++){ ctx.beginPath(); ctx.moveTo(gx*cs,camY-cs); ctx.lineTo(gx*cs,camY+VH+cs); ctx.stroke(); }
   for(let gy=cy0;gy<=cyn;gy++){ ctx.beginPath(); ctx.moveTo(camX-cs,gy*cs); ctx.lineTo(camX+VW+cs,gy*cs); ctx.stroke(); }
   // grand sigil + arena border + arch band
   drawWallsAndCarpet();
-  drawSigil(CFG.arena/2,CFG.arena/2);
+  if(_bR) balMedallion(CFG.arena/2,CFG.arena/2); else drawSigil(CFG.arena/2,CFG.arena/2);
   PROF.mark('decals');
   // battlefield gore — the permanent ledger first: only the visible tiles, one blit each
   if(goreT){
@@ -1591,7 +1593,7 @@ function render(){
   }
   ctx.restore();
   // gargoyle statues — hunched sentinels on plinths
-  for(const gg of gargoyles){
+  for(const gg of (_bR?BAL_NONE:gargoyles)){
     if(!inView(gg.x,gg.y,120)) continue;
     ctx.save(); ctx.translate(gg.x,gg.y);
     ctx.fillStyle='rgba(0,0,0,0.45)'; ctx.beginPath(); ctx.ellipse(0,16,20,7,0,0,6.28); ctx.fill();
@@ -1609,7 +1611,7 @@ function render(){
   }
   // hellish cracks radiating from the sigil (red glow)
   ctx.save(); ctx.globalCompositeOperation='screen'; const C2=CFG.arena/2, cpv=0.055+Math.sin(gt*1.5)*0.02;
-  for(const cr of floorCracks){ const first=cr.pts[0]; if(!((first.x>camX-400&&first.x<camX+VW+400)||(cr.pts[5].x>camX-400&&cr.pts[5].x<camX+VW+400))) continue;
+  for(const cr of (_bR?BAL_NONE:floorCracks)){ const first=cr.pts[0]; if(!((first.x>camX-400&&first.x<camX+VW+400)||(cr.pts[5].x>camX-400&&cr.pts[5].x<camX+VW+400))) continue;
     ctx.strokeStyle='rgba(255,70,55,0.03)'; ctx.lineWidth=7; ctx.beginPath(); ctx.moveTo(C2,C2); for(const p of cr.pts) ctx.lineTo(p.x,p.y); ctx.stroke();
     ctx.strokeStyle='rgba(220,50,55,'+cpv+')'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(C2,C2); for(const p of cr.pts) ctx.lineTo(p.x,p.y); ctx.stroke(); }
   ctx.restore();
@@ -1630,6 +1632,7 @@ function render(){
     ctx.globalAlpha=Math.min(1,0.20*cf);
     ctx.drawImage(lightSprite(255,150,70), px-rr, py-rr*0.8, rr*2, rr*1.6); }
   ctx.globalAlpha=1; ctx.restore();
+  if(_bR) balGround(); // D3: waltz current, chandelier telegraphs, wrecks, mirror seams
 
   PROF.mark('ground');
   // shockwave rings
@@ -1910,6 +1913,7 @@ function render(){
 
   drawPlayer();
   try{ b2DrawAdorn(); }catch(e){}
+  if(_bR) balSky(); // D3: the chandelier hanging over its circle, then falling
 
   // particles
   for(const p of parts){ ctx.globalAlpha=clamp(p.life*(p.ash?0.9:1.6),0,1); ctx.fillStyle=p.col; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,6.28); ctx.fill(); }

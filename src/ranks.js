@@ -399,6 +399,11 @@ function openIndexPanel(){
    +sec('♟','THE COURT','#c22ca0', Object.keys(CFG.enemy).filter(k=>!BOSS_DEFS[k]).map(k=>[IDX.e.indexOf(k)>=0, '♟', k.toUpperCase(), CFG.enemy[k].col||'#c98bff']))
    +sec('♛','THE BOSSES','#ffd36b', Object.keys(BOSS_DEFS).map(k=>[IDX.b.indexOf(k)>=0, '♛', BOSS_DEFS[k].name, '#ffd36b']))
    +(typeof soulIdxRows==='function'?sec('♠','THE SEATS','#e6d9c2', soulIdxRows()):'') // D1
+   +(typeof FLOORS!=='undefined'?sec('♕','THE FLOORS','#d9a3c0', FLOORS.map(f=>[f.u(), f.g, f.n+'|'+f.d, f.col]) // D3: floors + the Ballroom's hazards
+      .concat((()=>{ const b=FLOORS.find(f=>f.id==='ballroom'), on=!!(b&&b.u()); return [
+        [on,'♫','THE WALTZ|Every 90s on THE BALLROOM the floor turns for 16s. Everything drifts around the spot where the music found you — ride the current to outrun them, or fight against it.','#cdd5e8'],
+        [on,'✦','THE CHANDELIER|A shadow and a red ring mark the drop; 2.6s later the crystal comes down. Everything under it dies — you too. The wreck pays 3 coins + 1 per two bodies. THE HOUSE is only staggered.','#e6ecff'],
+        [on,'◇','MIRROR TWINS|An edge of the screen silvers over and reflections of the court step out of it — half the blood, glass bones.','#9fb2e6'] ]; })())):'')
    +('<div class="idxSec" style="--sc:#e8b64c"><div class="idxSecH"><b>⚜ THE LADDER</b><span>RANK '+RANK.rank+' / 100 · <i class="ldBooks">📖 THE BOOKS</i></span></div><div class="ldWrap">'
      +RANKS.map((e,i)=>{ const r=i+1;
         const cls=r===RANK.rank?' now':(r>RANK.rank&&r<=RANK.rank+3?' soon':(r<RANK.rank?' done':''));
