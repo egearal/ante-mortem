@@ -12,6 +12,16 @@ function glowSprite(c0,c1,r){
     _glowCache[key]=cv2; }
   return cv2;
 }
+// A1 GILT NOIR — light sprites: a soft, eased falloff (not glowSprite's linear cone), baked once per color.
+// Draw with globalCompositeOperation='lighter' and globalAlpha for intensity.
+const _lightC={};
+function lightSprite(r,g,b){
+  const k=r+','+g+','+b; let c=_lightC[k]; if(c) return c;
+  c=document.createElement('canvas'); c.width=c.height=128; const x=c.getContext('2d');
+  const gr=x.createRadialGradient(64,64,0,64,64,64);
+  for(let i=0;i<=8;i++){ const f=i/8, a=Math.pow(1-f,2.2)*(1-0.25*f); gr.addColorStop(f,'rgba('+k+','+a.toFixed(3)+')'); }
+  x.fillStyle=gr; x.fillRect(0,0,128,128); _lightC[k]=c; return c;
+}
 // cached vertical linear gradients for enemy body parts (local coords after
 // ctx.translate) — keyed by half-height bucket + colors
 const _lgCache={}; let _lgN=0;
@@ -183,4 +193,35 @@ function sparkBurstAt(boxId,layerId,n){ n=Math.round(n*1.4);
     host.appendChild(s);
     setTimeout(()=>{ if(s.parentNode) s.remove(); },700);
   }
+}
+
+/* ---------- A1 GILT NOIR: hit feel — kill bursts by tier, elite hit-stop, the struck gambler ---------- */
+let pops=[];
+function killTier(e){ return e.boss?4:(e.elite?3:((e.r>=18||(e.maxhp||0)>=90)?2:1)); }
+function killFX(e){
+  const tier=killTier(e);
+  if(pops.length<(GFX.lite?12:40)) pops.push({x:e.x,y:e.y,r:e.r*(1.3+tier*0.55),t:0,max:0.12+tier*0.06,tier,col:e.elite?'201,139,255':(e.boss?'255,90,120':'255,236,210')});
+  const ns=GFX.lite?2:[0,4,8,18,30][tier];
+  for(let i=0;i<ns;i++){ const a=Math.random()*6.283, sp=rnd(120,260+tier*60);
+    parts.push({x:e.x,y:e.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:rnd(.12,.22+tier*0.05),col:i%3?'#fff6e6':(tier>=3?'#e8ccff':'#ff6a6a'),r:rnd(1.2,1.6+tier*0.4)}); }
+  if(tier>=3){ hitstop=Math.max(hitstop,tier>=4?0.09:0.04); // 40ms held breath on an elite, longer for a lord
+    if(!muted){ noise(0.09,0.22,2400); tone(tier>=4?55:82,0.32,'sine',0.26,30); tone(1320,0.08,'triangle',0.06,660); } }
+  else if(tier===2 && !muted){ if(!window._kpT||gt-window._kpT>0.06){ window._kpT=gt; tone(150,0.11,'sine',0.11,58); noise(0.04,0.06,1200); } }
+}
+function hurtFX(dmg){
+  P._hurtF=gt+0.2;
+  for(let i=0;i<(GFX.lite?4:12);i++){ const a=Math.random()*6.283, sp=rnd(60,200);
+    parts.push({x:P.x,y:P.y-8,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-40,life:rnd(.2,.45),col:i%2?'#c81e2c':'#ff4d5a',r:rnd(1.4,2.8)}); }
+  ring(P.x,P.y,46,'#ff3344');
+  if(!muted){ tone(68,0.2,'sine',0.24,38); noise(0.05,0.1,700); }
+}
+function drawPops(){
+  if(!pops.length) return;
+  ctx.save(); ctx.globalCompositeOperation='lighter';
+  for(let i=pops.length-1;i>=0;i--){ const p=pops[i]; p.t+=1/60; if(p.t>=p.max){ pops.splice(i,1); continue; }
+    const k=p.t/p.max, rr=p.r*(0.55+k*0.9);
+    ctx.globalAlpha=(1-k)*(0.65+p.tier*0.08);
+    ctx.drawImage(glowSprite('rgba(255,255,255,1)','rgba('+p.col+',0)',32), p.x-rr, p.y-rr, rr*2, rr*2);
+    if(p.tier>=2){ ctx.globalAlpha=(1-k)*0.9; ctx.strokeStyle='rgba('+p.col+',1)'; ctx.lineWidth=1+p.tier*0.8; ctx.beginPath(); ctx.arc(p.x,p.y,rr*1.15,0,6.283); ctx.stroke(); } }
+  ctx.restore(); ctx.globalAlpha=1;
 }

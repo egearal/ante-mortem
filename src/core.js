@@ -18,7 +18,7 @@ const CFG = {
     shambler:{ hp:26, spd:90, dmg:8, r:13, xp:1, coins:1, col:'#5c6e50', dark:'#2c3a26' },
     husk:    { hp:15, spd:152,dmg:7, r:10, xp:1, coins:1, col:'#b9b2a0', dark:'#5a5347' },
     swarm:   { hp:9,  spd:176,dmg:6, r:8,  xp:1, coins:0, col:'#8a9a5a', dark:'#3a441f' },
-    shooter: { hp:48, spd:66, dmg:10,r:14, xp:4, coins:4, col:'#c0913f', dark:'#4a3616', ranged:true },
+    shooter: { hp:48, spd:66, dmg:10,r:14, xp:4, coins:4, col:'#a8977a', dark:'#3a2e1c', ranged:true }, // A1: bone-ash, gold is earned
     stalker: { hp:42, spd:158,dmg:12,r:12, xp:3, coins:3, col:'#8a3a6a', dark:'#3a1030' },
     hexer:   { hp:54, spd:70, dmg:12,r:15, xp:5, coins:5, col:'#6a4ab5', dark:'#241540', ranged:true },
     revenant:{ hp:230,spd:58, dmg:22,r:24, xp:8, coins:10,col:'#4a1015', dark:'#180406' },
@@ -29,7 +29,7 @@ const CFG = {
     bomber:  { hp:30, spd:120,dmg:10,r:11, xp:2, coins:2, col:'#ff8a2c', dark:'#5a2a08' },
     gilded:  { hp:90, spd:170,dmg:0, r:12, xp:6, coins:0, col:'#ffd36b', dark:'#7a5a1c' },
     pitboss: { hp:2600,spd:74,dmg:30,r:34, xp:40,coins:45, col:'#d4212f', dark:'#4a0a10' },
-    croupier:{ hp:2100,spd:60,dmg:22,r:30, xp:40,coins:45, col:'#e8b64c', dark:'#4a3616' },
+    croupier:{ hp:2100,spd:60,dmg:22,r:30, xp:40,coins:45, col:'#e6d9c2', dark:'#4a3a28' }, // A1: ivory, not gold
     collector:{hp:3200,spd:48,dmg:26,r:36, xp:50,coins:60, col:'#6a4ab5', dark:'#241540' },
     thehouse:{ hp:4400,spd:64,dmg:30,r:38, xp:70,coins:90,col:'#c98bff', dark:'#2a0a34' },
     housegod:{ hp:1000000,spd:1,dmg:1,r:46, xp:0,coins:0, col:'#1a0f1d', dark:'#07030a' }
@@ -412,6 +412,7 @@ function hurtPlayer(dmg){
   if(P.inv>0) return;
   P._lastHurtGt=gt; if(typeof houseActive!=='undefined' && houseActive) P._houseHurt=true;
   P.hp-=dmg; P.inv=0.5+(P.invBonus||0); shake=Math.min(11,shake+5); flash(0.35,'#8b1620'); SFX.hurt();
+  hurtFX&&hurtFX(dmg); // A1 — Vesper flashes white, the edges bleed, blood leaps, a sub-thump lands
   { const hw=$('hpwrap')||$('hpfill'); if(hw){ hw.classList.remove('hurt'); void hw.offsetWidth; hw.classList.add('hurt'); } }
   { let src=null, bd=6400; for(const e2 of enemies){ const d2=(e2.x-P.x)*(e2.x-P.x)+(e2.y-P.y)*(e2.y-P.y); if(d2<bd){ bd=d2; src=e2; } }
     if(src){ window._hitArc={a:Math.atan2(src.y-P.y,src.x-P.x), t:0.42};
@@ -498,6 +499,7 @@ function killEnemy(e,idx){
     flash(0.2+tier*0.06,'#ffd36b'); shake=Math.min(18,shake+3+tier*2); coinRain(tier*4);
     ring(P.x,P.y,90+tier*30,'#ffd36b');
   }
+  killFX&&killFX(e); // A1 — kill burst scales by tier (trash / heavy / elite / boss); elites + bosses hit-stop
   if(e.elite){ shake=Math.min(20,shake+11); flash(0.55,'#c98bff'); SFX.cheer(); ring(e.x,e.y,140,'#c98bff'); ring(e.x,e.y,90,'#e8ccff'); eliteBlessing(); }
   if(e.type==='gilded'){ goldFlood&&goldFlood(e.x,e.y); SFX.cashout(); SFX.dingBells(); }
   if(e.type==='bomber'){ noise(0.3,0.3,700); } else if(e.type==='revenant'){ tone(90,0.5,'sine',0.2,40); }
@@ -909,7 +911,7 @@ function update(dt){
 
   if(streakT>0){ streakT-=dt; if(streakT<=0){ killStreak=0; } }
   excite=Math.max(0,excite-dt*0.35);
-  if(shake>0)shake=Math.max(0,shake-dt*30);
+  if(shake>0)shake=Math.max(0,shake-dt*(30+shake*5)); // A1: short and sharp, never mushy
 }
 function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
 function inView(x,y,pad){ return P && Math.abs(x-P.x)<VW/2+pad && Math.abs(y-P.y)<VH/2+pad; }
@@ -1007,14 +1009,14 @@ function drawWallsAndCarpet(){
   }
   // grand crimson carpet runner (N-S), parts under the sigil hidden by it
   const cw=110;
-  ctx.fillStyle='rgba(90,14,22,0.55)'; ctx.fillRect(C0-cw/2,26,cw,A-52);
-  ctx.fillStyle='rgba(60,8,14,0.5)'; ctx.fillRect(C0-cw/2,26,8,A-52); ctx.fillRect(C0+cw/2-8,26,8,A-52);
-  ctx.strokeStyle='rgba(232,182,76,0.35)'; ctx.lineWidth=2;
+  ctx.fillStyle='rgba(58,10,18,0.5)'; ctx.fillRect(C0-cw/2,26,cw,A-52); // A1: deep velvet runner, not a bright stripe
+  ctx.fillStyle='rgba(20,4,8,0.55)'; ctx.fillRect(C0-cw/2,26,8,A-52); ctx.fillRect(C0+cw/2-8,26,8,A-52);
+  ctx.strokeStyle='rgba(230,217,194,0.09)'; ctx.lineWidth=2;
   ctx.beginPath(); ctx.moveTo(C0-cw/2+12,26); ctx.lineTo(C0-cw/2+12,A-26); ctx.moveTo(C0+cw/2-12,26); ctx.lineTo(C0+cw/2-12,A-26); ctx.stroke();
   { // C5: the runner is WOVEN — herringbone damask tiles down the visible span
     if(!window._weaveB) bakeWeave();
     const wv=window._weaveB, ty0=Math.max(26,Math.floor((camY-140)/140)*140), ty1=Math.min(A-26,camY+VH+140);
-    for(let y=ty0;y<ty1;y+=140) ctx.drawImage(wv,C0-55,y); }
+    ctx.globalAlpha=0.45; for(let y=ty0;y<ty1;y+=140) ctx.drawImage(wv,C0-55,y); ctx.globalAlpha=1; }
 }
 function drawLandmarks(){
   // THE VAULT — colossal circular door at the north wall
@@ -1267,11 +1269,12 @@ function drawSigil(cx,cy){
   const bk=window._sigilBk;
   ctx.save(); ctx.translate(cx,cy);
   ctx.save(); ctx.beginPath(); ctx.rect(camX-cx,camY-cy,VW,VH); ctx.clip(); // never rasterize past the viewport
+  ctx.globalAlpha=0.5; // A1 GILT NOIR — the seal is engraved into the dark, not painted in gold over it
   ctx.drawImage(bk.stat,-728,-728,1456,1456);
   ctx.save(); ctx.rotate(gt*0.03); ctx.drawImage(bk.spokes,-728,-728,1456,1456); ctx.restore();
   ctx.save(); ctx.rotate(-gt*0.05); ctx.drawImage(bk.petals,-728,-728,1456,1456); ctx.restore();
   ctx.save(); ctx.globalCompositeOperation='screen'; ctx.rotate(gt*0.015); ctx.drawImage(bk.runes,-728,-728,1456,1456); ctx.restore();
-  ctx.restore();
+  ctx.globalAlpha=1; ctx.restore();
   // slow blood ring — one live stroke keeps the pulse organic
   ctx.save(); ctx.rotate(gt*0.02); ctx.strokeStyle='rgba(200,30,44,0.12)'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(0,0,648,0,6.283); ctx.stroke(); ctx.restore();
   // pulsing center glow — deepens with the night's danger
@@ -1348,7 +1351,7 @@ function bakeVign(danger,db,tb){
     x.fillStyle=g; x.fillRect(0,0,w,h); }
   { B.main=mk(); const x=B.main.getContext('2d');
     const g=x.createRadialGradient(w/2,h/2,Math.min(w,h)*(0.30-danger*0.12),w/2,h/2,Math.max(w,h)*0.74);
-    g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(0.7,'rgba('+L(6,9)+','+L(4,6)+','+L(10,22)+','+(0.34+danger*0.4)+')'); g.addColorStop(1,'rgba('+L(2,5)+','+L(2,4)+','+L(8,24)+','+(0.7+danger*0.3)+')');
+    g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(0.45,'rgba('+L(6,9)+','+L(3,5)+','+L(8,18)+','+(0.12+danger*0.2)+')'); g.addColorStop(0.75,'rgba('+L(6,9)+','+L(4,6)+','+L(10,22)+','+(0.5+danger*0.35)+')'); g.addColorStop(1,'rgba('+L(2,5)+','+L(2,4)+','+L(8,24)+','+Math.min(1,0.86+danger*0.3)+')'); // A1: edges fall into dark
     x.fillStyle=g; x.fillRect(0,0,w,h); }
   { B.heart=mk(); const x=B.heart.getContext('2d');
     const g=x.createRadialGradient(w/2,h/2,Math.min(w,h)*0.34,w/2,h/2,Math.max(w,h)*0.72);
@@ -1440,27 +1443,24 @@ function render(){
     const key=(dark?1:0)*24+variant; let sp=window._tileC.get(key); if(sp) return sp;
     sp=document.createElement('canvas'); sp.width=cs; sp.height=cs; const x=sp.getContext('2d');
     const vh=((variant+7)*2654435761)>>>0;
-    x.fillStyle=dark?'#0d0609':'#130c10'; x.fillRect(0,0,cs,cs);
-    { const g=x.createLinearGradient(0,0,0,cs); g.addColorStop(0,'rgba(200,170,150,0.028)'); g.addColorStop(0.5,'rgba(0,0,0,0.16)'); g.addColorStop(1,'rgba(0,0,0,0)');
+    // A1 GILT NOIR — velvet-black marble: desaturated, low-contrast, no gold on the floor (law 3)
+    x.fillStyle=dark?'#0c0609':'#110a0d'; x.fillRect(0,0,cs,cs);
+    { const g=x.createLinearGradient(0,0,cs,cs); g.addColorStop(0,'rgba(170,120,130,0.03)'); g.addColorStop(0.55,'rgba(0,0,0,0.12)'); g.addColorStop(1,'rgba(40,10,18,0.06)');
       x.fillStyle=g; x.fillRect(0,0,cs,cs); }
-    x.strokeStyle='rgba(200,180,190,0.035)'; x.lineWidth=1;
+    x.strokeStyle='rgba(200,170,180,0.03)'; x.lineWidth=1;
     for(let v=0;v<2;v++){ const o=((vh>>(v*5))&31)/31; x.beginPath(); x.moveTo(o*cs,0); x.bezierCurveTo(o*cs+30,cs*0.4,o*cs-24,cs*0.7,((vh>>(v*7))&31)/31*cs,cs); x.stroke(); }
-    x.strokeStyle='rgba(232,182,76,0.05)'; x.lineWidth=1; x.strokeRect(11,11,cs-22,cs-22);
-    x.strokeStyle='rgba(232,182,76,0.08)'; x.lineWidth=1.2;
-    [[11,11,1,1],[cs-11,11,-1,1],[11,cs-11,1,-1],[cs-11,cs-11,-1,-1]].forEach(cc=>{ x.beginPath(); x.arc(cc[0]+cc[2]*14,cc[1]+cc[3]*14,14,0,6.283); x.stroke(); });
+    x.strokeStyle='rgba(230,217,194,0.028)'; x.lineWidth=1; x.strokeRect(11,11,cs-22,cs-22);
     const mcx=cs/2, mcy=cs/2;
     if(vh%6===0){
       const suit=['♠','♥','♦','♣'][(vh>>>3)%4];
-      x.fillStyle=(suit==='♥'||suit==='♦')?'rgba(150,26,38,0.13)':'rgba(232,182,76,0.10)';
+      x.fillStyle=(suit==='♥'||suit==='♦')?'rgba(120,20,32,0.10)':'rgba(150,130,140,0.045)';
       x.font='700 64px serif'; x.textAlign='center'; x.textBaseline='middle';
       x.fillText(suit,mcx,mcy+2);
-      x.strokeStyle='rgba(232,182,76,0.08)'; x.lineWidth=1.4;
+      x.strokeStyle='rgba(230,217,194,0.03)'; x.lineWidth=1.4;
       x.beginPath(); x.arc(mcx,mcy,42,0,6.283); x.stroke();
-    } else {
-      x.strokeStyle=dark?'rgba(232,182,76,0.07)':'rgba(200,30,44,0.06)';
-      x.lineWidth=1.2; x.beginPath(); x.arc(mcx,mcy,16,0,6.283); x.stroke();
-      x.beginPath(); x.arc(mcx,mcy,8,0,6.283); x.stroke();
-      x.beginPath(); for(let a=0;a<8;a++){ const an=a/8*6.283; x.moveTo(mcx+Math.cos(an)*8,mcy+Math.sin(an)*8); x.lineTo(mcx+Math.cos(an)*16,mcy+Math.sin(an)*16); } x.stroke();
+    } else if(!dark){
+      x.strokeStyle='rgba(140,24,36,0.05)'; x.lineWidth=1.2;
+      x.beginPath(); x.arc(mcx,mcy,10,0,6.283); x.stroke();
     }
     window._tileC.set(key,sp); return sp;
   };
@@ -1471,7 +1471,7 @@ function render(){
     const h=((gx*73856093)^(gy*19349663))>>>0;
     ctx.drawImage(tileSprite(dark,h%24), gx*cs, gy*cs);
   }
-  ctx.strokeStyle='rgba(0,0,0,0.55)'; ctx.lineWidth=2;
+  ctx.strokeStyle='rgba(0,0,0,0.45)'; ctx.lineWidth=2;
   for(let gx=cx0;gx<=cxn;gx++){ ctx.beginPath(); ctx.moveTo(gx*cs,camY-cs); ctx.lineTo(gx*cs,camY+VH+cs); ctx.stroke(); }
   for(let gy=cy0;gy<=cyn;gy++){ ctx.beginPath(); ctx.moveTo(camX-cs,gy*cs); ctx.lineTo(camX+VW+cs,gy*cs); ctx.stroke(); }
   // grand sigil + arena border + arch band
@@ -1583,15 +1583,15 @@ function render(){
     ctx.restore();
   }
   // hellish cracks radiating from the sigil (red glow)
-  ctx.save(); ctx.globalCompositeOperation='screen'; const C2=CFG.arena/2, cpv=0.09+Math.sin(gt*1.5)*0.03;
+  ctx.save(); ctx.globalCompositeOperation='screen'; const C2=CFG.arena/2, cpv=0.055+Math.sin(gt*1.5)*0.02;
   for(const cr of floorCracks){ const first=cr.pts[0]; if(!((first.x>camX-400&&first.x<camX+VW+400)||(cr.pts[5].x>camX-400&&cr.pts[5].x<camX+VW+400))) continue;
-    ctx.strokeStyle='rgba(255,70,55,0.05)'; ctx.lineWidth=7; ctx.beginPath(); ctx.moveTo(C2,C2); for(const p of cr.pts) ctx.lineTo(p.x,p.y); ctx.stroke();
+    ctx.strokeStyle='rgba(255,70,55,0.03)'; ctx.lineWidth=7; ctx.beginPath(); ctx.moveTo(C2,C2); for(const p of cr.pts) ctx.lineTo(p.x,p.y); ctx.stroke();
     ctx.strokeStyle='rgba(220,50,55,'+cpv+')'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(C2,C2); for(const p of cr.pts) ctx.lineTo(p.x,p.y); ctx.stroke(); }
   ctx.restore();
   ctx.strokeStyle='rgba(232,182,76,0.22)'; ctx.lineWidth=4; ctx.strokeRect(0,0,CFG.arena,CFG.arena);
   ctx.strokeStyle='rgba(232,182,76,0.12)'; ctx.lineWidth=2; ctx.strokeRect(70,70,CFG.arena-140,CFG.arena-140);
   // repeating gothic arches along the border band
-  ctx.strokeStyle='rgba(232,182,76,0.10)'; ctx.lineWidth=2; const as=260, ar=80;
+  ctx.strokeStyle='rgba(230,217,194,0.06)'; ctx.lineWidth=2; const as=260, ar=80;
   for(let x=as;x<CFG.arena-as/2;x+=as){ ctx.beginPath(); ctx.arc(x,36,ar/3,Math.PI,0); ctx.stroke(); ctx.beginPath(); ctx.arc(x,CFG.arena-36,ar/3,0,Math.PI); ctx.stroke(); }
   for(let y=as;y<CFG.arena-as/2;y+=as){ ctx.beginPath(); ctx.arc(36,y,ar/3,-Math.PI/2,Math.PI/2); ctx.stroke(); ctx.beginPath(); ctx.arc(CFG.arena-36,y,ar/3,Math.PI/2,Math.PI*1.5); ctx.stroke(); }
   // columns (culled)
@@ -1599,12 +1599,12 @@ function render(){
   // overhead chandeliers (culled)
   for(const ch of chandeliers){ if(ch.x>camX-ch.r*3 && ch.x<camX+VW+ch.r*3 && ch.y>camY-ch.r*3 && ch.y<camY+VH+ch.r*3) drawChandelier(ch.x,ch.y,ch.r); }
 
-  // stray candlelight pools
-  ctx.save(); ctx.globalCompositeOperation='screen';
-  if(!GFX.lite) for(let i=0;i<2;i++){ const px=camX+VW*(0.3+i*0.4)+Math.sin(gt*0.23+i*2.1)*90+Math.sin(gt*0.11+i)*38; const py=camY+VH*(0.35+i*0.3)+Math.cos(gt*0.17+i*1.3)*70+Math.cos(gt*0.07)*26; const rr=190+Math.sin(gt*4+i)*14; // Lissajous drift — the light wanders like a carried candle
-    ctx.globalAlpha=Math.min(1,0.9*cf);
-    ctx.drawImage(glowSprite('rgba(232,150,60,0.09)','rgba(232,150,60,0)',190), px-rr, py-rr, rr*2, rr*2); ctx.globalAlpha=1; }
-  ctx.restore();
+  // stray candlelight pools — A1: real additive light, soft falloff, wandering like a carried candle
+  ctx.save(); ctx.globalCompositeOperation='lighter';
+  if(!GFX.lite) for(let i=0;i<2;i++){ const px=camX+VW*(0.3+i*0.4)+Math.sin(gt*0.23+i*2.1)*90+Math.sin(gt*0.11+i)*38; const py=camY+VH*(0.35+i*0.3)+Math.cos(gt*0.17+i*1.3)*70+Math.cos(gt*0.07)*26; const rr=250+Math.sin(gt*4+i)*12;
+    ctx.globalAlpha=Math.min(1,0.20*cf);
+    ctx.drawImage(lightSprite(255,150,70), px-rr, py-rr*0.8, rr*2, rr*1.6); }
+  ctx.globalAlpha=1; ctx.restore();
 
   PROF.mark('ground');
   // shockwave rings
@@ -1614,16 +1614,26 @@ function render(){
     ctx.globalAlpha=a; ctx.strokeStyle='#fff'; ctx.lineWidth=1.6; ctx.beginPath(); ctx.arc(r.x,r.y,r.r,0,6.28); ctx.stroke();
     ctx.globalAlpha=a*0.8; ctx.strokeStyle=r.col; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(r.x,r.y,r.r*0.92,0,6.28); ctx.stroke(); }
   ctx.restore(); ctx.globalAlpha=1;
+  drawPops&&drawPops();
 
-  // orbs + coins (pulsing)
-  // glow via cached sprites, not shadowBlur — hundreds of these per frame
-  const pickGlow = !qLow && !GFX.lite;
-  if(pickGlow){ const gs=glowSprite('rgba(255,224,102,0.5)','rgba(255,224,102,0)',16);
-    for(const o of orbs){ if(!inView(o.x,o.y,40)) continue; ctx.drawImage(gs,o.x-16,o.y-16,32,32); } }
-  for(const o of orbs){ if(!inView(o.x,o.y,40)) continue; const pl=1+Math.sin(gt*6+o.x*0.1)*0.15; ctx.fillStyle='#ffd23f'; ctx.beginPath(); ctx.arc(o.x,o.y,o.r*pl,0,6.28); ctx.fill(); ctx.fillStyle='rgba(255,255,220,0.9)'; ctx.beginPath(); ctx.arc(o.x-o.r*0.3,o.y-o.r*0.3,o.r*0.35,0,6.28); ctx.fill(); }
-  if(pickGlow){ const gs=glowSprite('rgba(248,226,160,0.45)','rgba(248,226,160,0)',13);
-    for(const c of coins){ if(!inView(c.x,c.y,40)) continue; ctx.drawImage(gs,c.x-13,c.y-13,26,26); } }
-  for(const c of coins){ if(!inView(c.x,c.y,40)) continue; const pl=1+Math.sin(gt*7+c.x*0.1)*0.12; ctx.fillStyle='#e8b64c'; ctx.beginPath(); ctx.arc(c.x,c.y,c.r*pl,0,6.28); ctx.fill(); ctx.fillStyle='#fff6d8'; ctx.beginPath(); ctx.arc(c.x-1.5,c.y-1.5,c.r*0.35,0,6.28); ctx.fill(); }
+  // orbs + coins — A1 GILT NOIR law 3+5: XP is a MINT soul-shard (diamond), coins are GOLD discs (round).
+  // Shape AND color differ, and gold appears only on what pays. Bloom = cached additive sprites, no shadowBlur.
+  const pickGlow = !GFX.lite;
+  { ctx.save(); ctx.globalCompositeOperation='lighter';
+    if(pickGlow){ const gs=glowSprite('rgba(139,255,208,0.55)','rgba(139,255,208,0)',16), gc=glowSprite('rgba(255,211,107,0.6)','rgba(255,190,80,0)',16);
+      const os=qLow?18:24, cs2=qLow?18:26;
+      for(const o of orbs){ if(!inView(o.x,o.y,40)) continue; ctx.drawImage(gs,o.x-os/2,o.y-os/2,os,os); }
+      for(const c of coins){ if(!inView(c.x,c.y,40)) continue; ctx.drawImage(gc,c.x-cs2/2,c.y-cs2/2,cs2,cs2); } }
+    ctx.restore(); }
+  ctx.lineWidth=1.2; ctx.strokeStyle='#0b2a22';
+  for(const o of orbs){ if(!inView(o.x,o.y,40)) continue; const pl=1+Math.sin(gt*6+o.x*0.1)*0.12, rr=o.r*1.15*pl, ry=rr*1.3;
+    ctx.fillStyle='#5fe6b4'; ctx.beginPath(); ctx.moveTo(o.x,o.y-ry); ctx.lineTo(o.x+rr,o.y); ctx.lineTo(o.x,o.y+ry); ctx.lineTo(o.x-rr,o.y); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#d8fff0'; ctx.beginPath(); ctx.moveTo(o.x,o.y-ry); ctx.lineTo(o.x+rr*0.45,o.y-ry*0.1); ctx.lineTo(o.x-rr*0.2,o.y); ctx.closePath(); ctx.fill(); }
+  ctx.strokeStyle='#5a3a0c';
+  for(const c of coins){ if(!inView(c.x,c.y,40)) continue; const sp=Math.abs(Math.cos(gt*4+c.x*0.07)), cw=c.r*(0.35+0.65*sp);
+    ctx.fillStyle='#e8b64c'; ctx.beginPath(); ctx.ellipse(c.x,c.y,cw,c.r,0,0,6.28); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#ffd36b'; ctx.beginPath(); ctx.ellipse(c.x,c.y,cw*0.62,c.r*0.62,0,0,6.28); ctx.fill();
+    if(sp>0.5){ ctx.fillStyle='#fff2c0'; ctx.fillRect(c.x-cw*0.35,c.y-c.r*0.45,Math.max(1,cw*0.3),c.r*0.3); } }
 
   // aura visual
   if(auraRadius()>0){ const aR=auraRadius(); ctx.save(); ctx.globalCompositeOperation='screen'; ctx.translate(P.x,P.y);
@@ -1696,9 +1706,10 @@ function render(){
   if(window._hitArc && window._hitArc.t>0){ const ha=window._hitArc; ha.t-=1/60;
     ctx.save(); ctx.strokeStyle='rgba(255,70,85,'+(ha.t*1.8)+')'; ctx.lineWidth=4.5; ctx.lineCap='round';
     ctx.beginPath(); ctx.arc(P.x,P.y,44,ha.a-0.55,ha.a+0.55); ctx.stroke(); ctx.restore(); }
-  // the player carries candlelight — a warm pool on the marble beneath (one cached blit)
-  if(!GFX.lite){ ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.5+Math.sin(gt*2.4)*0.08;
-    ctx.drawImage(glowSprite('rgba(255,205,120,0.32)','rgba(255,190,90,0)',88), P.x-88, P.y-60, 176, 118); ctx.restore(); }
+  // A1 — Vesper carries the light: a broad soft halo on the marble (additive, baked falloff, two blits)
+  { ctx.save(); ctx.globalCompositeOperation='lighter'; const hb=1+Math.sin(gt*2.4)*0.04, lr=GFX.lite?170:250*hb;
+    ctx.globalAlpha=(GFX.lite?0.22:0.30)*cf; ctx.drawImage(lightSprite(255,190,110), P.x-lr, P.y-lr*0.78+6, lr*2, lr*1.56);
+    ctx.globalAlpha=0.32; ctx.drawImage(lightSprite(255,226,170), P.x-70, P.y-40, 140, 104); ctx.restore(); }
   // bosses press their menace into the floor
   if(!GFX.lite) for(const e of enemies){ if(!e.boss || !inView(e.x,e.y,200)) continue;
     ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.5+Math.sin(gt*3+e.ph)*0.15;
@@ -1931,6 +1942,8 @@ function render(){
     const hb=(Math.sin(gt*7.4)*0.5+0.5)*0.22+0.08;
     ctx.globalAlpha=hb; ctx.drawImage(vignB.heart,0,0,VW,VH); ctx.globalAlpha=1;
   }
+  if(vignB && P._hurtF && gt<P._hurtF+0.3 && gt>=P._hurtF-0.2){ // A1 — the edges bleed for a beat when she is struck
+    ctx.globalAlpha=Math.max(0,Math.min(1,(P._hurtF+0.3-gt)*2.4)); ctx.drawImage(vignB.heart,0,0,VW,VH); ctx.globalAlpha=1; }
   if(GFX.grade && state!=='menu' && vignB){
     ctx.save(); ctx.globalCompositeOperation='overlay';
     ctx.drawImage(vignB.grd,0,0,VW,VH); ctx.restore();
@@ -2058,6 +2071,40 @@ function render(){
 // C3 — the far court gets SHAPE: silhouettes baked per (type|palette), one drawImage each.
 // Blur is legal here — it runs once at bake, never per frame.
 const _silC=new Map();
+// A1 GILT NOIR — one shape language per type, shared by every silhouette variant:
+// the far-court body (gradient + 2px ink outline + top rim + eyes), the near-court INK plate
+// (dilated soft near-black that cuts each body out of the floor and the crowd), the WHITE
+// hit-flash mask, and a tinted GLOW for elites. All baked once; one drawImage each per frame.
+function _silShape(g,T,R,fill,ink,ow){
+  g.lineJoin='round'; g.lineCap='round'; g.fillStyle=fill;
+  const legs=(arr,w)=>{ g.beginPath(); for(const s9 of arr) { g.moveTo(s9[0],s9[1]); g.lineTo(s9[2],s9[3]); }
+    if(ink){ g.strokeStyle=ink; g.lineWidth=w+ow; g.stroke(); } g.strokeStyle=fill; g.lineWidth=w; g.stroke(); };
+  const body=(fn)=>{ g.beginPath(); fn(); if(ink){ g.strokeStyle=ink; g.lineWidth=ow; g.stroke(); } g.fill(); };
+  if(T==='swarm'){ body(()=>{ // winged blot
+      g.moveTo(0,-R*0.62); g.quadraticCurveTo(R*0.3,-R*0.5,R*0.32,-R*0.15); g.quadraticCurveTo(R*1.0,-R*0.65,R*1.2,R*0.12); g.quadraticCurveTo(R*0.75,R*0.08,R*0.38,R*0.32);
+      g.quadraticCurveTo(R*0.3,R*0.6,0,R*0.6); g.quadraticCurveTo(-R*0.3,R*0.6,-R*0.38,R*0.32); g.quadraticCurveTo(-R*0.75,R*0.08,-R*1.2,R*0.12); g.quadraticCurveTo(-R*1.0,-R*0.65,-R*0.32,-R*0.15); g.quadraticCurveTo(-R*0.3,-R*0.5,0,-R*0.62); });
+  } else if(T==='stalker'){ // legged spread
+    const L=[]; for(const a of [-2.5,-2.0,-1.1,-0.6, 0.6,1.1,2.0,2.5]) L.push([Math.cos(a)*R*0.5,Math.sin(a)*R*0.3,Math.cos(a)*R*1.25,Math.sin(a)*R*0.75+R*0.15]);
+    legs(L,R*0.13); body(()=>{ g.ellipse(0,0,R*0.85,R*0.5,0,0,6.28); });
+  } else if(T==='wraith'||T==='hexer'){ body(()=>{ // hooded taper, floating
+      g.moveTo(0,-R*0.95); g.quadraticCurveTo(R*0.72,-R*0.2,R*0.5,R*0.7); g.quadraticCurveTo(0,R*0.45,-R*0.5,R*0.7); g.quadraticCurveTo(-R*0.72,-R*0.2,0,-R*0.95); });
+  } else if(T==='brute'){ body(()=>{ // hunched ogre mass: humped back, small sunk head, hanging fists
+      g.moveTo(-R*0.95,R*0.55); g.quadraticCurveTo(-R*1.05,-R*0.45,-R*0.35,-R*0.6); g.quadraticCurveTo(-R*0.2,-R*0.98,0,-R*0.95); g.quadraticCurveTo(R*0.2,-R*0.98,R*0.35,-R*0.6);
+      g.quadraticCurveTo(R*1.05,-R*0.45,R*0.95,R*0.55); g.quadraticCurveTo(0,R*0.95,-R*0.95,R*0.55);
+      g.moveTo(-R*0.62,R*0.62); g.arc(-R*0.92,R*0.62,R*0.3,0,6.28); g.moveTo(R*1.22,R*0.62); g.arc(R*0.92,R*0.62,R*0.3,0,6.28); });
+  } else if(T==='revenant'){ body(()=>{ // pauldroned block + helm
+      g.ellipse(0,0,R*0.62,R*0.82,0,0,6.28); g.moveTo(-R*0.29,-R*0.25); g.arc(-R*0.62,-R*0.25,R*0.33,0,6.28); g.moveTo(R*0.95,-R*0.25); g.arc(R*0.62,-R*0.25,R*0.33,0,6.28); g.moveTo(R*0.36,-R*0.7); g.ellipse(0,-R*0.7,R*0.36,R*0.38,0,0,6.28); });
+  } else if(T==='leech'){ // low crawler: segmented slug + feeding tendrils
+    legs([[-R*0.15,-R*0.3,-R*0.45,-R*0.95],[0,-R*0.35,0,-R*1.0],[R*0.15,-R*0.3,R*0.45,-R*0.95]],R*0.09);
+    body(()=>{ g.ellipse(0,R*0.25,R*1.0,R*0.42,0,0,6.28); g.moveTo(R*0.62,-R*0.02); g.ellipse(0,-R*0.02,R*0.62,R*0.36,0,0,6.28); g.moveTo(R*0.34,-R*0.32); g.ellipse(0,-R*0.32,R*0.34,R*0.26,0,0,6.28); });
+  } else if(T==='shooter'||T==='husk'){ // archer + bow crescent
+    if(T==='shooter'){ g.beginPath(); g.arc(R*0.55,0,R*0.75,-1.15,1.15); if(ink){ g.strokeStyle=ink; g.lineWidth=R*0.11+ow; g.stroke(); } g.strokeStyle=fill; g.lineWidth=R*0.11; g.stroke(); }
+    body(()=>{ g.ellipse(0,R*0.05,R*0.6,R*0.8,0,0,6.28); g.moveTo(R*0.34,-R*0.68); g.arc(0,-R*0.68,R*0.34,0,6.28); });
+  } else { body(()=>{ // shambler and kin — hunched shoulders, lolling head
+      g.moveTo(-R*0.62,-R*0.35); g.quadraticCurveTo(0,-R*0.75,R*0.62,-R*0.35); g.quadraticCurveTo(R*0.85,R*0.3,R*0.5,R*0.78); g.lineTo(-R*0.5,R*0.78); g.quadraticCurveTo(-R*0.85,R*0.3,-R*0.62,-R*0.35);
+      g.moveTo(R*0.48,-R*0.62); g.ellipse(R*0.12,-R*0.62,R*0.36,R*0.32,0,0,6.28); });
+  }
+}
 function silSprite(T,dark,col){
   const key=T+'|'+dark+'|'+col;
   let cv=_silC.get(key);
@@ -2065,41 +2112,38 @@ function silSprite(T,dark,col){
     if(_silC.size>96){ let n=0; for(const k of _silC.keys()){ _silC.delete(k); if(++n>=24) break; } }
     const R=20, S=64; cv=document.createElement('canvas'); cv.width=S; cv.height=S;
     const g=cv.getContext('2d'); g.translate(S/2,S/2);
-    g.fillStyle=dark; g.beginPath();
-    if(T==='swarm'){ // winged blot
-      g.ellipse(0,0,R*0.45,R*0.55,0,0,6.28);
-      g.moveTo(-R*0.3,-R*0.1); g.quadraticCurveTo(-R*1.05,-R*0.55,-R*1.15,R*0.1); g.quadraticCurveTo(-R*0.7,R*0.05,-R*0.3,R*0.25);
-      g.moveTo(R*0.3,-R*0.1); g.quadraticCurveTo(R*1.05,-R*0.55,R*1.15,R*0.1); g.quadraticCurveTo(R*0.7,R*0.05,R*0.3,R*0.25);
-    } else if(T==='stalker'){ // legged spread
-      g.ellipse(0,0,R*0.85,R*0.5,0,0,6.28); g.fill(); g.beginPath();
-      g.strokeStyle=dark; g.lineWidth=2.6; g.lineCap='round';
-      for(const a of [-2.5,-2.0,-1.1,-0.6, 0.6,1.1,2.0,2.5]){ g.moveTo(Math.cos(a)*R*0.5,Math.sin(a)*R*0.3); g.lineTo(Math.cos(a)*R*1.25,Math.sin(a)*R*0.75+R*0.15); }
-      g.stroke(); g.beginPath();
-    } else if(T==='wraith'||T==='hexer'){ // hooded taper, floating
-      g.moveTo(0,-R*0.95); g.quadraticCurveTo(R*0.72,-R*0.2,R*0.5,R*0.7); g.quadraticCurveTo(0,R*0.45,-R*0.5,R*0.7); g.quadraticCurveTo(-R*0.72,-R*0.2,0,-R*0.95);
-    } else if(T==='brute'){ // mass
-      g.ellipse(0,R*0.08,R*0.95,R*0.85,0,0,6.28);
-    } else if(T==='revenant'){ // pauldroned block
-      g.ellipse(0,0,R*0.62,R*0.82,0,0,6.28); g.moveTo(-R*0.95,-R*0.25); g.arc(-R*0.62,-R*0.25,R*0.33,0,6.28); g.moveTo(R*0.95,-R*0.25); g.arc(R*0.62,-R*0.25,R*0.33,0,6.28);
-    } else if(T==='leech'){ // low crawler
-      g.ellipse(0,R*0.2,R*1.0,R*0.45,0,0,6.28);
-    } else if(T==='shooter'||T==='husk'){ // archer + bow crescent
-      g.ellipse(0,0,R*0.6,R*0.85,0,0,6.28); g.fill(); g.beginPath();
-      g.strokeStyle=dark; g.lineWidth=2.2; g.arc(R*0.55,0,R*0.75,-1.15,1.15); g.stroke(); g.beginPath();
-    } else { // shambler and kin
-      g.ellipse(0,0,R*0.8,R*0.9,0,0,6.28);
-    }
-    g.fill();
-    // rim light — the chandeliers catch every shoulder in the crowd
-    g.strokeStyle='rgba(200,215,240,0.22)'; g.lineWidth=1.6;
-    g.beginPath(); g.arc(0,0,R*0.78,-2.6,-0.9); g.stroke();
+    // mid value: lit body color on top falling to the type's dark — then a 2px near-black ink line
+    const gr=g.createLinearGradient(0,-R,0,R); gr.addColorStop(0,col); gr.addColorStop(0.55,dark); gr.addColorStop(1,dark);
+    _silShape(g,T,R,gr,'#050204',5);
+    // rim light — the candlelight catches every shoulder in the crowd
+    g.globalCompositeOperation='source-atop'; g.strokeStyle='rgba(255,226,190,0.42)'; g.lineWidth=3;
+    g.beginPath(); g.arc(0,R*0.2,R*0.95,-2.5,-0.64); g.stroke(); g.globalCompositeOperation='source-over';
     // eyes with a pre-blurred glow (bake-time blur only)
-    g.shadowColor=col; g.shadowBlur=5; g.fillStyle=col;
-    g.beginPath(); g.arc(-R*0.22,-R*0.18,R*0.12,0,6.28); g.arc(R*0.22,-R*0.18,R*0.12,0,6.28); g.fill();
+    const ey=(T==='revenant'||T==='shooter'||T==='husk')?-R*0.68:(T==='swarm'?-R*0.2:-R*0.3);
+    g.shadowColor=col; g.shadowBlur=6; g.fillStyle=col;
+    g.beginPath(); g.arc(-R*0.17,ey,R*0.1,0,6.28); g.arc(R*0.17,ey,R*0.1,0,6.28); g.fill();
+    g.shadowBlur=0; g.fillStyle='#fff4e0';
+    g.beginPath(); g.arc(-R*0.17,ey,R*0.045,0,6.28); g.arc(R*0.17,ey,R*0.045,0,6.28); g.fill();
     _silC.set(key,cv);
   }
   return cv;
 }
+// variants: 'ink' (near-court cut-out plate), 'white' (hit flash), 'glow' (elite/boss aura, tinted)
+function silVar(T,mode,col){
+  const key='v|'+T+'|'+mode+'|'+(col||'');
+  let cv=_silC.get(key); if(cv) return cv;
+  if(_silC.size>96){ let n=0; for(const k of _silC.keys()){ _silC.delete(k); if(++n>=24) break; } }
+  const R=20, S=64; cv=document.createElement('canvas'); cv.width=S; cv.height=S;
+  const g=cv.getContext('2d'); g.translate(S/2,S/2);
+  if(mode==='white'){ _silShape(g,T,R,'#ffffff','#ffffff',3); }
+  else if(mode==='ink'){ g.shadowColor='rgba(0,0,0,0.9)'; g.shadowBlur=3; _silShape(g,T,R,'rgba(4,1,3,0.88)','rgba(4,1,3,0.88)',7); }
+  else { g.shadowColor=col; g.shadowBlur=7; _silShape(g,T,R*0.92,col,col,4); }
+  _silC.set(key,cv); return cv;
+}
+// eye anchors per type (in r units, before the type's own sway) — the glow follows the player
+const _EYE={ swarm:[[-0.18,-0.14],[0.18,-0.14]], stalker:[[0.5,-0.22]], wraith:[[-0.1,-0.46],[0.1,-0.46]], hexer:[[0,-0.5]],
+  revenant:[[0,-0.68]], brute:[[-0.12,-0.64],[0.12,-0.64]], shooter:[[-0.11,-0.75],[0.11,-0.75]], husk:[[-0.14,-0.71],[0.14,-0.71]], _:[[0.21,-0.66]] };
+const _EYEC={ swarm:'255,90,90', stalker:'255,223,90', wraith:'200,235,255', hexer:'201,255,122', revenant:'255,77,77', brute:'255,77,77', shooter:'255,206,90', husk:'255,170,80' };
 function drawEnemy(e){
   const t=gt*4+e.ph, T=e.vt||e.type, r=e.r;
   if(e._lod){ // distant court: one baked, shaped, rim-lit sprite
@@ -2108,7 +2152,7 @@ function drawEnemy(e){
     if(e.flash>0){ const sq=Math.min(0.16,e.flash*1.4); ctx.scale(1+sq,1-sq); }
     const sp=silSprite(T,e.dark,e.col); const dw=r*3.2;
     ctx.drawImage(sp,-dw/2,-dw/2,dw,dw);
-    if(e.flash>0){ ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=Math.min(0.85,e.flash*3.5); ctx.drawImage(sp,-dw/2,-dw/2,dw,dw); }
+    if(e.flash>0){ ctx.globalAlpha=Math.min(0.95,e.flash*8); ctx.drawImage(silVar(T,'white'),-dw/2,-dw/2,dw,dw); } // A1: true white flash
     ctx.restore(); return;
   }
   ctx.save(); ctx.translate(e.x,e.y);
@@ -2129,8 +2173,11 @@ function drawEnemy(e){
     ctx.drawImage(glowSprite(e.col,'rgba(0,0,0,0)',48), -gr9, -gr9*0.82, gr9*2, gr9*1.64); ctx.restore(); }
   if(e.flash>0){ const sq=Math.min(0.16,e.flash*1.4); ctx.scale(1+sq,1-sq); }
   { const bs9=Math.min(1,(gt-(e.born||gt-1))/0.22); if(bs9<1){ ctx.scale(bs9,bs9); ctx.globalAlpha=bs9; } }
-  { const ga9=ctx.globalAlpha; ctx.globalAlpha=ga9*0.3; ctx.fillStyle='#000';
-    ctx.beginPath(); ctx.ellipse(0,r*0.92,r*0.72,r*0.26,0,0,6.28); ctx.fill(); ctx.globalAlpha=ga9; }
+  // A1 GILT NOIR law 1 — elites wear a violet aura of their own shape; every body gets an ink cut-out plate
+  { const dw=r*3.2, ga9=ctx.globalAlpha;
+    if((e.elite||e.boss) && !GFX.lite){ const pu=1.18+Math.sin(gt*5+e.ph)*0.05, gw=dw*pu; ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=ga9*0.7;
+      ctx.drawImage(silVar(T,'glow',e.boss?'#ff5a78':'#c98bff'),-gw/2,-gw/2-r*0.08,gw,gw); ctx.restore(); }
+    const iw=dw*1.1; ctx.drawImage(silVar(T,'ink'),-iw/2,-iw/2-r*0.04,iw,iw); }
   const sway=Math.sin(t)*r*0.12;
   // ranged wind-up: the muzzle glows before the shot lands anywhere near you
   if(e.ranged && e.shootCd<0.35 && e.shootCd>0){ ctx.save(); ctx.globalCompositeOperation='lighter';
@@ -2474,11 +2521,14 @@ function drawEnemy(e){
       ctx.restore();
     }
   }
-  // rim light — moonlit edge for readability
-  ctx.save(); ctx.globalCompositeOperation='lighter';
-  ctx.strokeStyle='rgba(200,215,240,0.15)'; ctx.lineWidth=1.6;
-  ctx.beginPath(); ctx.ellipse(sway*0.5,-r*0.28,r*0.62,r*0.7,0,-2.7,-0.4); ctx.stroke();
-  ctx.restore();
+  // A1 — rim light on the side FACING the player: her candle catches their edge; eyes glow and track her
+  { const pa=Math.atan2(P.y-e.y,P.x-e.x), ca=Math.cos(pa), sa=Math.sin(pa);
+    ctx.save(); ctx.globalCompositeOperation='lighter';
+    ctx.strokeStyle=e.elite?'rgba(235,200,255,0.55)':'rgba(255,218,170,0.42)'; ctx.lineWidth=Math.max(1.4,r*0.11);
+    ctx.beginPath(); ctx.ellipse(sway*0.5,-r*0.1,r*0.74,r*0.84,0,pa-0.95,pa+0.95); ctx.stroke();
+    const ey=_EYE[T]||_EYE._; if(ey && !GFX.lite){ const ec=_EYEC[T]||(e.elite?'255,240,170':'255,77,77'), es=r*0.62, sp9=glowSprite('rgba('+ec+',0.9)','rgba('+ec+',0)',8);
+      for(const p9 of ey){ const ex=p9[0]*r+ca*r*0.05+(T==='wraith'||T==='hexer'?0:sway*0.4), eyy=p9[1]*r+sa*r*0.04; ctx.drawImage(sp9,ex-es/2,eyy-es/2,es,es); } }
+    ctx.restore(); }
   if(e.elite||e.boss){
     ctx.fillStyle='#e8b64c'; ctx.beginPath(); ctx.moveTo(-r*0.4,-r*1.0); ctx.lineTo(-r*0.2,-r*1.3); ctx.lineTo(0,-r*1.05); ctx.lineTo(r*0.2,-r*1.3); ctx.lineTo(r*0.4,-r*1.0); ctx.closePath(); ctx.fill();
     ctx.fillStyle='#c8102e'; ctx.beginPath(); ctx.arc(-r*0.2,-r*1.22,r*0.05,0,6.28); ctx.arc(r*0.2,-r*1.22,r*0.05,0,6.28); ctx.fill();
@@ -2489,7 +2539,7 @@ function drawEnemy(e){
   { const wnd=1-(e.hp/Math.max(1,e.maxhp));
     if(wnd>0.25){ ctx.globalAlpha=Math.min(0.4,(wnd-0.25)*0.6); ctx.fillStyle='#160408';
       ctx.beginPath(); ctx.ellipse(0,-r*0.15,r*0.72,r*0.85,0,0,6.28); ctx.fill(); ctx.globalAlpha=1; } }
-  if(e.flash>0){ ctx.globalAlpha=Math.min(0.8,e.flash*6); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.ellipse(0,-r*0.2,r*0.78,r*0.95,0,0,6.28); ctx.fill(); ctx.globalAlpha=1; }
+  if(e.flash>0){ const dw=r*3.2; ctx.globalAlpha=Math.min(0.92,e.flash*8); ctx.drawImage(silVar(T,'white'),-dw/2,-dw/2,dw,dw); ctx.globalAlpha=1; } // A1: white flash in the enemy's own shape
   ctx.restore();
 }
 
@@ -2542,13 +2592,6 @@ function drawPlayer(){
     for(let i=0;i<P.trail.length;i++){ const tp=P.trail[i]; ctx.globalAlpha=(i/P.trail.length)*(P._goldTrail?0.24:0.15); ctx.fillStyle=tc9; ctx.beginPath(); ctx.arc(tp.x,tp.y,7*(i/P.trail.length),0,6.28); ctx.fill(); } ctx.globalAlpha=1; }
   ctx.save(); ctx.translate(P.x,P.y);
   if(P.inv>0.12 && ((gt*22)|0)%2===0) ctx.globalAlpha=0.55; // struck souls flicker — the i-frames are visible
-  // warm candle-glow pool around the gambler
-  ctx.save(); ctx.globalCompositeOperation='lighter';
-  ctx.globalAlpha=(0.10+brt*0.05)/0.15;
-  ctx.drawImage(glowSprite('rgba(255,170,80,0.15)','rgba(255,150,60,0)',46),-46,4-46,92,92);
-  ctx.globalAlpha=1; ctx.restore();
-  ctx.save(); ctx.globalAlpha=0.3; ctx.fillStyle='#000';
-  ctx.beginPath(); ctx.ellipse(0,16,13,4.4,0,0,6.28); ctx.fill(); ctx.restore();
   if(killStreak>=50 && state==='playing'){ ctx.save(); ctx.globalCompositeOperation='lighter';
     ctx.strokeStyle='rgba(255,154,60,'+(0.35+Math.sin(gt*10)*0.2)+')'; ctx.lineWidth=2;
     ctx.beginPath(); ctx.arc(0,0,27+Math.sin(gt*7)*3,0,6.28); ctx.stroke();
@@ -2561,117 +2604,114 @@ function drawPlayer(){
   // faint gambler's rune circle beneath the boots
   ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.rotate(gt*0.6);
   ctx.strokeStyle='rgba(232,182,76,'+(gh?0.10:(0.13+brt*0.06))+')'; ctx.lineWidth=1.6;
-  ctx.beginPath(); ctx.arc(0,0,21,0,6.28); ctx.stroke();
+  ctx.beginPath(); ctx.arc(0,4,27,0,6.28); ctx.stroke();
   for(let rn2=0;rn2<4;rn2++){ const rna=rn2*1.5708; ctx.fillStyle='rgba(232,182,76,'+(gh?0.14:0.22)+')';
-    ctx.font='8px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(['♠','♥','♦','♣'][rn2], Math.cos(rna)*21, Math.sin(rna)*21); }
+    ctx.font='9px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(['♠','♥','♦','♣'][rn2], Math.cos(rna)*27, 4+Math.sin(rna)*27); }
   ctx.restore();
   if(P.midas && P.midasStacks>0){ ctx.strokeStyle='rgba(232,182,76,'+Math.min(0.6,P.midasStacks/30)+')'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(0,0,20+Math.sin(t)*2,0,6.28); ctx.stroke(); }
-  // shadow
-  ctx.fillStyle='rgba(0,0,0,0.45)'; ctx.beginPath(); ctx.ellipse(0,15,13,4.5,0,0,6.28); ctx.fill();
-  const lean=fx*3, bob=Math.abs(Math.sin(t))*mv*1.4;
+  // ═══ A1 GILT NOIR — VESPER, redrawn: 1.45× larger (visual only — P.radius untouched), ink-outlined,
+  // white-gold rim, pale face, 4-beat procedural run (boots / coat tails / free arm), idle breathe.
+  ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.beginPath(); ctx.ellipse(0,17,17,5.6,0,0,6.28); ctx.fill();
+  ctx.save(); ctx.scale(1.45,1.45);
+  const ph=t*1.15, lean=fx*3, run=mv, bob=Math.abs(Math.sin(ph))*run*1.6;
+  if(!run){ const br=1+brt*0.028; ctx.translate(0,15); ctx.scale(1+(1-brt)*0.01,br); ctx.translate(0,-15); } // idle breathe
   ctx.translate(0,-bob);
-  // striding boots
-  const step=Math.sin(t)*mv*4.5;
-  ctx.fillStyle='#0c0608';
-  ctx.beginPath(); ctx.ellipse(-3.5+step*0.7,14.5,3,1.8,0,0,6.28); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(3.5-step*0.7,14.5,3,1.8,0,0,6.28); ctx.fill();
+  const step=Math.sin(ph)*run, bil=Math.sin(ph*0.5+0.6)*run*1.2+Math.sin(gt*1.7)*0.6, hurtF=Math.max(0,(P._hurtF||0)-gt);
+  // legs + boots — 4-beat: plant, pass, plant, pass (the lift reads at any size)
+  for(const sd of [-1,1]){ const k=step*sd, lift=Math.max(0,-k)*2.2;
+    ctx.strokeStyle='#0a0406'; ctx.lineWidth=2.6; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(sd*2.6,8); ctx.lineTo(sd*3.2+k*3.4,13.6-lift); ctx.stroke();
+    ctx.fillStyle='#050203'; ctx.beginPath(); ctx.ellipse(sd*3.4+k*3.8,14.6-lift,3.1,1.7,0,0,6.28); ctx.fill(); }
   // ghoul soul-smoke rising off the body
   if(gh){ ctx.save(); ctx.globalCompositeOperation='lighter';
     for(let i=0;i<4;i++){ const sy=-((gt*30+i*17)%46), sa2=1-Math.abs(sy+23)/23;
       ctx.globalAlpha=sa2*0.30; ctx.fillStyle='#3a4a5a';
       ctx.beginPath(); ctx.arc(-8+i*5.4+Math.sin(gt*2.4+i)*3, sy-2, 3.4+sa2*2, 0, 6.28); ctx.fill(); }
     ctx.globalAlpha=1; ctx.restore(); }
-  const bil=Math.sin(t*0.9)*mv*3.5;
-  // flowing outer coat — layered, top-lit gradient
-  { const ck='plc'+(gh?1:0); let cgd=_lgCache[ck];
-    if(!cgd){ cgd=ctx.createLinearGradient(0,-9,0,16);
-      if(gh){ cgd.addColorStop(0,'#151016'); cgd.addColorStop(1,'#060305'); }
-      else { cgd.addColorStop(0,'#6a1220'); cgd.addColorStop(0.5,'#4d0a12'); cgd.addColorStop(1,'#2a050a'); }
-      _lgCache[ck]=cgd; }
-    ctx.fillStyle=cgd; }
-  ctx.beginPath();
-  ctx.moveTo(-9+lean,-7);
-  ctx.quadraticCurveTo(-18+lean-bil,4,-13+lean-bil*0.8,15.5);
-  ctx.quadraticCurveTo(-6,13.5,0,15.5);
-  ctx.quadraticCurveTo(6,13.5,13+lean+bil*0.8,15.5);
-  ctx.quadraticCurveTo(18+lean+bil,4,9+lean,-7);
-  ctx.closePath(); ctx.fill();
-  // coat mid layer — lit from the chandeliers
-  { const _ck='coat'+(gh?1:0); let mgd=_lgCache[_ck];
-    if(!mgd){ mgd=ctx.createLinearGradient(0,-7,0,14);
-      if(gh){ mgd.addColorStop(0,'#221721'); mgd.addColorStop(1,'#0c0509'); }
-      else { mgd.addColorStop(0,'#8e1826'); mgd.addColorStop(1,'#4a0a10'); }
-      _lgCap(); _lgCache[_ck]=mgd; }
-    ctx.fillStyle=mgd; }
-  ctx.beginPath();
-  ctx.moveTo(-7.5+lean,-6);
-  ctx.quadraticCurveTo(-13+lean-bil*0.6,5,-8+lean,14);
-  ctx.lineTo(8+lean,14);
-  ctx.quadraticCurveTo(13+lean+bil*0.6,5,7.5+lean,-6);
-  ctx.closePath(); ctx.fill();
-  if(!qLow&&!GFX.lite){ // C6 — velvet: a baked stipple breathed into the coat (path still live for clip)
+  // the long coat — one silhouette path, reused for ink, fill, rim and the hurt flash
+  const coat=()=>{ ctx.beginPath();
+    ctx.moveTo(-6.5+lean,-8.5);
+    ctx.quadraticCurveTo(-12+lean,-6,-12.5+lean-bil,3);
+    ctx.quadraticCurveTo(-14.5+lean-bil*1.6,10,-12.5+lean-bil*1.8,15.2-step*1.2);
+    ctx.quadraticCurveTo(-6,12.6,-2.4,13.2); ctx.lineTo(0,10.5); ctx.lineTo(2.4,13.2);
+    ctx.quadraticCurveTo(6,12.6,12.5+lean+bil*1.8,15.2+step*1.2);
+    ctx.quadraticCurveTo(14.5+lean+bil*1.6,10,12.5+lean+bil,3);
+    ctx.quadraticCurveTo(12+lean,-6,6.5+lean,-8.5);
+    ctx.quadraticCurveTo(lean,-10.6,-6.5+lean,-8.5); ctx.closePath(); };
+  coat(); ctx.strokeStyle='#040102'; ctx.lineWidth=2.4; ctx.lineJoin='round'; ctx.stroke(); // ink outline
+  { const ck='plcA1'+(gh?1:0); let cgd=_lgCache[ck];
+    if(!cgd){ cgd=ctx.createLinearGradient(0,-10,0,16);
+      if(gh){ cgd.addColorStop(0,'#2a2430'); cgd.addColorStop(1,'#0a0609'); }
+      else { cgd.addColorStop(0,'#b0202f'); cgd.addColorStop(0.45,'#7a1020'); cgd.addColorStop(1,'#3a060d'); }
+      _lgCap(); _lgCache[ck]=cgd; }
+    ctx.fillStyle=cgd; } ctx.fill();
+  if(!qLow&&!GFX.lite){ // C6 — velvet stipple breathed into the coat
     if(!window._velvB){ const c9=document.createElement('canvas'); c9.width=c9.height=24; const g9=c9.getContext('2d');
       g9.fillStyle='rgba(255,255,255,0.05)'; for(let n9=0;n9<26;n9++) g9.fillRect((Math.random()*24)|0,(Math.random()*24)|0,1,1);
       g9.fillStyle='rgba(0,0,0,0.07)'; for(let n9=0;n9<20;n9++) g9.fillRect((Math.random()*24)|0,(Math.random()*24)|0,1,1);
       window._velvB=c9; }
-    ctx.save(); ctx.clip(); ctx.drawImage(window._velvB,-12+lean,-8,24,24); ctx.restore(); }
-  // shoulder sheen
-  ctx.save(); ctx.globalCompositeOperation='lighter';
-  ctx.strokeStyle='rgba(255,200,150,0.16)'; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.moveTo(-7+lean,-6.4); ctx.quadraticCurveTo(lean,-9.6,7+lean,-6.4); ctx.stroke();
-  ctx.restore();
-  // gold hem trim
-  ctx.strokeStyle='rgba(232,182,76,0.75)'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(-12+lean-bil*0.8,14.6); ctx.quadraticCurveTo(0,12.4,12+lean+bil*0.8,14.6); ctx.stroke();
-  // crimson inner lining flash
-  ctx.fillStyle=gh?'#2a1218':'#a5121c'; ctx.beginPath(); ctx.moveTo(-4.5+lean,-3); ctx.quadraticCurveTo(-2,7,0,13.5); ctx.quadraticCurveTo(2,7,4.5+lean,-3); ctx.closePath(); ctx.fill();
-  // black waistcoat body
-  ctx.fillStyle='#14090c'; ctx.beginPath(); ctx.ellipse(lean*0.5,-0.5,6,8.6,0,0,6.28); ctx.fill();
-  // gold waistcoat buttons
-  ctx.fillStyle='#e8b64c';
-  for(let i=0;i<3;i++){ ctx.beginPath(); ctx.arc(lean*0.5,-4.5+i*3.4,0.85,0,6.28); ctx.fill(); }
-  // gold watch chain swinging from the waistcoat
-  { const csw=Math.sin(gt*5)*0.8+mv*Math.sin(t)*1;
-    ctx.strokeStyle=gh?'rgba(90,100,110,0.8)':'rgba(232,182,76,0.9)'; ctx.lineWidth=0.9;
-    ctx.beginPath(); ctx.moveTo(lean*0.5,-1.2); ctx.quadraticCurveTo(lean*0.5+3.4,2.2+csw, lean*0.5+5.2,0.6); ctx.stroke();
-    ctx.fillStyle=gh?'#5a626c':'#ffd36b';
-    ctx.beginPath(); ctx.arc(lean*0.5+5.2,0.6,1.1,0,6.28); ctx.fill(); }
+    ctx.save(); ctx.clip(); ctx.drawImage(window._velvB,-12+lean,-10,24,24); ctx.drawImage(window._velvB,-12+lean,4,24,12); ctx.restore(); }
+  // coat-tail split shadow + crimson lining flashing as she strides
+  ctx.fillStyle=gh?'#2a1218':'#d01e2e'; ctx.beginPath(); ctx.moveTo(-1.6+lean*0.6,1); ctx.quadraticCurveTo(-2.6-bil*0.6,8,-2.4,13.2); ctx.lineTo(0,10.5); ctx.lineTo(2.4,13.2); ctx.quadraticCurveTo(2.6+bil*0.6,8,1.6+lean*0.6,1); ctx.closePath(); ctx.fill();
+  // gold hem trim — the one gilt line she wears
+  ctx.strokeStyle=gh?'rgba(90,100,110,0.8)':'rgba(255,211,107,0.85)'; ctx.lineWidth=0.9;
+  ctx.beginPath(); ctx.moveTo(-12.2+lean-bil*1.8,14.4-step*1.2); ctx.quadraticCurveTo(-6,11.9,-2.4,12.5); ctx.moveTo(2.4,12.5); ctx.quadraticCurveTo(6,11.9,12.2+lean+bil*1.8,14.4+step*1.2); ctx.stroke();
+  // lapels + black waistcoat
+  ctx.fillStyle='#120609'; ctx.beginPath(); ctx.moveTo(-4.2+lean,-7.6); ctx.lineTo(lean*0.5,3.4); ctx.lineTo(4.2+lean,-7.6); ctx.quadraticCurveTo(lean,-6.2,-4.2+lean,-7.6); ctx.fill();
+  ctx.fillStyle=gh?'#3a4550':'#e8b64c'; for(let i=0;i<2;i++){ ctx.beginPath(); ctx.arc(lean*0.5,-3.6+i*3,0.75,0,6.28); ctx.fill(); }
+  // free arm swings with the stride (off-hand side of the aim)
+  { const sd=fx>=0?-1:1, sw=step*3.2*sd;
+    ctx.strokeStyle='#2a050b'; ctx.lineWidth=3; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(sd*8+lean,-5.5); ctx.quadraticCurveTo(sd*11+lean,-0.5,sd*9.5+lean+sw,3.5); ctx.stroke();
+    ctx.fillStyle='#efe6d6'; ctx.beginPath(); ctx.arc(sd*9.5+lean+sw,4.4,1.3,0,6.28); ctx.fill(); }
+  // white-gold rim: she is the light, so her own edge glows where the halo wraps her shoulders
+  if(!GFX.lite){ ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.strokeStyle=gh?'rgba(160,200,255,0.35)':'rgba(255,236,190,0.5)'; ctx.lineWidth=1.1;
+    ctx.beginPath(); ctx.moveTo(-11.8+lean-bil,2); ctx.quadraticCurveTo(-11.6+lean,-6,-6.5+lean,-8.4); ctx.quadraticCurveTo(lean,-10.4,6.5+lean,-8.4); ctx.quadraticCurveTo(11.6+lean,-6,11.8+lean+bil,2); ctx.stroke(); ctx.restore(); }
   // card-hand: aims toward the cursor with a glowing spinning card
   ctx.save(); ctx.rotate(P.aim);
-  ctx.strokeStyle=gh?'#0c1016':'#2e070d'; ctx.lineWidth=3.4; ctx.lineCap='round';
-  ctx.beginPath(); ctx.moveTo(3,0); ctx.lineTo(11,0); ctx.stroke();
-  ctx.strokeStyle=gh?'#3a4550':'#e8b64c'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(9.4,-1.7); ctx.lineTo(9.4,1.7); ctx.stroke();
-  ctx.save(); ctx.translate(12.5,0); ctx.rotate(gt*3);
-  ctx.shadowColor=gh?'#8ac8ff':'#ffd36b'; ctx.shadowBlur=7;
-  ctx.fillStyle='#f4efe0'; ctx.fillRect(-2.4,-3.4,4.8,6.8);
-  ctx.shadowBlur=0;
-  ctx.fillStyle='#a5121c'; ctx.fillRect(-1,-1.4,2,2.8);
-  ctx.strokeStyle='rgba(140,20,30,0.5)'; ctx.lineWidth=0.6; ctx.strokeRect(-2.4,-3.4,4.8,6.8);
-  ctx.restore();
-  ctx.restore();
-  // pale collar + head — ashen corpse-grey in ghoul form
-  ctx.fillStyle=gh?'#8a929a':'#ece4d5'; ctx.beginPath(); ctx.arc(lean*0.5,-6.5,3,0,6.28); ctx.fill();
-  ctx.fillStyle=gh?'#9aa2ac':'#e6dccb'; ctx.beginPath(); ctx.arc(lean*0.6,-11.5,4.4,0,6.28); ctx.fill();
-  if(gh){ ctx.fillStyle='#2a3138'; ctx.beginPath(); ctx.arc(lean*0.6-1.5,-10.4,1.5,0,6.28); ctx.arc(lean*0.6+1.5,-10.4,1.5,0,6.28); ctx.fill(); }
-  // glowing eyes track aim — hollow soul-blue when dying
-  ctx.fillStyle=gh?'#bfe6ff':'#ff2d3d'; ctx.shadowColor=gh?'#8ac8ff':'#ff2d3d'; ctx.shadowBlur=gh?10:7;
-  ctx.beginPath(); ctx.arc(lean*0.6-1.5+fx*0.7,-11.4+fy*0.5,0.9,0,6.28); ctx.arc(lean*0.6+1.5+fx*0.7,-11.4+fy*0.5,0.9,0,6.28); ctx.fill(); ctx.shadowBlur=0;
-  // wide-brim gambler hat with gold band
-  ctx.fillStyle='#0a0406';
-  ctx.beginPath(); ctx.ellipse(lean*0.7,-14.2,8.6,2.7,lean*0.012,0,6.28); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(lean*0.7,-16.4,4.6,3.4,0,Math.PI,Math.PI*2); ctx.fill();
-  ctx.fillRect(lean*0.7-4.6,-16.4,9.2,2.4);
-  ctx.fillStyle=gh?'#4a5560':'#e8b64c'; ctx.fillRect(lean*0.7-4.6,-14.6,9.2,1.15);
-  ctx.fillStyle='#ff4550'; ctx.beginPath(); ctx.arc(lean*0.7+3.4,-14,0.9,0,6.28); ctx.fill();
-  { const fw=Math.sin(gt*5)*0.8;
-    ctx.strokeStyle=gh?'rgba(120,140,160,0.8)':'rgba(232,182,76,0.9)'; ctx.lineWidth=1.1; ctx.lineCap='round';
-    ctx.beginPath(); ctx.moveTo(lean*0.7+3.8,-14.4); ctx.quadraticCurveTo(lean*0.7+7,-18+fw, lean*0.7+9.4,-20.5+fw); ctx.stroke();
-    ctx.strokeStyle=gh?'rgba(120,140,160,0.45)':'rgba(200,30,44,0.65)'; ctx.lineWidth=0.7;
-    for(let fb=0;fb<3;fb++){ const ft2=0.35+fb*0.25;
-      const bx=lean*0.7+3.8+(9.4-3.8)*ft2, by=-14.4+(-20.5+fw+14.4)*ft2;
-      ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx-1.6,by-1.4); ctx.stroke(); } }
+  ctx.strokeStyle='#040102'; ctx.lineWidth=4.4; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(3,0); ctx.lineTo(11.5,0); ctx.stroke();
+  ctx.strokeStyle=gh?'#1c222a':'#8e1424'; ctx.lineWidth=2.8; ctx.beginPath(); ctx.moveTo(3,0); ctx.lineTo(11,0); ctx.stroke();
+  ctx.strokeStyle=gh?'#3a4550':'#e8b64c'; ctx.lineWidth=0.9; ctx.beginPath(); ctx.moveTo(9.4,-1.5); ctx.lineTo(9.4,1.5); ctx.stroke();
+  ctx.save(); ctx.translate(13,0); ctx.rotate(gt*3);
+  if(!GFX.lite){ ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.7; ctx.drawImage(glowSprite(gh?'rgba(138,200,255,0.8)':'rgba(255,226,170,0.8)','rgba(255,200,120,0)',8),-8,-8,16,16); ctx.restore(); }
+  ctx.fillStyle='#fbf6ea'; ctx.fillRect(-2.4,-3.4,4.8,6.8);
+  ctx.fillStyle='#c8102e'; ctx.fillRect(-1,-1.4,2,2.8);
+  ctx.strokeStyle='rgba(60,10,16,0.7)'; ctx.lineWidth=0.6; ctx.strokeRect(-2.4,-3.4,4.8,6.8);
+  ctx.restore(); ctx.restore();
+  // pale collar + face — the brightest skin on the floor; ashen in ghoul form
+  const hx=lean*0.62, hy=-12.2;
+  ctx.fillStyle='#040102'; ctx.beginPath(); ctx.arc(hx,hy,5.6,0,6.28); ctx.fill();
+  ctx.fillStyle=gh?'#8a929a':'#f4ecdf'; ctx.beginPath(); ctx.moveTo(-3.4+lean*0.5,-8.6); ctx.lineTo(lean*0.5,-5.2); ctx.lineTo(3.4+lean*0.5,-8.6); ctx.closePath(); ctx.fill();
+  ctx.fillStyle=gh?'#9aa2ac':'#f6eee2'; ctx.beginPath(); ctx.ellipse(hx,hy,4.5,4.8,0,0,6.28); ctx.fill();
+  ctx.fillStyle=gh?'#6a737c':'rgba(200,170,160,0.55)'; ctx.beginPath(); ctx.ellipse(hx+fx*1.2,hy+2.2,3.4,1.9,0,0,6.28); ctx.fill(); // jaw shade
+  // eyes track aim — red embers (hollow soul-blue when dying); glow via cached sprite, never shadowBlur
+  { const ex=hx+fx*1.1, ey=hy-0.4+fy*0.5;
+    ctx.fillStyle=gh?'#1a2026':'#2a0a0e'; ctx.beginPath(); ctx.ellipse(ex-1.7,ey,1.3,0.95,0,0,6.28); ctx.ellipse(ex+1.7,ey,1.3,0.95,0,0,6.28); ctx.fill();
+    if(!GFX.lite){ ctx.save(); ctx.globalCompositeOperation='lighter'; const egs=glowSprite(gh?'rgba(140,200,255,0.9)':'rgba(255,45,61,0.9)','rgba(255,45,61,0)',8);
+      ctx.drawImage(egs,ex-1.7-3,ey-3,6,6); ctx.drawImage(egs,ex+1.7-3,ey-3,6,6); ctx.restore(); }
+    ctx.fillStyle=gh?'#bfe6ff':'#ff3a48'; ctx.beginPath(); ctx.arc(ex-1.7,ey,0.7,0,6.28); ctx.arc(ex+1.7,ey,0.7,0,6.28); ctx.fill();
+    if(!gh){ ctx.fillStyle='#a01020'; ctx.fillRect(hx+fx*1.2-1,hy+2.6,2,0.7); } } // a red mouth
+  // wide-brim gambler hat — ink outline, gold band, blood pin, feather
+  { const hb=lean*0.75, tilt=lean*0.02;
+    ctx.fillStyle='#040102'; ctx.beginPath(); ctx.ellipse(hb,-15.6,11.6,3.6,tilt,0,6.28); ctx.fill();
+    ctx.fillStyle='#120a0e'; ctx.beginPath(); ctx.ellipse(hb,-15.8,10.4,2.7,tilt,0,6.28); ctx.fill();
+    ctx.fillStyle='#040102'; ctx.beginPath(); ctx.moveTo(hb-5.6,-15.6); ctx.lineTo(hb-4.8,-21.6); ctx.quadraticCurveTo(hb,-23.4,hb+4.8,-21.6); ctx.lineTo(hb+5.6,-15.6); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#160c11'; ctx.beginPath(); ctx.moveTo(hb-4.6,-16); ctx.lineTo(hb-4,-21); ctx.quadraticCurveTo(hb,-22.4,hb+4,-21); ctx.lineTo(hb+4.6,-16); ctx.closePath(); ctx.fill();
+    ctx.fillStyle=gh?'#4a5560':'#e8b64c'; ctx.fillRect(hb-4.7,-17.6,9.4,1.4);
+    ctx.fillStyle='#ff3344'; ctx.beginPath(); ctx.arc(hb+3.6,-16.9,1,0,6.28); ctx.fill();
+    if(!GFX.lite){ ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.strokeStyle='rgba(255,236,190,0.35)'; ctx.lineWidth=0.8;
+      ctx.beginPath(); ctx.ellipse(hb,-15.8,10.6,3,tilt,3.5,5.9); ctx.stroke(); ctx.restore(); }
+    const fw=Math.sin(gt*5)*0.8+run*Math.sin(ph)*0.8;
+    ctx.strokeStyle=gh?'rgba(120,140,160,0.8)':'rgba(220,40,56,0.95)'; ctx.lineWidth=1.3; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(hb+4,-17.2); ctx.quadraticCurveTo(hb+8,-21+fw, hb+10.8,-24+fw); ctx.stroke();
+    ctx.strokeStyle=gh?'rgba(120,140,160,0.45)':'rgba(255,90,100,0.6)'; ctx.lineWidth=0.7;
+    for(let fb=0;fb<3;fb++){ const ft2=0.35+fb*0.25, bx=hb+4+(6.8)*ft2, by=-17.2+(-6.8+fw)*ft2;
+      ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx-1.7,by-1.5); ctx.stroke(); } }
+  // hurt: Vesper herself flashes white — coat and head, her own shape
+  if(hurtF>0){ ctx.save(); ctx.globalAlpha=Math.min(0.9,hurtF*7); ctx.fillStyle='#ffffff'; coat(); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(hx,hy,5,5.2,0,0,6.28); ctx.fill(); ctx.beginPath(); ctx.ellipse(lean*0.75,-15.6,11,3.2,0,0,6.28); ctx.fill(); ctx.restore(); }
+  ctx.restore(); // end of Vesper's 1.45× space
   // passive skill auras
   const rgL=skillLevel('regen'), lkL=skillLevel('luck'), exL=skillLevel('exec');
   if(rgL){ ctx.globalCompositeOperation='lighter'; for(let i=0;i<Math.min(3,rgL);i++){ const wy=-((gt*22+i*13)%34), wa=1-Math.abs(wy+17)/17;
@@ -2684,7 +2724,7 @@ function drawPlayer(){
   if(exL){ ctx.globalCompositeOperation='lighter'; ctx.globalAlpha=0.24+Math.sin(gt*4)*0.08; ctx.strokeStyle='#ff3344'; ctx.lineWidth=2.4;
     ctx.beginPath(); ctx.arc(0,0,19,P.aim+2.2,P.aim+4.1); ctx.stroke(); ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over'; }
   // invuln blink
-  if(P.inv>0 && Math.floor(P.inv*20)%2===0){ ctx.globalAlpha=0.3; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(0,0,16,0,6.28); ctx.fill(); ctx.globalAlpha=1; }
+  if(P.inv>0 && Math.floor(P.inv*20)%2===0){ ctx.globalAlpha=0.16; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.ellipse(0,-2,17,24,0,0,6.28); ctx.fill(); ctx.globalAlpha=1; }
   ctx.restore();
 }
 const BOSS_DEFS={
