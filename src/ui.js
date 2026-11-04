@@ -957,7 +957,8 @@ function a2Lane(){
     const p=_a2vis(go&&go.querySelector('.panel'));
     const side = p && (W-p.right) >= 240;
     // A3's share plaque is pinned top-right of the death layer — the column always starts below it
-    const sh=_a2vis(document.querySelector('#a3Share .a3ShareBtn')||$('a3Share'));
+    // if A3's share plaque is still pinned to the layer (not seated in the ledger), start below it
+    const shEl=$('a3Share'), sh=(shEl && !shEl.closest('.panel')) ? _a2vis(shEl) : null;
     const top0 = sh ? Math.round(sh.bottom+10) : (side?18:10);
     n.style.top=top0+'px';
     if(side){ n.classList.add('a2deadSide'); n.style.left=Math.round(p.right+18)+'px'; n.style.width=Math.round(Math.min(380, W-p.right-32))+'px'; availW=Math.min(380, W-p.right-32); }
@@ -1016,6 +1017,8 @@ function a2DressLedger(){
     ep.innerHTML='<span class="a2epBy">☠ '+(by?('TAKEN BY <b>'+by+'</b>'):'THE HOUSE COLLECTS')+'</span>'
       +'<span class="a2epT">SURVIVED <b>'+fmt(gt)+'</b></span><span class="a2epL">LEVEL <b>'+(P?P.level:1)+'</b></span>';
     if(k>=0) sub.textContent=t.slice(0,k);
+    // A3's share plaque gets a seat in the what's-next rows (same node, same handler — only moved)
+    { const sh=$('a3Share'), pn=sub.parentNode, bb=$('booksBtn'); if(sh && pn && sh.parentNode!==pn) pn.insertBefore(sh, bb||null); }
     const sc=$('goScore'); if(sc && !sc.dataset.a2){ sc.dataset.a2=1; const lb=document.createElement('div'); lb.className='a2scoreLbl'; lb.textContent='THE TALLY'; sc.parentNode.insertBefore(lb, sc); }
   }catch(e){}
 }

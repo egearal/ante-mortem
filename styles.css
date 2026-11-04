@@ -1653,9 +1653,10 @@ button[id$="Close"]:active{transform:translateY(1px);}
 #gameover .panel>#goLedger{grid-row:9;}
 #gameover .panel>#goRank{grid-row:10;}
 #gameover .panel>#againBtn{grid-row:11;}
-#gameover .panel>#booksBtn{grid-column:1;grid-row:12;}
-#gameover .panel>#goMenuBtn{grid-column:2;grid-row:12;}
-#gameover .panel>.soon{grid-row:13;}
+#gameover .panel>#a3Share{grid-row:12;}
+#gameover .panel>#booksBtn{grid-column:1;grid-row:13;}
+#gameover .panel>#goMenuBtn{grid-column:2;grid-row:13;}
+#gameover .panel>.soon{grid-row:14;}
 /* 1 — the verdict */
 #gameover .result{font-size:26px;letter-spacing:.24em;margin:0;line-height:1.15;text-shadow:0 0 22px rgba(212,33,47,.55),0 2px 0 #000;}
 #gameover .subline{font-size:14px;font-style:italic;margin:2px 0 6px;letter-spacing:.06em;color:#a8998a;}
@@ -1704,7 +1705,8 @@ button[id$="Close"]:active{transform:translateY(1px);}
   #gameover .panel>.a2scoreLbl{grid-row:4;} #gameover .panel>#goScore{grid-row:5;} #gameover .panel>.gilt{grid-row:6;}
   #gameover .panel>#goStats{grid-row:7;} #gameover .panel>#goLuck{grid-row:8;} #gameover .panel>#goSeed{grid-row:9;}
   #gameover .panel>#goLedger{grid-row:10;} #gameover .panel>#goRank{grid-row:11;} #gameover .panel>#againBtn{grid-row:12;}
-  #gameover .panel>#booksBtn,#gameover .panel>#goMenuBtn{grid-row:13;} #gameover .panel>.soon{grid-row:14;}
+  #gameover .panel>#a3Share{grid-row:13;}
+  #gameover .panel>#booksBtn,#gameover .panel>#goMenuBtn{grid-row:14;} #gameover .panel>.soon{grid-row:15;}
   #gameover .result{font-size:21px;} #gameover .scoreBig{font-size:44px;}
 }
 
@@ -1799,3 +1801,14 @@ button[id$="Close"]:active{transform:translateY(1px);}
 @media (max-width:640px){ #a2Epitaph span+span::before{display:none;} #a2Epitaph{gap:4px 14px;} }
 /* the red table's wider cabinet: the drums fill the window, so the glass never hangs over empty felt */
 #slot.lastrites .reelbox{max-width:none;}
+
+/* A3's share plaque, seated under ANTE UP as a bronze plaque (A3's node + handler, only re-housed) */
+#gameover .panel>#a3Share{position:static;top:auto;right:auto;z-index:auto;margin-top:8px;animation:none;} /* no transform on its ancestors: A3's card overlay is position:fixed */
+#gameover .panel>#a3Share .a3ShareBtn{display:block;width:100%;padding:10px 12px;font-size:11.5px;letter-spacing:.22em;color:#ffe9b0;border-radius:9px;
+  border:1px solid transparent;background:linear-gradient(180deg,rgba(58,14,22,.95),rgba(24,6,10,.97)) padding-box,var(--a2-bronze) border-box;
+  box-shadow:0 0 0 1px #140a03,0 4px 10px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,236,170,.14),inset 0 -3px 7px rgba(0,0,0,.55);}
+#gameover .panel>#a3Share .a3ShareBtn:hover{background:linear-gradient(180deg,rgba(74,18,28,.96),rgba(30,8,12,.97)) padding-box,var(--a2-brass) border-box;}
+#gameover .panel>#a3Share .a3ShareBtn.done{color:#8bffd0;}
+/* the stale 'Soon: Cloakroom' footnote yields its line on short screens */
+@media (max-height:760px){ #gameover .panel>.soon{display:none;} }
+body:has(#a3Share .a3ShareOut.go) #a2Notes{opacity:.12;transition:opacity .2s;}
