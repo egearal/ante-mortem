@@ -85,7 +85,8 @@ const BOT = `(()=>{
       const vis=[...document.querySelectorAll('.layer:not(.hidden),[id$=Layer]:not(.hidden),[id$=Panel]:not(.hidden)')].map(e=>e.id||e.className).slice(0,12);
       B.stall={ state, gt, clock:fmt(gt), hitstop, tabHold:typeof tabHold!=='undefined'?tabHold:null, slotStage:typeof slotStage!=='undefined'?slotStage:null,
         slotBusy:typeof slotBusy!=='undefined'?slotBusy:null, pending:(typeof pending!=='undefined'&&pending)?pending.length:null, hp:P&&P.hp, ovT:P&&P.ovT,
-        layers:vis, autoPaused:!!window._autoPaused };
+        layers:vis, autoPaused:!!window._autoPaused,
+        crash:(typeof crash!=='undefined'&&state==='crash')?{mult:crash.mult,cp:crash.cp,live:crash.live,done:crash.done,jk:!!crash.jk,on:crash.on,msg:(document.getElementById('crashMsg')||{}).textContent}:undefined };
       console.warn('[probe] STALL '+JSON.stringify(B.stall));
     }
   }
@@ -108,6 +109,8 @@ const BOT = `(()=>{
     }
     if(state==='slot'){ if(B.noSlotTap) return; if(B.n%6===0){ stopLock=0; try{ slotTap(); }catch(e){} } return; }
     if(B.noSpace && state==='b2gate') return;
+    // the 7.77x jackpot waits for a 1/2/3 pick (SPACE is ignored there) — a human picks; so does the bot
+    if(state==='crash' && typeof crash!=='undefined' && crash && crash.jk){ if(B.n%12===0) window.dispatchEvent(new KeyboardEvent('keydown',{key:'1',code:'Digit1',bubbles:true})); return; }
     if(B.n%4===0) space();
   };
 })();`;

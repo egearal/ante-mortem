@@ -2442,6 +2442,8 @@ window.addEventListener('keydown',e=>{ try{ if(state==='slot' && slotStage==='re
     if(good){ SEATS.st.rage=(SEATS.st.rage||0)+1; seatsSaveSoon();
       if(P.banker){ const g=Math.max(10,Math.round(purse*0.16)); P.coins+=g; LT.coins+=g;
         setTimeout(()=>{ announce('♖ THE DIVIDEND — +'+g+' COINS ♖', true); try{ SFX.register(); }catch(e){} coinRain(Math.min(34,10+Math.floor(g/4))); flash(0.3,'#c4ff4d'); }, 500); } }
+    return r; }; }
+
 /* ==== C1 — THE PAIRINGS: colors + the evolved relic ==== */
 Object.assign(GLYPH_COL, {
   ossuary:'#e9ff70', stacked:'#ff3d6e', cuts:'#7ff6ff', eye:'#ffe14d', ratking:'#b4ff3a',

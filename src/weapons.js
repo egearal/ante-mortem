@@ -312,11 +312,11 @@ const EVO_FIRE={
   ossuary(){ const t=nearestFoe(520); const a=t?Math.atan2(t.y-P.y,t.x-P.x):P.aim;
     evoShot({vx:Math.cos(a)*P.projSpeed*0.75,vy:Math.sin(a)*P.projSpeed*0.75,r:9,dmg:P.damage*4,life:0.95,col:'#e9ff70',shape:'skull',gen:0});
     tone(620,0.06,'triangle',0.09); setTimeout(()=>tone(930,0.05,'triangle',0.06),40); },
-  stacked(){ const a0=Math.random()*6.283, ace=(Math.random()*13)|0;
+  stacked(){ const a0=rng('evo')*6.283, ace=(rng('evo')*13)|0;
     for(let i=0;i<13;i++){ const a=a0+i*(6.283/13), big=i===ace, sp=P.projSpeed*0.72;
       evoShot({vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:big?11:7,dmg:P.damage*(big?3.3:1.1)*P.critMult,crit:true,life:big?1.25:1.0,pierce:big?999:3,col:big?'#fff2c0':(i%2?'#ff3d6e':'#2a2030'),shape:'card',curl:2.2,spin:a,ace:big,suit:'♠♥♦♣'[i%4]}); }
     SFX.card(); setTimeout(()=>SFX.card(),60); noise(0.18,0.08,3800); tone(1760,0.08,'triangle',0.08,2600); },
-  hand(){ const a0=Math.random()*6.283;
+  hand(){ const a0=rng('evo')*6.283;
     for(let k=0;k<5;k++) evoShot({a0:a0+k*1.2566,r:8,dmg:P.damage*3,life:1.1,pierce:999,col:'#ff1f3d',shape:'petal',petal:true});
     tone(330,0.18,'sawtooth',0.07,660); noise(0.12,0.06,2400); },
   garden(){ const t=nearestFoe(480); const a0=t?Math.atan2(t.y-P.y,t.x-P.x):P.aim;
@@ -364,7 +364,7 @@ function tickPairings(dt){
       ring(fx,fy,110,'#ffe14d'); ring(fx,fy,60,'#fff'); burst(fx,fy,14,'#fff2c0'); flash(0.22,'#fff6c8'); tone(3100,0.05,'square',0.06); noise(0.12,0.18,5200); } }
   // 🐀 THE RAT KING'S FEAST — the horde keeps itself
   if(evoOn('ratking')){ P._evRat=(P._evRat||0)-dt; let rats=0; for(const s of evoShots) if(s.shape==='rat') rats++;
-    if(P._evRat<=0 && rats<14){ P._evRat=0.5; const a=Math.random()*6.283; evoShot({x:P.x+Math.cos(a)*20,y:P.y+Math.sin(a)*20,vx:Math.cos(a)*90,vy:Math.sin(a)*90,r:5,dmg:P.damage*0.9,life:6,pierce:9999,col:'#b4ff3a',shape:'rat',rat:true,spin:a}); if(Math.random()<0.4) tone(1900+Math.random()*700,0.04,'square',0.03); } }
+    if(P._evRat<=0 && rats<14){ P._evRat=0.5; const a=rng('evo')*6.283; evoShot({x:P.x+Math.cos(a)*20,y:P.y+Math.sin(a)*20,vx:Math.cos(a)*90,vy:Math.sin(a)*90,r:5,dmg:P.damage*0.9,life:6,pierce:9999,col:'#b4ff3a',shape:'rat',rat:true,spin:a}); if(Math.random()<0.4) tone(1900+Math.random()*700,0.04,'square',0.03); } }
   // ♖ THE IRON MAIDEN — four caskets, out and back
   if(evoOn('maiden')){ P._evMa=(P._evMa||0)+dt*2.4; P._evMt=(P._evMt||0)+dt; if(P._evMt>=2.6){ P._evMt=0; P._evMs=0; tone(80,0.3,'sawtooth',0.1,160); }
     const ph=Math.min(1,(P._evMt)/0.9), ext=P._evMt<0.9? Math.sin(ph*Math.PI) : 0, R=80+180*ext;
@@ -412,12 +412,12 @@ function tickPairings(dt){
     if(s.life<=0){ evoEnd(s); evoShots.splice(i,1); continue; }
     let gone=false;
     for(let j=enemies.length-1;j>=0;j--){ const e=enemies[j]; if(!e) continue; const dx=e.x-s.x, dy=e.y-s.y, rr=e.r+s.r; if(dx*dx+dy*dy>=rr*rr) continue;
-      if(s.rat){ const cdm=s.cdm||(s.cdm=new Map()); if((cdm.get(e)||0)>gt) continue; cdm.set(e,gt+0.35); if(evoHurt(e,s.dmg,'#b4ff3a',false)){ P.hp=Math.min(P.maxHp,P.hp+1); let n=0; for(const o of evoShots) if(o.rat) n++;
-          for(let k=0;k<2&&n+k<30;k++){ const a=Math.random()*6.283; evoShot({x:s.x,y:s.y,vx:Math.cos(a)*200,vy:Math.sin(a)*200,r:5,dmg:P.damage*0.9,life:4,pierce:9999,col:'#b4ff3a',shape:'rat',rat:true,spin:a}); }
+      if(s.rat){ const cdm=s.cdm||(s.cdm=new Map()); if((cdm.get(e)||0)>gt) continue; cdm.set(e,gt+0.35); if(evoHurt(e,s.dmg,'#b4ff3a',false)){ if(!P.martyr) P.hp=Math.min(P.maxHp,P.hp+1); let n=0; for(const o of evoShots) if(o.rat) n++;
+          for(let k=0;k<2&&n+k<30;k++){ const a=rng('evo')*6.283; evoShot({x:s.x,y:s.y,vx:Math.cos(a)*200,vy:Math.sin(a)*200,r:5,dmg:P.damage*0.9,life:4,pierce:9999,col:'#b4ff3a',shape:'rat',rat:true,spin:a}); }
           if(Math.random()<0.3) tone(2600,0.03,'square',0.03); } continue; }
       if(s.hit.has(e)) continue; s.hit.add(e);
       const died=evoHurt(e,s.dmg,s.col,!!s.crit);
-      if(s.petal) P.hp=Math.min(P.maxHp,P.hp+0.4);
+      if(s.petal && !P.martyr) P.hp=Math.min(P.maxHp,P.hp+0.4);
       if(!s.petal && !s.rat){ const kd=Math.hypot(s.vx,s.vy)||1; e.kx+=s.vx/kd*90; e.ky+=s.vy/kd*90; }
       if(s.crit && Math.random()<0.25) tone(2350,0.04,'triangle',0.05,1600);
       if(s.shape==='skull' || (s.shape==='bone' && s.gen===1)){ evoEnd(s); gone=true; break; }
@@ -430,10 +430,10 @@ function tickPairings(dt){
 }
 function evoEnd(s){
   if(s._ended) return; s._ended=true;
-  if(s.shape==='skull'){ for(let k=0;k<12;k++){ const a=k*0.5236+rnd(-0.1,0.1), sp=rnd(320,420);
+  if(s.shape==='skull'){ for(let k=0;k<12;k++){ const a=k*0.5236+rrnd('evo',-0.1,0.1), sp=rrnd('evo',320,420);
       evoShot({x:s.x,y:s.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:3.5,dmg:P.damage*1.3,life:0.45,pierce:0,col:'#f2ead8',shape:'bone',gen:1,spin:a}); }
     ring(s.x,s.y,48,'#e9ff70'); burst(s.x,s.y,8,'#f2ead8'); tone(880,0.05,'triangle',0.08); tone(440,0.08,'triangle',0.06); }
-  else if(s.shape==='bone' && s.gen===1){ for(let k=0;k<3;k++){ const a=Math.atan2(s.vy,s.vx)+(k-1)*0.9+rnd(-0.2,0.2), sp=280;
+  else if(s.shape==='bone' && s.gen===1){ for(let k=0;k<3;k++){ const a=Math.atan2(s.vy,s.vx)+(k-1)*0.9+rrnd('evo',-0.2,0.2), sp=280;
       evoShot({x:s.x,y:s.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:2.5,dmg:P.damage*0.7,life:0.3,pierce:0,col:'#e9ff70',shape:'bone',gen:2,spin:a}); } }
   else if(s.ace){ const R=90; for(let i=enemies.length-1;i>=0;i--){ const e=enemies[i]; if(Math.hypot(e.x-s.x,e.y-s.y)<R) evoHurt(e,s.dmg*0.6,'#fff2c0',true); }
     ring(s.x,s.y,R,'#fff2c0'); ring(s.x,s.y,R*0.5,'#ff3d6e'); burst(s.x,s.y,12,'#fff2c0'); shake=Math.min(12,shake+4); tone(1320,0.12,'sine',0.1); noise(0.1,0.12,2600); }
