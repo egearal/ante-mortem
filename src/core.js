@@ -505,7 +505,7 @@ function killEnemy(e,idx){
   if(STREAK_MS.includes(killStreak)){
     const big9=killStreak>=100;
     announce('⚔ '+killStreak+' STREAK ⚔', true);
-    if(killStreak===50||killStreak===100){ setTimeout(()=>{ showStreak(killStreak+' STREAK'); tone(392,0.5,'sine',0.045,240); tone(494,0.4,'sine',0.035,300); },1000); } // the big room echoes it back, softer
+    if(killStreak===50||killStreak===100){ setTimeout(()=>{ tone(392,0.5,'sine',0.045,240); tone(494,0.4,'sine',0.035,300); },1000); } // the big room echoes it back, softer (B4: sound only — the banner already says it)
     LT.milestone=Math.max(LT.milestone||0,killStreak); bump('milestone',killStreak);
     SFX.casinoDing(); if(big9){ SFX.dingBells(); flash(0.3,'#ffd36b'); sparkBurst(16); hitstop=Math.max(hitstop,0.07); ring(P.x,P.y,150,'#ffd36b'); }
     if(killStreak>=500){ secret('streak500','THE FIVE HUNDRED'); bigWin('500 STREAK',4); coinRain(40); }
@@ -516,7 +516,7 @@ function killEnemy(e,idx){
     if(fever>=1){ if(gt>=(window._feverLock||0)) startFever(); else fever=0.99; } }
   if(killStreak===10||killStreak===25||killStreak===50||killStreak===100||killStreak===200){
     const tier=killStreak>=200?5:killStreak>=100?4:killStreak>=50?3:killStreak>=25?2:1;
-    showStreak(killStreak+' STREAK'); SFX.cheer(); SFX.dingHit(tier); if(tier>=3) SFX.dingBells();
+    if(!STREAK_MS.includes(killStreak)) showStreak(killStreak+' STREAK'); SFX.cheer(); // B4: one voice per milestone — the ⚔ banner owns 10/50/100/200 SFX.dingHit(tier); if(tier>=3) SFX.dingBells();
     flash(0.2+tier*0.06,'#ffd36b'); shake=Math.min(18,shake+3+tier*2); coinRain(tier*4);
     ring(P.x,P.y,90+tier*30,'#ffd36b');
   }
@@ -1454,6 +1454,12 @@ const PROF={ on:/[?&#]prof/.test(location.search+location.hash), t0:0, tS:0, cur
   reset(){ this.stages={}; this.ri=0; this.rn=0; this.spikes25=0; this.spikes40=0; this.spikeStage={}; this.frames=0; }
 };
 window.__prof=PROF;
+// B4 — the blood bar's box in canvas (logical) px, re-read twice a second (it moves only on resize / layout)
+function _b4HpRect(){ const n=performance.now(); let c=window._b4hp;
+  if(!c||n-c.t>500||n<c.t){ let v=null; const el=document.getElementById('hpwrap');
+    if(el){ const b=el.getBoundingClientRect(), z=(typeof ZOOM==='number'&&ZOOM>0)?ZOOM:1; if(b.width>0) v={l:b.left/z,r:b.right/z,t:b.top/z}; }
+    c=window._b4hp={t:n,v}; }
+  return c.v; }
 function render(){
   ctx.save();
   let sx=0,sy=0; if(shake>0){ const sh=shake*0.6*(GFX.shake!=null?Math.min(1.5,GFX.shake):1); sx=rnd(-sh,sh); sy=rnd(-sh,sh); } // B3: the SHAKE dial scales it
@@ -2009,7 +2015,11 @@ function render(){
   }
   // XP / RAGE — gilded gothic gauge, smooth-lerped
   if(state==='playing'){
-    const xw=Math.min(340,VW*0.44), xx=VW/2-xw/2, xy=VH-46, bh=14;
+    let xw=Math.min(340,VW*0.44), xx=VW/2-xw/2, xy=VH-46; const bh=14;
+    { const hr=_b4HpRect(); // B4: never under the blood bar — slide right of it, or (phones) ride just above it
+      if(hr && xx<hr.r+14 && hr.t<VH-20){ const room=VW-(hr.r+14)-96;
+        if(room>=170){ xx=hr.r+14; xw=Math.min(xw,room); }
+        else { xx=hr.l+22; xw=Math.max(120,Math.min(xw,hr.r-hr.l-22)); xy=Math.min(xy,hr.t-12-bh); } } }
     const rage=P.ovT>0;
     const target=rage?Math.max(0,P.ovT)/100:Math.min(1,P.xp/P.xpNext);
     const key=rage?'_ovDisp':'_xpDisp';
@@ -2054,7 +2064,7 @@ function render(){
     } else {
       ctx.font="700 11px 'Cinzel',serif"; ctx.textAlign='center';
       ctx.fillStyle='rgba(236,208,160,0.9)'; ctx.shadowColor='#000'; ctx.shadowBlur=4;
-      ctx.fillText('⚜ LEVEL CHARGE — '+Math.floor(P.xp)+' / '+P.xpNext+' XP'+(pending.length?'  ▸ A SLOT WAITS':''), VW/2, xy-11); ctx.shadowBlur=0;
+      ctx.fillText('⚜ LEVEL CHARGE — '+Math.floor(P.xp)+' / '+P.xpNext+' XP'+(pending.length?'  ▸ A SLOT WAITS':''), xx+xw/2, xy-11); ctx.shadowBlur=0;
       if(P.debt>0){ ctx.fillStyle='#ff6b6b'; ctx.shadowColor='#ff6b6b'; ctx.shadowBlur=6;
         ctx.fillText('☠ IN DEBT TO THE HOUSE: '+P.debt+' XP', VW/2, xy+28); ctx.shadowBlur=0; }
       if(f>0.85){
@@ -2158,6 +2168,15 @@ function silSprite(T,dark,col){
   }
   return cv;
 }
+// B4 — the far court's sprite with its contact shadow baked under it (same pixels the LOD path drew per body)
+function lodSprite(T,dark,col){
+  const key='l|'+T+'|'+dark+'|'+col; let cv=_silC.get(key); if(cv) return cv;
+  const sp=silSprite(T,dark,col);
+  if(_silC.size>96){ let n=0; for(const k of _silC.keys()){ _silC.delete(k); if(++n>=24) break; } }
+  cv=document.createElement('canvas'); cv.width=64; cv.height=64; const g=cv.getContext('2d');
+  g.fillStyle='rgba(0,0,0,0.32)'; g.beginPath(); g.ellipse(32,32+20*0.72,20*0.78,20*0.26,0,0,6.28); g.fill();
+  g.drawImage(sp,0,0); _silC.set(key,cv); return cv;
+}
 // variants: 'ink' (near-court cut-out plate), 'white' (hit flash), 'glow' (elite/boss aura, tinted)
 function silVar(T,mode,col){
   const key='v|'+T+'|'+mode+'|'+(col||'');
@@ -2177,6 +2196,7 @@ const _EYEC={ swarm:'255,90,90', stalker:'255,223,90', wraith:'120,170,255', hex
 function drawEnemy(e){
   const t=gt*4+e.ph, T=e.vt||e.type, r=e.r;
   if(e._lod){ // distant court: one baked, shaped, rim-lit sprite
+    if(!(e.flash>0)){ const dw=r*3.2; ctx.drawImage(lodSprite(T,e.dark,e.col),e.x-dw/2,e.y-dw/2,dw,dw); return; } // B4: shadow baked in, no save/translate/path per body
     ctx.save(); ctx.translate(e.x,e.y);
     ctx.fillStyle='rgba(0,0,0,0.32)'; ctx.beginPath(); ctx.ellipse(0,r*0.72,r*0.78,r*0.26,0,0,6.28); ctx.fill();
     if(e.flash>0){ const sq=Math.min(0.16,e.flash*1.4); ctx.scale(1+sq,1-sq); }

@@ -108,6 +108,10 @@ const BOT = `(()=>{
     }
     if(state==='slot'){ if(B.noSlotTap) return; if(B.n%6===0){ stopLock=0; try{ slotTap(); }catch(e){} } return; }
     if(B.noSpace && state==='b2gate') return;
+    // the vault takes ESC / its CLOSE button — the bot browses for a beat, then leaves (SPACE alone would wait forever)
+    if(state==='vault'){ if(B.n%45===0){ try{ document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true})); }catch(e){} } return; }
+    // the 7.77x jackpot waits for a card (1/2/3 or a click) — SPACE alone would wait forever
+    if(state==='crash' && typeof crash!=='undefined' && crash && crash.jk){ if(B.n%20===0){ const k=String(1+(B.n/20|0)%3); window.dispatchEvent(new KeyboardEvent('keydown',{key:k,code:'Digit'+k,bubbles:true})); } return; }
     if(B.n%4===0) space();
   };
 })();`;

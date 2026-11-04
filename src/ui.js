@@ -137,7 +137,7 @@ $('idxClose').addEventListener('click',()=>{ $('indexPanel').classList.add('hidd
   const hp9=$('howPanel'); if(hp9){ hp9.classList.remove('hidden'); if(typeof window._howShow==='function') window._howShow(window._howTab||0); SFX.uiDing(); } }); }
 // F — the whole window belongs to the House
 window.addEventListener('keydown',e=>{ if(e.key.toLowerCase()==='f' && !e.repeat && (state==='menu'||state==='playing'||state==='paused')){
-  try{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }catch(x){} } });
+  try{ const fp=document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(); if(fp&&fp.catch) fp.catch(()=>{}); }catch(x){} } });
 // right-click stays native in menus, silent in the pit
 window.addEventListener('contextmenu',e=>{ if(state==='playing'||state==='slot'||state==='wheel'||state==='dead') e.preventDefault(); });
 $('mute').addEventListener('click',()=>{ muted=!muted; GFX.muted=muted; try{ saveGfx(); }catch(e){} try{ setMasterVol(true); }catch(e){} try{ if(!muted&&state==='playing') startAmbience(); else if(muted) stopAmbience(); }catch(e){} $('mute').textContent=muted?'♩':'♪'; $('mute').style.color=muted?'#5a4a3a':''; }); let tabHold=false;
@@ -219,7 +219,10 @@ const GFX_DEFS=[
 ];
 if(GFX.amb===undefined) GFX.amb=true;
 if(GFX.coach===undefined) GFX.coach=true;
-function gfxLabel(d){ const o=d.opts.find(o=>o[0]===GFX[d.k]); return o?o[1]:String(GFX[d.k]); }
+if(GFX.cb===undefined) GFX.cb=false; if(GFX.tabT===undefined) GFX.tabT=false; // B4: fresh saves printed 'UNDEFINED'
+function gfxLabel(d){ let o=d.opts.find(o=>o[0]===GFX[d.k]);
+  if(!o && typeof GFX[d.k]==='number') o=d.opts.reduce((a,b)=>Math.abs(b[0]-GFX[d.k])<Math.abs(a[0]-GFX[d.k])?b:a); // B4: preset values between stops (pcap 220) read as the nearest stop, not a raw number
+  return o?o[1]:String(GFX[d.k]); }
 function applyGfxPreset(name){
   const p=GFX_PRESETS[name]; if(!p) return;
   Object.assign(GFX,p); GFX.preset=name;
@@ -260,7 +263,7 @@ function buildGfxPanel(){
   $('gfxClose').addEventListener('click',()=>{ p.classList.add('hidden'); SFX.casinoDing(); });
   { const ex=p.querySelector('#gxExport'); if(ex) ex.addEventListener('click',()=>exportSave());
     const im=p.querySelector('#gxImport'); if(im) im.addEventListener('click',()=>importSave()); }
-  { const gf=p.querySelector('#gxFull'); if(gf) gf.addEventListener('click',()=>{ try{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }catch(x){} SFX.uiDing(); }); }
+  { const gf=p.querySelector('#gxFull'); if(gf) gf.addEventListener('click',()=>{ try{ const fp=document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(); if(fp&&fp.catch) fp.catch(()=>{}); }catch(x){} SFX.uiDing(); }); }
   { const gr=p.querySelector('#gxReset'); if(gr) gr.addEventListener('click',()=>{
       applyGfxPreset('medium'); GFX.vol=1; GFX.cb=false; GFX.fps=false; applyGfxSide(); saveGfx();
       const gv2=p.querySelector('#gxVol'); if(gv2) gv2.value=1;
@@ -330,7 +333,7 @@ function updateHUD(){
     const ch='×'+(P.comboMult||1).toFixed(1)+'  COMBO'+(P.bestStreak>killStreak?' <s>best '+P.bestStreak+'</s>':'');
     if(_hud.combo!==ch){ _hud.combo=ch; cm.innerHTML=ch; }
     cm.classList.toggle('flames', killStreak>=50);
-    cm.style.transform='translateX(-50%) scale('+(1+Math.min(0.5,killStreak*0.01))+')'; }
+    cm.style.transform='translateX(-50%) scale('+(1+Math.min(window._touchUI?0.15:0.5,killStreak*0.01))+')'; } // B4: on a phone the plaque has ~200px between the buttons — it swells less
   else cm.classList.add('hidden');
   const db=$('debuffs');
   if(db){ if(debuffs.length){
@@ -462,7 +465,11 @@ window.addEventListener('keydown',e=>{
     return;
   }
   if(state==='crash'){
-    if(crash&&crash.jk){ if(k==='1'||k==='2'||k==='3'){ e.preventDefault(); pickJackpot(+k-1); } return; }
+    if(crash&&crash.jk){ e.preventDefault(); const n9=(crash.jkOpts||[]).length; // B4: the pick no longer needs a 1/2/3 key — a pad (Ⓐ = SPACE) was locked out of it forever
+      if(k==='1'||k==='2'||k==='3') pickJackpot(+k-1);
+      else if(n9 && !e.repeat && (k==='a'||k==='arrowleft'||k==='d'||k==='arrowright')){ crash.jkSel=((crash.jkSel||0)+((k==='a'||k==='arrowleft')?-1:1)+n9)%n9; jkPaint(); SFX.uiDing&&SFX.uiDing(); }
+      else if(n9 && !e.repeat && (k===' '||k==='enter') && performance.now()-(crash.jkT||0)>450) pickJackpot(crash.jkSel||0);
+      return; }
     e.preventDefault();
     if(k===' '){ if(crash.live){ SFX.press(); pressPulse('crashMsg'); pushCrash(); } else if(!crash.done){ SFX.press(); pressPulse('crashMsg'); launchCrash(); } }
     else if(k==='enter'){ if(crash.live){ SFX.press(); pressPulse('crashMsg'); cashCrash(); } }
@@ -994,7 +1001,8 @@ function coachMark(id, txt){
     if(typeof achSaveSoon==='function') achSaveSoon();
     let c=document.getElementById('coachToast');
     if(!c){ c=document.createElement('div'); c.id='coachToast'; document.body.appendChild(c);
-      window.addEventListener('keydown',()=>{ if(c.classList.contains('go')&&performance.now()-(c._born||0)>600) c.classList.remove('go'); }); }
+      window.addEventListener('keydown',()=>{ if(c.classList.contains('go')&&performance.now()-(c._born||0)>600) c.classList.remove('go'); });
+      window.addEventListener('pointerdown',()=>{ if(c.classList.contains('go')&&performance.now()-(c._born||0)>600) c.classList.remove('go'); },true); } // B4: a thumb dismisses the tip too
     c.innerHTML='✒ '+txt; c._born=performance.now();
     c.classList.remove('go'); void c.offsetWidth; c.classList.add('go');
     try{ SFX.tingle&&SFX.tingle(); }catch(e){}
@@ -1189,9 +1197,10 @@ function a2Notes(){
   let sr=$('secretReveal'); if(!sr){ sr=document.createElement('div'); sr.id='secretReveal'; sr.className='hidden'; }
   n.appendChild(sr);
   A2L.el=n;
-  try{ new MutationObserver(()=>a2LaneSoon()).observe(n,{subtree:true,childList:true,attributes:true,attributeFilter:['class'],characterData:true}); }catch(e){}
+  try{ new MutationObserver(recs=>{ if(recs.some(r=>!(r.type==='attributes'&&r.target===n))) a2LaneSoon(); }).observe(n,{subtree:true,childList:true,attributes:true,attributeFilter:['class'],characterData:true}); }catch(e){} // B4: a2Lane's own class writes on the column must not re-arm it (it re-laid-out every frame, forever)
   ['slot','gameover','wheelLayer','crashLayer','achToasts'].forEach(id=>{ const e=$(id); if(e) try{ new MutationObserver(()=>a2LaneSoon()).observe(e,{attributes:true,attributeFilter:['class'],childList:id==='achToasts'}); }catch(x){} });
   window.addEventListener('resize',()=>a2LaneSoon());
+  setInterval(()=>{ if(state==='slot'||state==='wheel'||state==='crash'||state==='dead') a2LaneSoon(); },400); // B4: tables settle/scale without a class change — re-park the column a few times a second, not every frame
   return n;
 }
 function a2LaneSoon(){ if(A2L.raf) return; A2L.raf=requestAnimationFrame(()=>{ A2L.raf=0; try{ a2Lane(); }catch(e){} }); }
@@ -1215,7 +1224,7 @@ function a2Lane(){
   const zone={left:8, right:Math.min(W,340), top:H-130-Math.max(60,(at&&at.offsetHeight)||0), bottom:H-120};
   const hitZ=r=>r && r.left<zone.right && r.right>zone.left && r.top<zone.bottom && r.bottom>zone.top;
   const dockAt = dead || (!!m && (parts.length?parts:[m]).some(hitZ));
-  if(modal){ if(co && co.parentNode!==n) n.appendChild(co); }
+  if(modal || document.body.classList.contains('touchUI')){ if(co && co.parentNode!==n) n.appendChild(co); } // B4: on a phone the tip stacks in the column — it used to sit on top of the banner
   else if(co && co.parentNode===n) document.body.appendChild(co);
   if(dockAt){ if(at && at.parentNode!==n) n.appendChild(at); }
   else if(at && at.parentNode===n) ($('wrap')||document.body).insertBefore(at, n);
@@ -1880,6 +1889,7 @@ function b3PadFrame(){
   if(rel(0) && PAD.aDown){ PAD.aDown=false; tcKey('keyup',' '); }
   if(edge(2)){ tcKey('keydown','Enter'); tcKey('keyup','Enter'); }
   if(edge(9)){ tcKey('keydown','Escape'); tcKey('keyup','Escape'); }
+  if(state==='crash' && typeof crash!=='undefined' && crash && crash.jk){ if(edge(14)) tcKey('keydown','ArrowLeft'); if(edge(15)) tcKey('keydown','ArrowRight'); } // B4: the d-pad walks the ascension cards
   if(edge(1) && (state==='slot'||state==='wheel')){ tcKey('keydown','Escape'); tcKey('keyup','Escape'); }
 }
 requestAnimationFrame(b3PadLoop);

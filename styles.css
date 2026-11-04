@@ -2142,3 +2142,21 @@ body.b3calm .jackpotText,body.b3calm #jkMarq span,body.b3calm h1{animation-durat
 .cosChip.locked{opacity:.5;cursor:default;border-style:dashed;}
 .b2gl .b2p{letter-spacing:.06em;}
 .b2gl .b2rec{color:#d9a8ff;font-family:var(--disp);letter-spacing:.14em;}
+
+/* ==== B4 ==== */
+/* the combo plaque floats centred under the XP bar — a later rule flipped it to position:relative, so its
+   translateX(-50%) dragged it off the left edge of the screen */
+#hud #combo{position:absolute;}
+/* OPTIONS taller than the screen (720p, phones): scroll, never clip the title and QUALITY off the top */
+#gfxPanel{align-items:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+#gfxCard{margin:auto;}
+/* phones: the combo plaque sits between the ⏸ / codex buttons and the streak-cash tag instead of on top of them */
+body.touchUI #hud #combo{top:calc(60px + var(--sat,0px));font-size:14px;letter-spacing:.14em;white-space:nowrap;}
+body.touchUI #hud #combo s{display:none;}
+/* the House tip inside A2's notice column: A4's phone `top:` offset must not ride along (with position:relative it shoved
+   the tip ~100px below its slot — over feat toasts and the ledger title, outside the column the ledger is pushed past) */
+#a2Notes #coachToast{top:auto;}
+/* pause on narrow desktops (≤1180px): the brass blood bar (HUD rides above the pause veil) sat on top of RESUME — lift the row clear */
+@media (max-width:1180px){ body:not(.touchUI) #howBtnRow{bottom:78px;} }
+/* the ascension card the keyboard / pad will take (◀ ▶ walk it, SPACE / Ⓐ takes it) */
+.jkCard.b4sel{transform:translateY(-8px) scale(1.05);border-color:#8bffd0;box-shadow:0 0 0 1px #8bffd0,0 0 34px rgba(139,255,208,.5);}
