@@ -2442,4 +2442,16 @@ window.addEventListener('keydown',e=>{ try{ if(state==='slot' && slotStage==='re
     if(good){ SEATS.st.rage=(SEATS.st.rage||0)+1; seatsSaveSoon();
       if(P.banker){ const g=Math.max(10,Math.round(purse*0.16)); P.coins+=g; LT.coins+=g;
         setTimeout(()=>{ announce('♖ THE DIVIDEND — +'+g+' COINS ♖', true); try{ SFX.register(); }catch(e){} coinRain(Math.min(34,10+Math.floor(g/4))); flash(0.3,'#c4ff4d'); }, 500); } }
+/* ==== C1 — THE PAIRINGS: colors + the evolved relic ==== */
+Object.assign(GLYPH_COL, {
+  ossuary:'#e9ff70', stacked:'#ff3d6e', cuts:'#7ff6ff', eye:'#ffe14d', ratking:'#b4ff3a',
+  maiden:'#6f8cff', hand:'#ff1f3d', cremat:'#ff7a1a', garden:'#ff4fd8', russian:'#ffb020'
+});
+{ const _rr=renderRelics;
+  renderRelics=function(){ const r=_rr.apply(this, arguments);
+    try{ if(P && P.evo){ const bw=$('relicsW'); const owned9=WEAPONS.filter(w=>(P.wlv[w.id]||0)>0);
+      owned9.forEach((w,i)=>{ const pid=P.evo[w.id]; const d=bw&&bw.children[i]; if(!pid||!d) return; const pr=PAIRINGS.find(x=>x.id===pid); if(!pr) return;
+        d.classList.add('c1evo'); d.style.color=GLYPH_COL[pid]||'#ffd36b';
+        d.innerHTML=iconSvg(pid)+'<span class="lvpips c1pip">♛</span>';
+        relicTip(d, pr.n, '♛', projFx(pr,1)); }); } }catch(e){}
     return r; }; }
