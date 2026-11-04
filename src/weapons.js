@@ -38,18 +38,18 @@ function fireCoil(l){ const t=nearestFoe(240+l*25); if(!t) return;
   const a=Math.atan2(P.y-t.y,P.x-t.x); t.kx+=Math.cos(a)*260; t.ky+=Math.sin(a)*260;
   for(let i=0;i<7;i++){ const f=i/6; spark(P.x+(t.x-P.x)*f-3,P.y+(t.y-P.y)*f,P.x+(t.x-P.x)*f+3,P.y+(t.y-P.y)*f,'#ff7edb'); }
   tone(180,0.1,'sawtooth',0.1,90); SFX.hit(); if(t.hp<=0){ const ix=enemies.indexOf(t); if(ix>=0) killEnemy(t,ix); } }
-function fireMortar(l){ const t=nearestFoe(520)||{x:P.x+rnd(-200,200),y:P.y+rnd(-200,200)};
-  const a=Math.atan2(t.y-P.y,t.x-P.x)+rnd(-0.15,0.15), sp=P.projSpeed*0.55;
+function fireMortar(l){ const t=nearestFoe(520)||{x:P.x+rrnd('combat',-200,200),y:P.y+rrnd('combat',-200,200)};
+  const a=Math.atan2(t.y-P.y,t.x-P.x)+rrnd('combat',-0.15,0.15), sp=P.projSpeed*0.55;
   bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:8,dmg:P.damage*(0.9+0.2*l),life:1.1,blast:70+l*12,spin:0});
   tone(120,0.16,'sine',0.12,60); }
 function fireLantern(l){ const t=nearestFoe(430); if(!t) return;
   const lx=P.x+Math.cos(gt*1.7)*46, ly=P.y+Math.sin(gt*1.7)*46-22;
   parts.push({x:lx,y:ly,vx:0,vy:-20,life:0.3,col:'#ffb74d',r:4});
   const n=1+Math.floor(l/2);
-  for(let i=0;i<n;i++){ const a=Math.atan2(t.y-ly,t.x-lx)+rnd(-0.06,0.06);
+  for(let i=0;i<n;i++){ const a=Math.atan2(t.y-ly,t.x-lx)+rrnd('combat',-0.06,0.06);
     bullets.push({x:lx,y:ly,px:lx,py:ly,vx:Math.cos(a)*P.projSpeed*1.15,vy:Math.sin(a)*P.projSpeed*1.15,r:4,dmg:P.damage*0.85,life:0.9,spin:0}); }
   tone(1400,0.05,'sine',0.06); }
-function fireFangs(n){ for(let i=0;i<n;i++){ const a=Math.random()*6.283;
+function fireFangs(n){ for(let i=0;i<n;i++){ const a=rng('combat')*6.283;
     bullets.push({x:P.x+Math.cos(a)*18,y:P.y+Math.sin(a)*18,px:P.x,py:P.y,vx:Math.cos(a)*P.projSpeed*0.7,vy:Math.sin(a)*P.projSpeed*0.7,r:3.5,dmg:P.damage*0.55,life:2.2,seek:true,spin:0}); }
   tone(700,0.06,'square',0.05); }
 function funeralBell(l){ const R=130+l*20;
@@ -70,7 +70,7 @@ function fireCoffin(n){ const back=P.aim+Math.PI;
   for(let i=0;i<n;i++){ const a=back+(i-(n-1)/2)*0.28;
     bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*P.projSpeed,vy:Math.sin(a)*P.projSpeed,r:4,dmg:P.damage*0.95,life:0.8,pierce:1,spin:0}); }
   tone(150,0.08,'square',0.09,80); }
-function fireMoths(){ const a=Math.random()*6.283;
+function fireMoths(){ const a=rng('combat')*6.283;
   bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*P.projSpeed*0.5,vy:Math.sin(a)*P.projSpeed*0.5,r:3,dmg:P.damage*0.45,life:3.5,seek:true,spin:0});
   parts.push({x:P.x,y:P.y,vx:rnd(-30,30),vy:rnd(-40,-10),life:0.4,col:'#d7ffb8',r:2}); }
 /* ── the new arsenal (Batch 7) — each with its own silhouette in flight ── */
@@ -81,9 +81,9 @@ function fireRazor(l){ const t=nearestFoe(420); if(!t) return;
       r:6,dmg:P.damage*(1.0+0.22*l),life:1.7,kind:'razor',pierce:9,spin:0,_out:0.8}); }
   tone(1200,0.07,'square',0.07); noise(0.05,0.04,4200); }
 function fireCinders(l){ const t=nearestFoe(240), a0=t?Math.atan2(t.y-P.y,t.x-P.x):P.aim;
-  for(let i=0;i<5+l;i++){ const a=a0+rnd(-0.5,0.5), sp=P.projSpeed*(0.45+Math.random()*0.3);
+  for(let i=0;i<5+l;i++){ const a=a0+rrnd('combat',-0.5,0.5), sp=P.projSpeed*(0.45+rng('combat')*0.3);
     bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,
-      r:3,dmg:P.damage*0.38,life:0.34+Math.random()*0.12,kind:'ember',spin:0}); }
+      r:3,dmg:P.damage*0.38,life:0.34+rng('combat')*0.12,kind:'ember',spin:0}); }
   noise(0.12,0.08,1600); tone(220,0.1,'sawtooth',0.06,90); }
 function fireStakes(l){ const t=nearestFoe(460); if(!t) return;
   const a=Math.atan2(t.y-P.y,t.x-P.x);
@@ -93,10 +93,10 @@ function fireStakes(l){ const t=nearestFoe(460); if(!t) return;
 function fireSerpent(l){ const t=nearestFoe(430); if(!t) return;
   const a=Math.atan2(t.y-P.y,t.x-P.x);
   bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*P.projSpeed*0.8,vy:Math.sin(a)*P.projSpeed*0.8,
-    r:5,dmg:P.damage*(0.9+0.18*l),life:1.4,kind:'serpent',pierce:3+l,spin:0,_ph:Math.random()*6.28});
+    r:5,dmg:P.damage*(0.9+0.18*l),life:1.4,kind:'serpent',pierce:3+l,spin:0,_ph:rng('combat')*6.28});
   tone(740,0.12,'triangle',0.07,520); }
-function fireChalice(l){ const t=nearestFoe(420)||{x:P.x+rnd(-180,180),y:P.y+rnd(-180,180)};
-  const a=Math.atan2(t.y-P.y,t.x-P.x)+rnd(-0.1,0.1);
+function fireChalice(l){ const t=nearestFoe(420)||{x:P.x+rrnd('combat',-180,180),y:P.y+rrnd('combat',-180,180)};
+  const a=Math.atan2(t.y-P.y,t.x-P.x)+rrnd('combat',-0.1,0.1);
   bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*P.projSpeed*0.5,vy:Math.sin(a)*P.projSpeed*0.5,
     r:6,dmg:P.damage*0.4,life:0.85,kind:'chalice',spin:0,_pool:l});
   tone(980,0.08,'sine',0.06); noise(0.04,0.03,3000); }
@@ -111,7 +111,7 @@ function fireCylinder(l){ P._cylN=6; P._cylGap=0; P._cylLvl=l;
 function fireCandles(l){ // three orbiting candles snipe independently
   for(let i=0;i<3;i++){ const t=nearestFoe(430); if(!t) break;
     const ca=gt*1.4+i*2.094, cx=P.x+Math.cos(ca)*52, cy=P.y+Math.sin(ca)*52-14;
-    const a=Math.atan2(t.y-cy,t.x-cx)+rnd(-0.05,0.05);
+    const a=Math.atan2(t.y-cy,t.x-cx)+rrnd('combat',-0.05,0.05);
     bullets.push({x:cx,y:cy,px:cx,py:cy,vx:Math.cos(a)*P.projSpeed*1.1,vy:Math.sin(a)*P.projSpeed*1.1,
       r:3.5,dmg:P.damage*(0.6+0.1*l),life:0.9,kind:'flamebolt',spin:0}); }
   tone(1500,0.05,'sine',0.05); }
@@ -142,10 +142,10 @@ function fire(){
   for(let i=0;i<n;i++){
     const ang=baseAng+(n>1? (i-(n-1)/2)*spread : 0);
     P.shotCount=(P.shotCount||0)+1;
-    let crit=Math.random()<Math.min(0.9,P.crit);
+    let crit=rng('combat')<Math.min(0.9,P.crit);
     const lucky=(P.shotCount%50===0); if(lucky) crit=true;
     if(P.croup && P.shotCount%7===0) crit=true;
-    const kill=Math.random()<P.instakill;
+    const kill=rng('combat')<P.instakill;
     bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(ang)*P.projSpeed,vy:Math.sin(ang)*P.projSpeed,
       life:P.projLife,r:P.projRadius,dmg:dmgBase*(crit?P.critMult:1),crit,lucky,kill,pierce});
   }
@@ -168,7 +168,7 @@ function fireCards(n){
   for(let i=0;i<n;i++){
     const ang=base+(i-(n-1)/2)*(spread/Math.max(1,n-1))*2;
     bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(ang)*P.projSpeed*1.05,vy:Math.sin(ang)*P.projSpeed*1.05,
-      life:P.projLife*1.1,r:P.projRadius+1,dmg:P.damage*1.3,crit:Math.random()<P.crit,kill:false,pierce:2,kind:'card',spin:Math.random()*6.28});
+      life:P.projLife*1.1,r:P.projRadius+1,dmg:P.damage*1.3,crit:rng('combat')<P.crit,kill:false,pierce:2,kind:'card',spin:rng('combat')*6.28});
   }
   SFX.card();
 }
@@ -183,9 +183,9 @@ function bloodNova(level){
 }
 function fireSeekers(n){
   for(let i=0;i<n;i++){
-    const a=Math.random()*6.28;
+    const a=rng('combat')*6.28;
     bullets.push({x:P.x,y:P.y,px:P.x,py:P.y,vx:Math.cos(a)*P.projSpeed*0.7,vy:Math.sin(a)*P.projSpeed*0.7,
-      life:2.4,r:P.projRadius+2,dmg:P.damage*1.8,crit:Math.random()<P.crit,kill:false,pierce:1,kind:'seeker',seek:true,spin:0});
+      life:2.4,r:P.projRadius+2,dmg:P.damage*1.8,crit:rng('combat')<P.crit,kill:false,pierce:1,kind:'seeker',seek:true,spin:0});
   }
   SFX.seeker();
 }
@@ -194,7 +194,7 @@ function ownedWeaponCount(){ return WEAPONS.filter(w=>(P.wlv[w.id]||0)>0).length
 // your RANK climbs. Pure derivation: old saves own everything at/below their
 // rank automatically, and nothing is ever taken away mid-run.
 const WEAPON_UNLOCKS={coil:3, chalice:5, spark:7, chand:9, dice:11, mortar:13, nova:15, bell:18, phantom:21, gramo:24, cylinder:27, seeker:30, moths:34, candelabra:38, guillotine:42};
-function weaponUnlocked(id){ const thr=WEAPON_UNLOCKS[id]; return !thr || (typeof RANK!=='undefined' && RANK.rank>=thr); }
+function weaponUnlocked(id){ if(DLY_RNG) return true; /* B1: the debt opens the whole armory, for everyone */ const thr=WEAPON_UNLOCKS[id]; return !thr || (typeof RANK!=='undefined' && RANK.rank>=thr); }
 function nextArmUnlock(){
   let best=null;
   for(const id in WEAPON_UNLOCKS){ const thr=WEAPON_UNLOCKS[id];

@@ -66,7 +66,7 @@ function startFlicker(mk){
   const pPct=mk.p*100;
   $('jackpotSub').innerHTML='<div class="fpPct big">'+pPct.toFixed(3)+'<i>%</i> TO LIVE</div><div class="fpHint">THE HOUSE ROLLS…</div>';
   t.className='jackpotText marker';
-  const roll=Math.random()*100; // the truth, decided now
+  const roll=rng('fate')*100; // the truth, decided now
   mk.roll=roll; mk.margin=pPct-roll; RUN.rollMargin=mk.margin;
   let n=0, N=16;
   const step=()=>{
@@ -178,7 +178,7 @@ async function actuallyDie(){
       const wchips=WEAPONS.filter(w=>(P.wlv[w.id]||0)>0).map(w=>'<span class="glChip" style="color:'+(GLYPH_COL[w.id]||'#e8d9b0')+'">'+w.g+'<i>'+(P.wlv[w.id]||0)+'</i></span>').join('');
       const schips=(P.passiveList||[]).map(r=>'<span class="glChip" style="color:'+(GLYPH_COL[r.id]||'#8bff9a')+'">'+r.g+'<i>'+r.count+'</i></span>').join('');
       const bp=RUN.bestPull;
-      const lo9=(typeof curSoul==='function')?(curSoul().g+' '+curSoul().n+' · '+curFloor().g+' '+curFloor().n+((IDX.ct||[]).length?' · ✍ '+(IDX.ct||[]).length+' CONTRACT'+((IDX.ct||[]).length>1?'S':''):'')):'';
+      const lo9=(typeof curSoul==='function')?(curSoul().g+' '+curSoul().n+' · '+curFloor().g+' '+curFloor().n+((IDX.ct||[]).length&&!DLY_RNG?' · ✍ '+(IDX.ct||[]).length+' CONTRACT'+((IDX.ct||[]).length>1?'S':''):'')):'';
       gl.innerHTML=
         (lo9&&typeof soulPortraitImg==='function'?'<div class="glSoul" style="--sc:'+curSoul().col+'">'+soulPortraitImg(curSoul().id,'glPort')+'</div>':'')+ // D1: the soul who sat tonight
         (lo9?'<div class="glRow" style="color:#c9b78e;letter-spacing:.12em">'+lo9+'</div>':'')+

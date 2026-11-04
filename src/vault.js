@@ -32,8 +32,8 @@ const CONTRACTS=[
  {id:'dividend',  n:'GRAVE DIVIDEND',  d:'Gilded souls burst with double coin, forever', goal:50000, cur:()=>(LT.kills||0), gtxt:'50,000 lifetime kills'},
  {id:'codicil',   n:'BLOOD CODICIL',   d:'Your first miss at THE RED TABLE is forgiven, once per table, forever', goal:30, cur:()=>(LT.rites||0), gtxt:"Sit at the red table 30 times"}
 ];
-function contractDone(id){ const c=CONTRACTS.find(x=>x.id===id); return c && c.cur()>=c.goal; }
-function vlv(id){ return (VAULT.lv[id]|0); }
+function contractDone(id){ if(DLY_RNG) return false; const c=CONTRACTS.find(x=>x.id===id); return c && c.cur()>=c.goal; }
+function vlv(id){ return DLY_RNG?0:(VAULT.lv[id]|0); } // B1: no seals on the daily
 function vaultCost(def){ return Math.round(def.base*Math.pow(2.2, vlv(def.id))*(1-((P&&P.vaultDisc)||0))); }
 function vaultUnlocked(def){ return !def.req || def.req(); }
 function applyVault(){
@@ -82,7 +82,7 @@ function buyVault(id){
     announce('◈ '+cost.toLocaleString()+' GILT — PRESS AGAIN TO SEAL ◈', true); SFX.casinoDing();
     setTimeout(()=>{ if(window._vConfirm===id+vlv(id)) window._vConfirm=null; },4000); return; }
   window._vConfirm=null;
-  gilt-=cost; VAULT.lv[id]=vlv(id)+1;
+  gilt-=cost; VAULT.lv[id]=(VAULT.lv[id]|0)+1;
   saveGilt(); saveAch(); SFX.vaultBuy(); sparkBurst(20);
   try{ flyGlyphs('vaultPanel','vaultGilt','◈',7,'#ffd36b'); }catch(e){} // the gold visibly changes hands
   LT.seals=(LT.seals||0)+1; bump('seals',LT.seals);
@@ -131,7 +131,7 @@ function renderVault(){
   grid.querySelectorAll('.vBuy[data-vid]').forEach(b=>b.addEventListener('click',()=>buyVault(b.dataset.vid)));
 }
 function openVault(){ coachMark('vault','SEALS ARE FOREVER — bought once, owned every night after'); renderVault(); $('vaultPanel').classList.remove('hidden'); SFX.vaultOpen(); }
-function vaultWindowOpen(){ return !!P && gt>=180 && !(vaultLocked>0 && gt<vaultLocked); } // the door manifests at 3:00 — five seals a night
+function vaultWindowOpen(){ if(DLY_RNG) return false; return !!P && gt>=180 && !(vaultLocked>0 && gt<vaultLocked); } // the door manifests at 3:00 — five seals a night
 function tickVaultDoor(){
   if(vaultLocked>0 && gt>=vaultLocked){ vaultLocked=0; vaultBuys=0;
     announce('◈ THE VAULT BREATHES AGAIN — FIVE MORE SEALS ◈',true); SFX.vaultOpen(); SFX.dingBells();

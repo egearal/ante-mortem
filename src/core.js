@@ -63,6 +63,19 @@ const elMenu=$('menu'), elHud=$('hud'), elSlot=$('slot'), elGO=$('gameover'), el
 /* ---------- helpers ---------- */
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const pick=a=>a[(Math.random()*a.length)|0];
+/* B1 DAILY DEBT — mode-scoped seeded randomness. Normal nights: plain Math.random.
+   A daily night: one mulberry32 stream per system (spawn/elite/slot/wheel/tarot/ascent/
+   drop/fate/combat), so slot pull #k is the same pull for every player in the world. */
+let DLY_RNG=null;
+function dlyHash(str){ let h=2166136261>>>0; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619); } return h|0; }
+function rng(s){ const R=DLY_RNG; if(!R) return Math.random();
+  let a=R[s]; if(a===undefined) a=dlyHash(R._seed+'|'+s);
+  a=(a+0x6D2B79F5)|0; R[s]=a;
+  let t=Math.imul(a^(a>>>15),1|a); t=(t+Math.imul(t^(t>>>7),61|t))^t;
+  return ((t^(t>>>14))>>>0)/4294967296; }
+function rrnd(s,a,b){ return a+rng(s)*(b-a); }
+function rpick(s,a){ return a[(rng(s)*a.length)|0]; }
+function dlyOn(){ return !!DLY_RNG; } // a Daily Debt night is live (or its corpse is on the ledger)
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const lerp=(a,b,t)=>a+(b-a)*t;
 function fmt(n){ n=Math.round(n); const m=Math.floor(n/60), s=n%60; return m+':'+(s<10?'0':'')+s; }
@@ -101,20 +114,20 @@ function tickMapProps(dt){
   if(P._srg<=0){ P._srg=9; ring(C6,C6,210,'#c81e2c'); ring(C6,C6,130,'#e8b64c'); }
   if(!bounty){ if(!houseActive){ bountyT-=dt;
     if(bountyT<=0){ const cands=enemies.filter(e2=>!e2.boss && e2.type!=='gilded' && Math.hypot(e2.x-P.x,e2.y-P.y)<760);
-      if(cands.length){ bounty={e:cands[(Math.random()*cands.length)|0], t:12};
+      if(cands.length){ bounty={e:cands[(rng('drop')*cands.length)|0], t:12};
         announce('☠ BOUNTY MARKED — 15 COINS ☠', true); SFX.casinoDing(); SFX.uiDing(); }
       else bountyT=6; } }
   } else { bounty.t-=dt;
     if(bounty.t<3){ bounty.bp=(bounty.bp||0)-dt; if(bounty.bp<=0){ bounty.bp=0.4; tone(1350,0.05,'square',0.09); } }
-    if(bounty.t<=0 || !enemies.includes(bounty.e)){ if(bounty.t<=0) bountyStk=0; bounty=null; bountyT=30+Math.random()*20; } }
+    if(bounty.t<=0 || !enemies.includes(bounty.e)){ if(bounty.t<=0) bountyStk=0; bounty=null; bountyT=30+rng('drop')*20; } }
   // spawn one random offering at a time
   if(!interactable){ if(!houseActive){ interT-=dt;
     if(interT<=0){
       const kinds=['fountain','roulette','chest'];
-      const kind=kinds[(Math.random()*kinds.length)|0];
-      const a5=Math.random()*6.283, d5=320+Math.random()*360;
+      const kind=kinds[(rng('drop')*kinds.length)|0];
+      const a5=rng('drop')*6.283, d5=320+rng('drop')*360;
       interactable={ kind, x:clamp(P.x+Math.cos(a5)*d5,80,CFG.arena-80), y:clamp(P.y+Math.sin(a5)*d5,80,CFG.arena-80),
-        life:(kind==='chest'?24:32), res:100, stand:0, spin:0, ph:0, rich:Math.random() };
+        life:(kind==='chest'?24:32), res:100, stand:0, spin:0, ph:0, rich:rng('drop') };
       const names={fountain:'🩸 A BLOOD FOUNTAIN RISES', roulette:'🎡 A FLOOR BET OPENS', chest:'✦ THE HOUSE LEAVES A GIFT'};
       showStreak(names[kind]); SFX.tingle(); SFX.casinoDing();
     } }
@@ -157,13 +170,13 @@ function tickMapProps(dt){
         flash(0.22,'#ffd36b'); SFX.reelLock();
         LT.chests=(LT.chests||0)+1; bump('chests',LT.chests);
         P._chestsRun=(P._chestsRun||0)+1; if(P._chestsRun>=3) secret('glutton','GIFT GLUTTON');
-        if(Math.random()<0.15){
+        if(rng('drop')<0.15){
           announce('☠ MIMIC! ☠', false); flash(0.5,'#8b1620'); SFX.bossRoar(); shake=Math.min(20,shake+10);
-          for(let i2=0;i2<6 && enemies.length<CFG.spawn.max;i2++){ const sa3=Math.random()*6.283;
+          for(let i2=0;i2<6 && enemies.length<CFG.spawn.max;i2++){ const sa3=rng('drop')*6.283;
             spawnEnemy(i2<2?'stalker':'swarm', clamp(it.x+Math.cos(sa3)*60,20,CFG.arena-20), clamp(it.y+Math.sin(sa3)*60,20,CFG.arena-20)); }
         } else {
-          const cg3=9+Math.round((it.rich!==undefined?it.rich:Math.random())*7); // the shimmer told the truth
-          for(let gi=0;gi<cg3;gi++) coins.push({x:it.x+rnd(-14,14),y:it.y+rnd(-14,14),r:6,vx:rnd(-140,140),vy:rnd(-140,140)});
+          const cg3=9+Math.round((it.rich!==undefined?it.rich:rng('drop'))*7); // the shimmer told the truth
+          for(let gi=0;gi<cg3;gi++) coins.push({x:it.x+rrnd('loot',-14,14),y:it.y+rrnd('loot',-14,14),r:6,vx:rrnd('loot',-140,140),vy:rrnd('loot',-140,140)});
           coinRain(16); SFX.cashout(); SFX.dingBells(); announce('✦ TREASURE +'+cg3+' COINS ✦', true); flash(0.4,'#ffd36b'); sparkBurst(22);
         }
         burst(it.x,it.y,14,'#e8b64c'); despawnInter(); return;
@@ -212,20 +225,20 @@ function tickMapProps(dt){
     }
   }
 }
-function despawnInter(){ if(interactable){ ring(interactable.x,interactable.y,50,'#5a4a3a'); } interactable=null; interT=16+Math.random()*18; }
+function despawnInter(){ if(interactable){ ring(interactable.x,interactable.y,50,'#5a4a3a'); } interactable=null; interT=16+rng('drop')*18; }
 function rouletteBet(rp){
   LT.roul=(LT.roul||0)+1; bump('roul',LT.roul);
   P._roulRun=(P._roulRun||0)+1; if(P._roulRun>=3) secret('wheeladdict','WHEEL ADDICT');
   SFX.reelLock(); SFX.diceRattle(); ring(rp.x,rp.y,80,'#e8b64c'); sparkBurst(18); shake=Math.min(14,shake+6);
-  const r3=Math.random();
-  if(r3<0.35){ const cg2=10+((Math.random()*8)|0); P.coins+=cg2; LT.coins+=cg2; bump('runCoins',P.coins); bump('ltCoins',LT.coins);
+  const r3=rng('drop');
+  if(r3<0.35){ const cg2=10+((rng('drop')*8)|0); P.coins+=cg2; LT.coins+=cg2; bump('runCoins',P.coins); bump('ltCoins',LT.coins);
     coinRain(14); SFX.cashout(); announce('◈ FLOOR BET PAYS +'+cg2+' COINS ◈', true); flash(0.35,'#ffd36b'); ftext(rp.x,rp.y-70,'+'+cg2+' ◈','#ffd36b',true); }
   else if(r3<0.60){ const hl2=Math.round(P.maxHp*0.15); P.hp=Math.min(P.maxHp,P.hp+hl2);
     announce('✚ FLOOR BET: +'+hl2+' BLOOD ✚', true); flash(0.35,'#8bff9a'); SFX.dingBells(); }
   else if(r3<0.80){ P.speed*=1.3; debuffs.push({label:'⚡ SWIFT WAGER +30%', t:8, dur:8, revert:()=>{ P.speed/=1.3; }, dot:0, poison:false});
     announce('⚡ FLOOR BET: +30% SPEED FOR 8s ⚡', true); flash(0.35,'#9adcff'); SFX.tingle(); }
   else { announce('☠ THE HOUSE CHEATS — AMBUSH! ☠', false); flash(0.45,'#8b1620'); SFX.bust();
-    for(let i2=0;i2<5 && enemies.length<CFG.spawn.max;i2++){ const sa2=Math.random()*6.283;
+    for(let i2=0;i2<5 && enemies.length<CFG.spawn.max;i2++){ const sa2=rng('drop')*6.283;
       spawnEnemy('swarm', clamp(rp.x+Math.cos(sa2)*90,20,CFG.arena-20), clamp(rp.y+Math.sin(sa2)*90,20,CFG.arena-20)); } }
 }
 // Prefer the artifact-env storage API; otherwise shim it over localStorage (same keys) so local play keeps progress
@@ -278,7 +291,7 @@ let RUN={};
 let eggProp=null, keyProp=null;
 function resetRun(){ RUN={diceTries:0,diceWins:0,diceP:0,pulls:{common:0,uncommon:0,rare:0,epic:0,legendary:0},wheelCs:[],crashPts:[],rollMargin:null,bestPull:null,curses:0};
   // THE EGG — one night in three, something small and golden hides far from the lights
-  eggProp = Math.random()<0.34 ? {x:200+Math.random()*(CFG.arena-400), y:200+Math.random()*(CFG.arena-400)} : null;
+  eggProp = rng('drop')<0.34 ? {x:200+rng('drop')*(CFG.arena-400), y:200+rng('drop')*(CFG.arena-400)} : null;
 }
 resetRun();
 
@@ -291,13 +304,13 @@ function spawnEnemy(type,x,y){
   ring(x,y,b.r+26,'#5a1a6a'); for(let sp=0;sp<5;sp++){ const sa=Math.random()*6.283; parts.push({x:x+Math.cos(sa)*b.r,y:y+Math.sin(sa)*b.r,vx:Math.cos(sa)*-40,vy:Math.sin(sa)*-40,life:rnd(.25,.5),col:'#7a3aa8',r:rnd(1.5,3)}); }
   const hpS=1+mins*S.hp, dmgS=(1+mins*S.dmg)*fnBite(), spdS=Math.min(S.spdCap,1+mins*S.spd)*(P.enemySpeedBoost||1);
   enemies.push({type,x,y,r:b.r,hp:b.hp*hpS,maxhp:b.hp*hpS,spd:b.spd*spdS*_fspd,dmg:b.dmg*dmgS,
-    xp:b.xp,coins:b.coins,cd:0,flash:0,kx:0,ky:0,ph:Math.random()*6.28,col:b.col,dark:b.dark,elite:type==='elite',
-    ranged:b.ranged||false, shootCd:rnd(0.8,2.6), born:gt, vt:(type==='bomber'?'husk':null)});
+    xp:b.xp,coins:b.coins,cd:0,flash:0,kx:0,ky:0,ph:rng('spawn')*6.28,col:b.col,dark:b.dark,elite:type==='elite',
+    ranged:b.ranged||false, shootCd:rrnd('spawn',0.8,2.6), born:gt, vt:(type==='bomber'?'husk':null)});
 }
 function spawnGuard(x,y){ // nothing materializes on top of the gambler
   const dx=x-P.x, dy=y-P.y, d=Math.hypot(dx,dy);
   if(d>=260) return {x,y};
-  if(d<1){ const a=Math.random()*6.283; return {x:clamp(P.x+Math.cos(a)*260,20,CFG.arena-20), y:clamp(P.y+Math.sin(a)*260,20,CFG.arena-20)}; }
+  if(d<1){ const a=rng('spawn')*6.283; return {x:clamp(P.x+Math.cos(a)*260,20,CFG.arena-20), y:clamp(P.y+Math.sin(a)*260,20,CFG.arena-20)}; }
   const s=260/d; return {x:clamp(P.x+dx*s,20,CFG.arena-20), y:clamp(P.y+dy*s,20,CFG.arena-20)};
 }
 function startWave(){
@@ -307,9 +320,9 @@ function startWave(){
   if(wave>1){ SFX.casinoDing(); ftext(P.x,P.y-40,'WAVE '+wave,'#e8b64c',true); ring(P.x,P.y,64,'#e8b64c'); }
   if(wave>=10 && wave%10===0) spawnBoss();
   if(wave>0 && wave%7===0){ announce('✦ GOLDEN WAVE — THE GILDED WALK ✦', true); SFX.dingBells();
-    for(let gw=0;gw<2;gw++){ const ga2=Math.random()*6.283, gd2=Math.max(VW,VH)*0.5;
+    for(let gw=0;gw<2;gw++){ const ga2=rng('spawn')*6.283, gd2=Math.max(VW,VH)*0.5;
       spawnEnemy('gilded', clamp(P.x+Math.cos(ga2)*gd2,20,CFG.arena-20), clamp(P.y+Math.sin(ga2)*gd2,20,CFG.arena-20)); } }
-  if(wave>=4 && Math.random()<0.10){ const ga=Math.random()*6.283, gd=Math.max(VW,VH)*0.5;
+  if(wave>=4 && rng('spawn')<0.10){ const ga=rng('spawn')*6.283, gd=Math.max(VW,VH)*0.5;
     spawnEnemy('gilded', clamp(P.x+Math.cos(ga)*gd,20,CFG.arena-20), clamp(P.y+Math.sin(ga)*gd,20,CFG.arena-20));
     showStreak('✦ A GILDED SOUL APPEARS ✦'); SFX.tingle(); }
   // expire curses
@@ -318,13 +331,13 @@ function startWave(){
   if(wave>1 && wave%5===0){ CFG.scale.hp+=0.10; CFG.scale.dmg+=0.03; CFG.scale.spdCap=Math.min(2.3,CFG.scale.spdCap+0.08); showStreak('THE HOUSE GROWS CRUEL'); SFX.murmur(); flash(0.3,'#8b1620'); }
   const W=CFG.wave;
   // every wave rolls a little differently — the dealer shuffles, never repeats
-  const size=Math.min(W.cap, Math.round((W.first + (wave-1)*W.grow)*(P&&P.crowd?1.3:1)*rnd(0.85,1.2)*fnEase()));
+  const size=Math.min(W.cap, Math.round((W.first + (wave-1)*W.grow)*(P&&P.crowd?1.3:1)*rrnd('spawn',0.85,1.2)*fnEase()));
   const eliteWave = wave % W.eliteEvery === 0;
-  const wflav = (wave>=4 && Math.random()<0.15) ? ['husk','wraith','stalker','swarm','brute'][(Math.random()*5)|0] : null;
+  const wflav = (wave>=4 && rng('spawn')<0.15) ? ['husk','wraith','stalker','swarm','brute'][(rng('spawn')*5)|0] : null;
   for(let i=0;i<size && enemies.length<CFG.spawn.max;i++){
-    const a=Math.random()*6.283, d=Math.max(VW,VH)*0.6+rnd(30,220);
+    const a=rng('spawn')*6.283, d=Math.max(VW,VH)*0.6+rrnd('spawn',30,220);
     const x=clamp(P.x+Math.cos(a)*d,20,CFG.arena-20), y=clamp(P.y+Math.sin(a)*d,20,CFG.arena-20);
-    let t='shambler', roll=Math.random();
+    let t='shambler', roll=rng('spawn');
     if(wave>=2 && roll<0.30) t='husk';
     if(wave>=4 && roll>=0.30 && roll<0.36) t='bomber';
     if(wave>=5 && roll>=0.87 && roll<0.90) t='leech';
@@ -335,21 +348,21 @@ function startWave(){
     if(window._fmods&&window._fmods.noRanged&&(t==='shooter'||t==='hexer')) t='stalker';
     if(wave>=3 && roll>=0.90 && roll<0.955) t='brute';
     if(wave>=8 && roll>=0.955) t='revenant';
-    if(wflav && Math.random()<0.22) t=wflav;
+    if(wflav && rng('spawn')<0.22) t=wflav;
     spawnEnemy(t,x,y);
   }
   // HORDE: a fast swarm pours in from one flank
-  if(wave>=2 && ((P&&P.stampede) || wave%2===0 || Math.random()<0.55)){
-    const ha=Math.random()*6.283, hd=Math.max(VW,VH)*0.62;
+  if(wave>=2 && ((P&&P.stampede) || wave%2===0 || rng('spawn')<0.55)){
+    const ha=rng('spawn')*6.283, hd=Math.max(VW,VH)*0.62;
     const hx=clamp(P.x+Math.cos(ha)*hd,40,CFG.arena-40), hy=clamp(P.y+Math.sin(ha)*hd,40,CFG.arena-40);
-    const hn=Math.round((20+wave*3)*((window._fmods&&window._fmods.horde)||1)*(P&&P.crowd?1.3:1)*rnd(0.85,1.2)*fnEase());
+    const hn=Math.round((20+wave*3)*((window._fmods&&window._fmods.horde)||1)*(P&&P.crowd?1.3:1)*rrnd('spawn',0.85,1.2)*fnEase());
     ring(hx,hy,180,'#8b1620'); ring(hx,hy,120,'#c81e2c'); // the ground marks where they pour in
-    for(let k=0;k<hn && enemies.length<CFG.spawn.max;k++){ spawnEnemy('swarm', clamp(hx+rnd(-170,170),20,CFG.arena-20), clamp(hy+rnd(-170,170),20,CFG.arena-20)); }
+    for(let k=0;k<hn && enemies.length<CFG.spawn.max;k++){ spawnEnemy('swarm', clamp(hx+rrnd('spawn',-170,170),20,CFG.arena-20), clamp(hy+rrnd('spawn',-170,170),20,CFG.arena-20)); }
     setTimeout(()=>{ if(state==='playing'){ showStreak('HORDE INCOMING'); SFX.murmur(); } }, 260);
   }
   if(eliteWave){
     const n=(1+Math.floor(wave/8))*((P&&P.noMercy)?2:1);
-    for(let k=0;k<n;k++){ const a=Math.random()*6.283, d=Math.max(VW,VH)*0.6;
+    for(let k=0;k<n;k++){ const a=rng('elite')*6.283, d=Math.max(VW,VH)*0.6;
       const ex9=clamp(P.x+Math.cos(a)*d,20,CFG.arena-20), ey9=clamp(P.y+Math.sin(a)*d,20,CFG.arena-20);
       spawnEnemy('elite',ex9,ey9); ring(ex9,ey9,160,'#c98bff'); ring(ex9,ey9,90,'#e8ccff'); }
     showStreak('WAVE '+wave+' · ELITE'); SFX.murmur(); flash(0.3,'#c98bff');
@@ -357,7 +370,7 @@ function startWave(){
     showStreak('WAVE '+wave);
   }
   waveClearTarget=Math.ceil(size*W.nextAt);
-  waveGap=W.gap*rnd(0.9,1.15);
+  waveGap=W.gap*rrnd('spawn',0.9,1.15);
 }
 function enemyShoot(e){
   const base=Math.atan2(P.y-e.y,P.x-e.x), sp=200;
@@ -378,7 +391,7 @@ const BLESSINGS=[
   {l:'♥ MENDING — +3 BLOOD/s', ap:()=>{P.regen=(P.regen||0)+3;}, rv:()=>{P.regen-=3;}}
 ];
 function eliteBlessing(){
-  const b=BLESSINGS[(Math.random()*BLESSINGS.length)|0], dur=Math.round(rnd(12,18));
+  const b=BLESSINGS[(rng('drop')*BLESSINGS.length)|0], dur=Math.round(rrnd('drop',12,18));
   b.ap();
   debuffs.push({label:b.l, t:dur, dur, revert:b.rv, dot:0, poison:false, good:true});
   announce('✦ BLESSED — '+b.l+' · '+dur+'s ✦', true);
@@ -398,7 +411,7 @@ const SCARS=[
  {label:'CROOKED TABLE — NEXT DICE +1', g:'🎲', ap:()=>{ P.crookedT=true; }}
 ];
 function applyScar(){
-  const s=SCARS[(Math.random()*SCARS.length)|0];
+  const s=SCARS[(rng('fate')*SCARS.length)|0];
   s.ap(); (P.scars=P.scars||[]).push({l:s.label, g:s.g||'☒'});
   LT.scars=(LT.scars||0)+1; bump('scars',LT.scars);
   setTimeout(()=>announce('☒ SCARRED — '+s.label+', THIS RUN ☒', false), 250);
@@ -449,7 +462,7 @@ function killEnemy(e,idx){
     for(const o of enemies){ if(o!==e && Math.hypot(o.x-e.x,o.y-e.y)<74){ o.hp-=40; o.flash=0.1; } } }
   if(e.type==='gilded'){ LT.gilded++; bump('gilded',LT.gilded);
     if(feverOn) secret('goldongold','GOLD ON GOLD');
-    for(let gi=0;gi<(contractDone('dividend')?28:14);gi++) coins.push({x:e.x+rnd(-12,12),y:e.y+rnd(-12,12),r:6,vx:rnd(-130,130),vy:rnd(-130,130)});
+    for(let gi=0;gi<(contractDone('dividend')?28:14);gi++) coins.push({x:e.x+rrnd('loot',-12,12),y:e.y+rrnd('loot',-12,12),r:6,vx:rrnd('loot',-130,130),vy:rrnd('loot',-130,130)});
     coinRain(18); bigWin('GOLD RUSH',2); }
   if(bounty && bounty.e===e){ bounty=null; bountyT=30+Math.random()*20;
     bountyStk++; const brew=Math.round((10+5*bountyStk)*(1+(P.bountyPay||0)));
@@ -470,10 +483,10 @@ function killEnemy(e,idx){
     slowT=Math.max(slowT,0.45); flash(0.5,'#ffd36b'); // the fall is savored in slow-motion gold
     bigWin(BOSS_DEFS[e.bossKind].name+' FALLS',4); coinRain(30); stopDrone();
     pending.push({floor:'epic'});
-    for(let gi=0;gi<16;gi++) coins.push({x:e.x+rnd(-20,20),y:e.y+rnd(-20,20),r:6,vx:rnd(-150,150),vy:rnd(-150,150)}); }
-  orbs.push({x:e.x,y:e.y,xp:e.xp*0.75*(P.xpMult||1),r:5,vx:rnd(-30,30),vy:rnd(-30,30)});
+    for(let gi=0;gi<16;gi++) coins.push({x:e.x+rrnd('loot',-20,20),y:e.y+rrnd('loot',-20,20),r:6,vx:rrnd('loot',-150,150),vy:rrnd('loot',-150,150)}); }
+  orbs.push({x:e.x,y:e.y,xp:e.xp*0.75*(P.xpMult||1),r:5,vx:rrnd('loot',-30,30),vy:rrnd('loot',-30,30)});
   const cn=Math.round(e.coins*P.coinMult);
-  for(let i=0;i<cn;i++) coins.push({x:e.x+rnd(-8,8),y:e.y+rnd(-8,8),r:6,vx:rnd(-70,70),vy:rnd(-70,70)});
+  for(let i=0;i<cn;i++) coins.push({x:e.x+rrnd('loot',-8,8),y:e.y+rrnd('loot',-8,8),r:6,vx:rrnd('loot',-70,70),vy:rrnd('loot',-70,70)});
   burst(e.x,e.y,e.elite?34:14,e.elite?'#c98bff':'#c81e2c');
   ash(e.x,e.y,e.elite?16:7);
   // blood mist + rising soul wisp
@@ -611,6 +624,7 @@ function update(dt){
   if(rings.length>90) rings.splice(0,rings.length-90);
   if(sparks.length>320) sparks.splice(0,sparks.length-320);
   fnTick(dt); // A3 first night: first blood, first RAGE lesson + forgiveness
+  if(DLY_RNG) try{ dlyTick(dt); }catch(e){} // B1: the minute-by-minute track
   if(typeof soulTick==='function') soulTick(dt); // D1: the seat's own rules (martyr/magpie/banker)
   if(P.ovT>0){ P.ovAge+=dt;
     P.ovT-=dt*(3.3+P.ovAge*0.35);
@@ -634,8 +648,8 @@ function update(dt){
       announce('⚔ HOUSE DARE — '+dare.need+' KILLS IN 10s → +40 ◈ ⚔', true); SFX.casinoDing(); } }
   } else { dare.t-=dt;
     if(dare.got>=dare.need){ P.coins+=40; LT.coins+=40; bump('runCoins',P.coins); bump('ltCoins',LT.coins);
-      announce('⚔ DARE MET — +40 COINS ⚔', true); SFX.cashout(); SFX.dingBells(); coinRain(16); sparkBurst(26); flash(0.3,'#8bff9a'); dare=null; dareT=40+Math.random()*24; }
-    else if(dare.t<=0){ announce('… THE HOUSE SCOFFS …', false); SFX.thud(); dare=null; dareT=40+Math.random()*24; }
+      announce('⚔ DARE MET — +40 COINS ⚔', true); SFX.cashout(); SFX.dingBells(); coinRain(16); sparkBurst(26); flash(0.3,'#8bff9a'); dare=null; dareT=40+rng('drop')*24; }
+    else if(dare.t<=0){ announce('… THE HOUSE SCOFFS …', false); SFX.thud(); dare=null; dareT=40+rng('drop')*24; }
   }
   if(typeof droneGain!=='undefined' && droneGain && P.hp/P.maxHp<0.5){ try{ droneGain.gain.value=0.14*(1+(0.5-P.hp/P.maxHp)); }catch(e){} }
   if(P.hp/P.maxHp<0.25){ P._hb=(P._hb||0)-dt; if(P._hb<=0){ P._hb=0.85; tone(56,0.16,'sine',0.22,44); setTimeout(()=>tone(50,0.13,'sine',0.16,40),160);
@@ -768,7 +782,7 @@ function update(dt){
     tone(38,1.6,'sine',0.32,24); SFX.bossRoar();
     showStreak('☷ EVERYTHING KNEELS ☷');
     setTimeout(()=>{ if(state==='dead'||typeof P==='undefined'||!P) return;
-      const a9=Math.random()*6.283;
+      const a9=rng('spawn')*6.283;
       spawnEnemy('housegod', clamp(P.x+Math.cos(a9)*560,80,CFG.arena-80), clamp(P.y+Math.sin(a9)*560,80,CFG.arena-80));
       const g9=enemies[enemies.length-1];
       if(g9){ g9.boss=true; g9.bossKind='housegod'; g9.hp=g9.maxhp=1000000; g9.dmg=300; g9.spd=385; g9.r=46; g9.unkillable=true; }
@@ -798,7 +812,7 @@ function update(dt){
       else if(d<range-60){ e.x-=dx/d*e.spd*0.7*dt; e.y-=dy/d*e.spd*0.7*dt; }
       else { e.x+=-dy/d*e.spd*0.5*dt; e.y+=dx/d*e.spd*0.5*dt; } // strafe
       e.shootCd-=dt;
-      if(e.shootCd<=0 && d<560){ e.shootCd=1.9+Math.random()*0.8; enemyShoot(e); }
+      if(e.shootCd<=0 && d<560){ e.shootCd=1.9+rng('combat')*0.8; enemyShoot(e); }
     } else {
       e.x+=dx/d*e.spd*dt; e.y+=dy/d*e.spd*dt;
     }
@@ -869,7 +883,7 @@ function update(dt){
         if(b.blast){ const br=b.blast; ring(b.x,b.y,br,'#ff9a3c'); ring(b.x,b.y,br*0.55,'#ffd36b'); shake=Math.min(12,shake+4); SFX.thud();
           for(let q=enemies.length-1;q>=0;q--){ const o=enemies[q]; if(o!==e && Math.hypot(o.x-b.x,o.y-b.y)<br){ o.hp-=b.dmg*0.75; o.flash=0.1; if(o.hp<=0) killEnemy(o,q); } } b.blast=0; }
         if(b.bounce>0){ b.bounce--; const cand=enemies.filter(o=>o!==e&&o.hp>0);
-          if(cand.length){ const t2=cand[(Math.random()*cand.length)|0], sp2=Math.hypot(b.vx,b.vy)||300, a2=Math.atan2(t2.y-b.y,t2.x-b.x);
+          if(cand.length){ const t2=cand[(rng('combat')*cand.length)|0], sp2=Math.hypot(b.vx,b.vy)||300, a2=Math.atan2(t2.y-b.y,t2.x-b.x);
             b.vx=Math.cos(a2)*sp2; b.vy=Math.sin(a2)*sp2; b.life=Math.max(b.life,0.9); ftext(b.x,b.y,'⚂','#c98bff'); tone(900+Math.random()*300,0.05,'square',0.06); break; } }
         hitstop=Math.max(hitstop,b.crit?0.045:0.015);
         if(spk){ let hits=0, from=e, jumps=spk+1; const used=new Set([j]); while(hits<jumps){ let ni=-1,nd=150*150; for(let k=0;k<enemies.length;k++){ if(used.has(k))continue; const o=enemies[k],od=(o.x-from.x)*(o.x-from.x)+(o.y-from.y)*(o.y-from.y); if(od<nd){nd=od;ni=k;} } if(ni<0)break; const o=enemies[ni]; spark(from.x,from.y,o.x,o.y); o.hp-=dmg*(0.45+0.05*spk); trackDmg(dmg*(0.45+0.05*spk)); o.flash=0.1; used.add(ni); from=o; hits++; } }
@@ -2752,7 +2766,7 @@ function bossPlate(name){
 function spawnBoss(){
   const order=['pitboss','croupier','collector','thehouse'];
   const kind=order[(Math.floor(wave/10)-1)%order.length];
-  const a=Math.random()*6.283, dd=Math.max(VW,VH)*0.55;
+  const a=rng('spawn')*6.283, dd=Math.max(VW,VH)*0.55;
   const x=clamp(P.x+Math.cos(a)*dd,40,CFG.arena-40), y=clamp(P.y+Math.sin(a)*dd,40,CFG.arena-40);
   spawnEnemy(kind,x,y);
   try{ bossPlate(BOSS_DEFS[kind].name); }catch(e){}
@@ -2785,7 +2799,7 @@ function bossAI(e,dt,dx,dy,d){
     e.x+=dx/d*e.spd*dt; e.y+=dy/d*e.spd*dt;
     e.v1=(e.v1||0)-dt;
     if(e.v1<=0){ e.v1=4; ring(e.x,e.y,90,'#6a4ab5'); SFX.murmur();
-      for(let i2=0;i2<3 && enemies.length<CFG.spawn.max;i2++){ const an=Math.random()*6.283; spawnEnemy('swarm', clamp(e.x+Math.cos(an)*40,20,CFG.arena-20), clamp(e.y+Math.sin(an)*40,20,CFG.arena-20)); } }
+      for(let i2=0;i2<3 && enemies.length<CFG.spawn.max;i2++){ const an=rng('spawn')*6.283; spawnEnemy('swarm', clamp(e.x+Math.cos(an)*40,20,CFG.arena-20), clamp(e.y+Math.sin(an)*40,20,CFG.arena-20)); } }
     return true;
   }
   if(k==='thehouse' && e.bstate==='spiral'){
@@ -2873,6 +2887,7 @@ function frame(now){
   }catch(_e){ if(!window._amErr){ window._amErr=1; console.error('[ANTE MORTEM]',_e); } }
 }
 function startGame(){
+  try{ dlyBegin(); }catch(e){ DLY_RNG=null; } // B1: arms the seeded night when the DAILY DEBT plaque was played, else plain Math.random
   try{ fadeCut(); }catch(e){} try{ setFav('♠'); }catch(e){}
   initAudio(); houseActive=false;
   try{ startAmbience(); }catch(e){}
@@ -2891,7 +2906,7 @@ function startGame(){
   window._runSeq=(window._runSeq||0)+1; slotStage='idle'; gamble=null; window._slotFF=null; try{ clearInterval(window._antiHb); }catch(e){}
   gt=0; shake=0; hitstop=0; killStreak=0; streakT=0; goreT=null; _goreDryT=0; _goreDryI=0; _goreWinT=0; _goreWinN=0; excite=0; fireAcc=0; pending=[]; LT.runs++; bump('runs',LT.runs); fever=0; feverOn=false; feverT=0; tarots=[]; tarotT=14; decals=[]; wheelTok=null; wheelTokT=40; crashTok=null; crashTokT=50; bounty=null; bountyT=34; slotBank=0; vouchers=0; bountyStk=0; goldenT=0; ovBonusNext=false; slowT=0; prevHp=0; dare=null; dareT=46; ascTime=7; ascPend=0;
   if(!RANK._ld){ RANK._ld=1; loadRank(); }
-  applyRankPerks(); recToasted=new Set(); applyVault(); applyAchPerks();
+  if(!DLY_RNG){ applyRankPerks(); } recToasted=new Set(); if(!DLY_RNG){ applyVault(); applyAchPerks(); } // B1: the daily is a fair field
   // the soul at the table speaks last — then the floor, then the ink
   { const sd=(typeof curSoul==='function')?curSoul():null;
     if(sd){ try{ sd.ap(); }catch(e){} if(sd.id!=='vesper') announce(sd.g+' '+sd.n+' TAKES THE SEAT '+sd.g, true); }
@@ -2904,18 +2919,18 @@ function startGame(){
       if(fd.mods&&fd.mods.coin) P.coinMult=(P.coinMult||1)*fd.mods.coin;
       if(fd.mods&&fd.mods.xp) P.xpMult=(P.xpMult||1)*fd.mods.xp;
       if(fd.id!=='pit') setTimeout(()=>announce(fd.g+' TONIGHT: '+fd.n+' '+fd.g, true), 900); } }
-  { let act=(typeof RUN_CONTRACTS!=='undefined')?(IDX.ct||[]):[];
+  { let act=(typeof RUN_CONTRACTS!=='undefined' && !DLY_RNG)?(IDX.ct||[]):[];
     act=act.filter(id=>{ const c=RUN_CONTRACTS.find(x=>x.id===id); return c && (!c.u||c.u()); }).slice(0,(typeof ctSlots==='function')?ctSlots():2);
     act.forEach(id=>{ const ct=RUN_CONTRACTS.find(x=>x.id===id); if(ct){ try{ ct.ap(); }catch(e){} window._markMult*=1.25; } });
     if(act.length) setTimeout(()=>announce('✍ '+act.length+' CONTRACT'+(act.length>1?'S':'')+' SIGNED — ×'+window._markMult.toFixed(2)+' MARKS & GILT ✍', true), 1600); }
-  { const ind=(typeof INDULGENCES!=='undefined')?(IDX.ind||[]):[];
+  { const ind=(typeof INDULGENCES!=='undefined' && !DLY_RNG)?(IDX.ind||[]):[]; // B1: indulgences wait for a normal night
     if(ind.includes('pockets')){ P.coins+=60; }
     if(ind.includes('blood')){ P.maxHp+=25; P.hp+=25; }
     if(ind.includes('roller')){ P.hotSlots=3; }
     if(ind.includes('coffee')){ P.hotSlots=Math.max(P.hotSlots||0,1); }
     if(ind.length){ setTimeout(()=>announce('✦ '+ind.length+' INDULGENCE'+(ind.length>1?'S':'')+' HONORED ✦', true), 2100);
       IDX.ind=[]; idxSaveSoon(); } }
-  if(LT.equal){ P.coinMult*=1.05; P._goldTrail=true; } // THE HOUSE'S EQUAL — forever
+  if(LT.equal && !DLY_RNG){ P.coinMult*=1.05; P._goldTrail=true; } // THE HOUSE'S EQUAL — forever
   { const today=new Date().toISOString().slice(0,10);
     if(LT.lastDay!==today){
       const y=new Date(Date.now()-86400000).toISOString().slice(0,10);
@@ -2934,6 +2949,7 @@ function startGame(){
   debuffs=[];
   elMenu.classList.add('hidden'); elGO.classList.add('hidden'); elHud.classList.remove('hidden');
   fnStart(); // A3 first night: ease + lessons for a stranger's first 3 nights
+  if(DLY_RNG) try{ dlyStart(); }catch(e){ console.error('[daily start]',e); } // B1: the debt's terms
   state='playing'; last=performance.now();
 }
 

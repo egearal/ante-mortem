@@ -17,11 +17,11 @@ function rollMainReward(floor){
   cands.forEach(c=>have[c.rar]++);
   for(const k in w) if(!have[k]) w[k]=0;
   let total=0; for(const k in w) total+=w[k];
-  if(total<=0) return pick(cands.length?cands:[weaponReward(WEAPONS[0])]);
-  let x=Math.random()*total, chosen='common';
+  if(total<=0) return rpick('slot',cands.length?cands:[weaponReward(WEAPONS[0])]);
+  let x=rng('slot')*total, chosen='common';
   for(const k in w){ if(x<w[k]){ chosen=k; break; } x-=w[k]; }
   const tier=cands.filter(c=>c.rar===chosen);
-  return pick(tier.length?tier:cands);
+  return rpick('slot',tier.length?tier:cands);
 }
 
 /* ============================================================
@@ -46,11 +46,11 @@ const RED_W={common:16,uncommon:26,rare:30,epic:21,legendary:7}; // the red tabl
 function weightedByRarity(arr, wOver){
   const w=wOver||CFG.weights, buckets={};
   arr.forEach(o=>{ (buckets[o.rar]=buckets[o.rar]||[]).push(o); });
-  const keys=Object.keys(buckets); if(!keys.length) return pick(arr);
+  const keys=Object.keys(buckets); if(!keys.length) return rpick('slot',arr);
   let t=0; keys.forEach(k=>t+=w[k]||1);
-  let x=Math.random()*t, chosen=keys[0];
+  let x=rng('slot')*t, chosen=keys[0];
   for(const k of keys){ if(x<(w[k]||1)){ chosen=k; break; } x-=(w[k]||1); }
-  return pick(buckets[chosen]);
+  return rpick('slot',buckets[chosen]);
 }
 const DIE_PIP_POS={
   1:[[50,50]],
@@ -72,7 +72,7 @@ const MINIPOWERS=[
   {t:'+8 Pickup Range', ap:()=>{P.pickup+=8;}},
   {t:'+1% Crit', ap:()=>{P.crit=Math.min(0.9,P.crit+0.01);}}
 ];
-function grantMiniPower(){ const m=MINIPOWERS[(Math.random()*MINIPOWERS.length)|0]; m.ap(); return m.t; }
+function grantMiniPower(){ const m=MINIPOWERS[(rng('slot')*MINIPOWERS.length)|0]; m.ap(); return m.t; }
 let slotForceWeapon=false, _seanceOn=false;
 function endSeance(){
   if(_seanceOn){ _seanceOn=false; elSlot.classList.remove('seance'); if(!lastRites) stopDrone(); }
@@ -102,7 +102,7 @@ function openNextSlot(){
 function enterRedTable(){
   redForgiven=false;
   if(!P.passiveList||!P.passiveList.length){ redStake=null; return; } // nothing to stake — the house deals plain
-  const en=P.passiveList[(Math.random()*P.passiveList.length)|0];
+  const en=P.passiveList[(rng('slot')*P.passiveList.length)|0];
   redStake={id:en.id, n:en.n, g:en.g};
   let sc=$('sacCard');
   if(!sc){ sc=document.createElement('div'); sc.id='sacCard'; $('machine').appendChild(sc); }
@@ -187,16 +187,17 @@ let slotFate=null;
 let redStake=null, redForgiven=false; // THE SACRIFICE — a skill of yours on the side table
 function dealFate(seqs, pool){
   if(P&&P.sharp&&window._sharpTell){ const t=window._sharpTell; window._sharpTell=null; // D1 THE CARDSHARP: the tell you were shown IS the deal
-    const p1=(Math.random()*seqs[0].length)|0;
+    const p1=(rng('slot')*seqs[0].length)|0;
     seqs.forEach((sq,k)=>{ if(t.n===1&&k>0) return; for(let j=0;j<3;j++) sq[(p1+j*7)%sq.length]=t.s; });
     slotFate={n:t.n, s:t.s, sharp:true}; return; }
   if(P&&P.coldDeck){ slotFate={n:0}; return; } // the cold deck never matches
-  const u=Math.random();
+  const u=rng('slot');
   const pB=MFATE.P+((P&&P.yolkFate)?0.03:0); // the reels lean toward pairs for the Yolk
-  const n = u<MFATE.T ? 3 : (u<MFATE.T+pB ? 2 : 0);
+  const fm=(P&&P.fateMult)||1; // B1: a daily debt can lean the reels cold
+  const n = u<MFATE.T*fm ? 3 : (u<(MFATE.T+pB)*fm ? 2 : 0);
   if(!n){ slotFate={n:0}; return; }
   const s=weightedByRarity(pool, slotHot()).id;
-  const p0=(Math.random()*seqs[0].length)|0;
+  const p0=(rng('slot')*seqs[0].length)|0;
   seqs.forEach(sq=>{ for(let j=0;j<3;j++) sq[(p0+j*7)%sq.length]=s; });
   slotFate={n, s};
 }
@@ -211,7 +212,7 @@ function spinReels(){
   dealFate(seqs, pool);
   slotReels = strips.map((el,i)=>{
     buildStrip(el,seqs[i],defs); el.style.transition='none';
-    return {el,seq:seqs[i],N,offset:Math.random()*N,speed:19+i*1.8,stopped:false,landedSym:null,symH:63,boxH:189};
+    return {el,seq:seqs[i],N,offset:rng('slot')*N,speed:19+i*1.8,stopped:false,landedSym:null,symH:63,boxH:189};
   });
   LT.spins++; bump('spins',LT.spins);
   slotStage='spinning'; reelsStopped=0; stopLock=performance.now()+(RUN._pulled?40:780); RUN._pulled=1; // the first pull of the night savors its spin-up
@@ -345,9 +346,9 @@ function startSelector(){
   $('reelsRow').classList.add('sweeping');
   if(!lastRites){ elSlot.classList.add('seance'); _seanceOn=true; startDrone(); }
   $('machine').classList.add('selecting');
-  selWinner=(Math.random()*3)|0;
+  selWinner=(rng('slot')*3)|0;
   if(slotFate&&slotFate.sharp){ const k9=landed.indexOf(slotFate.s); if(k9>=0) selWinner=k9; } // D1: the cardsharp's single lands where the tell said
-  selPos=(Math.random()*3)|0; selT=0; selHop=0.05; selStopping=false; selHopsLeft=0; selTk=0;
+  selPos=(rng('slot')*3)|0; selT=0; selHop=0.05; selStopping=false; selHopsLeft=0; selTk=0;
   paintPick(selPos);
   SFX.selectorGo();
   $('cardName').textContent='FATE SPINS'; $('cardName').className='r-common';
@@ -359,7 +360,7 @@ function boxOf(i){ return $('reelBox'+i) || (slotReels[i]&&slotReels[i].el.paren
 function stopSelector(){
   if(slotStage!=='select' || selStopping) return;
   selStopping=true;
-  const loops = 2 + ((Math.random()*2)|0);
+  const loops = 2 + ((rng('slot')*2)|0);
   let h = loops*3 + ((((selWinner - selPos)%3)+3)%3);
   if(h < 6) h += 3;
   selHopsLeft = h;
@@ -394,7 +395,7 @@ function lockSelector(){
     return _pf(def,lv);
   }; }
 function finalizeReward(bestId, matchN){
-  let seraph=Math.random()<0.01; if(seraph&&matchN<3) matchN++;
+  let seraph=rng('slot')<0.01; if(seraph&&matchN<3) matchN++;
   if(slotFloor && matchN<2) matchN=2;
   if(matchN>=3){ LT.triples++; bump('triples',LT.triples); RUN.pulls._tr3=(RUN.pulls._tr3||0)+1; } else if(matchN===2){ LT.pairs++; bump('pairs',LT.pairs); }
   { const add9=matchN>=3?2:(matchN===2?1:0);
@@ -483,7 +484,7 @@ function openOffer(){
   coachMark('offer','TAKE keeps the prize · DICE gambles it one rung higher');
   const deadly = g.round>=3;
   $('machine').classList.toggle('deadly', deadly); // the blessing is close — the machine breathes red-gold
-  if(!deadly && !g.pendingCurse) g.pendingCurse=DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0];
+  if(!deadly && !g.pendingCurse) g.pendingCurse=DEBUFF_POOL[(rng('slot')*DEBUFF_POOL.length)|0];
   const curLv=skLevel(g.def);
   const takeLv=Math.min(g.def.max, curLv+g.reward);
   const takeOv=(curLv+g.reward)-takeLv;
@@ -512,7 +513,7 @@ function doRisk(){
   const g=gamble;
   $('reelsRow').style.display='none'; $('diceRow').style.display='';
   $('machine').classList.add('dicing'); $('machine').classList.remove('deadly');
-  if(!diceShown){ dice=[ {el:$('dieL'),val:1+((Math.random()*6)|0),rolling:false,ft:0}, {el:$('dieR'),val:1+((Math.random()*6)|0),rolling:false,ft:0} ]; diceShown=true; }
+  if(!diceShown){ dice=[ {el:$('dieL'),val:1+((rng('slot')*6)|0),rolling:false,ft:0}, {el:$('dieR'),val:1+((rng('slot')*6)|0),rolling:false,ft:0} ]; diceShown=true; }
   dice.forEach(d=>{ d.rolling=true; d.ft=0; d.el.classList.remove('settle','crit','hot'); d.el.classList.add('rolling'); renderDie(d.el,d.val); });
   slotStage='dicing'; stopLock=performance.now()+60;
   if(g.rites){ flash(0.3,'#8b1620'); SFX.thud(); } // the red table asks no blood — only nerve
@@ -530,7 +531,7 @@ function stopDie(){
   if(performance.now()<(stopLock||0)) return;
   const idx = dice[0].rolling ? 0 : 1;
   const d=dice[idx]; if(!d.rolling) return;
-  d.rolling=false; d.val=1+((Math.random()*6)|0); renderDie(d.el,d.val);
+  d.rolling=false; d.val=1+((rng('slot')*6)|0); renderDie(d.el,d.val);
   d.el.classList.remove('rolling'); d.el.classList.add('settle'); setTimeout(()=>{ if(d.el)d.el.classList.remove('settle'); },340);
   stopLock=performance.now()+60;
   const mag = gamble? gamble.round : 1;

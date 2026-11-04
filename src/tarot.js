@@ -17,7 +17,7 @@ const DEBUFF_POOL=[
   {label:'COLD TABLE −30% XP', dur:18, ap:()=>{ const o=P.xpMult||1; P.xpMult=o*0.7; return ()=>{P.xpMult=o;}; }}
 ];
 function applyDebuff(d){
-  d = d || DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0];
+  d = d || DEBUFF_POOL[(rng('tarot')*DEBUFF_POOL.length)|0];
   const revert=d.ap();
   { const dd=Math.max(2,Math.round(d.dur*Math.max(0.5,P.curseCut||1))); debuffs.push({label:d.label, t:dd, dur:dd, revert, dot:d.dot||0, poison:!!d.dot}); }
   idxSee('c',d.label); if(typeof RUN!=='undefined') RUN.curses=(RUN.curses||0)+1;
@@ -57,7 +57,7 @@ const TAROT_FATES=[
  {n:'THE SUN', dd:'Full heal · +50% damage 10s · +20 coins',t:2,c:'#fff2c0',fx:()=>{ P.hp=P.maxHp; P.damage*=1.5; debuffs.push({label:'☀ STRENGTH +50%',t:10,dur:10,revert:()=>{P.damage/=1.5;},dot:0,poison:false,good:true}); P.coins+=20; LT.coins+=20; coinRain(14); }},
  {n:'THE WORLD', dd:'+2 levels · heal 30%',t:2,c:'#fff2c0',fx:()=>{ pending.push({}); pending.push({}); P.hp=Math.min(P.maxHp,P.hp+P.maxHp*0.3); SFX.levelUp(); }},
  {n:'WHEEL OF FORTUNE', dd:'+25 coins',t:1,c:'#e8b64c',fx:()=>{ P.coins+=25; LT.coins+=25; coinRain(20); SFX.cashout(); }},
- {n:'THE STAR', dd:'Heal 40%',t:1,c:'#9adcff',fx:()=>{ for(const o of orbs){ o.x=P.x+rnd(-30,30); o.y=P.y+rnd(-30,30); } for(const c2 of coins){ c2.x=P.x+rnd(-30,30); c2.y=P.y+rnd(-30,30); } ring(P.x,P.y,200,'#9adcff'); }},
+ {n:'THE STAR', dd:'Heal 40%',t:1,c:'#9adcff',fx:()=>{ for(const o of orbs){ o.x=P.x+rrnd('tarot',-30,30); o.y=P.y+rrnd('tarot',-30,30); } for(const c2 of coins){ c2.x=P.x+rrnd('tarot',-30,30); c2.y=P.y+rrnd('tarot',-30,30); } ring(P.x,P.y,200,'#9adcff'); }},
  {n:'STRENGTH', dd:'+20% damage 20s',t:1,c:'#ff9a5b',fx:()=>{ P.damage*=1.5; debuffs.push({label:'☀ STRENGTH +50%',t:12,dur:12,revert:()=>{P.damage/=1.5;},dot:0,poison:false,good:true}); }},
  {n:'TEMPERANCE', dd:'Heal 25% · cleanse curses',t:1,c:'#8bff9a',fx:()=>{ P.hp=Math.min(P.maxHp,P.hp+P.maxHp*0.35); }},
  {n:'THE EMPRESS', dd:'+15% coins this run',t:1,c:'#ffb0c8',fx:()=>{ P.coins+=15; LT.coins+=15; P.hp=Math.min(P.maxHp,P.hp+P.maxHp*0.15); coinRain(10); }},
@@ -67,16 +67,16 @@ const TAROT_FATES=[
  {n:'JUSTICE', dd:'Coins match your kills',t:1,c:'#ff5566',fx:()=>{ for(let i2=enemies.length-1;i2>=0;i2--){ const e=enemies[i2]; if(!e.boss&&!e.elite&&Math.hypot(e.x-P.x,e.y-P.y)<320) killEnemy(e,i2); } shake=Math.min(20,shake+10); }},
  {n:'THE HIEROPHANT', dd:'+10% XP this run',t:1,c:'#eaf3ff',fx:()=>{ P.inv=Math.max(P.inv,4); ring(P.x,P.y,60,'#eaf3ff'); }},
  {n:'THE TOWER', dd:'−25% blood, now',t:-1,c:'#ff5560',fx:()=>{ hurtPlayer(Math.round(P.maxHp*0.15)); }},
- {n:'THE MOON', dd:'−20% enemy speed 12s',t:-1,c:'#a794c4',fx:()=>{ applyDebuff(DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0]); }},
+ {n:'THE MOON', dd:'−20% enemy speed 12s',t:-1,c:'#a794c4',fx:()=>{ applyDebuff(DEBUFF_POOL[(rng('tarot')*DEBUFF_POOL.length)|0]); }},
  {n:'THE HANGED MAN', dd:'−30% speed 12s',t:-1,c:'#7a8aa0',fx:()=>{ P.speed*=0.7; debuffs.push({label:'⛓ SLOWED −30%',t:8,dur:8,revert:()=>{P.speed/=0.7;},dot:0,poison:false}); }},
- {n:'DEATH', dd:'Slay everything near',t:-1,c:'#c98bff',fx:()=>{ for(let i2=0;i2<4&&enemies.length<CFG.spawn.max;i2++){ const a2=Math.random()*6.283; spawnEnemy('swarm',clamp(P.x+Math.cos(a2)*140,20,CFG.arena-20),clamp(P.y+Math.sin(a2)*140,20,CFG.arena-20)); } }},
+ {n:'DEATH', dd:'Slay everything near',t:-1,c:'#c98bff',fx:()=>{ for(let i2=0;i2<4&&enemies.length<CFG.spawn.max;i2++){ const a2=rng('tarot')*6.283; spawnEnemy('swarm',clamp(P.x+Math.cos(a2)*140,20,CFG.arena-20),clamp(P.y+Math.sin(a2)*140,20,CFG.arena-20)); } }},
  {n:'THE DEVIL', dd:'Sweeps ALL ground coins',t:-1,c:'#ff5560',fx:()=>{ const n5=coins.length; for(const c5 of coins) burst(c5.x,c5.y,1,'#5a4a3a'); coins.length=0; if(n5>0) ftext(P.x,P.y-24,'−'+n5+' COINS SWEPT','#ff6b6b',true); SFX.thud(); }},
  {n:'FIVE OF CUPS', dd:'Lose 20% of your XP',t:-1,c:'#8a97b5',fx:()=>{ P.xp=Math.floor(P.xp*0.8); }},
- {n:'THE FOOL', dd:'Lose 15 coins',t:-1,c:'#e8d9c0',fx:()=>{ const a2=Math.random()*6.283,d2=300+Math.random()*200; P.x=clamp(P.x+Math.cos(a2)*d2,40,CFG.arena-40); P.y=clamp(P.y+Math.sin(a2)*d2,40,CFG.arena-40); P.inv=Math.max(P.inv,1.2); flash(0.4,'#e8d9c0'); }},
+ {n:'THE FOOL', dd:'Lose 15 coins',t:-1,c:'#e8d9c0',fx:()=>{ const a2=rng('tarot')*6.283,d2=300+rng('tarot')*200; P.x=clamp(P.x+Math.cos(a2)*d2,40,CFG.arena-40); P.y=clamp(P.y+Math.sin(a2)*d2,40,CFG.arena-40); P.inv=Math.max(P.inv,1.2); flash(0.4,'#e8d9c0'); }},
  {n:'SEVEN OF SWORDS', dd:'−20% damage 8s',t:-1,c:'#b0b8c8',fx:()=>{ P.damage*=0.8; debuffs.push({label:'🗡 −20% DMG',t:8,dur:8,revert:()=>{P.damage/=0.8;},dot:0,poison:false}); }},
  {n:'THE HERMIT', dd:'Enemies forget you 6s',t:-1,c:'#6a7488',fx:()=>{ P.speed*=0.8; debuffs.push({label:'🏮 −20% SPD',t:6,dur:6,revert:()=>{P.speed/=0.8;},dot:0,poison:false}); }},
  {n:'WHEEL REVERSED', dd:'Streak + fever drained',t:-1,c:'#a06a12',fx:()=>{ killStreak=0; streakT=0; fever=Math.max(0,fever-0.5); }},
- {n:'TOWER REVERSED', dd:'−30% blood + a curse',t:-2,c:'#e3b7ff',fx:()=>{ hurtPlayer(Math.round(P.maxHp*0.3)); applyDebuff(DEBUFF_POOL[(Math.random()*DEBUFF_POOL.length)|0]); }},
+ {n:'TOWER REVERSED', dd:'−30% blood + a curse',t:-2,c:'#e3b7ff',fx:()=>{ hurtPlayer(Math.round(P.maxHp*0.3)); applyDebuff(DEBUFF_POOL[(rng('tarot')*DEBUFF_POOL.length)|0]); }},
  {n:'DEATH REVERSED', dd:'Summons a hunting pack',t:-2,c:'#e3b7ff',fx:()=>{ if(enemies.length<CFG.spawn.max) spawnEnemy('elite',clamp(P.x+180,20,CFG.arena-20),clamp(P.y,20,CFG.arena-20)); for(let i2=0;i2<4&&enemies.length<CFG.spawn.max;i2++){ const a2=Math.random()*6.283; spawnEnemy('swarm',clamp(P.x+Math.cos(a2)*160,20,CFG.arena-20),clamp(P.y+Math.sin(a2)*160,20,CFG.arena-20)); } }}
 ];
 const TR_ROMAN=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI','XXII','XXIII','XXIV'];
@@ -100,17 +100,17 @@ function tickTarot(dt){
   if(houseActive){ tarots.length=0; return; }
   tarotT-=dt;
   if(tarotT<=0 && tarots.length<2){
-    tarotT=(14+Math.random()*10)/((window._fmods&&window._fmods.tarot)||1);
-    const a=Math.random()*6.283, dd=260+Math.random()*300;
-    tarots.push({x:clamp(P.x+Math.cos(a)*dd,40,CFG.arena-40), y:clamp(P.y+Math.sin(a)*dd,40,CFG.arena-40), ph:Math.random()*6.28, t:24});
+    tarotT=(14+rng('tarot')*10)/((window._fmods&&window._fmods.tarot)||1);
+    const a=rng('tarot')*6.283, dd=260+rng('tarot')*300;
+    tarots.push({x:clamp(P.x+Math.cos(a)*dd,40,CFG.arena-40), y:clamp(P.y+Math.sin(a)*dd,40,CFG.arena-40), ph:rng('tarot')*6.28, t:24});
     showStreak('☨ A TAROT CARD MANIFESTS ☨'); SFX.tingle();
   }
   for(let i=tarots.length-1;i>=0;i--){ const c=tarots[i]; c.t-=dt;
     if(c.t<=0){ tarots.splice(i,1); continue; }
     if(Math.hypot(P.x-c.x,P.y-c.y)<P.radius+16){
       tarots.splice(i,1);
-      let f=TAROT_FATES[(Math.random()*TAROT_FATES.length)|0];
-      if(f.t<0 && Math.random()<(P.tarotLuck||0)){ f=TAROT_FATES[(Math.random()*TAROT_FATES.length)|0]; announce('♠ MARKED CARDS — REDRAWN ♠',true); SFX.uiDing(); }
+      let f=TAROT_FATES[(rng('tarot')*TAROT_FATES.length)|0];
+      if(f.t<0 && rng('tarot')<(P.tarotLuck||0)){ f=TAROT_FATES[(rng('tarot')*TAROT_FATES.length)|0]; announce('♠ MARKED CARDS — REDRAWN ♠',true); SFX.uiDing(); }
       revealTarot(f); f.fx(); ring(P.x,P.y,95,f.c);
       announce('☨ '+f.n+' ☨', f.t>0); flash(0.4,f.c); sparkBurst(f.t>0?24:12);
       if(f.t<0){ shake=Math.min(14,shake+6); }

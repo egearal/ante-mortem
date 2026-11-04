@@ -474,7 +474,7 @@ window.addEventListener('keydown',e=>{
       const mk=markerRef;
       if(mk.p<mk.max){
         mk.presses++;
-        mk.p=Math.min(mk.max, mk.p+0.0025+Math.random()*0.005); // +0.25–0.75% a press — every decimal earned
+        mk.p=Math.min(mk.max, mk.p+0.0025+rng('fate')*0.005); // +0.25–0.75% a press — every decimal earned
         if(mk.p>=mk.max) secret('pressmax','THE CEILING');
         SFX.press();
         pressFx(mk);
@@ -583,7 +583,7 @@ const FLOORS=[
  {id:'chapel', n:'THE CHAPEL', g:'☨', col:'#fff2c0', d:'Where the House prays to itself. Everything runs 10% faster. XP +10%, tarot twice as often.',
    u:()=>(LT.houseMet||0)>=3, uTxt:'MEET THE HOUSE 3 TIMES', mods:{spd:1.1, xp:1.1, tarot:2, tint:'chapel'}}
 ];
-function curFloor(){ const f=FLOORS.find(x=>x.id===(IDX.fl||'pit')); return (f&&f.u())?f:FLOORS[0]; }
+function curFloor(){ if(DLY_RNG && typeof dlyFloor==='function') return dlyFloor(); const f=FLOORS.find(x=>x.id===(IDX.fl||'pit')); return (f&&f.u())?f:FLOORS[0]; }
 /* THE CONTRACTS — sign up to two; each pays ×1.25 marks & gilt at the ledger */
 const RUN_CONTRACTS=[
  {id:'glass',    g:'♡', n:'GLASS SOUL',     d:'Max blood halved. Every touch is a sentence.', u:()=>RANK.rank>=15, uTxt:'HOUSE RANK 15', ap:()=>{ P.maxHp=Math.max(20,Math.round(P.maxHp*0.5)); P.hp=P.maxHp; }},
@@ -621,7 +621,7 @@ const SOULS=[
  {id:'banker', n:'THE BANKER\'S GHOST', g:'♖', col:'#c4ff4d', d:'Interest: every 60s, +8% of the coins you hold. Cash RAGE at 90%+ and it pays DOUBLE that: +16% of your purse. The wheel won\'t spin for the dead — no Wheel of Souls. −10 max blood.',
    pips:'♥♥ · 👢👢👢 · ◈◈◈◈◈', u:()=>((typeof SEATS!=='undefined'&&SEATS.st.rage)||0)>=15, uTxt:'CASH OUT RAGE AT 90%+ 15 TIMES', ap:()=>{ P.banker=true; P.maxHp=Math.max(40,P.maxHp-10); P.hp=P.maxHp; }}
 ];
-function curSoul(){ const s=SOULS.find(x=>x.id===(IDX.sl||'vesper')); return (s&&s.u())?s:SOULS[0]; }
+function curSoul(){ if(DLY_RNG && typeof dlySoul==='function') return dlySoul(); const s=SOULS.find(x=>x.id===(IDX.sl||'vesper')); return (s&&s.u())?s:SOULS[0]; }
 // INDULGENCES — gilt buys the night a head start. Consumed when the run begins.
 const INDULGENCES=[
  {id:'coffee', g:'☕', n:"DEALER'S COFFEE", cost:60,  d:'Your first slot of the night deals HOT — red-tier odds.'},
@@ -1634,7 +1634,7 @@ function soulTick(dt){
       if(st>o){ const rn=['','I','II','III','IV','V','VI','VII','VIII','IX'][st];
         showStreak('✝ STIGMATA '+rn+' — +'+(st*6)+'% DMG · +'+(st*4)+'% FIRE ✝'); try{ SFX.stigmata(st); }catch(e){}
         flash(0.18+st*0.03,'#8b1620'); ring(P.x,P.y,60+st*8,'#ff2448'); if(st>=5) shake=Math.min(16,shake+st); } } }
-  if(P.magpie){ for(const c of coins){ if(!c._d1){ c._d1=1; if(Math.random()<0.03) c.gold=1; } } }
+  if(P.magpie){ for(const c of coins){ if(!c._d1){ c._d1=1; if(rng('loot')<0.03) c.gold=1; } } }
   if(P.banker){ P._bkT=(P._bkT||0)+dt;
     if(P._bkT>=55 && !P._bkW){ P._bkW=1; ftext(P.x,P.y-40,'♖ INTEREST IN 5…','#c4ff4d'); try{ tone(1318,0.06,'sine',0.05); }catch(e){} }
     if(P._bkT>=60){ P._bkT-=60; P._bkW=0;
@@ -1671,7 +1671,7 @@ function chipSpin(){
   const seq=window._runSeq;
   let el=document.getElementById('chipSlot');
   if(!el){ el=document.createElement('div'); el.id='chipSlot'; el.innerHTML='<div class="csH">✧ GOLDEN CHIP ✧</div><div class="csR"><b></b><b></b><b></b></div><div class="csO"></div>'; document.body.appendChild(el); }
-  const SY=['7','♠','♥','♦','♣','◈','★'], u=Math.random();
+  const SY=['7','♠','♥','♦','♣','◈','★'], u=rng('slot');
   const kind=u<0.12?3:(u<0.47?2:0);
   const fin = kind===3 ? ['7','7','7'] : (()=>{ const a=SY[(Math.random()*SY.length)|0]; if(kind===2){ const o=SY.filter(x=>x!==a); return [a,a,o[(Math.random()*o.length)|0]]; } const sh=SY.slice().sort(()=>Math.random()-0.5); return [sh[0],sh[1],sh[2]]; })();
   const reels=[...el.querySelectorAll('.csR b')]; reels.forEach(r=>{ r.className=''; });
@@ -1688,7 +1688,7 @@ function chipSpin(){
     else if(kind===2){ el.classList.add('win2'); let txt='A FREE POWER'; try{ txt=grantMiniPower()||txt; }catch(e){}
       out.textContent='PAIR — '+txt; announce('✧ CHIP PAIR — '+String(txt).toUpperCase()+' ✧', true); try{ SFX.dingBells(); SFX.casinoDing(); }catch(e){}
       coinRain(12); flash(0.3,'#2ee6ff'); }
-    else { el.classList.add('bust'); const g=8+((Math.random()*8)|0); P.coins+=g; LT.coins+=g; out.textContent='BUST — +'+g+' COINS';
+    else { el.classList.add('bust'); const g=8+((rng('drop')*8)|0); P.coins+=g; LT.coins+=g; out.textContent='BUST — +'+g+' COINS';
       try{ SFX.coinPling(); }catch(e){} ftext(P.x,P.y-30,'+'+g+' ◈','#ffd36b'); }
     setTimeout(()=>{ el.classList.remove('go'); setTimeout(chipSpin,260); }, 1300);
   }, 1200);
@@ -1698,7 +1698,7 @@ function sharpDeal(pool, redeal){
   if(!P||!P.sharp) { window._sharpTell=null; return; }
   if(!redeal) window._sharpRedealt=false;
   window._sharpPool=pool;
-  const u=Math.random(), pB=MFATE.P+(P.yolkFate?0.03:0);
+  const u=rng('slot'), pB=MFATE.P+(P.yolkFate?0.03:0);
   const n = P.coldDeck ? 1 : (u<MFATE.T ? 3 : (u<MFATE.T+pB ? 2 : 1));
   const d=weightedByRarity(pool, slotHot());
   window._sharpTell={n, s:d.id};
