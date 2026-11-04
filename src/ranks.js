@@ -844,8 +844,9 @@ function b2CourtType(t){
     if(window._fmods&&window._fmods.noRanged&&(nt==='shooter'||nt==='hexer')) nt='stalker'; return nt; }
   return t;
 }
-// the perf budget: never more than 8 elites alive on the endless floor (they never LOD to silhouettes)
-function b2EliteCap(n){ let a=0; for(const e of enemies) if(e.elite) a++; return Math.min(n, Math.max(0, 8-a)); }
+// the perf budget: never more than 8 elites alive on the endless floor (they never LOD to silhouettes),
+// and never past the 300-walker cap
+function b2EliteCap(n){ let a=0; for(const e of enemies) if(e.elite) a++; return Math.max(0, Math.min(n, 8-a, CFG.spawn.max-enemies.length)); }
 function b2ScaleElite(e){
   if(!e||!P||!P._endless) return;
   const k=1+0.3*Math.max(0,gt-P._endT0)/60;
