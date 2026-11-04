@@ -11,6 +11,38 @@ import path from 'node:path';
  * scope, so the scripts are classic (non-module) scripts and their load
  * order is meaningful; concatenation preserves it.
  */
+
+/**
+ * B3: the House band. Tracks dropped in assets/music/ (menu|run|boss|ascent|house
+ * .ogg/.mp3/.m4a) are listed into window.__AM_MUSIC so the page only ever asks
+ * for files that exist — a missing track costs no request and no console noise.
+ */
+const MUSIC_CTX = ['menu', 'run', 'boss', 'ascent', 'house'];
+function musicFiles(root) {
+  const dir = path.join(root, 'assets', 'music');
+  let names = [];
+  try { names = fs.readdirSync(dir); } catch (e) { return []; }
+  return names.filter(f => /^(menu|run|boss|ascent|house)\.(ogg|mp3|m4a)$/i.test(f));
+}
+function musicTag(files) {
+  const order = { ogg: 0, mp3: 1, m4a: 2 };
+  const map = {};
+  for (const f of files.slice().sort((a, b) => order[a.split('.').pop().toLowerCase()] - order[b.split('.').pop().toLowerCase()])) {
+    const k = f.split('.')[0].toLowerCase();
+    if (MUSIC_CTX.includes(k)) (map[k] = map[k] || []).push('assets/music/' + f);
+  }
+  return '<script>window.__AM_MUSIC=' + JSON.stringify(map) + ';</script>\n';
+}
+function musicDev() {
+  return {
+    name: 'ante-mortem-music-dev',
+    apply: 'serve',
+    transformIndexHtml(html) {
+      return html.replace('<script src="./src/core.js"></script>', () => musicTag(musicFiles(path.resolve(__dirname))) + '<script src="./src/core.js"></script>');
+    },
+  };
+}
+
 function singleFile() {
   const VIRTUAL = '\0ante-mortem-empty';
   return {
@@ -42,11 +74,15 @@ function singleFile() {
           return code.replace(/^"use strict";\n/, '');
         })
         .join('');
-      const inline = '<script>\n"use strict";\n' + js + '</script>\n';
+      const tracks = musicFiles(root);
+      const inline = musicTag(tracks) + '<script>\n"use strict";\n' + js + '</script>\n';
       html = html.replace(srcTags[0][0], () => inline);
       for (const m of srcTags.slice(1)) html = html.replace(m[0], '');
 
       this.emitFile({ type: 'asset', fileName: 'ante-mortem.html', source: html });
+      // B3: the band travels with the hosted build (beside dist/ante-mortem.html)
+      for (const f of tracks)
+        this.emitFile({ type: 'asset', fileName: 'assets/music/' + f, source: fs.readFileSync(path.join(root, 'assets', 'music', f)) });
 
       // A4: the hosted build also carries the install-as-app kit (ignored from file://)
       const man = JSON.parse(fs.readFileSync(path.join(root, 'manifest.webmanifest'), 'utf8'));
@@ -60,7 +96,7 @@ function singleFile() {
 }
 
 export default defineConfig({
-  plugins: [singleFile()],
+  plugins: [singleFile(), musicDev()],
   build: {
     rollupOptions: { input: 'virtual:empty' },
   },

@@ -606,15 +606,8 @@ function update(dt){
   if(keys.has('s')||keys.has('arrowdown'))my+=1;
   if(keys.has('a')||keys.has('q')||keys.has('arrowleft'))mx-=1;
   if(keys.has('d')||keys.has('arrowright'))mx+=1;
-  // a pad in hand works too: left stick moves, A is SPACE, B/START is ESC
-  if(navigator.getGamepads){ const _gp=navigator.getGamepads()[0];
-    if(_gp){ const gx=_gp.axes[0]||0, gy=_gp.axes[1]||0;
-      if(Math.abs(gx)>0.25) mx+=gx; if(Math.abs(gy)>0.25) my+=gy;
-      const a9=_gp.buttons[0]&&_gp.buttons[0].pressed, b9=(_gp.buttons[1]&&_gp.buttons[1].pressed)||(_gp.buttons[9]&&_gp.buttons[9].pressed);
-      if(a9&&!window._gpA) window.dispatchEvent(new KeyboardEvent('keydown',{key:' ',bubbles:true}));
-      if(!a9&&window._gpA) window.dispatchEvent(new KeyboardEvent('keyup',{key:' ',bubbles:true}));
-      if(b9&&!window._gpB) window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
-      window._gpA=a9; window._gpB=b9; } }
+  // a pad in hand works too: left stick / D-pad move (B3 PAD reads the pad and its buttons, ui.js)
+  if(typeof PAD!=='undefined' && PAD.on && mx===0 && my===0){ mx=PAD.mx; my=PAD.my; }
   if(touch.joy && mx===0 && my===0){ mx=touch.jx; my=touch.jy; } // A4: the floating stick
   if(touch.active && mx===0 && my===0){ const dx=touch.wx-P.x, dy=touch.wy-P.y, d=Math.hypot(dx,dy); if(d>6){ mx=dx/d; my=dy/d; } }
   const ml=Math.hypot(mx,my); if(ml>0){ mx/=ml; my/=ml; P.aim=Math.atan2(my,mx); }
@@ -1075,7 +1068,7 @@ function drawLandmarks(){
     ctx.fillText('◈ THE VAULT ◈', 0, 112);
     if(state==='playing' && Math.hypot(P.x-vaultProp.x,P.y-vaultProp.y)<115){
       ctx.fillStyle='rgba(139,255,154,'+(0.6+Math.sin(gt*6)*0.3)+')';
-      ctx.font="700 12px 'Cinzel',serif"; ctx.fillText(window._touchUI?'◈ BET — ENTER':'SPACE — ENTER', 0, 128); }
+      ctx.font="700 12px 'Cinzel',serif"; ctx.fillText(window._padUI?window._padA+' — ENTER':window._touchUI?'◈ BET — ENTER':'SPACE — ENTER', 0, 128); }
     ctx.restore(); }
   // ghost patrons — spirits of dead gamblers drifting the hall
   ctx.save();
@@ -1462,7 +1455,7 @@ const PROF={ on:/[?&#]prof/.test(location.search+location.hash), t0:0, tS:0, cur
 window.__prof=PROF;
 function render(){
   ctx.save();
-  let sx=0,sy=0; if(shake>0){ const sh=shake*0.6; sx=rnd(-sh,sh); sy=rnd(-sh,sh); }
+  let sx=0,sy=0; if(shake>0){ const sh=shake*0.6*(GFX.shake!=null?Math.min(1.5,GFX.shake):1); sx=rnd(-sh,sh); sy=rnd(-sh,sh); } // B3: the SHAKE dial scales it
   const cf = 0.9+Math.sin(gt*3)*0.03+Math.sin(gt*7.3)*0.02; // candle flicker
   ctx.fillStyle='#0a0507'; ctx.fillRect(0,0,VW,VH);
   ctx.save(); ctx.translate(-camX+sx,-camY+sy);
@@ -2096,7 +2089,7 @@ function render(){
     if(stf<0.35){ ctx.shadowColor='#ff5566'; ctx.shadowBlur=8; }
     roundRect(VW-118,81,Math.max(2,100*stf),5,2.5); ctx.fill(); ctx.shadowBlur=0;
     if(killStreak>=27){ ctx.font="700 11px 'Cinzel',serif"; ctx.fillStyle='#8bff9a'; ctx.shadowBlur=8;
-      ctx.fillText((window._touchUI?'◈ BET':'SPACE')+' — CASH +'+Math.floor(killStreak/3)+' ◈', VW-18, 92); }
+      ctx.fillText((window._padUI?window._padA:window._touchUI?'◈ BET':'SPACE')+' — CASH +'+Math.floor(killStreak/3)+' ◈', VW-18, 92); }
     ctx.restore();
   }
   ctx.restore();
@@ -2885,7 +2878,7 @@ function frame(now){
     }
     if(qLow&&!was&&state==='playing'&&!window._smoothT9){ window._smoothT9=true; showStreak('✦ THE HOUSE SMOOTHS THE FELT ✦'); setTimeout(()=>window._smoothT9=false,30000); } }
   if(qLow!==window._qPrev){ window._qPrev=qLow; window._qGrace=30; resize(); }
-  if(GFX.shake===0) shake=0; else if(GFX.shake<1) shake*=0.8;
+  if(GFX.shake===0) shake=0;
   document.body.classList.toggle('gamble', state==='slot'||state==='wheel'||state==='crash'||state==='marker');
   if(state==='playing'){
     if(hitstop>0){ hitstop-=dt; }

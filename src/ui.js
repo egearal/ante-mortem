@@ -1277,6 +1277,446 @@ if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
 }
 
 /* ============================================================
+   B3 — HANDS AND DIALS
+   A pad in hand: the left stick walks, Ⓐ is every bet, START pauses,
+   Ⓨ opens the codex. In every menu the D-pad walks a gilt focus ring
+   and Ⓐ/Ⓑ choose and go back. THE DIALS: master/SFX/music, shake, flash,
+   reduce-flashing, rumble, key rebinding. Persisted under am_dials_v1
+   (new, additive — no existing key is touched).
+   ============================================================ */
+const DIALS_KEY='am_dials_v1';
+const DIALS={ sfx:1, music:0.8, rumble:true, calm:false, seek:false, binds:{} };
+if(GFX.cb===undefined) GFX.cb=false;   // fresh saves printed UNDEFINED on these two rows
+if(GFX.tabT===undefined) GFX.tabT=false;
+const BIND_ACTS=[
+ {id:'up',    n:'MOVE UP',    canon:'w'},
+ {id:'down',  n:'MOVE DOWN',  canon:'s'},
+ {id:'left',  n:'MOVE LEFT',  canon:'a'},
+ {id:'right', n:'MOVE RIGHT', canon:'d'},
+ {id:'bet',   n:'BET',        canon:' '},
+ {id:'pause', n:'PAUSE',      canon:'escape'},
+ {id:'codex', n:'CODEX',      canon:'tab'}
+];
+const BIND_RESERVED={ escape:'ESC — IT CANCELS', f:'F — FULLSCREEN', m:'M — MUTE', enter:'ENTER — CASH', r:'R — RE-ANTE', q:'Q — QUIT', '1':'1 — JACKPOT', '2':'2 — JACKPOT', '3':'3 — JACKPOT' };
+function bindKey(a){ return (DIALS.binds&&DIALS.binds[a.id])||a.canon; }
+function keyName(k){ const N={' ':'SPACE',escape:'ESC',tab:'TAB',arrowup:'↑',arrowdown:'↓',arrowleft:'←',arrowright:'→',shift:'SHIFT',control:'CTRL',alt:'ALT',backspace:'BKSP',capslock:'CAPS'};
+  return N[k]||String(k).toUpperCase(); }
+let _dialsSaveT=0;
+function saveDials(){ clearTimeout(_dialsSaveT); _dialsSaveT=setTimeout(()=>{ try{ if(store) store.set(DIALS_KEY,JSON.stringify(DIALS),false); }catch(e){} },250); }
+function applyDials(){
+  try{ b3SetBusVols(); }catch(e){}
+  document.body.classList.toggle('b3calm', !!DIALS.calm);
+}
+(async()=>{ try{ if(store){ const r=await store.get(DIALS_KEY,false); if(r&&r.value){ const o=JSON.parse(r.value);
+      if(o&&typeof o==='object'){ Object.assign(DIALS,o); if(!DIALS.binds||typeof DIALS.binds!=='object') DIALS.binds={}; } } } }catch(e){}
+  applyDials(); try{ musicInit(); }catch(e){} })();
+// reduce-flashing: every screen flash is capped soft (the CSS side kills strobes and canvas washes)
+{ const _fl=flash; flash=function(a,col){ if(DIALS.calm) a=Math.min(0.12,(a||0)*0.3); return _fl(a,col); }; }
+
+/* ---------- B3 sounds (synthesized) ---------- */
+SFX.padNav=function(){ const n=performance.now(); if(n-(SFX._pnT||0)<45) return; SFX._pnT=n; tone(1560,0.03,'triangle',0.06); tone(3120,0.02,'sine',0.02); };
+SFX.padBack=function(){ tone(740,0.06,'sine',0.07,520); noise(0.03,0.03,2400); };
+SFX.padJoin=function(){ [784,1175,1568].forEach((f,i)=>setTimeout(()=>tone(f,0.16,'sine',0.12),i*70)); setTimeout(()=>SFX.chipStack&&SFX.chipStack(),180); };
+SFX.padLeave=function(){ [988,659,440].forEach((f,i)=>setTimeout(()=>tone(f,0.16,'sine',0.1),i*80)); };
+SFX.bindSet=function(){ tone(1046,0.05,'square',0.08); setTimeout(()=>tone(1568,0.12,'sine',0.12),50); noise(0.04,0.05,4000); };
+
+/* ---------- input mode: the House labels prompts for the hand you used last ---------- */
+const PAD={on:false,mx:0,my:0,mode:'kb',fam:'xbox',prev:[],aDown:false,rep:{},focus:null,scope:null,mem:{},rumbleUntil:0,rumbleLvl:0,id:''};
+const PADG_X={a:'Ⓐ',b:'Ⓑ',x:'Ⓧ',y:'Ⓨ',start:'START',sel:'VIEW',lb:'LB',rb:'RB'};
+const PADG_P={a:'✕',b:'○',x:'□',y:'△',start:'OPTIONS',sel:'SHARE',lb:'L1',rb:'R1'};
+function padG(){ return PAD.fam==='ps'?PADG_P:PADG_X; }
+window._padUI=false; window._padA='Ⓐ';
+const B3R={nodes:new Set(),mo:null};
+function b3Phrases(){ const G=padG(); return [
+  [/(⌨ WASD walk|☝ LEFT THUMB walks).*$/, '🎮 L-STICK walks · '+G.a+' every bet · '+G.x+' cash the ascent · '+G.start+' pause · '+G.y+' codex · '+G.b+' back'],
+  [/\b(press|PRESS|HOLD|hold|Hold|MASH|mash|Mash) SPACE\b/g, '$1 '+G.a],
+  [/\b(HOLD|MASH) ◈ BET\b/g, '$1 '+G.a],
+  [/\bWASD( or arrows)?/g, 'L-STICK'],
+  [/\bLEFT THUMB\b/g, 'L-STICK'],
+  [/\bSPACE\b/g, G.a],
+  [/◈ BET\b/g, G.a],
+  [/\bENTER (cash|cashes|=|—)/g, G.x+' $1'],
+  [/\bESC\b/g, G.start],
+  [/\bTAB\b/g, G.y]
+]; }
+function b3RelabelText(n){
+  const v=n.nodeValue; if(!v || n.__b3w===v) return;
+  if(!/SPACE|WASD|ENTER|ESC|TAB|◈ BET|LEFT THUMB/.test(v)) return;
+  const par=n.parentNode; if(!par || par.nodeName==='SCRIPT' || par.nodeName==='STYLE' || par.nodeName==='TEXTAREA') return;
+  if(par.closest && par.closest('#b3Dials .b3Bind')) return; // the rebinding keycaps always show the real key
+  let o=v; const G=padG();
+  if(par.classList && par.classList.contains('keyhint')){ o=o.replace(/^\s*(SPACE|◈ BET)\s*$/,G.a).replace(/^\s*(ENTER|▲)\s*$/,G.x); }
+  for(const [re,to] of b3Phrases()) o=o.replace(re,to);
+  if(o!==v){ n.__b3o=v; n.__b3w=o; n.nodeValue=o; B3R.nodes.add(n); }
+}
+function b3Relabel(root){
+  if(!root) return;
+  if(root.nodeType===3){ b3RelabelText(root); return; }
+  if(root.nodeType!==1) return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT); let n; while((n=w.nextNode())) b3RelabelText(n);
+}
+function b3Restore(){
+  for(const n of B3R.nodes){ try{ if(n.isConnected && n.nodeValue===n.__b3w) n.nodeValue=n.__b3o; }catch(e){} n.__b3w=null; }
+  B3R.nodes.clear();
+}
+function b3SetInput(mode){
+  if(mode===PAD.mode) return;
+  PAD.mode=mode; const pad=mode==='pad';
+  window._padUI=pad; document.body.classList.toggle('padUI',pad);
+  if(pad){ window._padA=padG().a; b3Relabel(document.body);
+    try{ if(!B3R.mo){ B3R.mo=new MutationObserver(ms=>{ for(const m of ms){
+          if(m.type==='characterData') b3RelabelText(m.target); else for(const a of m.addedNodes) b3Relabel(a); } }); }
+      B3R.mo.observe(document.body,{subtree:true,childList:true,characterData:true}); }catch(e){}
+    PAD.scope=null; b3PollScope(true); }
+  else { try{ if(B3R.mo) B3R.mo.disconnect(); }catch(e){} b3Restore(); b3SetFocus(null); }
+  b3PadBar();
+  try{ if($('b3Dials') && !$('b3Dials').classList.contains('hidden')) b3RenderPadLine(); }catch(e){}
+}
+window.addEventListener('pointerdown',e=>{ if(!e.isTrusted) return; b3SetInput(e.pointerType==='touch'||e.pointerType==='pen'?'touch':'kb'); },true);
+
+/* ---------- key rebinding: a bound key is translated into the key the House listens for ---------- */
+let _b3Synth=false; const _b3Held={};
+function b3Fire(type,canon,repeat){
+  const key=canon===' '?' ':canon==='escape'?'Escape':canon==='tab'?'Tab':canon.length===1?canon:canon.charAt(0).toUpperCase()+canon.slice(1);
+  const code=canon===' '?'Space':canon==='escape'?'Escape':canon==='tab'?'Tab':canon.length===1?'Key'+canon.toUpperCase():key;
+  _b3Synth=true; try{ window.dispatchEvent(new KeyboardEvent(type,{key,code,repeat:!!repeat,bubbles:true,cancelable:true})); }catch(e){} _b3Synth=false;
+}
+function b3Key(e){ let k=(e.key||'').toLowerCase(); if(k==='spacebar') k=' '; return k; }
+function b3BindMap(){ const m={}; for(const a of BIND_ACTS){ const k=bindKey(a); if(k!==a.canon) m[k]=a; } return m; }
+const B3C={act:null};
+window.addEventListener('keydown',e=>{
+  if(_b3Synth || !e.isTrusted) return;
+  b3SetInput('kb');
+  const k=b3Key(e);
+  if(B3C.act){ e.preventDefault(); e.stopImmediatePropagation(); if(e.repeat) return;
+    if(k==='escape'){ b3EndCapture('— KEPT —'); return; }
+    b3Assign(B3C.act,k); return; }
+  const dl=$('b3Dials');
+  if(dl && !dl.classList.contains('hidden')){
+    if(k==='escape'){ e.preventDefault(); e.stopImmediatePropagation(); if(!e.repeat) closeDials(); return; }
+    if(k===' '){ e.stopImmediatePropagation(); return; } // space never starts a night or resumes from under the dials
+  }
+  { const gp=$('gfxPanel'); if(k==='escape' && PAD.fromDials && gp && !gp.classList.contains('hidden')){ e.preventDefault(); e.stopImmediatePropagation(); gp.classList.add('hidden'); PAD.fromDials=false; openDials(); return; } }
+  if(document.activeElement && document.activeElement.tagName==='INPUT' && document.activeElement.type!=='range') return;
+  const a=b3BindMap()[k];
+  if(a){ e.preventDefault(); e.stopImmediatePropagation(); _b3Held[k]=a.canon; b3Fire('keydown',a.canon,e.repeat); }
+},true);
+window.addEventListener('keyup',e=>{
+  if(_b3Synth || !e.isTrusted) return;
+  const k=b3Key(e);
+  if(_b3Held[k]!==undefined){ e.preventDefault(); e.stopImmediatePropagation(); const c=_b3Held[k]; delete _b3Held[k]; b3Fire('keyup',c,false); }
+},true);
+window.addEventListener('blur',()=>{ for(const k in _b3Held){ const c=_b3Held[k]; delete _b3Held[k]; b3Fire('keyup',c,false); } });
+function b3BeginCapture(act){ B3C.act=act; renderBinds(); const m=$('b3BindMsg'); if(m) m.textContent='PRESS A KEY FOR '+act.n+' · ESC KEEPS THE OLD ONE'; SFX.tick(); }
+function b3EndCapture(msg){ B3C.act=null; renderBinds(); const m=$('b3BindMsg'); if(m) m.textContent=msg||''; }
+function b3Assign(act,k){
+  if(BIND_RESERVED[k] && !(k===act.canon)){ SFX.thud(); b3EndCapture('THE HOUSE KEEPS '+BIND_RESERVED[k]); return; }
+  const old=bindKey(act); let msg='✦ '+act.n+' — '+keyName(k)+' ✦';
+  const other=BIND_ACTS.find(o=>o!==act && bindKey(o)===k);
+  if(other){ DIALS.binds[other.id]=old; msg='⇄ SWAPPED — '+act.n+' ON '+keyName(k)+' · '+other.n+' ON '+keyName(old); }
+  DIALS.binds[act.id]=k;
+  for(const a of BIND_ACTS) if(DIALS.binds[a.id]===a.canon) delete DIALS.binds[a.id];
+  saveDials(); SFX.bindSet(); b3EndCapture(msg);
+}
+function renderBinds(){
+  const box=$('b3Binds'); if(!box) return;
+  box.innerHTML=BIND_ACTS.map(a=>{ const cap=B3C.act===a; const k=bindKey(a);
+    return '<button class="b3Bind'+(cap?' cap':'')+(k!==a.canon?' moved':'')+'" data-act="'+a.id+'"><span class="b3BN">'+a.n+'</span><span class="b3Cap" data-cap="'+(cap?'…':keyName(k)).replace(/"/g,'&quot;')+'"></span></button>'; }).join(''); // keycap text lives in CSS — no prompt relabeler can touch it
+}
+
+/* ---------- the pad ---------- */
+function b3Pad(){ try{ const gs=navigator.getGamepads?navigator.getGamepads():null; if(!gs) return null;
+    for(let i=0;i<gs.length;i++){ const g=gs[i]; if(g && g.connected!==false && g.buttons && g.buttons.length) return g; } }catch(e){} return null; }
+function b3Fam(id){ id=id||''; return (/054c|playstation|dualsense|dualshock/i.test(id) || (/wireless controller/i.test(id) && !/xbox|045e|xinput/i.test(id)))?'ps':'xbox'; }
+function b3Rumble(ms,strong,weak){
+  if(!DIALS.rumble || PAD.mode!=='pad') return;
+  const gp=b3Pad(); const va=gp&&gp.vibrationActuator; if(!va || typeof va.playEffect!=='function') return;
+  const now=performance.now(); if(now<PAD.rumbleUntil && strong<=PAD.rumbleLvl) return;
+  PAD.rumbleUntil=now+ms; PAD.rumbleLvl=strong;
+  try{ const p=va.playEffect(va.type||'dual-rumble',{startDelay:0,duration:ms,strongMagnitude:Math.min(1,strong),weakMagnitude:Math.min(1,weak)}); if(p&&p.catch) p.catch(()=>{}); }catch(e){}
+}
+{ const R=[['hurt',[110,0.4,0.8]],['death',[700,1,0.6]],['jackpot',[560,0.9,1]],['reelLock',[280,0.55,0.8]],['levelUp',[200,0.25,0.55]],
+    ['bossRoar',[460,0.85,0.3]],['cashout',[300,0.35,0.8]],['vaultBuy',[220,0.6,0.4]],['nearMiss',[160,0.2,0.5]]];
+  for(const [k,v] of R){ const f=SFX[k]; if(typeof f!=='function') continue; SFX[k]=function(){ try{ b3Rumble(v[0],v[1],v[2]); }catch(e){} return f.apply(SFX,arguments); }; }
+  const bw=SFX.bigWin; if(typeof bw==='function') SFX.bigWin=function(t){ try{ const tt=Math.max(0,Math.min(5,t||0)); b3Rumble(240+tt*110,0.3+tt*0.14,0.7); }catch(e){} return bw.apply(SFX,arguments); }; }
+window.addEventListener('gamepadconnected',e=>{ try{ PAD.fam=b3Fam(e.gamepad&&e.gamepad.id); PAD.id=(e.gamepad&&e.gamepad.id)||'';
+  announce('◈ '+(PAD.fam==='ps'?'A PLAYSTATION PAD':'A PAD')+' SITS DOWN AT THE TABLE ◈',true); SFX.padJoin(); b3SetInput('pad'); }catch(x){} });
+window.addEventListener('gamepaddisconnected',()=>{ try{ if(b3Pad()) return; announce('◈ THE PAD LEAVES THE TABLE ◈',false); SFX.padLeave();
+  PAD.mx=PAD.my=0; if(PAD.aDown){ PAD.aDown=false; tcKey('keyup',' '); }
+  if(state==='playing') tcKey('keydown','Escape'); // the House holds your seat
+  b3SetInput('kb'); }catch(x){} });
+
+/* ---------- focus: a gilt ring walks every menu ---------- */
+const B3_SCOPES=['#seatVeil','#b3Dials','#pageReveal','#gfxPanel','#howPanel','#booksPanel','#antePanel','#vaultPanel','#indexPanel','#achPanel','#storyPanel'];
+const B3_NOT=new Set(['tabPanel','hud','menu','slot','wheelLayer','crashLayer','gameover','pauseLayer','jackpotLayer','relicTip','b3PadBar']);
+const B3_CLICKY='.soulCard,.floorCard,.ctChip,.indChip,.ctSlotBuy,.jkCard,.prArrow,.howTab,.lpg,#loadoutLine,#menuRank';
+function b3Vis(el){ if(!el || !el.isConnected) return false; if(el.classList.contains('hidden')) return false;
+  if(!el.getClientRects().length) return false; const cs=getComputedStyle(el); return cs.visibility!=='hidden' && cs.display!=='none' && parseFloat(cs.opacity)>0.05; }
+function b3Focusables(scope){
+  const out=[]; if(!scope) return out;
+  const all=scope.querySelectorAll('*');
+  for(const el of all){
+    let ok=false; const t=el.tagName;
+    if(t==='BUTTON' || t==='SELECT' || (t==='A'&&el.hasAttribute('href'))) ok=true;
+    else if(t==='INPUT') ok=el.type!=='hidden';
+    else if(el.matches(B3_CLICKY)) ok=true;
+    if(!ok) continue;
+    if(el.matches('.pauseCard')) continue;
+    const r=el.getBoundingClientRect(); if(r.width<3||r.height<3) continue;
+    const cs=getComputedStyle(el); if(cs.visibility==='hidden'||cs.pointerEvents==='none'||parseFloat(cs.opacity)<0.05) continue;
+    out.push(el);
+  }
+  // a clickable that wraps another clickable is a frame, not a choice
+  return out.filter((el,i)=>!(out[i+1] && el.contains(out[i+1])));
+}
+function b3FindScope(){
+  const cands=B3_SCOPES.map(s=>document.querySelector(s)).filter(Boolean);
+  document.querySelectorAll('.layer,[id$="Panel"]').forEach(el=>{ if(!B3_NOT.has(el.id) && !cands.includes(el)) cands.push(el); });
+  if(typeof state!=='undefined'){
+    if(state==='crash' && typeof crash!=='undefined' && crash && crash.jk) cands.push($('crashLayer'));
+    if(state==='paused') cands.push($('pauseLayer'));
+    if(state==='dead') cands.push($('gameover'));
+    if(state==='menu') cands.push($('menu'));
+  }
+  for(const el of cands){ if(!el || !b3Vis(el)) continue; const L=b3Focusables(el); if(L.length) return {el,L}; }
+  return null;
+}
+function b3SKey(el){ if(!el) return ''; return el.id || ((el.className||'').toString().split(' ')[0]+'|'+(el.dataset.id||el.dataset.k||el.dataset.act||el.dataset.t||el.dataset.pre||el.dataset.i||(el.textContent||'').trim().slice(0,28))); }
+const B3_DEFAULT={menu:'#startBtn',gameover:'#againBtn',pauseLayer:'#resumeBtn',antePanel:'.soulCard.on',b3Dials:'.b3Rng'};
+function b3SetFocus(el){
+  if(PAD.focus && PAD.focus!==el){ try{ PAD.focus.classList.remove('b3Focus'); }catch(e){} }
+  PAD.focus=el||null;
+  if(el){ el.classList.add('b3Focus'); PAD.fkey=b3SKey(el); if(PAD.scope && PAD.moved) PAD.mem[PAD.scope.id||'?']=PAD.fkey; b3ScrollTo(el); }
+  b3PadBar();
+}
+function b3ScrollTo(el){
+  let p=el.parentElement;
+  while(p && p!==document.body){
+    const cs=getComputedStyle(p);
+    if(/(auto|scroll)/.test(cs.overflowY) && p.scrollHeight>p.clientHeight+2){
+      const r=el.getBoundingClientRect(), pr=p.getBoundingClientRect();
+      if(r.top<pr.top+8) p.scrollTop-= (pr.top+8-r.top); else if(r.bottom>pr.bottom-8) p.scrollTop+=(r.bottom-(pr.bottom-8)); }
+    if(/(auto|scroll)/.test(cs.overflowX) && p.scrollWidth>p.clientWidth+2){
+      const r=el.getBoundingClientRect(), pr=p.getBoundingClientRect();
+      if(r.left<pr.left+8) p.scrollLeft-=(pr.left+8-r.left); else if(r.right>pr.right-8) p.scrollLeft+=(r.right-(pr.right-8)); }
+    p=p.parentElement;
+  }
+}
+function b3PollScope(force){
+  if(PAD.mode!=='pad'){ if(PAD.focus) b3SetFocus(null); return null; }
+  const s=b3FindScope();
+  const el=s?s.el:null;
+  // the scope's natural first choice (PLAY, ANTE UP…) may still be fading in — until the hand moves, it takes the ring when it arrives
+  if(s && el===PAD.scope && !PAD.moved && !force){ const d=B3_DEFAULT[el.id]; if(d){ const q=el.querySelector(d); if(q && q!==PAD.focus && s.L.includes(q) && !PAD.mem[el.id]) b3SetFocus(q); } }
+  if(el!==PAD.scope || force || (PAD.focus && !PAD.focus.isConnected) || (PAD.focus && s && !s.L.includes(PAD.focus))){
+    if(el!==PAD.scope){ PAD.moved=false; if(el && (el.id==='gameover'||el.id==='pauseLayer')) delete PAD.mem[el.id]; } // a new pause / ledger always starts on its first choice
+    PAD.scope=el;
+    if(!s){ b3SetFocus(null); b3PadBar(); return null; }
+    let pick=null;
+    const want=PAD.focus&&!PAD.focus.isConnected?PAD.fkey:(PAD.mem[el.id||'?']||'');
+    if(PAD.focus && s.L.includes(PAD.focus) && !force) pick=PAD.focus;
+    if(!pick && want) pick=s.L.find(x=>b3SKey(x)===want)||null;
+    if(!pick){ const d=B3_DEFAULT[el.id]; if(d){ const q=el.querySelector(d); if(q && s.L.includes(q)) pick=q; } }
+    b3SetFocus(pick||s.L[0]); b3PadBar();
+  }
+  return s;
+}
+setInterval(()=>{ if(PAD.mode==='pad') b3PollScope(false); },200);
+function b3Nav(dir){
+  const s=b3PollScope(false); if(!s) return;
+  const L=s.L, cur=PAD.focus;
+  if(!cur || !L.includes(cur)){ PAD.moved=true; b3SetFocus(L[0]); SFX.padNav(); return; }
+  if(cur.tagName==='INPUT' && cur.type==='range' && (dir==='left'||dir==='right')){ b3Nudge(cur, dir==='right'?1:-1); return; }
+  const D={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]}[dir];
+  const r=cur.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
+  let best=null, bs=1e9, wrap=null, ws=1e9;
+  for(const el of L){ if(el===cur) continue;
+    const q=el.getBoundingClientRect(), ex=q.left+q.width/2, ey=q.top+q.height/2;
+    const along=(ex-cx)*D[0]+(ey-cy)*D[1];
+    const gap = D[0]? Math.max(0, q.top-r.bottom, r.top-q.bottom) : Math.max(0, q.left-r.right, r.left-q.right);
+    const perp = gap*2.4 + Math.abs(D[0]?(ey-cy):(ex-cx))*0.3;
+    if(along>4){ const sc=along+perp; if(sc<bs){ bs=sc; best=el; } }
+    else if(along<-4){ const sc=along+perp; if(sc<ws){ ws=sc; wrap=el; } }  // wrap-around: the far end of the same line
+  }
+  const go=best||wrap; if(go){ PAD.moved=true; b3SetFocus(go); SFX.padNav(); }
+}
+function b3Nudge(inp,sgn){
+  const st=parseFloat(inp.step)||0.05, mn=parseFloat(inp.min)||0, mx=parseFloat(inp.max)||1;
+  const v=Math.max(mn,Math.min(mx, Math.round(((parseFloat(inp.value)||0)+sgn*st)/st)*st));
+  inp.value=v; inp.dispatchEvent(new Event('input',{bubbles:true}));
+  clearTimeout(inp._b3c); inp._b3c=setTimeout(()=>inp.dispatchEvent(new Event('change',{bubbles:true})),260);
+}
+function b3Activate(){
+  const s=b3PollScope(false); const el=PAD.focus;
+  if(!s || !el){ return false; }
+  if(el.tagName==='INPUT' && el.type==='range') { SFX.padNav(); return true; }
+  if(el.id==='againBtn' && state==='dead'){ tcKey('keydown',' '); tcKey('keyup',' '); return true; } // the skip law: first press reads, second re-antes
+  SFX.press(); try{ el.click(); }catch(e){}
+  setTimeout(()=>b3PollScope(false),30);
+  return true;
+}
+function b3Back(){
+  const tp=$('tabPanel'); if(tp && tp.classList.contains('show')){ b3Codex(); return; }
+  if(B3C.act){ b3EndCapture('— KEPT —'); return; }
+  const dl=$('b3Dials'); if(dl && !dl.classList.contains('hidden')){ closeDials(); return; }
+  const gp=$('gfxPanel'); if(gp && !gp.classList.contains('hidden') && PAD.fromDials){ gp.classList.add('hidden'); PAD.fromDials=false; openDials(); return; }
+  const anyOpen=B3_SCOPES.some(q=>{ const e=document.querySelector(q); return e && b3Vis(e); });
+  if(state==='menu' && !anyOpen) return;
+  if(state==='dead' || state==='slot' || state==='wheel' || state==='crash' || state==='marker') { if(!anyOpen) return; }
+  SFX.padBack(); tcKey('keydown','Escape'); tcKey('keyup','Escape');
+}
+function b3Codex(){
+  if(typeof tcCodex==='function'){ const tp=$('tabPanel'); if(tp && !tp.classList.contains('show')) TC.tab=false; tcCodex(); }
+}
+function b3Page(sgn){ tcKey('keydown', sgn>0?'ArrowRight':'ArrowLeft'); tcKey('keyup', sgn>0?'ArrowRight':'ArrowLeft'); }
+
+/* ---------- the pad loop ---------- */
+function b3PadLoop(){
+  try{ b3PadFrame(); }catch(e){ if(!PAD._err){ PAD._err=1; console.warn('[B3 pad]',e); } }
+  requestAnimationFrame(b3PadLoop);
+}
+function b3PadFrame(){
+  const gp=b3Pad();
+  if(!gp){ if(PAD.on){ PAD.on=false; PAD.mx=PAD.my=0; if(PAD.aDown){ PAD.aDown=false; tcKey('keyup',' '); } } return; }
+  PAD.on=true;
+  if(gp.id!==PAD.id){ PAD.id=gp.id; PAD.fam=b3Fam(gp.id); }
+  const B=i=>{ const b=gp.buttons[i]; return !!(b && (b.pressed || b.value>0.55)); };
+  const now=[]; for(let i=0;i<Math.max(17,gp.buttons.length);i++) now[i]=B(i);
+  const was=PAD.prev; const edge=i=>now[i]&&!was[i]; const rel=i=>!now[i]&&was[i];
+  const ax=gp.axes[0]||0, ay=gp.axes[1]||0, ry=gp.axes[3]||0;
+  let mx=Math.abs(ax)>0.25?ax:0, my=Math.abs(ay)>0.25?ay:0;
+  if(now[12]) my-=1; if(now[13]) my+=1; if(now[14]) mx-=1; if(now[15]) mx+=1;
+  PAD.mx=Math.max(-1,Math.min(1,mx)); PAD.my=Math.max(-1,Math.min(1,my));
+  const any=now.some((v,i)=>v&&!was[i]) || Math.abs(ax)>0.5 || Math.abs(ay)>0.5;
+  if(any) b3SetInput('pad');
+  PAD.prev=now;
+  if(PAD.mode!=='pad') return;
+  // codex open: Ⓨ / Ⓑ / VIEW close it, nothing else is live
+  const tp=$('tabPanel'); const codexOpen=tp && tp.classList.contains('show');
+  if(edge(3)||edge(8)){ b3Codex(); return; }
+  if(codexOpen){ if(edge(1)) b3Codex(); return; }
+  // the rebinding keycap is listening: any pad press keeps the old key
+  if(B3C.act){ if(now.some((v,i)=>v&&!was[i])) b3EndCapture('— KEPT — (KEYS ARE BOUND ON THE KEYBOARD)'); return; }
+  const s=b3PollScope(false);
+  if(s){
+    if(PAD.aDown){ PAD.aDown=false; tcKey('keyup',' '); }
+    // directions with a held-repeat (first step instant, then 360ms, then every 110ms)
+    let dir=null;
+    if(now[12]) dir='up'; else if(now[13]) dir='down'; else if(now[14]) dir='left'; else if(now[15]) dir='right';
+    else if(Math.abs(ax)>0.6||Math.abs(ay)>0.6) dir=Math.abs(ax)>Math.abs(ay)?(ax>0?'right':'left'):(ay>0?'down':'up');
+    const t=performance.now();
+    if(dir){ if(PAD.rep.dir!==dir){ PAD.rep={dir,t:t+360}; b3Nav(dir); } else if(t>=PAD.rep.t){ PAD.rep.t=t+110; b3Nav(dir); } }
+    else PAD.rep={};
+    if(Math.abs(ry)>0.25){ // right stick scrolls the page you're reading
+      const sc=[...s.el.querySelectorAll('*')].find(x=>x.scrollHeight>x.clientHeight+4 && /(auto|scroll)/.test(getComputedStyle(x).overflowY));
+      if(sc) sc.scrollTop+=ry*16; }
+    if(edge(0)) b3Activate();
+    if(edge(1)) b3Back();
+    if(edge(9)){ if(state==='menu' && s.el.id==='menu'){ SFX.press(); $('startBtn').click(); } else { SFX.padBack(); tcKey('keydown','Escape'); tcKey('keyup','Escape'); } }
+    if(edge(4)) b3Page(-1); if(edge(5)) b3Page(1);
+    return;
+  }
+  // in the pit: Ⓐ is the space bar (held — the dice want a hold), Ⓧ cashes, START pauses
+  if(edge(0)){ PAD.aDown=true; tcKey('keydown',' '); }
+  if(rel(0) && PAD.aDown){ PAD.aDown=false; tcKey('keyup',' '); }
+  if(edge(2)){ tcKey('keydown','Enter'); tcKey('keyup','Enter'); }
+  if(edge(9)){ tcKey('keydown','Escape'); tcKey('keyup','Escape'); }
+  if(edge(1) && (state==='slot'||state==='wheel')){ tcKey('keydown','Escape'); tcKey('keyup','Escape'); }
+}
+requestAnimationFrame(b3PadLoop);
+
+/* ---------- the pad bar: what the hand can do, right now ---------- */
+function b3PadBar(){
+  let b=$('b3PadBar');
+  if(!b){ b=document.createElement('div'); b.id='b3PadBar'; document.body.appendChild(b); }
+  const on=PAD.mode==='pad' && !!PAD.scope;
+  b.classList.toggle('on',on);
+  if(!on) return;
+  const G=padG(); const inMenu=PAD.scope&&PAD.scope.id==='menu';
+  b.innerHTML='<span><b>✚</b> CHOOSE</span><span><b>'+G.a+'</b> SELECT</span>'+(inMenu?'<span><b>'+G.start+'</b> PLAY</span>':'<span><b>'+G.b+'</b> BACK</span>')
+    +(PAD.focus&&PAD.focus.type==='range'?'<span><b>◀ ▶</b> ADJUST</span>':'')+'<span><b>R-STICK</b> SCROLL</span>';
+}
+
+/* ---------- THE DIALS (settings panel) ---------- */
+const DIAL_SLIDERS=[
+  {k:'vol',   n:'MASTER',          sec:'snd', min:0, max:1,   get:()=>GFX.vol!==undefined?GFX.vol:1, set:v=>{ GFX.vol=v; applyGfxSide(); const g=$('gxVol'); if(g) g.value=v; }, save:()=>saveGfx(), fmt:v=>Math.round(v*100)+'%'},
+  {k:'sfx',   n:'SOUND EFFECTS',   sec:'snd', min:0, max:1,   get:()=>DIALS.sfx, set:v=>{ DIALS.sfx=v; b3SetBusVols(); }, save:()=>saveDials(), fmt:v=>Math.round(v*100)+'%', prev:()=>{ SFX.coin(); }},
+  {k:'music', n:'MUSIC',           sec:'snd', min:0, max:1,   get:()=>DIALS.music, set:v=>{ DIALS.music=v; }, save:()=>saveDials(), fmt:v=>Math.round(v*100)+'%'},
+  {k:'shake', n:'SCREEN SHAKE',    sec:'feel',min:0, max:1.5, get:()=>GFX.shake!==undefined?GFX.shake:1, set:v=>{ GFX.shake=v; GFX.preset=gfxDerivePreset(); try{ shake=Math.min(11,(shake||0)+5*v); }catch(e){} }, save:()=>saveGfx(), fmt:v=>v===0?'OFF':Math.round(v*100)+'%', prev:()=>{ b3ShakeCard(); }},
+  {k:'flash', n:'FLASH INTENSITY', sec:'feel',min:0, max:1,   get:()=>GFX.flash!==undefined?GFX.flash:1, set:v=>{ GFX.flash=v; GFX.preset=gfxDerivePreset(); }, save:()=>saveGfx(), fmt:v=>v===0?'OFF':Math.round(v*100)+'%', prev:()=>{ flash(0.32,'#ffd36b'); }}
+];
+const DIAL_TOGGLES=[
+  {k:'calm',   n:'REDUCE FLASHING', sec:'feel', on:'ON — CALM', off:'OFF', after:()=>{ applyDials(); if(!DIALS.calm) flash(0.25,'#fff2c0'); }},
+  {k:'rumble', n:'PAD RUMBLE',      sec:'feel', on:'ON',  off:'OFF', after:()=>{ if(DIALS.rumble){ const m=PAD.mode; PAD.mode='pad'; b3Rumble(220,0.6,0.9); PAD.mode=m; } }},
+  {k:'seek',   n:'LOOK FOR TRACKS', sec:'snd',  on:'ON — BESIDE THE PAGE', off:'OFF', after:()=>{ if(DIALS.seek) musicSeek(); b3DialsMusicLine(); }}
+];
+function b3ShakeCard(){ const c=$('b3Card'); if(!c) return; const a=Math.max(0,Math.min(1.5,GFX.shake||0)); if(!a) return;
+  c.style.setProperty('--b3sh',(4*a).toFixed(1)+'px'); c.classList.remove('b3Shk'); void c.offsetWidth; c.classList.add('b3Shk'); }
+function buildDials(){
+  if($('b3Dials')) return;
+  const p=document.createElement('div'); p.id='b3Dials'; p.className='hidden';
+  const sl=d=>'<div class="b3Row"><span class="b3N">'+d.n+'</span><span class="b3Ctl"><input type="range" class="b3Rng" data-k="'+d.k+'" min="'+d.min+'" max="'+d.max+'" step="0.05"><b class="b3V" data-v="'+d.k+'"></b></span></div>';
+  const tg=d=>'<div class="b3Row"><span class="b3N">'+d.n+'</span><button class="gxBtn b3Tg" data-t="'+d.k+'"></button></div>';
+  p.innerHTML='<div id="b3Card">'
+    +'<div class="b3Title">⚙ THE DIALS ⚙</div><div class="b3Sub">SOUND · FEEL · HANDS</div>'
+    +'<div class="b3Sec">♪ SOUND</div>'+DIAL_SLIDERS.filter(d=>d.sec==='snd').map(sl).join('')+DIAL_TOGGLES.filter(d=>d.sec==='snd').map(tg).join('')
+    +'<div class="b3Note" id="b3Music"></div>'
+    +'<div class="b3Sec">✦ FEEL</div>'+DIAL_SLIDERS.filter(d=>d.sec==='feel').map(sl).join('')+DIAL_TOGGLES.filter(d=>d.sec==='feel').map(tg).join('')
+    +'<div class="b3Sec">⌨ HANDS</div><div id="b3Binds"></div><div class="b3Note" id="b3BindMsg">CLICK A KEYCAP, THEN PRESS THE NEW KEY · A TAKEN KEY SWAPS</div>'
+    +'<div class="b3Btns"><button class="gxBtn" id="b3KeyReset">RESET KEYS</button><button class="gxBtn" id="b3Gfx">GRAPHICS &amp; MORE ▸</button></div>'
+    +'<div class="b3Note b3Pad" id="b3PadLine"></div>'
+    +'<button class="gxBtn gxClose" id="b3Close">CLOSE</button></div>';
+  document.body.appendChild(p);
+  p.addEventListener('click',e=>e.stopPropagation());
+  p.querySelectorAll('.b3Rng').forEach(inp=>{ const d=DIAL_SLIDERS.find(x=>x.k===inp.dataset.k);
+    inp.addEventListener('input',()=>{ const v=parseFloat(inp.value); d.set(v); b3DialVal(d);
+      if(!inp._tk||performance.now()-inp._tk>150){ inp._tk=performance.now(); if(d.prev) d.prev(); else { try{ tone(523+v*520,0.08,'sine',0.08); }catch(x){} } } });
+    inp.addEventListener('change',()=>{ d.save(); }); });
+  p.querySelectorAll('.b3Tg').forEach(b=>b.addEventListener('click',()=>{ const d=DIAL_TOGGLES.find(x=>x.k===b.dataset.t);
+    DIALS[d.k]=!DIALS[d.k]; saveDials(); b3DialsSync(); SFX.uiDing(); if(d.after) d.after(); }));
+  $('b3Binds').addEventListener('click',e=>{ const b=e.target.closest('.b3Bind'); if(!b) return; const a=BIND_ACTS.find(x=>x.id===b.dataset.act);
+    if(B3C.act===a){ b3EndCapture('— KEPT —'); return; }
+    if(PAD.mode==='pad'){ const m=$('b3BindMsg'); if(m) m.textContent='KEYS ARE BOUND ON THE KEYBOARD — THE PAD LAYOUT IS FIXED BELOW'; SFX.thud(); return; }
+    b3BeginCapture(a); });
+  $('b3KeyReset').addEventListener('click',()=>{ DIALS.binds={}; saveDials(); B3C.act=null; renderBinds(); const m=$('b3BindMsg'); if(m) m.textContent='✦ THE HOUSE KEYS, AS DEALT ✦'; SFX.casinoDing(); });
+  $('b3Gfx').addEventListener('click',()=>{ p.classList.add('hidden'); PAD.fromDials=true; openGfx(); });
+  $('b3Close').addEventListener('click',()=>closeDials());
+}
+function b3DialVal(d){ const v=$('b3Dials').querySelector('[data-v="'+d.k+'"]'); if(v) v.textContent=d.fmt(d.get()); }
+function b3DialsSync(){
+  const p=$('b3Dials'); if(!p) return;
+  p.querySelectorAll('.b3Rng').forEach(inp=>{ const d=DIAL_SLIDERS.find(x=>x.k===inp.dataset.k); inp.value=d.get(); b3DialVal(d); });
+  p.querySelectorAll('.b3Tg').forEach(b=>{ const d=DIAL_TOGGLES.find(x=>x.k===b.dataset.t); b.textContent=DIALS[d.k]?d.on:d.off; b.classList.toggle('on',!!DIALS[d.k]); });
+  renderBinds(); b3DialsMusicLine(); b3RenderPadLine();
+}
+function b3DialsMusicLine(){
+  const m=$('b3Music'); if(!m) return;
+  const have=MUSIC_CTX.filter(k=>MUSIC.found[k]);
+  m.innerHTML = have.length
+    ? '♫ THE BAND KNOWS '+have.length+' OF 5 — '+MUSIC_CTX.map(k=>'<i class="'+(MUSIC.found[k]?'y':'n')+'">'+k.toUpperCase()+'</i>').join(' · ')
+    : '♫ NO TRACKS YET — DROP menu · run · boss · ascent · house (.ogg / .mp3) INTO assets/music/';
+}
+function b3RenderPadLine(){
+  const l=$('b3PadLine'); if(!l) return; const G=padG(); const gp=b3Pad();
+  l.innerHTML=(gp?'🎮 '+(PAD.fam==='ps'?'PLAYSTATION PAD':'PAD')+' AT THE TABLE':'🎮 NO PAD — PRESS ANY BUTTON ON ONE')
+    +'<br>L-STICK walk · <b>'+G.a+'</b> bet / select · <b>'+G.b+'</b> back · <b>'+G.x+'</b> cash · <b>'+G.y+'</b> codex · <b>'+G.start+'</b> pause · <b>'+G.lb+' '+G.rb+'</b> pages';
+}
+function openDials(){ buildDials(); b3DialsSync(); const p=$('b3Dials'); p.classList.remove('hidden'); SFX.vaultOpen(); if(PAD.mode==='pad'){ PAD.scope=null; b3PollScope(true); } }
+function closeDials(){ const p=$('b3Dials'); if(!p) return; B3C.act=null; p.classList.add('hidden'); saveDials(); SFX.casinoDing(); }
+// the menu's OPTIONS opens THE DIALS; graphics live one door further in
+try{ const gb=$('gfxBtn'); gb.removeEventListener('click',openGfx); gb.addEventListener('click',openDials); }catch(e){}
+document.addEventListener('click',e=>{ if(e.target && e.target.id==='gfxClose' && PAD.fromDials){ PAD.fromDials=false; setTimeout(openDials,0); } },true);
+// the pause card gains a SETTINGS pill
+{ const row=$('howBtnRow'); if(row && !$('b3PzSet')){ const b=document.createElement('button'); b.className='pillBtn'; b.id='b3PzSet'; b.textContent='SETTINGS';
+    const q=$('quitBtn'); if(q) row.insertBefore(b,q); else row.appendChild(b);
+    b.addEventListener('click',e=>{ e.stopPropagation(); openDials(); }); } }
+// on a phone the pause card itself carries SETTINGS beside ✦ YOUR CODEX (four pills don't fit 390px)
+setInterval(()=>{ const r=$('tcPzRow'); if(!r || $('b3PzSet2')) return;
+  const b=document.createElement('button'); b.className='btn msm'; b.id='b3PzSet2'; b.type='button'; b.textContent='⚙ SETTINGS';
+  const cx=$('tcPzCodex'); if(cx && cx.nextSibling) r.insertBefore(b,cx.nextSibling); else r.appendChild(b);
+  b.addEventListener('click',e=>{ e.stopPropagation(); openDials(); }); },700);
+
+/* ============================================================
    D1 — THE SEATS. Four new souls (Cardsharp, Martyr, Magpie,
    Banker's Ghost), their mechanics hooks, the unlock ceremony,
    and a painted-in-code GILT NOIR portrait for EVERY soul,
