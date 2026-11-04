@@ -173,7 +173,7 @@ function tickMapProps(dt){
             spawnEnemy(i2<2?'stalker':'swarm', clamp(it.x+Math.cos(sa3)*60,20,CFG.arena-20), clamp(it.y+Math.sin(sa3)*60,20,CFG.arena-20)); }
         } else {
           const cg3=9+Math.round((it.rich!==undefined?it.rich:rng('drop'))*7); // the shimmer told the truth
-          for(let gi=0;gi<cg3;gi++) coins.push({x:it.x+rnd(-14,14),y:it.y+rnd(-14,14),r:6,vx:rnd(-140,140),vy:rnd(-140,140)});
+          for(let gi=0;gi<cg3;gi++) coins.push({x:it.x+rrnd('loot',-14,14),y:it.y+rrnd('loot',-14,14),r:6,vx:rrnd('loot',-140,140),vy:rrnd('loot',-140,140)});
           coinRain(16); SFX.cashout(); SFX.dingBells(); announce('✦ TREASURE +'+cg3+' COINS ✦', true); flash(0.4,'#ffd36b'); sparkBurst(22);
         }
         burst(it.x,it.y,14,'#e8b64c'); despawnInter(); return;
@@ -458,7 +458,7 @@ function killEnemy(e,idx){
     for(const o of enemies){ if(o!==e && Math.hypot(o.x-e.x,o.y-e.y)<74){ o.hp-=40; o.flash=0.1; } } }
   if(e.type==='gilded'){ LT.gilded++; bump('gilded',LT.gilded);
     if(feverOn) secret('goldongold','GOLD ON GOLD');
-    for(let gi=0;gi<(contractDone('dividend')?28:14);gi++) coins.push({x:e.x+rnd(-12,12),y:e.y+rnd(-12,12),r:6,vx:rnd(-130,130),vy:rnd(-130,130)});
+    for(let gi=0;gi<(contractDone('dividend')?28:14);gi++) coins.push({x:e.x+rrnd('loot',-12,12),y:e.y+rrnd('loot',-12,12),r:6,vx:rrnd('loot',-130,130),vy:rrnd('loot',-130,130)});
     coinRain(18); bigWin('GOLD RUSH',2); }
   if(bounty && bounty.e===e){ bounty=null; bountyT=30+Math.random()*20;
     bountyStk++; const brew=Math.round((10+5*bountyStk)*(1+(P.bountyPay||0)));
@@ -479,10 +479,10 @@ function killEnemy(e,idx){
     slowT=Math.max(slowT,0.45); flash(0.5,'#ffd36b'); // the fall is savored in slow-motion gold
     bigWin(BOSS_DEFS[e.bossKind].name+' FALLS',4); coinRain(30); stopDrone();
     pending.push({floor:'epic'});
-    for(let gi=0;gi<16;gi++) coins.push({x:e.x+rnd(-20,20),y:e.y+rnd(-20,20),r:6,vx:rnd(-150,150),vy:rnd(-150,150)}); }
-  orbs.push({x:e.x,y:e.y,xp:e.xp*0.75*(P.xpMult||1),r:5,vx:rnd(-30,30),vy:rnd(-30,30)});
+    for(let gi=0;gi<16;gi++) coins.push({x:e.x+rrnd('loot',-20,20),y:e.y+rrnd('loot',-20,20),r:6,vx:rrnd('loot',-150,150),vy:rrnd('loot',-150,150)}); }
+  orbs.push({x:e.x,y:e.y,xp:e.xp*0.75*(P.xpMult||1),r:5,vx:rrnd('loot',-30,30),vy:rrnd('loot',-30,30)});
   const cn=Math.round(e.coins*P.coinMult);
-  for(let i=0;i<cn;i++) coins.push({x:e.x+rnd(-8,8),y:e.y+rnd(-8,8),r:6,vx:rnd(-70,70),vy:rnd(-70,70)});
+  for(let i=0;i<cn;i++) coins.push({x:e.x+rrnd('loot',-8,8),y:e.y+rrnd('loot',-8,8),r:6,vx:rrnd('loot',-70,70),vy:rrnd('loot',-70,70)});
   burst(e.x,e.y,e.elite?34:14,e.elite?'#c98bff':'#c81e2c');
   ash(e.x,e.y,e.elite?16:7);
   // blood mist + rising soul wisp
