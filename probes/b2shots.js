@@ -31,7 +31,8 @@ async function snap(page, name) { await page.evaluate(() => { window.__bot.rende
     await snap(page, 'b5_endless_hud');
     await page.evaluate(() => { window.__bot.god = false; });
     await until(page, "state==='dead'", 60000);
-    await run(page, 300);
+    await page.evaluate(() => { window.__bot.renderEvery = 1; });
+    await run(page, 1200); // A2's ledger writes itself row by row — let the cascade finish
     await snap(page, 'b6_endless_ledger');
     errs.push(...errors); await browser.close();
   }
