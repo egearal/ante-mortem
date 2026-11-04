@@ -984,13 +984,12 @@ function tcBuild(){
   TC.cash.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); tcBuzz(14); tcKey('keydown','Enter'); tcKey('keyup','Enter'); });
   TC.pause.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); tcSfx('btn'); tcKey('keydown','Escape'); tcKey('keyup','Escape'); });
   TC.codex.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); tcCodex(); });
-  // the pause card gains thumbs: codex + leave the table (the card itself still resumes)
+  // the pause card gains a codex thumb (RESUME / HOW TO PLAY / QUIT pills already exist below it)
   const pc=document.querySelector('.pauseCard');
   if(pc && !$('tcPzRow')){ const r=document.createElement('div'); r.id='tcPzRow';
-    r.innerHTML='<button class="btn msm" id="tcPzCodex" type="button">✦ CODEX</button><button class="btn msm" id="tcPzQuit" type="button">♠ LEAVE THE TABLE</button><div class="tcPzHint">TAP ANYWHERE TO RESUME</div>';
+    r.innerHTML='<button class="btn msm" id="tcPzCodex" type="button">✦ YOUR CODEX</button><div class="tcPzHint">TAP THE CARD TO RESUME</div>';
     pc.appendChild(r);
-    $('tcPzCodex').addEventListener('click',e=>{ e.stopPropagation(); tcCodex(); });
-    $('tcPzQuit').addEventListener('click',e=>{ e.stopPropagation(); if(state==='paused'){ joyUp(); quitToMenu(); } }); }
+    $('tcPzCodex').addEventListener('click',e=>{ e.stopPropagation(); tcCodex(); }); }
 }
 function tcCodex(){
   const tp=$('tabPanel');
@@ -1044,7 +1043,9 @@ function tcFit(){
   for(const sel of TC_FIT){ const el=document.querySelector(sel); if(!el) continue;
     if(!el.offsetParent && el.offsetWidth===0){ continue; } // hidden layer — leave as is
     const w=el.offsetWidth, h=el.offsetHeight; if(!w||!h) continue;
-    const s=Math.min(1,(vw-12)/w,(vh-12)/h);
+    // on a short touch screen the pause card shares the glass with the pill row + HUD
+    const ah = (sel==='#pauseLayer .pauseCard' && window._touchUI && vh<560) ? vh-176 : vh-12;
+    const s=Math.min(1,(vw-12)/w,ah/h);
     const v=s<0.995?s.toFixed(3):'';
     if(el.style.scale!==v) el.style.scale=v; }
 }

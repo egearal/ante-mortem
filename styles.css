@@ -1455,6 +1455,8 @@ body.touchUI #debuffs{left:calc(12px + var(--sal));top:calc(100px + var(--sat));
 body.touchUI #coachToast{bottom:auto;top:calc(100px + var(--sat));max-width:calc(100vw - 28px);}
 body.touchUI #achToasts{bottom:calc(150px + var(--sab));left:calc(12px + var(--sal));max-width:calc(100vw - 130px);}
 body.touchUI .cornerFrame{display:none;}
+body.touchUI #howBtnRow{bottom:calc(76px + var(--sab));gap:8px;white-space:nowrap;}
+@media (max-width:520px){ body.touchUI #howBtnRow .pillBtn{font-size:10.5px;letter-spacing:.1em;padding:11px 13px;} }
 /* --- the menu scrolls on anything smaller than a laptop --- */
 @media (max-width:700px),(max-height:560px){
   #menu{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;align-items:flex-start;touch-action:pan-y;overscroll-behavior:contain;}
@@ -1500,4 +1502,7 @@ body.touchUI .cornerFrame{display:none;}
   #tcBet{width:84px;height:84px;}
   #tcCash{bottom:calc(118px + var(--sab));}
   body.touchUI #coachToast{top:calc(56px + var(--sat));}
+  body.touchUI #pauseLayer{align-items:flex-start;padding-top:calc(48px + var(--sat));}
+  body.touchUI #pauseLayer .pauseCard{transform-origin:50% 0;}
+  body.touchUI #howBtnRow{bottom:calc(64px + var(--sab));}
 }
