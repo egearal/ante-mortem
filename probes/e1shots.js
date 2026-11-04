@@ -25,19 +25,19 @@ async function shot(page, name, clip) {
   console.error('  ✓ ' + name);
 }
 async function frames(page, n) { // render every frame, no bot steering (the scene is pinned)
-  await page.evaluate(async (n) => { for (let i = 0; i < n; i++) { window.__vc.step(16.7); if (i % 10 === 9) await null; } }, n);
+  await page.evaluate(async (n) => { for (let i = 0; i < n; i++) { window.__vc.step(16.7); try { window.__bot.step(); } catch (e) {} if (i % 10 === 9) await null; } }, n);
 }
-async function storm(page, minutes, n) {
-  await page.evaluate(({ minutes, n, TYPES }) => {
+async function storm(page, minutes, n, near) {
+  await page.evaluate(({ minutes, n, TYPES, near }) => {
     let s = 7; Math.random = () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; // seeded storm
     gt = minutes * 60; enemies.length = 0; ebullets.length = 0; waveGap = 999; P.x = CFG.arena / 2; P.y = CFG.arena / 2;
     const T = TYPES.filter(t => t !== 'gilded');
     for (let i = 0; enemies.length < n && i < n * 2; i++) { const t = (i % 40 === 0) ? 'elite' : T[i % (T.length - 1)];
-      const a = Math.random() * 6.283, d = 90 + Math.pow(Math.random(), 0.7) * 820;
+      const a = Math.random() * 6.283, d = near ? 110 + Math.random() * 300 : 90 + Math.pow(Math.random(), 0.7) * 820;
       spawnEnemy(t, clamp(P.x + Math.cos(a) * d, 20, CFG.arena - 20), clamp(P.y + Math.sin(a) * d, 20, CFG.arena - 20)); }
     for (const e of enemies) { e.born = gt - 1; e._spd0 = e.spd; }
     window.__pin = true; GFX.q = 'high'; qLow = false;
-  }, { minutes, n, TYPES });
+  }, { minutes, n, TYPES, near });
 }
 (async () => {
   const { browser, page, errors } = await launch({ which });
@@ -87,21 +87,35 @@ async function storm(page, minutes, n) {
     await shot(page, 's3c_court_sheet_hitflash');
     await page.evaluate(() => { resize(); window.__hid.forEach(el => el.style.visibility = ''); });
     await page.evaluate(() => { clearInterval(window.__freeze); });
-    // the arsenal: every weapon, max level, a storm to spend it on
+    // the arsenal: every weapon, max level, a storm to spend it on (full chaos, HUD on)
     await page.evaluate(() => { for (const w of WEAPONS) P.wlv[w.id] = w.max; P.fireRate = 3; P.crit = 0.35; window.__bot.manual = true; });
     await storm(page, 4, 160);
     await page.evaluate(() => { for (const w of WEAPONS) P.wlv[w.id] = w.max; P.fireRate = 3; P.crit = 0.35; for (const e of enemies) { e.hp *= 30; e.maxhp *= 30; } });
     await frames(page, 150); await shot(page, 's4_arsenal');
     await frames(page, 47); await shot(page, 's5_arsenal_b');
-    await frames(page, 71); await shot(page, 's5c_arsenal_c');
-    // deaths: a ring of every family, all killed in one frame, caught mid-animation
-    await page.evaluate((TYPES) => { P.wlv = { bolt: 1 }; P.fireRate = 0.0001; bullets.length = 0; enemies.length = 0; parts.length = 0;
-      TYPES.forEach((t, i) => { spawnEnemy(t, P.x, P.y); const e = enemies[enemies.length - 1]; const a = i / TYPES.length * 6.283; e.x = P.x + Math.cos(a) * 170; e.y = P.y + Math.sin(a) * 130; e.spd = 0; e.born = gt - 1; });
+    // the arsenal in groups, zoomed 1.6x with the HUD hidden, so each weapon's look can be read
+    const GROUPS = { a_cards_knives_dice_mortar: ['bolt', 'cards', 'knives', 'dice', 'mortar'], b_fangs_moths_lantern_nails_phantom_cylinder: ['bolt', 'fangs', 'moths', 'lantern', 'coffin', 'phantom', 'cylinder'],
+      c_scythe_bell_chalice_guillotine_gramo_orbit: ['scythe', 'bell', 'chalice', 'guillotine', 'gramo', 'orbit'], d_seeker_razor_cinders_stakes_serpent_candles: ['seeker', 'razor', 'cinders', 'stakes', 'serpent', 'candelabra', 'spark', 'coil'] };
+    for (const [name, ws] of Object.entries(GROUPS)) {
+      await storm(page, 4, 60, true);
+      await page.evaluate((ws) => { P.wlv = {}; for (const id of ws) P.wlv[id] = WEAPONS.find(w => w.id === id).max; P.fireRate = 2.2; P.crit = 0.3; texts.length = 0;
+        for (const e of enemies) { e.hp *= 40; e.maxhp *= 40; } window.__hid = [...document.querySelectorAll('body *')].filter(el => el !== cv && !el.contains(cv) && el.style.visibility !== 'hidden'); window.__hid.forEach(el => el.style.visibility = 'hidden');
+        ZOOM = 1.6; VW = innerWidth / ZOOM; VH = innerHeight / ZOOM; ctx.setTransform(DPR * ZOOM, 0, 0, DPR * ZOOM, 0, 0); window.__noText = setInterval(() => { texts.length = 0; }, 4); }, ws);
+      for (let k = 0; k < 2; k++) { await frames(page, k ? 53 : 140); await shot(page, 's7_' + name + (k ? '_2' : '')); }
+      await page.evaluate(() => { clearInterval(window.__noText); resize(); window.__hid.forEach(el => el.style.visibility = ''); });
+    }
+    // deaths: a ring of every family, all killed in one frame, caught mid-animation (zoomed, HUD hidden; the gilded soul is spared — its GOLD RUSH covers the screen)
+    await page.evaluate((TYPES) => { P.wlv = { bolt: 1 }; P.fireRate = 0.0001; bullets.length = 0; enemies.length = 0; parts.length = 0; texts.length = 0;
+      TYPES.filter(t => t !== 'gilded').forEach((t, i, A) => { spawnEnemy(t, P.x, P.y); const e = enemies[enemies.length - 1]; const a = i / A.length * 6.283; e.x = P.x + Math.cos(a) * 150; e.y = P.y + Math.sin(a) * 105; e.spd = 0; e.born = gt - 1; });
+      window.__hid = [...document.querySelectorAll('body *')].filter(el => el !== cv && !el.contains(cv) && el.style.visibility !== 'hidden'); window.__hid.forEach(el => el.style.visibility = 'hidden');
+      ZOOM = 1.8; VW = innerWidth / ZOOM; VH = innerHeight / ZOOM; ctx.setTransform(DPR * ZOOM, 0, 0, DPR * ZOOM, 0, 0);
     }, TYPES);
-    await frames(page, 10);
-    await page.evaluate(() => { for (let i = enemies.length - 1; i >= 0; i--) { if (enemies[i].type === 'bomber') continue; killEnemy(enemies[i], i); } });
-    await frames(page, 7); await shot(page, 's6_deaths', { x: 640 - 300, y: 360 - 220, width: 600, height: 440 });
-    await frames(page, 10); await shot(page, 's6b_deaths_late', { x: 640 - 300, y: 360 - 220, width: 600, height: 440 });
+    console.error('  state before deaths:', await page.evaluate(() => state + ' gt=' + gt.toFixed(2) + ' hitstop=' + hitstop));
+    await frames(page, 10); await shot(page, 's6a_deaths_before');
+    await page.evaluate(() => { for (let i = enemies.length - 1; i >= 0; i--) killEnemy(enemies[i], i); P.hp = P.maxHp; texts.length = 0; });
+    await frames(page, 6); console.error('  after kill:', await page.evaluate(() => state + ' gt=' + gt.toFixed(2) + ' corpses=' + corpses.length)); await shot(page, 's6_deaths');
+    await frames(page, 12); await shot(page, 's6b_deaths_late');
+    await page.evaluate(() => { resize(); window.__hid.forEach(el => el.style.visibility = ''); });
   }
   await browser.close();
   res.errors = errors.slice(0, 8);
