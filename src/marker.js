@@ -331,6 +331,8 @@ function a3Card(n){
   g.font='600 22px '+DISP; g.fillStyle='#bfae8c'; spaced('SURVIVED',W/2,190,8);
   g.font='700 150px '+DISP; g.shadowColor='rgba(255,211,107,.6)'; g.shadowBlur=36; g.fillStyle=gold(210,350);
   g.fillText(n.time,W/2,272); g.shadowBlur=0;
+  try{ const b2=(typeof b2CardLine==='function')?b2CardLine():null; // B2: the deck you played on, and how deep you went
+    if(b2){ g.font='600 19px '+DISP; g.fillStyle=b2.col; g.shadowColor=b2.col; g.shadowBlur=10; spaced(b2.txt,W/2,341,4); g.shadowBlur=0; } }catch(e){}
   // four plaques
   const st=[['LEVEL',n.level,'#ffd36b'],['SLAIN',n.kills.toLocaleString(),'#e6d9c2'],['JACKPOTS',n.jack,n.jack>0?'#8bffd0':'#bfae8c'],['BEST STREAK',n.streak,'#c98bff']];
   const pw=220, ph=104, gap=26, x0=W/2-(pw*4+gap*3)/2, py=356;
