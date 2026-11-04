@@ -1415,6 +1415,42 @@ button[id$="Close"]:active{transform:translateY(1px);}
 #bossName::after{content:'';position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:72%;height:2px;
   background:linear-gradient(90deg,transparent,#e8b64c 18%,#fff2c0 50%,#e8b64c 82%,transparent);opacity:.85;}
 #bossName::before{content:'◆';position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);font-size:7px;color:#e8b64c;}
+
+/* ==== A3 ==== */
+/* THE SHARE CARD — pinned to the death layer, self-contained; the ledger's own restyle never needs to know */
+#a3Share{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:calc(54px + env(safe-area-inset-right,0px));z-index:30;text-align:center;}
+#a3Share .a3ShareBtn{font-family:var(--disp);font-weight:700;font-size:12px;letter-spacing:.2em;cursor:pointer;
+  color:#ffe9b0;background:linear-gradient(180deg,rgba(58,10,16,.94),rgba(24,6,10,.96));
+  border:1px solid #b98a2e;border-radius:6px;padding:10px 18px;
+  box-shadow:0 0 0 1px rgba(10,4,7,.8) inset,0 0 16px rgba(255,211,107,.18),0 6px 18px rgba(0,0,0,.5);
+  animation:a3Beckon 2.8s ease-in-out 1.6s infinite;
+  transition:filter .12s ease,transform .12s cubic-bezier(.2,.9,.25,1.2),box-shadow .2s ease;}
+#a3Share .a3ShareBtn:hover{filter:brightness(1.18);transform:translateY(-1px);box-shadow:0 0 0 1px rgba(10,4,7,.8) inset,0 0 26px rgba(255,211,107,.36),0 8px 20px rgba(0,0,0,.55);}
+#a3Share .a3ShareBtn:active{transform:translateY(2px);}
+#a3Share .a3ShareBtn.done{color:#8bffd0;border-color:#5fbf98;animation:none;}
+@keyframes a3Beckon{0%,100%{box-shadow:0 0 0 1px rgba(10,4,7,.8) inset,0 0 14px rgba(255,211,107,.14),0 6px 18px rgba(0,0,0,.5);}
+  50%{box-shadow:0 0 0 1px rgba(10,4,7,.8) inset,0 0 26px rgba(255,211,107,.38),0 6px 18px rgba(0,0,0,.5);}}
+#a3Share .a3ShareOut{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:16px;
+  background:rgba(6,3,7,.78);backdrop-filter:blur(3px);}
+#a3Share .a3ShareOut.hidden{display:none;}
+#a3Share .a3ShareSheet{width:min(640px,100%);max-height:100%;overflow-y:auto;padding:16px 16px 12px;border-radius:10px;
+  background:linear-gradient(180deg,rgba(26,10,16,.97),rgba(12,5,8,.98));border:1px solid #b98a2e;
+  box-shadow:0 0 30px rgba(255,211,107,.16),0 18px 60px rgba(0,0,0,.7);}
+#a3Share .a3ShareOut.go .a3ShareSheet{animation:a3CardIn .45s cubic-bezier(.2,1.2,.4,1) both;}
+#a3Share .a3ShareMsg{font-size:13px;color:#c9b78e;letter-spacing:.03em;margin-bottom:10px;word-break:break-word;user-select:text;-webkit-user-select:text;}
+#a3Share .a3ShareMsg b{display:block;font-family:var(--disp);font-size:11px;letter-spacing:.24em;color:#8bffd0;margin-bottom:3px;}
+#a3Share .a3ShareImg{display:block;width:100%;height:auto;margin:0 auto;border-radius:4px;
+  border:1px solid rgba(232,182,76,.6);box-shadow:0 0 22px rgba(255,211,107,.18),0 10px 26px rgba(0,0,0,.6);}
+#a3Share .a3ShareRow{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:12px;}
+#a3Share .a3ShareDl,#a3Share .a3ShareX{font-family:var(--disp);font-weight:700;font-size:11.5px;letter-spacing:.2em;cursor:pointer;
+  text-decoration:none;border-radius:6px;padding:9px 16px;}
+#a3Share .a3ShareDl{color:#0a0507;background:linear-gradient(180deg,#fff2c0,#ffd36b 45%,#e8b64c);border:1px solid #8a6a1c;}
+#a3Share .a3ShareX{color:#c9b78e;background:transparent;border:1px solid rgba(232,182,76,.45);}
+#a3Share .a3ShareDl:hover,#a3Share .a3ShareX:hover{filter:brightness(1.15);}
+@keyframes a3CardIn{from{opacity:0;transform:translateY(12px) scale(.95);}to{opacity:1;transform:none;}}
+@media (max-width:600px){ #a3Share{right:calc(40px + env(safe-area-inset-right,0px));top:calc(10px + env(safe-area-inset-top,0px));}
+  #a3Share .a3ShareBtn{font-size:10.5px;padding:8px 11px;letter-spacing:.14em;} }
+@media (prefers-reduced-motion: reduce){ #a3Share .a3ShareOut.go .a3ShareSheet,#a3Share .a3ShareBtn{animation:none;} }
 </style>
 </head>
 <body>
@@ -1903,7 +1939,7 @@ function spawnEnemy(type,x,y){
   const b=CFG.enemy[type], mins=gt/60, S=CFG.scale;
   idxSee(BOSS_DEFS[type]?'b':'e', type);
   ring(x,y,b.r+26,'#5a1a6a'); for(let sp=0;sp<5;sp++){ const sa=Math.random()*6.283; parts.push({x:x+Math.cos(sa)*b.r,y:y+Math.sin(sa)*b.r,vx:Math.cos(sa)*-40,vy:Math.sin(sa)*-40,life:rnd(.25,.5),col:'#7a3aa8',r:rnd(1.5,3)}); }
-  const hpS=1+mins*S.hp, dmgS=1+mins*S.dmg, spdS=Math.min(S.spdCap,1+mins*S.spd)*(P.enemySpeedBoost||1);
+  const hpS=1+mins*S.hp, dmgS=(1+mins*S.dmg)*fnBite(), spdS=Math.min(S.spdCap,1+mins*S.spd)*(P.enemySpeedBoost||1);
   enemies.push({type,x,y,r:b.r,hp:b.hp*hpS,maxhp:b.hp*hpS,spd:b.spd*spdS*_fspd,dmg:b.dmg*dmgS,
     xp:b.xp,coins:b.coins,cd:0,flash:0,kx:0,ky:0,ph:Math.random()*6.28,col:b.col,dark:b.dark,elite:type==='elite',
     ranged:b.ranged||false, shootCd:rnd(0.8,2.6), born:gt, vt:(type==='bomber'?'husk':null)});
@@ -1932,7 +1968,7 @@ function startWave(){
   if(wave>1 && wave%5===0){ CFG.scale.hp+=0.10; CFG.scale.dmg+=0.03; CFG.scale.spdCap=Math.min(2.3,CFG.scale.spdCap+0.08); showStreak('THE HOUSE GROWS CRUEL'); SFX.murmur(); flash(0.3,'#8b1620'); }
   const W=CFG.wave;
   // every wave rolls a little differently — the dealer shuffles, never repeats
-  const size=Math.min(W.cap, Math.round((W.first + (wave-1)*W.grow)*(P&&P.crowd?1.3:1)*rnd(0.85,1.2)));
+  const size=Math.min(W.cap, Math.round((W.first + (wave-1)*W.grow)*(P&&P.crowd?1.3:1)*rnd(0.85,1.2)*fnEase()));
   const eliteWave = wave % W.eliteEvery === 0;
   const wflav = (wave>=4 && Math.random()<0.15) ? ['husk','wraith','stalker','swarm','brute'][(Math.random()*5)|0] : null;
   for(let i=0;i<size && enemies.length<CFG.spawn.max;i++){
@@ -1956,7 +1992,7 @@ function startWave(){
   if(wave>=2 && ((P&&P.stampede) || wave%2===0 || Math.random()<0.55)){
     const ha=Math.random()*6.283, hd=Math.max(VW,VH)*0.62;
     const hx=clamp(P.x+Math.cos(ha)*hd,40,CFG.arena-40), hy=clamp(P.y+Math.sin(ha)*hd,40,CFG.arena-40);
-    const hn=Math.round((20+wave*3)*((window._fmods&&window._fmods.horde)||1)*(P&&P.crowd?1.3:1)*rnd(0.85,1.2));
+    const hn=Math.round((20+wave*3)*((window._fmods&&window._fmods.horde)||1)*(P&&P.crowd?1.3:1)*rnd(0.85,1.2)*fnEase());
     ring(hx,hy,180,'#8b1620'); ring(hx,hy,120,'#c81e2c'); // the ground marks where they pour in
     for(let k=0;k<hn && enemies.length<CFG.spawn.max;k++){ spawnEnemy('swarm', clamp(hx+rnd(-170,170),20,CFG.arena-20), clamp(hy+rnd(-170,170),20,CFG.arena-20)); }
     setTimeout(()=>{ if(state==='playing'){ showStreak('HORDE INCOMING'); SFX.murmur(); } }, 260);
@@ -2221,6 +2257,7 @@ function update(dt){
   if(texts.length>140) texts.splice(0,texts.length-140);
   if(rings.length>90) rings.splice(0,rings.length-90);
   if(sparks.length>320) sparks.splice(0,sparks.length-320);
+  fnTick(dt); // A3 first night: first blood, first RAGE lesson + forgiveness
   if(P.ovT>0){ P.ovAge+=dt;
     P.ovT-=dt*(3.3+P.ovAge*0.35);
     P._ovHb=(P._ovHb||0)-dt; if(P._ovHb<=0){ P._ovHb=Math.max(0.16,(11-P.ovHold)/40); tone(56,0.1,'sine',0.13,44); }
@@ -2356,7 +2393,7 @@ function update(dt){
     if(enemies.length<=waveClearTarget){ waveGap-=dt;
       if(!window._ewWarn && (wave+1)%CFG.wave.eliteEvery===0 && waveGap<1){ window._ewWarn=true; showStreak('♛ AN ELITE WAVE GATHERS ♛'); SFX.murmur(); setTimeout(()=>window._ewWarn=false,5000); }
       if(waveGap<=0) startWave(); }
-    else { waveGap=CFG.wave.gap; }
+    else { waveGap=CFG.wave.gap/Math.pow(fnEase(),2); } // A3: first nights breathe between waves
   }
   // 8:00 — THE FLOOR RISES. The stretch before the House must be earned.
   if(!P._floorRose && gt>=480){
@@ -2800,6 +2837,7 @@ function gainXP(n){
     if(P._xpCombo===14 && !P._xpPeak){ P._xpPeak=true; SFX.tingle(); setTimeout(()=>P._xpPeak=false,3000); } }
   while(P.xp>=P.xpNext){ if(!P._ovPass && state==='playing' && P.hp>=P.maxHp*0.2){ startOvercharge(); break; } P._ovPass=false;
     P.xp-=P.xpNext; P.level++; P.xpNext=Math.floor(20+P.level*7+P.level*P.level*1.3); /* G5: late levels eased 1.5->1.3 - probes showed 3.5-min droughts past level 7 */ pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); { const lv9=$('level'); if(lv9){ lv9.classList.remove('pop'); void lv9.offsetWidth; lv9.classList.add('pop'); } } ring(P.x,P.y,120,'#c81e2c'); ring(P.x,P.y,70,'#ffd36b'); burst(P.x,P.y,16,'#e8b64c'); for(let i=0;i<16;i++){ parts.push({x:P.x+rnd(-10,10),y:P.y+rnd(-4,4),vx:rnd(-14,14),vy:-rnd(90,220),life:rnd(.4,.8),col:i%3?'#ffd36b':'#fff2c0',r:rnd(1.6,3.2)}); } flash(0.25,'#c81e2c'); }
+  if(P.level>=2 && P._fn && !P._fnL) fnFirstLevel(); // A3 first night
   if(pending.length && state==='playing') openNextSlot();
 }
 
@@ -4502,6 +4540,7 @@ function startGame(){
   buildAudience(); buildHall(); renderRelics();
   debuffs=[];
   elMenu.classList.add('hidden'); elGO.classList.add('hidden'); elHud.classList.remove('hidden');
+  fnStart(); // A3 first night: ease + lessons for a stranger's first 3 nights
   state='playing'; last=performance.now();
 }
 
@@ -7580,6 +7619,157 @@ function quillFlick(){
   if(!q){ q=document.createElement('div'); q.id='quill'; q.textContent='✒'; document.body.appendChild(q); }
   q.classList.remove('on'); void q.offsetWidth; q.classList.add('on');
 }
+
+/* ==== A3 — THE SHARE CARD ====
+   Death ledger button: SHARE YOUR NIGHT → copies a brag line (navigator.share on
+   touch devices) and paints a 1200×630 GILT NOIR card the player can save.
+   Self-contained: own DOM (#a3Share), own CSS block, reads the dead run's P/RUN.
+   Fake fortunes only — the card never shows coins, gilt or anything that pays.  */
+const A3_URL='https://egearal.github.io/ante-mortem/';
+function a3Night(){
+  const by=(gt>=900)?'THE FORECLOSURE':String(window._hitBy||'').toUpperCase();
+  const bp=(RUN&&RUN.bestPull)||null;
+  return { time:fmt(gt), level:P.level, kills:P.kills, jack:(RUN&&RUN.pulls&&RUN.pulls._tr3)||0,
+    streak:P.bestStreak||0, by, night:LT.runs||1, wave:wave||0,
+    pull:bp?SLOT_RAR[bp]:null, pullCol:bp?RARC[bp]:null,
+    soul:(typeof curSoul==='function')?curSoul().n:'', rankT:(RANKS[RANK.rank-1]&&RANKS[RANK.rank-1].n)||'' };
+}
+function a3Line(n){
+  return '♠ ANTE MORTEM — survived '+n.time+' · level '+n.level+' · '+n.jack+' jackpot'+(n.jack===1?'':'s')
+    +(n.by?' · taken by '+n.by:'')+' · '+A3_URL;
+}
+function a3Copy(txt){
+  const legacy=()=>{ try{ const ta=document.createElement('textarea'); ta.value=txt; ta.setAttribute('readonly','');
+    ta.style.cssText='position:fixed;left:-9999px;top:0;opacity:0'; document.body.appendChild(ta); ta.select();
+    const ok=document.execCommand('copy'); ta.remove(); return ok; }catch(e){ return false; } };
+  try{ if(navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(txt).then(()=>true, ()=>legacy()); }catch(e){}
+  return Promise.resolve(legacy());
+}
+// the card itself — velvet, gilt, candlelight, one big number
+function a3Card(n){
+  const W=1200, H=630, c=document.createElement('canvas'); c.width=W; c.height=H;
+  const g=c.getContext('2d'); const DISP="'Cinzel', 'Times New Roman', serif", BODY="'Cormorant Garamond', Georgia, serif";
+  // velvet floor
+  let gr=g.createRadialGradient(W/2,H*0.46,40,W/2,H/2,W*0.66);
+  gr.addColorStop(0,'#3a121c'); gr.addColorStop(0.45,'#2a0f16'); gr.addColorStop(1,'#0a0407');
+  g.fillStyle=gr; g.fillRect(0,0,W,H);
+  // damask lattice, barely there
+  g.save(); g.globalAlpha=0.06; g.strokeStyle='#e6d9c2'; g.lineWidth=1;
+  for(let x=-H;x<W+H;x+=46){ g.beginPath(); g.moveTo(x,0); g.lineTo(x+H,H); g.stroke(); g.beginPath(); g.moveTo(x,H); g.lineTo(x+H,0); g.stroke(); }
+  g.restore();
+  // two candles, additive
+  g.save(); g.globalCompositeOperation='lighter';
+  for(const [cx,cy] of [[118,H-120],[W-118,H-120]]){
+    const cg=g.createRadialGradient(cx,cy,2,cx,cy,260); cg.addColorStop(0,'rgba(255,190,110,.34)'); cg.addColorStop(0.3,'rgba(232,140,60,.12)'); cg.addColorStop(1,'rgba(0,0,0,0)');
+    g.fillStyle=cg; g.fillRect(cx-260,cy-260,520,520); }
+  const cg2=g.createRadialGradient(W/2,H*0.44,10,W/2,H*0.44,360); cg2.addColorStop(0,'rgba(255,211,107,.16)'); cg2.addColorStop(1,'rgba(0,0,0,0)');
+  g.fillStyle=cg2; g.fillRect(0,0,W,H);
+  g.restore();
+  // candle bodies
+  for(const cx of [118,W-118]){ const by=H-120;
+    g.fillStyle='#e6d9c2'; g.fillRect(cx-9,by,18,70); g.fillStyle='rgba(0,0,0,.25)'; g.fillRect(cx+3,by,6,70);
+    const fl=g.createRadialGradient(cx,by-14,1,cx,by-14,16); fl.addColorStop(0,'#fff2c0'); fl.addColorStop(0.5,'#ffd36b'); fl.addColorStop(1,'rgba(255,140,40,0)');
+    g.fillStyle=fl; g.beginPath(); g.ellipse(cx,by-14,7,16,0,0,6.283); g.fill(); }
+  // vignette
+  const vg=g.createRadialGradient(W/2,H/2,H*0.35,W/2,H/2,W*0.72); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.7)');
+  g.fillStyle=vg; g.fillRect(0,0,W,H);
+  // the gilt frame
+  const gold=(y0,y1)=>{ const lg=g.createLinearGradient(0,y0,0,y1); lg.addColorStop(0,'#fff2c0'); lg.addColorStop(0.35,'#ffd36b'); lg.addColorStop(0.7,'#e8b64c'); lg.addColorStop(1,'#8a6a1c'); return lg; };
+  g.strokeStyle=gold(0,H); g.lineWidth=6; g.strokeRect(22,22,W-44,H-44);
+  g.lineWidth=1.5; g.strokeStyle='rgba(232,182,76,.7)'; g.strokeRect(36,36,W-72,H-72);
+  g.textAlign='center'; g.textBaseline='middle';
+  g.font='600 30px '+DISP; g.fillStyle='#ffd36b';
+  [['♠',46,46],['♥',W-46,46],['♦',46,H-46],['♣',W-46,H-46]].forEach(([s,x,y])=>{ g.fillStyle='#0a0407'; g.fillRect(x-20,y-20,40,40); g.fillStyle=(s==='♥'||s==='♦')?'#c81e2c':'#ffd36b'; g.fillText(s,x,y+1); });
+  const spaced=(txt,x,y,sp)=>{ const w=g.measureText(txt).width+sp*(txt.length-1); let cx=x-w/2;
+    for(const ch of txt){ const cw=g.measureText(ch).width; g.fillText(ch,cx+cw/2,y); cx+=cw+sp; } };
+  // title + night line
+  g.font='700 44px '+DISP; g.fillStyle=gold(70,120); g.shadowColor='rgba(255,211,107,.45)'; g.shadowBlur=18;
+  spaced('ANTE MORTEM',W/2,92,10); g.shadowBlur=0;
+  g.font='italic 500 24px '+BODY; g.fillStyle='#c9b78e';
+  g.fillText('night № '+n.night+(n.soul?' · '+n.soul.toLowerCase():'')+(n.rankT?' · '+n.rankT.toLowerCase():''),W/2,132);
+  // ornament rule
+  g.strokeStyle='rgba(232,182,76,.55)'; g.lineWidth=1.2;
+  g.beginPath(); g.moveTo(W/2-250,158); g.lineTo(W/2-22,158); g.moveTo(W/2+22,158); g.lineTo(W/2+250,158); g.stroke();
+  g.font='600 18px '+DISP; g.fillStyle='#e8b64c'; g.fillText('✦',W/2,159);
+  // THE BIG NUMBER
+  g.font='600 22px '+DISP; g.fillStyle='#bfae8c'; spaced('SURVIVED',W/2,190,8);
+  g.font='700 150px '+DISP; g.shadowColor='rgba(255,211,107,.6)'; g.shadowBlur=36; g.fillStyle=gold(210,350);
+  g.fillText(n.time,W/2,272); g.shadowBlur=0;
+  // four plaques
+  const st=[['LEVEL',n.level,'#ffd36b'],['SLAIN',n.kills.toLocaleString(),'#e6d9c2'],['JACKPOTS',n.jack,n.jack>0?'#8bffd0':'#bfae8c'],['BEST STREAK',n.streak,'#c98bff']];
+  const pw=220, ph=104, gap=26, x0=W/2-(pw*4+gap*3)/2, py=356;
+  st.forEach(([lb,v,col],i)=>{ const x=x0+i*(pw+gap);
+    g.fillStyle='rgba(10,4,7,.62)'; g.fillRect(x,py,pw,ph);
+    g.strokeStyle='rgba(232,182,76,.65)'; g.lineWidth=1.5; g.strokeRect(x+0.5,py+0.5,pw-1,ph-1);
+    g.strokeStyle='rgba(232,182,76,.2)'; g.strokeRect(x+6,py+6,pw-12,ph-12);
+    g.font='700 50px '+DISP; g.fillStyle=col; g.shadowColor=col; g.shadowBlur=12; g.fillText(String(v),x+pw/2,py+44); g.shadowBlur=0;
+    g.font='600 15px '+DISP; g.fillStyle='#bfae8c'; spaced(lb,x+pw/2,py+84,4); });
+  // the verdict
+  let vy=504;
+  if(n.by){ g.font='600 30px '+DISP; g.fillStyle='#e6d9c2'; spaced('TAKEN BY ',W/2-g.measureText(n.by).width/2-8,vy,4);
+    g.fillStyle='#d4212f'; g.shadowColor='#8b1620'; g.shadowBlur=16; g.textAlign='left';
+    const lw=g.measureText('TAKEN BY ').width+4*8; g.fillText(n.by, W/2-(lw+g.measureText(n.by).width)/2+lw, vy); g.textAlign='center'; g.shadowBlur=0; }
+  else { g.font='600 28px '+DISP; g.fillStyle='#8bffd0'; spaced('STILL BREATHING',W/2,vy,5); }
+  if(n.pull){ g.font='italic 500 22px '+BODY; g.fillStyle='#a99'; g.fillText('best pull: ',W/2-60,vy+40);
+    g.textAlign='left'; g.fillStyle=n.pullCol||'#e6d9c2'; g.font='600 20px '+DISP; g.fillText(n.pull,W/2-16,vy+41); g.textAlign='center'; }
+  // footer
+  g.font='500 17px '+BODY; g.fillStyle='rgba(201,183,142,.75)';
+  g.fillText(A3_URL.replace('https://','')+'  ·  no real money — only your soul',W/2,H-52);
+  return c;
+}
+function a3ShareInit(){
+  const go=$('gameover'); if(!go || $('a3Share')) return;
+  // pinned to the death layer itself (not the ledger panel) so it is reachable on any screen and survives any ledger restyle
+  const box=document.createElement('div'); box.id='a3Share';
+  box.innerHTML='<button class="a3ShareBtn" type="button">♠ SHARE YOUR NIGHT ♠</button>'
+    +'<div class="a3ShareOut hidden"><div class="a3ShareSheet">'
+    +'<div class="a3ShareMsg"></div><img class="a3ShareImg" alt="your night, as a card">'
+    +'<div class="a3ShareRow"><a class="a3ShareDl" download="ante-mortem-night.png">⬇ SAVE THE CARD</a><button class="a3ShareX" type="button">✕ CLOSE</button></div>'
+    +'</div></div>';
+  go.appendChild(box);
+  const btn=box.querySelector('.a3ShareBtn'), out=box.querySelector('.a3ShareOut'), msg=box.querySelector('.a3ShareMsg'),
+        img=box.querySelector('.a3ShareImg'), dl=box.querySelector('.a3ShareDl'), xb=box.querySelector('.a3ShareX');
+  let url=null;
+  const close=()=>{ out.classList.add('hidden'); out.classList.remove('go'); };
+  btn.addEventListener('click', async (ev)=>{
+    try{ ev.stopPropagation(); btn.blur(); }catch(e){}
+    if(state!=='dead' || !P) return;
+    const n=a3Night(), line=a3Line(n);
+    try{ SFX.chipStack(); setTimeout(()=>{ try{ SFX.casinoDing(); }catch(e){} },120); }catch(e){}
+    // the card
+    let blob=null;
+    try{ await (document.fonts&&document.fonts.ready); }catch(e){}
+    try{ const cv2=a3Card(n);
+      blob=await new Promise(r=>{ try{ cv2.toBlob(b=>r(b),'image/png'); }catch(e){ r(null); } });
+      if(url){ try{ URL.revokeObjectURL(url); }catch(e){} url=null; }
+      if(blob) url=URL.createObjectURL(blob);
+      const src=url||cv2.toDataURL('image/png');
+      img.src=src; dl.href=src; dl.download='ante-mortem-night-'+n.night+'.png';
+    }catch(e){ console.warn('[a3 card]', e); }
+    msg.innerHTML='<b>THE HOUSE PRINTS YOUR NIGHT…</b>';
+    out.classList.remove('hidden'); out.classList.remove('go'); void out.offsetWidth; out.classList.add('go');
+    // the line: the phone's share sheet when there is one, the clipboard otherwise
+    let how='';
+    const coarse=(typeof matchMedia==='function') && matchMedia('(pointer: coarse)').matches;
+    if(coarse && navigator.share){
+      try{ const f=blob&&typeof File==='function'?new File([blob],'ante-mortem-night-'+n.night+'.png',{type:'image/png'}):null;
+        const data={ title:'ANTE MORTEM', text:line };
+        if(f && navigator.canShare && navigator.canShare({files:[f]})) data.files=[f];
+        await navigator.share(data); how='✓ SENT INTO THE WORLD';
+      }catch(e){ how=''; } }
+    if(!how){ const ok=await a3Copy(line); how=ok?'✓ COPIED — PASTE IT ANYWHERE':'✎ COPY THE LINE BELOW'; }
+    msg.innerHTML='<b>'+how+'</b><span></span>'; msg.querySelector('span').textContent=line;
+    btn.textContent='♠ SHARED ✓ ♠'; btn.classList.add('done');
+    try{ SFX.coinPling(); SFX.tingle(); sparkBurstAt('a3Share','gameover',10); }catch(e){}
+  });
+  dl.addEventListener('click',(ev)=>{ try{ ev.stopPropagation(); SFX.vaultBuy?SFX.vaultBuy():SFX.coinPling(); }catch(e){} });
+  xb.addEventListener('click',(ev)=>{ try{ ev.stopPropagation(); xb.blur(); SFX.uiDing(); }catch(e){} close(); });
+  out.addEventListener('click',(ev)=>{ if(ev.target===out) close(); });
+  // every new corpse gets a clean button
+  try{ new MutationObserver(()=>{ if(!go.classList.contains('hidden')){ close(); btn.textContent='♠ SHARE YOUR NIGHT ♠'; btn.classList.remove('done'); } })
+    .observe(go,{attributes:true, attributeFilter:['class']}); }catch(e){}
+}
+try{ a3ShareInit(); }catch(e){}
 // Leaderboard retired 2026-07 (director's call). Stored data under 'antemortem_board_v1' is preserved, just unread.
 const GILT_KEY='antemortem_gilt_v1';
 /* ============================================================
@@ -8249,6 +8439,65 @@ function awardMarks(m){
 }
 function applyRankPerks(){
   for(let r=2;r<=RANK.rank;r++){ const e=RANKS[r-1]; if(e&&e.ap){ try{ e.ap(); }catch(x){} } }
+}
+
+/* ==== A3 — THE FIRST NIGHT (new-player onboarding) ====
+   A stranger's first 3 nights (lifetime LT.runs <= 3, read-only) and never a
+   ranked soul (RANK.rank >= 8 is a regular): the floor fills slower and ramps to
+   the true curve by ~1:45, the first level costs 8 souls (each worth double until then), the first RAGE is
+   cashed for you if you miss it, and the House explains three things once.
+   No new save keys: lessons ride LT.coach like every other coach mark.        */
+const FN={ nights:3, rankVet:8, ramp:105, start:0.55, xp1:8, xpBoost:1.5, bite:0.6 };
+function fnOn(){ try{ return !!(P && P._fn); }catch(e){ return false; } }
+// pressure multiplier for tonight: 0.55 at the opening bell → 1.0 at 1:45 (smoothstep)
+function fnEase(){
+  if(!fnOn()) return 1;
+  const t=Math.min(1, Math.max(0, (gt-(window._gt0||0))/FN.ramp)), s=t*t*(3-2*t);
+  return FN.start+(1-FN.start)*s;
+}
+// contact bite of anything born during the ramp: 0.6 → 1.0 alongside the spawn ease
+function fnBite(){ if(!fnOn()) return 1; const e=(fnEase()-FN.start)/(1-FN.start); return FN.bite+(1-FN.bite)*e; }
+function fnStart(){
+  P._fn = !window._fnOff && (LT.runs||0)<=FN.nights && (RANK.rank||1)<FN.rankVet;
+  if(!P._fn) return;
+  P._fnN=LT.runs||1; P._fnK=0; P._fnL=0; P._fnR=0; P._fnS=0;
+  P.xpNext=FN.xp1; // the first slot is the hook — get them there fast
+  P.xpMult=(P.xpMult||1)*FN.xpBoost; P._fnXp=1; // level-1 souls weigh double (reverted at the first level)
+  const touchy=(typeof matchMedia==='function') && matchMedia('(pointer: coarse)').matches;
+  if(P._fnN===1){
+    setTimeout(()=>{ if(state==='playing' && fnOn()) coachMark('fn_move', touchy
+      ? 'DRAG to walk — your bolt aims itself at the nearest dead · never stand still'
+      : 'WASD or ARROWS to walk — your bolt aims itself at the nearest dead · never stand still'); }, 900);
+  }
+  if(P._fnN<FN.nights || P._fnN===1) setTimeout(()=>{ if(state==='playing' && fnOn())
+    announce(P._fnN===1?'✦ THE HOUSE OPENS GENTLY — FOR NOW ✦':'✦ NIGHT '+P._fnN+' OF 3 — THE HOUSE STILL GOES EASY ✦', true); }, 1400);
+  else setTimeout(()=>{ if(state==='playing' && fnOn()) announce('☠ YOUR LAST GENTLE NIGHT — TOMORROW THE HOUSE PLAYS FOR KEEPS ☠', false); }, 1400);
+}
+// per-frame, called from update() right before the RAGE bar decays
+function fnTick(dt){
+  if(!fnOn()) return;
+  // FIRST BLOOD — the first corpse pays out like a jackpot (small one)
+  if(!P._fnK && P.kills>=1){ P._fnK=1;
+    ftext(P.x,P.y-46,'✦ FIRST BLOOD ✦','#ffd36b',true); ring(P.x,P.y,90,'#ffd36b'); ring(P.x,P.y,52,'#fff2c0');
+    burst(P.x,P.y,18,'#ffd36b'); flash(0.18,'#ffd36b'); shake=Math.min(8,shake+3);
+    SFX.casinoDing(); setTimeout(()=>{ try{ SFX.coinPling(); SFX.coinPling(); }catch(e){} },90); }
+  // the first RAGE: teach SPACE, and if the lesson doesn't land, the House cashes once
+  if(P.ovT>0 && !P._fnR){ P._fnR=1;
+    coachMark('fn_space','SPACE IS EVERY BET — press it NOW to cash the RAGE · reels, dice, wheel: all SPACE'); }
+  if(P.ovT>0 && P.ovT<90.6 && P._fnR===1){ P._fnR=2;
+    P.ovT=90.6; P.ovAge=0; cashRage();
+    setTimeout(()=>announce('◈ THE HOUSE CASHED FOR YOU — THIS ONCE · NEXT TIME, SPACE ◈', true), 200); }
+  // back on the floor after the first pull: say what the machine is for
+  if(P._fnL && !P._fnS && state==='playing'){ P._fnS=1;
+    if(P._fnN===1) setTimeout(()=>{ if(state==='playing' && fnOn()) coachMark('fn_slot','EVERY LEVEL PULLS THE SLOT — what lands is yours for the night: weapons, skills, sometimes a curse'); }, 5200); }
+}
+// FIRST LEVEL — gilded welcome as the reels drop (called from gainXP, before the slot opens)
+function fnFirstLevel(){
+  if(!fnOn() || P._fnL) return; P._fnL=1;
+  if(P._fnXp){ P._fnXp=0; P.xpMult=(P.xpMult||1)/FN.xpBoost; }
+  announce('♛ FIRST LEVEL — THE REELS ARE YOURS ♛', true);
+  try{ SFX.seraph(); coinRain(14); flash(0.3,'#ffd36b'); ring(P.x,P.y,170,'#ffd36b'); ring(P.x,P.y,110,'#fff2c0');
+    setTimeout(()=>{ try{ if(state==='slot') domConfetti(24,'slot'); }catch(e){} }, 60); }catch(e){}
 }
 /* gilt persistence (personal) */
 async function loadGilt(){ try{ if(!store)return; const r=await store.get(GILT_KEY,false); if(r&&r.value){ const o=JSON.parse(r.value); gilt=Math.max(0,+o.gilt||0); best=Math.max(0,+o.best||0); } }catch(e){} }
