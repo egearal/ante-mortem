@@ -1034,6 +1034,23 @@ function tcSync(){
 }
 setInterval(tcSync,90);
 
+/* ---------- fit the cabinets to the glass ----------
+   A short landscape phone can't hold the slot machine, the wheel or the ascent
+   at full size. Measure the natural box and shrink it (CSS `scale`, which
+   composes with any transform animation the machine wears) until it fits. */
+const TC_FIT=['#machine','#wheelLayer .wheelShell','#crashLayer .wheelShell','#pauseLayer .pauseCard'];
+function tcFit(){
+  const vw=window.innerWidth, vh=window.innerHeight;
+  for(const sel of TC_FIT){ const el=document.querySelector(sel); if(!el) continue;
+    if(!el.offsetParent && el.offsetWidth===0){ continue; } // hidden layer — leave as is
+    const w=el.offsetWidth, h=el.offsetHeight; if(!w||!h) continue;
+    const s=Math.min(1,(vw-12)/w,(vh-12)/h);
+    const v=s<0.995?s.toFixed(3):'';
+    if(el.style.scale!==v) el.style.scale=v; }
+}
+window.addEventListener('resize',()=>setTimeout(tcFit,60));
+setInterval(()=>{ if(state==='slot'||state==='wheel'||state==='crash'||state==='paused') tcFit(); },250);
+
 /* ---------- the House speaks touch ---------- */
 const TC_PHRASES=[
   [/⌨ WASD walk.*$/, '☝ LEFT THUMB walks · ◈ BET is every bet · CASH banks the ascent · II pause · ✦ CODEX · hold ◈ AGAIN to re-ante'],
@@ -1075,6 +1092,15 @@ function setTouchUI(on){
 // a touch device announces itself at boot; a touchscreen laptop on its first touch
 if(IS_TOUCH) setTouchUI(true);
 window.addEventListener('touchstart',()=>setTouchUI(true),{passive:true,capture:true});
+
+// the how-to book and the ledger pages turn with a swipe, like paper
+{ let sx=0, sy=0, sid=-1;
+  document.addEventListener('pointerdown',e=>{ if(e.pointerType==='mouse') return; sid=e.pointerId; sx=e.clientX; sy=e.clientY; },true);
+  document.addEventListener('pointerup',e=>{ if(e.pointerId!==sid) return; sid=-1;
+    const dx=e.clientX-sx, dy=e.clientY-sy; if(Math.abs(dx)<56 || Math.abs(dx)<Math.abs(dy)*1.4) return;
+    const hp=$('howPanel'), pr=document.getElementById('pageReveal');
+    const open=(hp&&!hp.classList.contains('hidden')) || (pr&&!pr.classList.contains('hidden'));
+    if(open) tcKey('keydown', dx<0?'ArrowRight':'ArrowLeft'); },true); }
 
 /* ---------- no zoom, no long-press menus, no stray selection ---------- */
 document.addEventListener('gesturestart',e=>e.preventDefault()); // iOS pinch

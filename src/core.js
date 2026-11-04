@@ -2793,6 +2793,7 @@ function loop(now){
 // this a no-op, so it never costs a real tab anything.
 { let _prk=0; setInterval(()=>{ if(document.hidden&&window._autoPaused){ if((++_prk)%16) return; } tick(performance.now()); }, 15); }
 function frame(now){
+  if(typeof GFX==='undefined') return; // A4: hosted build loads 13 scripts — the ticker can beat ui.js to the felt
   try{
   const dt=Math.min(Math.max((now-last)/1000,0),0.05); last=now;
   if(loopPrev){ frameAvg=frameAvg*0.93+(now-loopPrev)*0.07; } loopPrev=now;

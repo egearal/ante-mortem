@@ -18,8 +18,7 @@ const VIEWS = [
 ];
 
 async function snap(page, name) {
-  await page.evaluate(() => { window.__bot.renderEvery = 1; });
-  await run(page, 4);
+  await page.evaluate(() => { window.__bot.renderEvery = 1; for (let j = 0; j < 4; j++) window.__vc.step(16.7); });
   await page.waitForTimeout(450);
   await page.screenshot({ path: path.join(OUT, name + '.jpg'), type: 'jpeg', quality: 80 });
   await page.evaluate(() => { window.__bot.renderEvery = 30; });
@@ -94,7 +93,8 @@ async function snap(page, name) {
     // to the ledger
     await page.evaluate(() => { window.__bot.god = false; if (P) { P.hp = 1; } });
     await until(page, "state==='dead'", 60000);
-    await run(page, 260);
+    // the bot stops stepping once it has a result — step the clock by hand so the ledger plays out
+    for (let i = 0; i < 6; i++) await page.evaluate(() => { for (let j = 0; j < 50; j++) window.__vc.step(16.7); });
     await snap(page, 'p_' + vn + '_6ledger');
     errs.push(...errors);
     await browser.close();

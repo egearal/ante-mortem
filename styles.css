@@ -1453,7 +1453,7 @@ body.touchUI .hudBottom>div:last-child{margin-bottom:112px;}
 body.touchUI #hpwrap{width:min(340px,calc(100vw - 150px - var(--sal) - var(--sar)));}
 body.touchUI #debuffs{left:calc(12px + var(--sal));top:calc(100px + var(--sat));}
 body.touchUI #coachToast{bottom:auto;top:calc(100px + var(--sat));max-width:calc(100vw - 28px);}
-body.touchUI #achToasts{bottom:auto;top:calc(100px + var(--sat));left:calc(12px + var(--sal));}
+body.touchUI #achToasts{bottom:calc(150px + var(--sab));left:calc(12px + var(--sal));max-width:calc(100vw - 130px);}
 body.touchUI .cornerFrame{display:none;}
 /* --- the menu scrolls on anything smaller than a laptop --- */
 @media (max-width:700px),(max-height:560px){
@@ -1469,6 +1469,8 @@ body.touchUI .cornerFrame{display:none;}
   #tabPanel{padding:calc(8px + var(--sat)) 8px calc(8px + var(--sab));overflow-y:auto;align-items:flex-start;flex-wrap:wrap;gap:10px;}
   #tabPanel .tpCol{min-width:0;width:100%;max-width:520px;max-height:none;padding:14px 16px;}
   #tabPanel .tpSheet{width:100%;max-height:none;padding:16px 14px;}
+  .tpStats{flex-wrap:wrap;gap:7px;} .tpTile{flex:1 1 56px;padding:9px 4px 7px;} .tpTile b{font-size:19px;} .tpTile i{font-size:8px;letter-spacing:.14em;}
+  .tpSRows{grid-template-columns:1fr;}
 }
 /* portrait phone */
 @media (max-width:520px){
@@ -1487,8 +1489,12 @@ body.touchUI .cornerFrame{display:none;}
   #menu #menuRow2{grid-column:2;grid-row:1 / span 12;align-self:center;width:250px;}
   #menu #menuRow2 .btn.msm{padding:8px 14px;font-size:11.5px;}
   #menu h1{font-size:clamp(34px,7vw,52px);margin:2px 0 8px;}
-  #menu .flavor{display:none;}
-  #menu #startBtn{margin:14px 0 6px;}
+  #menu .flavor,#menu .tag{display:none;}
+  #menu h1{white-space:nowrap;letter-spacing:.16em;}
+  #menu #chipRow{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;max-width:100%;padding-bottom:4px;scrollbar-width:none;touch-action:pan-x;}
+  #menu #chipRow>*{flex:0 0 auto;white-space:nowrap;}
+  #menu #startBtn{margin:12px 0 6px;}
+  #menu .controls{margin-top:8px;}
   body.touchUI .hudBottom>div:last-child{margin-bottom:96px;}
   body.touchUI .relicTag{display:none;}
   #tcBet{width:84px;height:84px;}
