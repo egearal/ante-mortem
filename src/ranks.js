@@ -398,6 +398,7 @@ function openIndexPanel(){
    +sec('★','THE TAROT','#c98bff', TAROT_FATES.map(f=>[IDX.t.indexOf(f.n)>=0, f.t>0?'★':'☠', IDX.t.indexOf(f.n)>=0?f.n+'|'+((f.dd||'')+' ['+(f.t>0?'BLESSING':'CURSE')+']'):f.n, f.c||'#c98bff']))
    +sec('♟','THE COURT','#c22ca0', Object.keys(CFG.enemy).filter(k=>!BOSS_DEFS[k]).map(k=>[IDX.e.indexOf(k)>=0, '♟', k.toUpperCase(), CFG.enemy[k].col||'#c98bff']))
    +sec('♛','THE BOSSES','#ffd36b', Object.keys(BOSS_DEFS).map(k=>[IDX.b.indexOf(k)>=0, '♛', BOSS_DEFS[k].name, '#ffd36b']))
+   +(typeof soulIdxRows==='function'?sec('♠','THE SEATS','#e6d9c2', soulIdxRows()):'') // D1
    +('<div class="idxSec" style="--sc:#e8b64c"><div class="idxSecH"><b>⚜ THE LADDER</b><span>RANK '+RANK.rank+' / 100 · <i class="ldBooks">📖 THE BOOKS</i></span></div><div class="ldWrap">'
      +RANKS.map((e,i)=>{ const r=i+1;
         const cls=r===RANK.rank?' now':(r>RANK.rank&&r<=RANK.rank+3?' soon':(r<RANK.rank?' done':''));
@@ -741,7 +742,7 @@ let STK={v:1, won:0, best:{}, sel:0, first:{}, cos:'', clears:{}, endless:{best:
 const STAKES=[
  {n:0, id:'house',    name:'THE HOUSE DECK', g:'♠', col:'#c9b78e', mult:1,    mod:'The night as the House deals it. No extra cruelty.'},
  {n:1, id:'crimson',  name:'CRIMSON DECK',   g:'♦', col:'#ff2a3c', mult:1.25, mod:'SHARPSHOOTERS — shooters and hexers lead their shots: they fire where you are GOING, not where you are.', reward:{gilt:500,  cos:'halo'}},
- {n:2, id:'obsidian', name:'OBSIDIAN DECK',  g:'♣', col:'#9a5cff', mult:1.5,  mod:'THE PAIRED COURT — every elite walks in with a twin.', reward:{gilt:1000, soul:'sharp'}},
+ {n:2, id:'obsidian', name:'OBSIDIAN DECK',  g:'♣', col:'#9a5cff', mult:1.5,  mod:'THE PAIRED COURT — every elite walks in with a twin.', reward:{gilt:1000, soul:'twin'}},
  {n:3, id:'ivory',    name:'IVORY DECK',     g:'♥', col:'#fff4d6', mult:1.75, mod:'MARKED CARDS — every dice target is +1. The House reads your hand.', reward:{gilt:2000, cos:'crown'}},
  {n:4, id:'bone',     name:'BONE DECK',      g:'☠', col:'#7fe0ff', mult:2,    mod:'LONG CURSES — every timed curse lasts twice as long.', reward:{gilt:3500, cos:'choir'}},
  {n:5, id:'gilt',     name:'GILT DECK',      g:'♛', col:'#ffd36b', mult:2.5,  mod:'THE EARLY LANDLORD — the House arrives at 12:00. Three whole minutes of its reign.', reward:{gilt:7500, cos:'mantle'}}
@@ -876,7 +877,7 @@ function b2NightWon(){
     if(s>0 && !STK.first[s]){ STK.first[s]=1; const rw=STAKES[s].reward||{};
       if(rw.gilt){ gilt+=rw.gilt; saveGilt(); news.push(['◈','FIRST '+STAKES[s].name+' CLEAR — +'+rw.gilt.toLocaleString()+' GILT','#ffd36b']); }
       if(rw.cos){ if(!STK.cos) STK.cos=rw.cos; const c=B2_COS[rw.cos]; news.push([c.g,'ADORNMENT EARNED: '+c.n+' — WEAR IT IN THE ANTE ROOM',c.col]); }
-      if(rw.soul){ news.push(['♣','A NEW SOUL TAKES A SEAT: THE CARDSHARP','#3ddc84']); } }
+      if(rw.soul){ news.push(['♝','A NEW SOUL TAKES A SEAT: THE OBSIDIAN TWIN','#d36bff']); } }
     if(s<5 && s>prev && s>=1) news.push([STAKES[s+1].g,'THE '+STAKES[s+1].name+' IS UNSEALED FOR THIS SOUL',STAKES[s+1].col]);
     b2Save();
     // the House steps back from the felt
@@ -988,7 +989,7 @@ function b2AnteHtml(){
   STAKES.forEach(st=>{ const un=b2Avail(st.n,so), on=sel===st.n, clr=bf>=st.n && st.n>0;
     const rw=st.reward; let rwt='';
     if(rw){ rwt = STK.first&&STK.first[st.n] ? '✓ FIRST CLEAR PAID'
-      : 'FIRST CLEAR: '+(rw.cos?B2_COS[rw.cos].g+' '+B2_COS[rw.cos].n:'♣ THE CARDSHARP')+' + '+rw.gilt.toLocaleString()+' GILT'; }
+      : 'FIRST CLEAR: '+(rw.cos?B2_COS[rw.cos].g+' '+B2_COS[rw.cos].n:'♝ THE OBSIDIAN TWIN')+' + '+rw.gilt.toLocaleString()+' GILT'; }
     h+= un
       ? '<div class="stakeCard'+(on?' on':'')+(clr?' clr':'')+'" data-n="'+st.n+'" style="--sc:'+st.col+'"><span class="b2deck" style="--dc:'+st.col+'">'+st.g+'</span>'
         +'<div class="soulN">'+st.name+'</div><div class="soulD">'+st.mod+'</div>'

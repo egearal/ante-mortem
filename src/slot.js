@@ -170,6 +170,7 @@ function openSlotReady(kind){
   slotReels=[]; slotStage='ready';
   document.querySelectorAll('.reelbox').forEach(b=>b.classList.remove('antici','slam','pick','locked')); $('reelsRow').classList.remove('sweeping');
   $('gambleMsg').innerHTML='<span class="keyhint">SPACE</span> spin the reels';
+  window._sharpTell=null; if(P&&P.sharp&&typeof sharpDeal==='function') sharpDeal(pool); // D1: the cardsharp reads the deck
   showSlotButtons();
 }
 // MATCH FATE — the spin's outcome is dealt when the lever drops: 0.8% of spins
@@ -185,6 +186,10 @@ function slotHot(){ return (P&&P.hotSlots>0)?RED_W:null; }
 let slotFate=null;
 let redStake=null, redForgiven=false; // THE SACRIFICE — a skill of yours on the side table
 function dealFate(seqs, pool){
+  if(P&&P.sharp&&window._sharpTell){ const t=window._sharpTell; window._sharpTell=null; // D1 THE CARDSHARP: the tell you were shown IS the deal
+    const p1=(Math.random()*seqs[0].length)|0;
+    seqs.forEach((sq,k)=>{ if(t.n===1&&k>0) return; for(let j=0;j<3;j++) sq[(p1+j*7)%sq.length]=t.s; });
+    slotFate={n:t.n, s:t.s, sharp:true}; return; }
   if(P&&P.coldDeck){ slotFate={n:0}; return; } // the cold deck never matches
   const u=Math.random();
   const pB=MFATE.P+((P&&P.yolkFate)?0.03:0); // the reels lean toward pairs for the Yolk
@@ -252,6 +257,7 @@ function stopNextReel(){
     let pred=null;
     if(f.n===3) pred=sy=>sy===f.s;
     else if(f.n===2) pred= prev.length<2 ? (sy=>sy===f.s) : (sy=>sy!==f.s);
+    else if(f.n===1) pred= prev.length===0 ? (sy=>sy===f.s) : (sy=>sy!==f.s && !prev.includes(sy)); // D1 cardsharp single
     else if(prev.length) pred=sy=>!prev.includes(sy);
     if(pred && !pred(r.seq[idx])){
       for(let d=1; d<=4; d++){
@@ -340,6 +346,7 @@ function startSelector(){
   if(!lastRites){ elSlot.classList.add('seance'); _seanceOn=true; startDrone(); }
   $('machine').classList.add('selecting');
   selWinner=(Math.random()*3)|0;
+  if(slotFate&&slotFate.sharp){ const k9=landed.indexOf(slotFate.s); if(k9>=0) selWinner=k9; } // D1: the cardsharp's single lands where the tell said
   selPos=(Math.random()*3)|0; selT=0; selHop=0.05; selStopping=false; selHopsLeft=0; selTk=0;
   paintPick(selPos);
   SFX.selectorGo();
@@ -705,7 +712,7 @@ function tickSlot(dt){
 }
 function showSlotButtons(){
   const box=$('slotBtns'); box.innerHTML='';
-  if(slotStage==='ready'){ box.appendChild(makeBtn('◈ SPIN','gold','press SPACE',()=>slotTap())); }
+  if(slotStage==='ready'){ box.appendChild(makeBtn('◈ SPIN','gold','press SPACE',()=>slotTap())); if(P&&P.sharp&&typeof sharpBtn==='function'){ const sb9=sharpBtn(); if(sb9) box.appendChild(sb9); } }
   else if(slotStage==='spinning'){ const left=slotReels.filter(x=>!x.stopped).length; box.appendChild(makeBtn('■ STOP','gold',left+' left · SPACE',()=>slotTap())); }
   else if(slotStage==='select'){ box.appendChild(makeBtn('🔴 LOCK','red',selStopping?'locking…':'SPACE',()=>slotTap())); }
   else if(slotStage==='dicing'){ const rolling=dice.filter(x=>x.rolling).length; box.appendChild(makeBtn('🎲 STOP DIE','gold',(rolling>1?'left die':'right die')+' · SPACE',()=>slotTap())); }

@@ -180,6 +180,7 @@ async function actuallyDie(){
       const bp=RUN.bestPull;
       const lo9=(typeof curSoul==='function')?(curSoul().g+' '+curSoul().n+' · '+curFloor().g+' '+curFloor().n+((IDX.ct||[]).length?' · ✍ '+(IDX.ct||[]).length+' CONTRACT'+((IDX.ct||[]).length>1?'S':''):'')):'';
       gl.innerHTML=
+        (lo9&&typeof soulPortraitImg==='function'?'<div class="glSoul" style="--sc:'+curSoul().col+'">'+soulPortraitImg(curSoul().id,'glPort')+'</div>':'')+ // D1: the soul who sat tonight
         (lo9?'<div class="glRow" style="color:#c9b78e;letter-spacing:.12em">'+lo9+'</div>':'')+
         '<div class="glRow"><span>WAVE</span><b>'+wave+'</b><span>CURSES</span><b>'+(RUN.curses||0)+'</b><span>SCARS</span><b>'+((P.scars||[]).length)+'</b><span>DICE</span><b>'+RUN.diceWins+'/'+RUN.diceTries+'</b>'
         +(bp?'<span>BEST PULL</span><b style="color:'+RARC[bp]+'">'+SLOT_RAR[bp]+'</b>':'')+'</div>'

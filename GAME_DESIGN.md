@@ -175,6 +175,8 @@ Floor tiles bake once per variant (≤48 sprites, `tileSprite`) — per-frame fl
 
 ## Batch 12 — THE FULL HOUSE (v2.0): the 20-hour game
 - **SOULS** (ui.js SOULS, selection IDX.sl in am_index_v1, applied LAST in startGame after all perks): vesper (default) · dealer (rank 12: wlv={cards:1}, P.diceEase=1 → threshold −1 in finalizeReward, −20 maxHp) · widow (12 whispers: moths, xp ×1.15, dmg ×0.85) · debtor (25 deaths: +60 coins, coin ×1.35, dmgTaken +10%) · brute (2,500 kills: stakes, dmg ×1.25, +20 blood, spd ×0.85) · yolk (theegg secret: razor, radius ×0.7, spd ×1.2, 60 hp, P.yolk → TWO respins per slot via g._rerolls/maxR).
+- **D1 — THE SEATS** (4 more souls; mechanics block at the end of ui.js, store am_seats_v1 = {seen, st:{rage}}): cardsharp (LT.triples≥3: P.sharp → sharpDeal() pre-deals slotFate in openSlotReady and shows it as THE TELL; dealFate honours window._sharpTell, loose hands become a fated SINGLE (n:1) on reel 1 and the selector lands on it; R / button re-deals once per slot for 25 coins; −15 max) · martyr (LT.rites≥10: P.martyr → soulTick clamps hp to a running cap (revives/marker reset the cap), zeroes regen/lifesteal/onKillHeal; stigmata st=floor(missing×10) scales P.damage ×(1+.06st) and fireRate ×(1+.04st), also rescaling the RAGE snapshots; +40 max) · magpie (LT.coins≥5000: pickup ×2.5, dmg ×0.8, 3% of coins flagged c.gold in soulTick → magpieChip() runs a non-pausing 3-reel DOM mini-slot: 12% 777 = pending level, 35% pair = grantMiniPower, else 8–15 coins) · banker (SEATS.st.rage≥15 good cash-outs, counted by a cashRage wrapper for every soul: +8% of held coins every 60s, +16% dividend on 90%+ cash-outs, tickWheelTok/openWheel refuse, −10 max).
+- **PORTRAITS**: soulPortrait(id, locked) paints a GILT NOIR bust per soul (SOUL_PAINT) once to a 200×240 canvas (cached, + dataURL); used by the Ante Room cards (wrapped renderAnteRoom; sealed seats show a black silhouette with glowing eyes + progress bar from SOUL_PROG), the unlock toast (#soulToast via seatSweep from renderChips and every 4s in play) and the death ledger (.glSoul). Index has a THE SEATS section.
 - **FLOORS** (FLOORS, IDX.fl): pit · cellar (rank 20: horde ×1.4, noRanged override→stalker, coin ×1.15, body.floor-cellar canvas tint) · chapel (LT.houseMet ≥3: enemy spd ×1.1 at spawn, xp ×1.1, tarot cadence ×2, sepia-gold tint). Mods live in window._fmods.
 - **RUN_CONTRACTS** (≤2, each ×1.25 marks AND gilt via window._markMult at awardMarks): GLASS SOUL (maxHp ×0.5) · THE DROUGHT (P.drought: fountain refuses, wheel HEAL pays coins) · CROWDED TABLE (P.crowd: wave + horde ×1.3) · COLD DECK (P.coldDeck: dealFate always n:0 — no matches ever) · MIDNIGHT START (gt=180). NOTE: named RUN_CONTRACTS — plain CONTRACTS was taken by the vault.
 - **THE ANTE ROOM** (#antePanel, openAnteRoom/renderAnteRoom): soul cards + floor cards + contract chips, locked show their price; #loadoutLine under START opens it; selections persist (idxSave rides sl/fl/ct).
@@ -408,14 +410,15 @@ cos, clears, endless:{best,score,stake,soul,mult}}`. No existing key touched.
 | # | deck | modifier | marks & gilt | first clear |
 |---|---|---|---|---|
 | 1 | ♦ CRIMSON #ff2a3c | SHARPSHOOTERS — shooters/hexers lead shots (P.b2lead, velocity from b2Tick, lead ≤2.2s×0.9) | ×1.25 | ✹ BLOOD HALO + 500 gilt |
-| 2 | ♣ OBSIDIAN #9a5cff | THE PAIRED COURT — elites ×2 (×3 with NO MERCY) | ×1.5 | ♣ THE CARDSHARP soul + 1,000 |
+| 2 | ♣ OBSIDIAN #9a5cff | THE PAIRED COURT — elites ×2 (×3 with NO MERCY) | ×1.5 | ♝ THE OBSIDIAN TWIN soul + 1,000 |
 | 3 | ♥ IVORY #fff4d6 | MARKED CARDS — dice targets +1 (P.b2dice in slot threshold) | ×1.75 | ♛ IVORY CROWN + 2,000 |
 | 4 | ☠ BONE #7fe0ff | LONG CURSES — P.curseCut ×2 | ×2 | ☠ BONE CHOIR + 3,500 |
 | 5 | ♛ GILT #ffd36b | THE EARLY LANDLORD — the House arrives at 12:00 (b2HouseAt()=720; stirs at 11:00) | ×2.5 | ✵ GILT MANTLE + 7,500 |
 Gating: stake 1 opens for every soul after the first win; stake N≥2 needs stake N−1 cleared **with that soul**.
 The multiplier rides `window._markMult` (marks) and `window._b2giltMult` (death gilt). Adornments are pure
 cosmetics drawn by `b2DrawAdorn()` right after drawPlayer; chosen in the Ante Room (ADORNMENTS row).
-THE CARDSHARP (`stake:true` in SOULS — excluded from estatePct so the 100% stamp never regresses): +1 projectile,
+THE OBSIDIAN TWIN (id `twin`, `stake:true` in SOULS — excluded from estatePct so the 100% stamp never regresses; D1's portrait
+fallback paints it as a rim-lit Vesper bust in violet — her shadow): +1 projectile,
 dice −1, −30 max blood.
 **THE ENDLESS FLOOR** (`b2PressOn`): houseActive=false, P._endless, P._endT0=gt; the House never returns
 (arrival gated on !P._endless). Waves resume with: a COURT theme per wave (B2_COURTS: PROCESSION / GALLERY /
