@@ -1011,3 +1011,21 @@ function a2DressLedger(){
 }
 { const _ad=actuallyDie;
   actuallyDie=async function(){ const was=state; const r=_ad.apply(this, arguments); if(was!=='dead') a2DressLedger(); return r; }; }
+
+/* ◈ A2 — the LEVEL CHARGE gauge's brass frame (canvas HUD). Gradients cached per geometry. */
+const _a2GF={};
+function a2GaugeFrame(x,y,w,h){
+  const k=(x|0)+'|'+(w|0)+'|'+(y|0);
+  let g=_a2GF[k];
+  if(!g){ for(const kk in _a2GF) delete _a2GF[kk];
+    const b=ctx.createLinearGradient(x-6,y-6,x+w*0.35,y+h+6);
+    b.addColorStop(0,'#fff2c0'); b.addColorStop(0.18,'#c8922e'); b.addColorStop(0.42,'#6e4a12'); b.addColorStop(0.6,'#e8b64c'); b.addColorStop(0.82,'#8a5f18'); b.addColorStop(1,'#f0cf7a');
+    const c=ctx.createLinearGradient(0,y-2,0,y+h+2); c.addColorStop(0,'#030102'); c.addColorStop(1,'#16070b');
+    g=_a2GF[k]={b,c}; }
+  ctx.fillStyle='rgba(0,0,0,0.55)'; roundRect(x-7,y-5,w+14,h+12,9); ctx.fill();          // drop shadow
+  ctx.fillStyle=g.b; roundRect(x-6,y-6,w+12,h+12,8); ctx.fill();                       // cast rim
+  ctx.fillStyle='#140a03'; roundRect(x-3,y-3,w+6,h+6,6); ctx.fill();                   // the cut
+  ctx.fillStyle=g.c; roundRect(x-2,y-2,w+4,h+4,5); ctx.fill();                         // the channel
+  ctx.strokeStyle='rgba(255,240,192,0.45)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x-1,y-5.5); ctx.lineTo(x+w+1,y-5.5); ctx.stroke(); // top bevel catch-light
+  ctx.fillStyle='#fff2c0'; for(const bx of [x-3, x+w+3]){ ctx.beginPath(); ctx.arc(bx, y+h/2, 1.6, 0, 6.283); ctx.fill(); } // rivets
+}

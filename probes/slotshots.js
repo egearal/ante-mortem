@@ -60,11 +60,12 @@ async function finishSlot(page) { // let the bot play the rest of the visit out
   await live(page, 400);
   await stopReel(page); await live(page, 500);
   await shot(page, pre + 's5_two_match');
-  await stopReel(page); await live(page, 420);
+  await stopReel(page); await live(page, 720);
   await shot(page, pre + 's6_nearmiss_tease');
-  await live(page, 700);
+  await live(page, 600);
   await shot(page, pre + 's7_nearmiss_settled');
-  await live(page, 1100);
+  await until(page, "slotStage==='offer'", 600);
+  await live(page, 250);
   await shot(page, pre + 's8_pair_payout');
   await page.evaluate(() => { MFATE.T = MFATE._T; MFATE.P = MFATE._P; });
   await finishSlot(page);
@@ -77,9 +78,10 @@ async function finishSlot(page) { // let the bot play the rest of the visit out
   await stopReel(page); await live(page, 450);
   await stopReel(page); await live(page, 500);
   await shot(page, pre + 's9_triple_creep');
-  await live(page, 1000);
+  await live(page, 700);
   await shot(page, pre + 's10_triple_lands');
-  await live(page, 900);
+  await until(page, "slotStage==='offer'", 600);
+  await live(page, 300);
   await shot(page, pre + 's11_triple_ceremony');
   await page.evaluate(() => { MFATE.T = MFATE._T; });
   await finishSlot(page);
@@ -89,7 +91,7 @@ async function finishSlot(page) { // let the bot play the rest of the visit out
     await page.evaluate(() => { window.__bot.god = false; });
     await page.evaluate(() => { window.__bot.noSlotTap = true; });
     await until(page, "state==='playing' && (P.passiveList||[]).length>0", 30000);
-    await page.evaluate(() => { P.hp = P.maxHp * 0.3; P.inv = 99; P.xp = P.xpNext - 0.5; });
+    await page.evaluate(() => { P.hp = P.maxHp * 0.12; P.inv = 99; P.xp = P.xpNext - 0.5; });
     await page.evaluate(() => { window.__bot.god = false; });
     const ok = await until(page, "state==='slot' && slotStage==='ready'", 20000);
     if (ok) { await page.evaluate(() => { window.__bot.renderEvery = 1; }); await live(page, 900); await shot(page, 's12_red_table'); }

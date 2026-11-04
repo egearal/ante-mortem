@@ -1707,3 +1707,81 @@ button[id$="Close"]:active{transform:translateY(1px);}
   #gameover .panel>#booksBtn,#gameover .panel>#goMenuBtn{grid-row:13;} #gameover .panel>.soon{grid-row:14;}
   #gameover .result{font-size:21px;} #gameover .scoreBig{font-size:44px;}
 }
+
+/* ---------- THE HUD — engraved brass plaques (visual only: positions stay with the layout owners) ---------- */
+#hud .stat{padding:4px 12px 4px 10px;border-radius:7px;font-size:14px;color:#f2e7c8;
+  background:linear-gradient(180deg,rgba(26,10,14,.80),rgba(8,3,5,.84));
+  box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(184,134,42,.55),0 0 0 3px rgba(20,10,3,.6),inset 0 1px 0 rgba(255,236,170,.14),inset 0 -2px 3px rgba(0,0,0,.55),0 3px 8px rgba(0,0,0,.45);
+  text-shadow:0 1px 0 #000,0 0 6px rgba(0,0,0,.8);font-variant-numeric:tabular-nums;}
+#hud .stat .ico{font-size:14px;filter:drop-shadow(0 0 4px currentColor);}
+#hud #timer{padding:1px 16px 2px;border-radius:8px;font-size:21px;font-weight:800;font-variant-numeric:tabular-nums;
+  background:linear-gradient(180deg,rgba(26,10,14,.82),rgba(8,3,5,.86));
+  box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(232,182,76,.7),0 0 0 3px rgba(20,10,3,.7),inset 0 1px 0 rgba(255,236,170,.16),inset 0 -2px 4px rgba(0,0,0,.6),0 4px 12px rgba(0,0,0,.5);
+  text-shadow:0 1px 0 #2a1a06,0 0 12px rgba(232,182,76,.45);}
+#hud #waveInfo{color:#a8946c;text-shadow:0 1px 0 #000;}
+#hud #xpbar{background:linear-gradient(180deg,#040102,#120509);box-shadow:inset 0 1px 2px #000,0 1px 0 rgba(184,134,42,.28),0 -1px 0 rgba(184,134,42,.18);}
+/* blood in a brass vial */
+#hud #hpwrap{position:relative;}
+#hud #hpwrap::before{content:'♥';position:absolute;left:-6px;top:50%;margin-top:-21px;width:34px;height:34px;border-radius:50%;z-index:2;
+  display:flex;align-items:center;justify-content:center;font-size:16px;color:#ff4d5c;text-shadow:0 0 8px rgba(255,60,80,.8),0 1px 0 #000;
+  background:radial-gradient(circle at 50% 40%,#2a080d,#0a0204 70%) padding-box,var(--a2-brass) border-box;border:2px solid transparent;
+  box-shadow:0 0 0 1px #140a03,0 3px 8px rgba(0,0,0,.6),inset 0 2px 4px rgba(0,0,0,.8);}
+#hud #hpbar{margin-left:20px;height:26px;border:2px solid transparent;border-radius:14px;
+  background:linear-gradient(180deg,#070204,#14060a) padding-box,var(--a2-brass) border-box;
+  box-shadow:0 0 0 1px #140a03,0 4px 14px rgba(0,0,0,.6),0 0 18px rgba(139,22,32,.32),inset 0 3px 6px rgba(0,0,0,.9);}
+#hud #hpfill{border-radius:12px;background:linear-gradient(180deg,#ff6a76 0%,#d4212f 32%,#8b1620 72%,#4a0a12 100%);box-shadow:inset 0 -2px 3px rgba(0,0,0,.35),2px 0 8px rgba(255,60,80,.35);}
+#hud #hpbar::after{left:6px;right:6px;top:2px;height:6px;border-radius:5px;background:linear-gradient(180deg,rgba(255,255,255,.28),transparent);}
+#hud #hptext{font-family:var(--disp);font-weight:800;font-size:11px;letter-spacing:.18em;text-shadow:0 1px 0 #000,0 0 6px rgba(0,0,0,.9);}
+/* level plate + relic sockets */
+#hud #level{display:inline-block;padding:2px 10px 3px;border-radius:6px;font-weight:800;color:var(--gold-bright);
+  background:linear-gradient(180deg,rgba(26,10,14,.8),rgba(8,3,5,.85));box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(184,134,42,.5),inset 0 1px 0 rgba(255,236,170,.12);text-shadow:0 1px 0 #000;}
+#hud .relicTag{color:#a8946c;text-shadow:0 1px 0 #000;}
+#hud .relic{background:radial-gradient(circle at 50% 32%,rgba(52,20,26,.95),rgba(10,4,6,.96) 75%);}
+#hud .relic::before{content:'';position:absolute;inset:-3px;border-radius:9px;pointer-events:none;
+  box-shadow:0 0 0 1px rgba(184,134,42,.6),0 0 0 2px rgba(20,10,3,.85),inset 0 0 0 1px rgba(0,0,0,.5);}
+#hud .relic::after{content:'';position:absolute;left:3px;right:3px;top:2px;height:38%;border-radius:5px 5px 10px 10px;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,250,235,.12),transparent);}
+#debuffs .debuff{border-radius:6px;padding:3px 9px;background:linear-gradient(180deg,rgba(40,8,12,.82),rgba(14,3,5,.86));text-shadow:0 1px 0 #000;}
+#debuffs .debuff.buff{background:linear-gradient(180deg,rgba(10,40,20,.82),rgba(4,14,8,.86));}
+
+/* ---------- THE HALL (main menu) — never clipped, the doors stand to the right, every door a gilded plaque ---------- */
+#menu .panel{justify-content:safe center;overflow-y:auto;overflow-x:hidden;}
+@media (min-width:900px){
+  #menu .panel{display:grid;grid-template-columns:minmax(0,1fr) 290px;column-gap:4vw;align-content:safe center;justify-content:stretch;justify-items:start;}
+  #menu .panel>*{grid-column:1;}
+  #menu .panel>#menuRow2{grid-column:2;grid-row:1 / span 12;align-self:center;justify-self:stretch;width:auto;margin:0;}
+  #menu .panel>.controls,#menu .panel>#verStamp{grid-column:auto;}
+  #menu h1{font-size:clamp(56px,7.4vw,96px);}
+}
+@media (min-width:900px) and (max-height:760px){
+  #menu .panel{padding-top:3vh;padding-bottom:7vh;}
+  #menu h1{font-size:clamp(50px,6.6vw,84px);margin:2px 0 10px;}
+  #menu #startBtn{margin:16px 0 8px;}
+}
+/* the doors: engraved plaques with a brass rim, a velvet face, a lit edge on hover */
+#menuRow2 .btn.msm{border:1px solid transparent;border-radius:9px;color:#f2e7c8;
+  background:linear-gradient(180deg,rgba(40,16,22,.94),rgba(16,6,9,.96)) padding-box,var(--a2-bronze) border-box;
+  box-shadow:0 0 0 1px #140a03,0 4px 10px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,236,170,.14),inset 0 -3px 7px rgba(0,0,0,.55);}
+#menuRow2 .btn.msm::before{border-color:rgba(255,226,150,.14);}
+#menuRow2 .btn.msm:hover{color:#fff2c0;background:linear-gradient(180deg,rgba(58,22,30,.96),rgba(22,8,12,.97)) padding-box,var(--a2-brass) border-box;
+  box-shadow:-4px 0 0 rgba(255,211,107,.85),0 0 0 1px #140a03,0 0 24px rgba(255,211,107,.22),inset 0 1px 0 rgba(255,236,170,.2);}
+/* the hero plaque: struck gold, beveled, with a dark keyline */
+#menu #startBtn{border:1px solid #8a5f18;color:#1a0b0f;text-shadow:0 1px 0 rgba(255,240,192,.6);
+  background:linear-gradient(180deg,#fff2c0 0%,#ffd36b 40%,#e8b64c 68%,#b8862a 100%);}
+#menu #startBtn::before{border-color:rgba(90,58,16,.45);}
+#menu .mChip{background:linear-gradient(180deg,rgba(24,10,14,.9),rgba(10,4,6,.92));box-shadow:inset 0 1px 0 rgba(255,236,170,.1),0 0 10px color-mix(in srgb,var(--cc,#e8b64c) 16%,transparent);}
+
+/* ---------- the other tables wear the same brass ---------- */
+#menu .flavor{margin-left:0;margin-right:0;}
+#wheelLayer #tickerBox{border:4px solid transparent;
+  background:linear-gradient(180deg,rgba(16,8,12,.97),rgba(8,4,7,.98)) padding-box,var(--a2-brass) border-box;
+  box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(255,236,170,.16),0 0 44px rgba(232,182,76,.3),0 24px 60px rgba(0,0,0,.7),inset 0 0 0 1px rgba(0,0,0,.8),inset 0 0 60px rgba(0,0,0,.85);}
+#wheelLegend,#crashLayer .wheelShell #crashHist{border-radius:12px;}
+/* every ledger panel (feats, index, vault, books, house ledger, options) gets a bronze binding */
+#achPanel .panel,#indexPanel .panel,#storyPanel .panel,#vaultPanel .panel,#booksPanel .panel,#gfxPanel .panel{border:3px solid transparent;
+  background:radial-gradient(120% 50% at 50% -6%,rgba(139,22,32,.3),transparent 60%) padding-box,
+    linear-gradient(180deg,rgba(26,11,15,.98),rgba(9,4,6,.99)) padding-box,var(--a2-bronze) border-box;
+  box-shadow:0 0 0 1px #140a03,0 30px 90px rgba(0,0,0,.8),0 0 26px rgba(139,22,32,.3),inset 0 0 0 1px rgba(0,0,0,.7),inset 0 0 60px rgba(139,22,32,.12);}
+#pauseLayer .pauseCard{padding:22px 34px;border-radius:16px;border:3px solid transparent;
+  background:linear-gradient(180deg,rgba(24,10,14,.92),rgba(8,3,5,.94)) padding-box,var(--a2-bronze) border-box;box-shadow:0 0 0 1px #140a03,0 24px 70px rgba(0,0,0,.75);}
+#slot .machine.pressflash::after{top:-6px;left:-6px;right:-6px;bottom:-6px;}
