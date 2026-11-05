@@ -2485,6 +2485,9 @@ body.b2endless #hud #b2Mult{box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(154,92,2
 }
 /* G1: on a phone the How to Play title keeps its closing ♠ on the same line */
 @media (max-width:600px){ #howTitle{font-size:21px;letter-spacing:.16em;white-space:nowrap;margin-bottom:12px;} }
+/* H2's own 720p ledger layout was dropped at merge in favour of G1's compact ledger (same goal, verified by probes/ledgerfit.js) */
+/* H2: on phones the wave line wrapped "THIN" onto its own line beside the timer */
+@media (max-width:640px){ #hud #waveInfo{white-space:nowrap;letter-spacing:.06em;font-size:9.5px;} }
 </style>
 </head>
 <body>
@@ -2537,7 +2540,7 @@ body.b2endless #hud #b2Mult{box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(154,92,2
       </div>
       <div class="controls"><b>WASD</b> move &nbsp;·&nbsp; <b>SPACE</b> is every bet &nbsp;·&nbsp; your weapons fire themselves</div>
       <div id="verStamp" title="the credits">v4.0 — FINAL · JUL 2026</div>
-      <div id="creditLine">the house was built by —</div>
+      <div id="creditLine">the house was built by ege &amp; claude ›</div>
     </div>
   </div>
   <!-- gilt corner filigree — the screen wears a frame, in the pit and out -->
@@ -6076,7 +6079,7 @@ function frame(now){
   else if(state==='wheel'){ tickWheel(dt); }
   else if(state==='crash'){ tickCrash(dt); }
   else if(state==='slot'){ tickSlot(dt); }
-  if(P){ PROF.frameStart(); render(); PROF.frameEnd(); }
+  if(P && state!=='menu'){ PROF.frameStart(); render(); PROF.frameEnd(); } // H2: the menu never shows last night's frozen floor
   }catch(_e){ if(!window._amErr){ window._amErr=1; console.error('[ANTE MORTEM]',_e); } }
 }
 function startGame(){
@@ -6125,10 +6128,10 @@ function startGame(){
       IDX.ind=[]; idxSaveSoon(); } }
   if(LT.equal && !DLY_RNG){ P.coinMult*=1.05; P._goldTrail=true; } // THE HOUSE'S EQUAL — forever
   { const today=new Date().toISOString().slice(0,10);
-    if(LT.lastDay!==today){
-      const y=new Date(Date.now()-86400000).toISOString().slice(0,10);
-      LT.dayStreak=(LT.lastDay===y)?(LT.dayStreak||0)+1:1;
-      LT.lastDay=today; gilt+=15; saveGilt(); if(typeof achSaveSoon==='function') achSaveSoon();
+    // H2: its own field — boot's DAILY BLESSING writes LT.lastDay as toDateString(); the two formats never
+    // matched, so every reload was a "new day" and the blessing's DAY n climbed once per reload
+    if(LT.lastAnte!==today){
+      LT.lastAnte=today; gilt+=15; saveGilt(); if(typeof achSaveSoon==='function') achSaveSoon();
       setTimeout(()=>announce('☀ FIRST ANTE OF THE DAY — +15 GILT'+((LT.dayStreak||1)>1?' · '+LT.dayStreak+' NIGHTS RUNNING':'')+' ☀', true), 3000); } }
   try{ b2Start(); }catch(e){ console.warn('[B2 start]',e); }
   window._gt0=gt; // the night's true zero (contracts may shift the clock)
@@ -9338,7 +9341,9 @@ function startOvercharge(){
   if(P.ovT>0) return;
   P.ovT=100; P.ovAge=0; P.ovHold=0; P._ovR=P.fireRate; P._ovD=P.damage;
   P.fireRate*=1.5; P.damage*=1.5;
-  announce('⚡ RAGE — HOLD ABOVE 90 FOR 10s → THE ASCENT ⚡', true);
+  // H2: night one's first RAGE says only what the tip says — SPACE cashes it (the Ascent rule can wait)
+  const h2r=(typeof fnOn==='function' && fnOn() && P._fnN===1 && !P._h2R); P._h2R=1;
+  announce(h2r?'⚡ RAGE — PRESS SPACE TO CASH IT ⚡':'⚡ RAGE — HOLD ABOVE 90 FOR 10s → THE ASCENT ⚡', true);
   SFX.riser(); SFX.hotSix(); flash(0.4,'#ff9a3c'); shake=Math.min(14,shake+6);
 }
 function ovRevert(){
@@ -11110,6 +11115,8 @@ async function actuallyDie(){
     ['⏱','TIME',fmt(gt),plc.time],
     ['◈','MARKS',mkFinal.toLocaleString(),plc.marks]
   ];
+  // H2: on the very first night every number is trivially "#1 ALL-TIME" — six badges, six stings, no meaning
+  const h2First=(LT.runs||0)<=1; if(h2First) stats.forEach(s=>{ s[3]=0; });
   const placedN=stats.filter(s=>s[3]>0).length;
   const gs=$('goStats'); if(gs) gs.innerHTML='';
   window._recapT0=performance.now(); window._recapDone=false; window._recapFast=false;
@@ -11124,6 +11131,8 @@ async function actuallyDie(){
     if(placedN>0 && gs){ const sm=document.createElement('div'); sm.className='gsSum';
       sm.textContent='✦ '+placedN+' ALL-TIME MARK'+(placedN>1?'S':'')+' SET TONIGHT ✦'; gs.appendChild(sm);
       SFX.cashout(); if(stats.some(s=>s[3]===1)) domConfetti(26,'gameover'); }
+    else if(h2First && gs){ const sm=document.createElement('div'); sm.className='gsSum';
+      sm.textContent='✦ NIGHT ONE IS ON THE BOOKS — EVERY NUMBER HERE IS YOURS TO BEAT ✦'; gs.appendChild(sm); SFX.cashout(); }
   }, 250+stats.length*170+150));
   window._recapSkip=()=>{ tms.forEach(clearTimeout); if(gs) gs.innerHTML=''; stats.forEach((s,i)=>addRow(s,i,true)); window._recapFast=true; window._recapDone=true;
     $('goScore').textContent=score.toLocaleString(); $('goGilt').textContent=giltEarned.toLocaleString(); SFX.coinPling(); };
@@ -11599,7 +11608,8 @@ function feedSecretKeys(k){
     if(keyBuf.endsWith('house')) secret('house','SPEAK ITS NAME');
   }
 }
-function achAdd(stat,v,name,desc){ (ACH_BY_STAT[stat]=ACH_BY_STAT[stat]||[]).push({id:stat+'_'+v,v,name,desc}); ACH_TOTAL++; }
+const H2_ONE={times:'once',runs:'run',bosses:'boss',souls:'soul',cards:'card',bounties:'bounty',skills:'skill',wounds:'wound'}; // H2: "Die 1 times" → "Die once"
+function achAdd(stat,v,name,desc){ if(v===1&&typeof desc==='string') desc=desc.replace(/\b1 (times|runs|bosses|souls|cards|bounties|skills|wounds)\b/,(m,w)=>w==='times'?'once':'1 '+H2_ONE[w]); (ACH_BY_STAT[stat]=ACH_BY_STAT[stat]||[]).push({id:stat+'_'+v,v,name,desc}); ACH_TOTAL++; }
 function buildAch(){
   const RN=['I','II','III','IV','V','VI','VII','VIII'];
   for(let l=5;l<=250;l+=5) achAdd('level',l,'Ascendant '+l,'Reach level '+l+' in one run');
@@ -12765,6 +12775,7 @@ function quitToMenu(){
   hideTab(); tabHold=false; keys.clear(); touch.active=false;
   try{ stopDrone(); }catch(e){} try{ stopDrumroll(); }catch(e){}
   state='menu'; SFX.casinoDing();
+  try{ const g9=cv.getContext('2d'); g9.save(); g9.setTransform(1,0,0,1,0,0); g9.clearRect(0,0,cv.width,cv.height); g9.restore(); }catch(e){} // H2: a clean felt behind the menu, as on first boot
   try{ renderChips(); }catch(e){}
 }
 { let lastMute=0;
@@ -13693,18 +13704,19 @@ function renderChips(){
       rb.innerHTML='<div class="mrTop">⚜ RANK '+RANK.rank+' — '+RANKS[RANK.rank-1].n+'</div>'
         +'<div class="mrBar"><i style="width:'+pct+'%"></i></div>'
         +'<div class="mrSub">'+(RANK.marks-base)+' / '+(next-base)+' MARKS TO RANK '+(RANK.rank+1)+'</div>'; } }
+  const h2New=(LT.runs||0)<3; // H2: a stranger's first three nights — fewer, plainer chips
   const chips=[
-    best>0?['🏆',best.toLocaleString(),'#ffd36b']:null,
-    idxPct()>0?['📖',idxPct()+'%','#c98bff']:null,
-    SEC.size>0?['✦',SEC.size+'/'+WHISPER_TOTAL,'#8bffd0']:null,
-    _est>0?['🏛',_est+'% OF THE HOUSE — ranks 30 · index 20 · whispers 15 · feats 15 · pages 10 · souls&floors 10','#e8b64c']:null,
+    (best>0&&!h2New)?['🏆','BEST '+best.toLocaleString(),'#ffd36b']:null, // H2: chips name their number (BEST NIGHT already sits over PLAY)
+    idxPct()>0?['📖','INDEX '+idxPct()+'%','#c98bff']:null,
+    SEC.size>0?['✦','SECRETS '+SEC.size+'/'+WHISPER_TOTAL,'#8bffd0']:null,
+    _est>0?['🏛',_est+'% OF THE HOUSE'+(h2New?'':' — ranks 30 · index 20 · whispers 15 · feats 15 · pages 10 · souls&floors 10'),'#e8b64c']:null, // H2: the weights wait until night 3
     (LT.minutes||0)>=30?['⏱',((LT.minutes||0)/60).toFixed(1)+'h AT THE TABLE','#9adcff']:null,
     ...(function(){ const nx=nextArmUnlock(); if(!nx) return []; const wd=WEAPONS.find(x=>x.id===nx.id);
-      return wd?[['🗡','NEXT ARM: '+wd.n.toUpperCase()+' · RANK '+nx.thr,'#ff9a3c']]:[]; })(),
-    ['⚜','RANK '+RANK.rank+' · '+RANKS[RANK.rank-1].n,'#fff2c0'],
+      return wd?[['🗡','NEW WEAPON AT RANK '+nx.thr+': '+wd.n.toUpperCase(),'#ff9a3c']]:[]; })(),
+    h2New?null:['⚜','RANK '+RANK.rank+' · '+RANKS[RANK.rank-1].n,'#fff2c0'], // H2: the rank bar below already says it
     window._daily?['☀',window._daily,'#8bff9a']:null
   ].filter(Boolean);
-  const tipFor=(g)=>({'🏆':'FEATS — lifetime marks of skill','📖':'THE INDEX — everything catalogued','✦':'WHISPERS — riddles answered','🏛':'THE ESTATE — how much of the House is yours','🗡':'THE ARSENAL DRIP — the next blade and its rank','⚜':'HOUSE RANK — your standing tonight'})[g]||'';
+  const tipFor=(g)=>({'🏆':'BEST NIGHT — your highest tally','📖':'THE INDEX — everything catalogued','✦':'WHISPERS — riddles answered','🏛':'THE ESTATE — how much of the House is yours · ranks 30 · index 20 · whispers 15 · feats 15 · pages 10 · souls&floors 10','🗡':'THE ARSENAL DRIP — the next blade and its rank','⚜':'HOUSE RANK — your standing tonight'})[g]||'';
   const cr=$('chipRow'); if(cr) cr.innerHTML=chips.map(c=>'<span class="mChip" style="--cc:'+c[2]+'" title="'+tipFor(c[0])+'"><b>'+c[0]+'</b>'+c[1]+'</span>').join('');
   if(window._lastEst!==undefined && _est>window._lastEst && cr){ const ec=[...cr.children].find(x=>x.textContent.includes('OF THE HOUSE'));
     if(ec){ ec.classList.add('estGrow'); setTimeout(()=>ec.classList.remove('estGrow'),2600); SFX.tingle&&SFX.tingle(); } }
@@ -13759,7 +13771,7 @@ function openCredits(){
       LT.dayStreak=Math.max(1,Math.min(+LT.dayStreak||1,3650)); // 323: a moved clock can never mint a broken streak
       LT.lastDay=today; const bonus=25+LT.dayStreak*5;
       gilt+=bonus; saveGilt(); achSaveSoon();
-      window._daily='DAILY BLESSING +'+bonus+' ◈ · DAY '+LT.dayStreak;
+      window._daily='DAILY BLESSING +'+bonus+' GILT · DAY '+LT.dayStreak;
     } }
   if(!RANK._ld){ RANK._ld=1; await loadRank(); }
   if(window._ledgerRestored) setTimeout(()=>announce('◈ THE LEDGER WAS RESTORED FROM CARBON ◈', true), 900);
@@ -15427,6 +15439,42 @@ function e2Ledger(){
   requestAnimationFrame(step);
 }
 { const _ad=actuallyDie; actuallyDie=async function(){ const r=await _ad.apply(this,arguments); try{ setTimeout(e2Ledger,60); }catch(e){} return r; }; }
+
+/* ==== H2 — FRESH EYES: the first minute speaks one language ====
+   On a stranger's FIRST night, the House holds its side-bets (gilt, secrets,
+   favors, bounties, dares, feats) until the first slot's lesson has landed —
+   then pays them out one by one. Records only toast when there was a record
+   to beat before tonight ("NEW RECORD · STREAK 2" on night one was noise). */
+const H2={ held:[], ach:false, rel:0 };
+function h2Hush(){
+  try{ if(typeof fnOn!=='function' || !fnOn() || P._fnN!==1 || H2.rel) return false;
+    if(gt>=50){ h2Release(); return false; }
+    return true; }catch(e){ return false; }
+}
+function h2Release(){
+  if(H2.rel) return; H2.rel=1;
+  const q=H2.held.splice(0); let k=0;
+  for(const f of q) setTimeout(()=>{ try{ f(); }catch(e){} }, 300+1300*(k++));
+  if(H2.ach) setTimeout(()=>{ H2.ach=false; try{ pumpToasts(); }catch(e){} }, 300+1300*k);
+}
+{ const _a=announce;
+  announce=function(txt, good){
+    if(typeof txt==='string' && /GILT|SECRET|FAVOR|BOUNTY|DARE|INDULGENCE/.test(txt) && h2Hush()){ H2.held.push(()=>_a(txt, good)); return; }
+    return _a(txt, good);
+  };
+  const _s=secret; // the reveal card + its banner wait too, so nothing talks over the first lesson
+  secret=function(id, name){ if(h2Hush() && !SEC.has(id)){ if(!H2.held.some(f=>f._id===id)){ const f=()=>_s(id, name); f._id=id; H2.held.push(f); } return; } return _s(id, name); };
+  const _p=pumpToasts;
+  pumpToasts=function(){ if(h2Hush()){ H2.ach=true; return; } return _p.apply(this, arguments); };
+  const _fs=fnStart;
+  fnStart=function(){ H2.held.length=0; H2.ach=false; H2.rel=0; H2.s0=0;
+    const r=_fs.apply(this, arguments);
+    try{ for(const k in REC) if(!(REC[k]>0)) recToasted.add(k); }catch(e){} // no record yet → nothing to beat tonight
+    return r; };
+  // release ~9s after the first slot closes (after its "what the slot is for" tip), or at 0:50 at the latest
+  setInterval(()=>{ try{ if(H2.rel || !P || !P._fnS || state!=='playing') return;
+    if(!H2.s0) H2.s0=gt; if(gt>=H2.s0+9 || gt>=50){ H2.s0=0; h2Release(); } }catch(e){} }, 250);
+}
 /* ==== B1 — DAILY DEBT ====
    One seeded night per UTC day, identical for every player in the world. The
    first attempt of the day is SCORED; any further attempt is PRACTICE.
@@ -15666,6 +15714,7 @@ function dlyPlaque(){
     +'<div class="dpName">'+t.name+'</div>'
     +'<div class="dpTerms"><span style="color:'+dlySoulFor(t).col+'">'+dlySoulFor(t).g+' '+dlySoulFor(t).n+'</span> · <span style="color:'+dlyFloorFor(t).col+'">'+dlyFloorFor(t).g+' '+dlyFloorFor(t).n+'</span> · '+dlyModLine(t,true)+'</div>'
     +'<div class="dpFoot"><span>TODAY <b>'+today+'</b></span><span>BEST <b>'+(d.bestT?fmt(d.bestT):'—')+'</b></span><span>🔥 STREAK <b>'+st+'</b></span></div>'
+    +((LT.runs||0)<1&&!played?'<div class="dpWarn" style="font-size:10px;letter-spacing:.14em;color:#ff8a8a;margin:2px 0 6px">✦ NO GENTLE NIGHTS HERE — NEW? PLAY TONIGHT FIRST ✦</div>':'') // H2: the daily skips the first-night ramp; say so
     +'<button class="btn dpBtn" type="button">'+(played?'☀ PRACTICE THE DEBT':'☀ PAY TODAY\'S DEBT')+'</button>';
   p.dataset.day=day;
 }
