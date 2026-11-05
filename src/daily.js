@@ -238,6 +238,7 @@ function dlyPlaque(){
     +'<div class="dpName">'+t.name+'</div>'
     +'<div class="dpTerms"><span style="color:'+dlySoulFor(t).col+'">'+dlySoulFor(t).g+' '+dlySoulFor(t).n+'</span> · <span style="color:'+dlyFloorFor(t).col+'">'+dlyFloorFor(t).g+' '+dlyFloorFor(t).n+'</span> · '+dlyModLine(t,true)+'</div>'
     +'<div class="dpFoot"><span>TODAY <b>'+today+'</b></span><span>BEST <b>'+(d.bestT?fmt(d.bestT):'—')+'</b></span><span>🔥 STREAK <b>'+st+'</b></span></div>'
+    +((LT.runs||0)<1&&!played?'<div class="dpWarn" style="font-size:10px;letter-spacing:.14em;color:#ff8a8a;margin:2px 0 6px">✦ NO GENTLE NIGHTS HERE — NEW? PLAY TONIGHT FIRST ✦</div>':'') // H2: the daily skips the first-night ramp; say so
     +'<button class="btn dpBtn" type="button">'+(played?'☀ PRACTICE THE DEBT':'☀ PAY TODAY\'S DEBT')+'</button>';
   p.dataset.day=day;
 }

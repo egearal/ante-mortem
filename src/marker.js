@@ -144,6 +144,8 @@ async function actuallyDie(){
     ['⏱','TIME',fmt(gt),plc.time],
     ['◈','MARKS',mkFinal.toLocaleString(),plc.marks]
   ];
+  // H2: on the very first night every number is trivially "#1 ALL-TIME" — six badges, six stings, no meaning
+  const h2First=(LT.runs||0)<=1; if(h2First) stats.forEach(s=>{ s[3]=0; });
   const placedN=stats.filter(s=>s[3]>0).length;
   const gs=$('goStats'); if(gs) gs.innerHTML='';
   window._recapT0=performance.now(); window._recapDone=false; window._recapFast=false;
@@ -158,6 +160,8 @@ async function actuallyDie(){
     if(placedN>0 && gs){ const sm=document.createElement('div'); sm.className='gsSum';
       sm.textContent='✦ '+placedN+' ALL-TIME MARK'+(placedN>1?'S':'')+' SET TONIGHT ✦'; gs.appendChild(sm);
       SFX.cashout(); if(stats.some(s=>s[3]===1)) domConfetti(26,'gameover'); }
+    else if(h2First && gs){ const sm=document.createElement('div'); sm.className='gsSum';
+      sm.textContent='✦ NIGHT ONE IS ON THE BOOKS — EVERY NUMBER HERE IS YOURS TO BEAT ✦'; gs.appendChild(sm); SFX.cashout(); }
   }, 250+stats.length*170+150));
   window._recapSkip=()=>{ tms.forEach(clearTimeout); if(gs) gs.innerHTML=''; stats.forEach((s,i)=>addRow(s,i,true)); window._recapFast=true; window._recapDone=true;
     $('goScore').textContent=score.toLocaleString(); $('goGilt').textContent=giltEarned.toLocaleString(); SFX.coinPling(); };

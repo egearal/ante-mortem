@@ -151,6 +151,7 @@ function quitToMenu(){
   hideTab(); tabHold=false; keys.clear(); touch.active=false;
   try{ stopDrone(); }catch(e){} try{ stopDrumroll(); }catch(e){}
   state='menu'; SFX.casinoDing();
+  try{ const g9=cv.getContext('2d'); g9.save(); g9.setTransform(1,0,0,1,0,0); g9.clearRect(0,0,cv.width,cv.height); g9.restore(); }catch(e){} // H2: a clean felt behind the menu, as on first boot
   try{ renderChips(); }catch(e){}
 }
 { let lastMute=0;
@@ -1079,18 +1080,19 @@ function renderChips(){
       rb.innerHTML='<div class="mrTop">⚜ RANK '+RANK.rank+' — '+RANKS[RANK.rank-1].n+'</div>'
         +'<div class="mrBar"><i style="width:'+pct+'%"></i></div>'
         +'<div class="mrSub">'+(RANK.marks-base)+' / '+(next-base)+' MARKS TO RANK '+(RANK.rank+1)+'</div>'; } }
+  const h2New=(LT.runs||0)<3; // H2: a stranger's first three nights — fewer, plainer chips
   const chips=[
-    best>0?['🏆',best.toLocaleString(),'#ffd36b']:null,
-    idxPct()>0?['📖',idxPct()+'%','#c98bff']:null,
-    SEC.size>0?['✦',SEC.size+'/'+WHISPER_TOTAL,'#8bffd0']:null,
-    _est>0?['🏛',_est+'% OF THE HOUSE — ranks 30 · index 20 · whispers 15 · feats 15 · pages 10 · souls&floors 10','#e8b64c']:null,
+    (best>0&&!h2New)?['🏆','BEST '+best.toLocaleString(),'#ffd36b']:null, // H2: chips name their number (BEST NIGHT already sits over PLAY)
+    idxPct()>0?['📖','INDEX '+idxPct()+'%','#c98bff']:null,
+    SEC.size>0?['✦','SECRETS '+SEC.size+'/'+WHISPER_TOTAL,'#8bffd0']:null,
+    _est>0?['🏛',_est+'% OF THE HOUSE'+(h2New?'':' — ranks 30 · index 20 · whispers 15 · feats 15 · pages 10 · souls&floors 10'),'#e8b64c']:null, // H2: the weights wait until night 3
     (LT.minutes||0)>=30?['⏱',((LT.minutes||0)/60).toFixed(1)+'h AT THE TABLE','#9adcff']:null,
     ...(function(){ const nx=nextArmUnlock(); if(!nx) return []; const wd=WEAPONS.find(x=>x.id===nx.id);
-      return wd?[['🗡','NEXT ARM: '+wd.n.toUpperCase()+' · RANK '+nx.thr,'#ff9a3c']]:[]; })(),
-    ['⚜','RANK '+RANK.rank+' · '+RANKS[RANK.rank-1].n,'#fff2c0'],
+      return wd?[['🗡','NEW WEAPON AT RANK '+nx.thr+': '+wd.n.toUpperCase(),'#ff9a3c']]:[]; })(),
+    h2New?null:['⚜','RANK '+RANK.rank+' · '+RANKS[RANK.rank-1].n,'#fff2c0'], // H2: the rank bar below already says it
     window._daily?['☀',window._daily,'#8bff9a']:null
   ].filter(Boolean);
-  const tipFor=(g)=>({'🏆':'FEATS — lifetime marks of skill','📖':'THE INDEX — everything catalogued','✦':'WHISPERS — riddles answered','🏛':'THE ESTATE — how much of the House is yours','🗡':'THE ARSENAL DRIP — the next blade and its rank','⚜':'HOUSE RANK — your standing tonight'})[g]||'';
+  const tipFor=(g)=>({'🏆':'BEST NIGHT — your highest tally','📖':'THE INDEX — everything catalogued','✦':'WHISPERS — riddles answered','🏛':'THE ESTATE — how much of the House is yours · ranks 30 · index 20 · whispers 15 · feats 15 · pages 10 · souls&floors 10','🗡':'THE ARSENAL DRIP — the next blade and its rank','⚜':'HOUSE RANK — your standing tonight'})[g]||'';
   const cr=$('chipRow'); if(cr) cr.innerHTML=chips.map(c=>'<span class="mChip" style="--cc:'+c[2]+'" title="'+tipFor(c[0])+'"><b>'+c[0]+'</b>'+c[1]+'</span>').join('');
   if(window._lastEst!==undefined && _est>window._lastEst && cr){ const ec=[...cr.children].find(x=>x.textContent.includes('OF THE HOUSE'));
     if(ec){ ec.classList.add('estGrow'); setTimeout(()=>ec.classList.remove('estGrow'),2600); SFX.tingle&&SFX.tingle(); } }
@@ -1145,7 +1147,7 @@ function openCredits(){
       LT.dayStreak=Math.max(1,Math.min(+LT.dayStreak||1,3650)); // 323: a moved clock can never mint a broken streak
       LT.lastDay=today; const bonus=25+LT.dayStreak*5;
       gilt+=bonus; saveGilt(); achSaveSoon();
-      window._daily='DAILY BLESSING +'+bonus+' ◈ · DAY '+LT.dayStreak;
+      window._daily='DAILY BLESSING +'+bonus+' GILT · DAY '+LT.dayStreak;
     } }
   if(!RANK._ld){ RANK._ld=1; await loadRank(); }
   if(window._ledgerRestored) setTimeout(()=>announce('◈ THE LEDGER WAS RESTORED FROM CARBON ◈', true), 900);
@@ -2813,3 +2815,39 @@ function e2Ledger(){
   requestAnimationFrame(step);
 }
 { const _ad=actuallyDie; actuallyDie=async function(){ const r=await _ad.apply(this,arguments); try{ setTimeout(e2Ledger,60); }catch(e){} return r; }; }
+
+/* ==== H2 — FRESH EYES: the first minute speaks one language ====
+   On a stranger's FIRST night, the House holds its side-bets (gilt, secrets,
+   favors, bounties, dares, feats) until the first slot's lesson has landed —
+   then pays them out one by one. Records only toast when there was a record
+   to beat before tonight ("NEW RECORD · STREAK 2" on night one was noise). */
+const H2={ held:[], ach:false, rel:0 };
+function h2Hush(){
+  try{ if(typeof fnOn!=='function' || !fnOn() || P._fnN!==1 || H2.rel) return false;
+    if(gt>=50){ h2Release(); return false; }
+    return true; }catch(e){ return false; }
+}
+function h2Release(){
+  if(H2.rel) return; H2.rel=1;
+  const q=H2.held.splice(0); let k=0;
+  for(const f of q) setTimeout(()=>{ try{ f(); }catch(e){} }, 300+1300*(k++));
+  if(H2.ach) setTimeout(()=>{ H2.ach=false; try{ pumpToasts(); }catch(e){} }, 300+1300*k);
+}
+{ const _a=announce;
+  announce=function(txt, good){
+    if(typeof txt==='string' && /GILT|SECRET|FAVOR|BOUNTY|DARE|INDULGENCE/.test(txt) && h2Hush()){ H2.held.push(()=>_a(txt, good)); return; }
+    return _a(txt, good);
+  };
+  const _s=secret; // the reveal card + its banner wait too, so nothing talks over the first lesson
+  secret=function(id, name){ if(h2Hush() && !SEC.has(id)){ if(!H2.held.some(f=>f._id===id)){ const f=()=>_s(id, name); f._id=id; H2.held.push(f); } return; } return _s(id, name); };
+  const _p=pumpToasts;
+  pumpToasts=function(){ if(h2Hush()){ H2.ach=true; return; } return _p.apply(this, arguments); };
+  const _fs=fnStart;
+  fnStart=function(){ H2.held.length=0; H2.ach=false; H2.rel=0; H2.s0=0;
+    const r=_fs.apply(this, arguments);
+    try{ for(const k in REC) if(!(REC[k]>0)) recToasted.add(k); }catch(e){} // no record yet → nothing to beat tonight
+    return r; };
+  // release ~9s after the first slot closes (after its "what the slot is for" tip), or at 0:50 at the latest
+  setInterval(()=>{ try{ if(H2.rel || !P || !P._fnS || state!=='playing') return;
+    if(!H2.s0) H2.s0=gt; if(gt>=H2.s0+9 || gt>=50){ H2.s0=0; h2Release(); } }catch(e){} }, 250);
+}

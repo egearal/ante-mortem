@@ -6,7 +6,9 @@ function startOvercharge(){
   if(P.ovT>0) return;
   P.ovT=100; P.ovAge=0; P.ovHold=0; P._ovR=P.fireRate; P._ovD=P.damage;
   P.fireRate*=1.5; P.damage*=1.5;
-  announce('⚡ RAGE — HOLD ABOVE 90 FOR 10s → THE ASCENT ⚡', true);
+  // H2: night one's first RAGE says only what the tip says — SPACE cashes it (the Ascent rule can wait)
+  const h2r=(typeof fnOn==='function' && fnOn() && P._fnN===1 && !P._h2R); P._h2R=1;
+  announce(h2r?'⚡ RAGE — PRESS SPACE TO CASH IT ⚡':'⚡ RAGE — HOLD ABOVE 90 FOR 10s → THE ASCENT ⚡', true);
   SFX.riser(); SFX.hotSix(); flash(0.4,'#ff9a3c'); shake=Math.min(14,shake+6);
 }
 function ovRevert(){

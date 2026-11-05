@@ -2466,3 +2466,6 @@ body.b2endless #hud #b2Mult{box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(154,92,2
 }
 /* G1: on a phone the How to Play title keeps its closing ♠ on the same line */
 @media (max-width:600px){ #howTitle{font-size:21px;letter-spacing:.16em;white-space:nowrap;margin-bottom:12px;} }
+/* H2's own 720p ledger layout was dropped at merge in favour of G1's compact ledger (same goal, verified by probes/ledgerfit.js) */
+/* H2: on phones the wave line wrapped "THIN" onto its own line beside the timer */
+@media (max-width:640px){ #hud #waveInfo{white-space:nowrap;letter-spacing:.06em;font-size:9.5px;} }
