@@ -162,6 +162,7 @@ const SCENES = {
     // the clean plate for cover art: the same floor a beat later with every DOM layer (HUD, banners) lifted — canvas only
     await run(page, 30); await until(page, clear, 3000);
     await page.addStyleTag({ content: '#wrap > *:not(canvas), body > *:not(#wrap):not(script) { visibility: hidden !important; }' });
+    await page.evaluate(() => { window.__cleanPlate = true; }); // the XP / RAGE gauge is painted on the canvas itself
     await shot(page, 'storm_clean', { frames: 2 });
     const n = await page.evaluate(() => enemies.length); console.error('    enemies on the floor: ' + n);
     await browser.close(); return errors;

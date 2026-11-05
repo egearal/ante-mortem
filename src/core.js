@@ -2020,7 +2020,7 @@ function render(){
   }
   PROF.mark('hud');
   // FEVER overlay — golden rush
-  if(feverOn){
+  if(feverOn && !window.__cleanPlate){
     // the wash is gone — fever is the WRITING, the arena stays true
     ctx.save(); ctx.font="800 26px 'Cinzel',serif"; ctx.textAlign='center';
     ctx.fillStyle='#ffd36b'; ctx.shadowColor='#ffb020'; ctx.shadowBlur=18;
@@ -2028,7 +2028,7 @@ function render(){
     ctx.restore();
   }
   // XP / RAGE — gilded gothic gauge, smooth-lerped
-  if(state==='playing'){
+  if(state==='playing' && !window.__cleanPlate){ // I1: the launch kit's clean plate lifts the canvas gauge (and the FEVER line above)
     let xw=Math.min(340,VW*0.44), xx=VW/2-xw/2, xy=VH-46; const bh=14;
     { const hr=_b4HpRect(); // B4: never under the blood bar — slide right of it, or (phones) ride just above it
       if(hr && xx<hr.r+14 && hr.t<VH-20){ const room=VW-(hr.r+14)-96;
@@ -2096,14 +2096,14 @@ function render(){
       if(PROF._ovS) ctx.fillText(PROF._ovS, VW-12, 78); }
     ctx.globalAlpha=1; }
   // house dare counter
-  if(state==='playing' && dare){
+  if(state==='playing' && dare && !window.__cleanPlate){
     ctx.font="800 15px 'Cinzel',serif"; ctx.textAlign='center';
     ctx.fillStyle=dare.got>=dare.need?'#8bff9a':'#ffd36b'; ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=10;
     ctx.fillText('⚔ '+dare.got+' / '+dare.need+' · '+dare.t.toFixed(1)+'s', VW/2, 130); ctx.shadowBlur=0;
   }
   // (the fever charge bar is retired — fever announces itself when it arrives)
   // streak counter
-  if(killStreak>=15 && state==='playing'){
+  if(killStreak>=15 && state==='playing' && !window.__cleanPlate){
     const sc=Math.min(46, 20+killStreak*0.12), pu=1+Math.max(0,streakT-1.4)*0.5;
     ctx.save(); ctx.font='800 '+(sc*pu)+"px 'Cinzel',serif"; ctx.textAlign='right';
     ctx.fillStyle=killStreak>=100?'#ff5566':(killStreak>=50?'#ffd36b':'#e8d9c0');
