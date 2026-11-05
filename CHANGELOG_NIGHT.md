@@ -38,7 +38,22 @@ into `main` only after it passed. Each session's full write-up is in `notes/<id>
 - **The Major Arcana (D4):** 12 rare tarot cards that bend the whole night.
 - **The Book of Debts (E2):** one screen mapping every unlock, with your three nearest goals pinned and the nearest shown on the death screen.
 
+## After midnight
+- **Twenty Pairings (H3):** ten more evolution recipes, among them the Chain Gang, the Carpet Bomb, the Craps Table, the Loan Shark, the Ouroboros, the Champagne Tower and the Black Death.
+- **Fresh eyes (H2):** a stranger's first minutes were cleaned up.
+  - Side-bet banners wait until after the first slot.
+  - The first rage bar says "press SPACE".
+  - Night one shows no "#1 ALL-TIME" badge spam.
+  - The menu no longer shows a frozen battlefield behind it, and its chips use plain words.
+  - Daily Debt warns newcomers that it skips the gentle first night.
+  - The day streak no longer goes up on every reload (bug fix).
+- **Polish (G1):** the death ledger fits a 720p laptop with every button visible, and the phone title doesn't wrap. Per-arena balance was measured and is in range.
+- **How to Play + codex (F1):** five new pages explain tonight's systems, and holding TAB shows every pairing recipe and whether it's ready.
+- **Launch kit (H1):** `launch/` holds store covers and capsules for itch.io and Steam, a 1080p hero image, 8 screenshots, a looping gameplay GIF and WebM, and a social preview image (wired into the page).
+  - It also has itch.io and Steam store copy in `launch/STORE_PAGE.md`, and an upload-ready itch.io zip.
+
 ## Fixed
+- **A rare crash:** when several enemies died in the same instant, the game could stop. GitHub's test run caught it, and it's fixed.
 - **A real softlock (B4):** the 7.77× Ascent jackpot card pick only took the 1/2/3 keys, so controller and Steam Deck players were stuck forever. It now works with arrows, the d-pad, SPACE and Ⓐ.
 - **Smaller fixes (B4):** a clipped COMBO label, a doubled streak message, OPTIONS clipping on short screens, and more. The full list is in `notes/B4.md`.
 
