@@ -1867,6 +1867,8 @@ body.touchUI #debuffs{top:max(calc(100px + var(--sat)), calc(var(--a2bot,0px) + 
 body.touchUI #debuffs .debuff{font-size:12px;white-space:normal;line-height:1.2;}
 body.touchUI #tarotReveal{padding-top:max(calc(100px + var(--sat)), calc(var(--a2bot,0px) + 10px));}
 body.touchUI #tarotReveal .trCard{zoom:.78;}
+/* I1: the ledger scrolls clear of the round AGAIN coin — nothing ever sits under it */
+body.touchUI #gameover .panel{margin-bottom:calc(118px + var(--sab));}
 body.touchUI #coachToast{bottom:auto;top:calc(100px + var(--sat));max-width:calc(100vw - 28px);}
 body.touchUI #achToasts{bottom:calc(150px + var(--sab));left:calc(12px + var(--sal));max-width:calc(100vw - 130px);}
 body.touchUI .cornerFrame{display:none;}
