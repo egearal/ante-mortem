@@ -108,7 +108,7 @@ async function draw(name,W,H,layout){
   const c=document.getElementById('c'); c.width=W; c.height=H; const g=c.getContext('2d');
   const bg=await load(IMG[PICK.bg[name]]), ves=await load(IMG.vesper_portrait), F=PICK.focus[name]||[0.5,0.5,1];
   g.fillStyle='#0a0507'; g.fillRect(0,0,W,H);
-  cover(g,bg,W,H,F[0],F[1],F[2]);
+  g.save(); g.filter='blur('+Math.max(0.6,Math.min(W,H)/700).toFixed(2)+'px)'; cover(g,bg,W,H,F[0],F[1],F[2]); g.restore(); // a breath of depth: the felt sits behind the gilt
   if(layout==='hero'){
     grade(g,W,H,0.38); velvet(g,W,H,0.9);
     // left third sinks into velvet so the lockup reads
@@ -120,7 +120,7 @@ async function draw(name,W,H,layout){
     plainText(g,'SURVIVE THE COURT OF THE DAMNED UNTIL 13:00',W*0.33,y+H*0.145,H*0.021,'#e8b64c',{track:0.24});
     plainText(g,'FAKE CURRENCY ONLY · THE HOUSE PAYS IN NOTHING YOU CAN SPEND',W*0.33,H-m-H*0.035,H*0.0155,'#c9a77a',{track:0.2,alpha:0.85});
   } else if(layout==='social'){
-    grade(g,W,H,0.34); velvet(g,W,H,0.85);
+    grade(g,W,H,0.18); velvet(g,W,H,0.72);
     let lg=g.createLinearGradient(0,0,W*0.7,0); lg.addColorStop(0,'rgba(8,2,5,0.9)'); lg.addColorStop(0.75,'rgba(8,2,5,0.45)'); lg.addColorStop(1,'rgba(8,2,5,0)'); g.fillStyle=lg; g.fillRect(0,0,W,H);
     const m=frame(g,W,H);
     portrait(g,ves,W*0.8,H*0.52,H*0.8);
@@ -129,14 +129,14 @@ async function draw(name,W,H,layout){
     plainText(g,'SLOTS · DICE · A WHEEL OF SOULS · THE HOUSE AT 13:00',W*0.355,y+H*0.18,H*0.024,'#e8b64c',{track:0.2});
     plainText(g,'FAKE CURRENCY ONLY',W*0.355,H-m-H*0.05,H*0.022,'#8bffd0',{track:0.32,alpha:0.9});
   } else if(layout==='wide'){ // steam capsules: art right, logo left-centre, very legible
-    grade(g,W,H,0.3); velvet(g,W,H,0.8);
-    let lg=g.createLinearGradient(0,0,W*0.75,0); lg.addColorStop(0,'rgba(8,2,5,0.88)'); lg.addColorStop(0.7,'rgba(8,2,5,0.4)'); lg.addColorStop(1,'rgba(8,2,5,0)'); g.fillStyle=lg; g.fillRect(0,0,W,H);
-    frame(g,W,H);
-    portrait(g,ves,W*0.82,H*0.53,H*0.86);
-    lockup(g,W*0.39,H*(W>500?0.17:0.15),H*0.2,{two:true,tag:true});
+    grade(g,W,H,0.12); velvet(g,W,H,0.62);
+    let lg=g.createLinearGradient(0,0,W*0.7,0); lg.addColorStop(0,'rgba(8,2,5,0.7)'); lg.addColorStop(0.7,'rgba(8,2,5,0.25)'); lg.addColorStop(1,'rgba(8,2,5,0)'); g.fillStyle=lg; g.fillRect(0,0,W,H);
+    const m=frame(g,W,H), ph=H*0.8, pw=ph*ves.width/ves.height, pcx=W-m-pw/2-Math.min(W,H)*0.03;
+    portrait(g,ves,pcx,H*0.52,ph);
+    lockup(g,(m+pcx-pw/2)/2+Math.min(W,H)*0.01,H*0.15,Math.min(H*0.2,(pcx-pw/2-m)*0.165),{two:true,tag:true});
   } else { // tall: itch covers — portrait centre, lockup over the lower third
-    grade(g,W,H,0.36); velvet(g,W,H,0.9);
-    let bgr=g.createLinearGradient(0,H*0.35,0,H); bgr.addColorStop(0,'rgba(8,2,5,0)'); bgr.addColorStop(0.55,'rgba(8,2,5,0.82)'); bgr.addColorStop(1,'rgba(8,2,5,0.95)'); g.fillStyle=bgr; g.fillRect(0,0,W,H);
+    grade(g,W,H,0.12); velvet(g,W,H,0.66);
+    let bgr=g.createLinearGradient(0,H*0.4,0,H); bgr.addColorStop(0,'rgba(8,2,5,0)'); bgr.addColorStop(0.5,'rgba(8,2,5,0.7)'); bgr.addColorStop(1,'rgba(8,2,5,0.9)'); g.fillStyle=bgr; g.fillRect(0,0,W,H);
     frame(g,W,H);
     portrait(g,ves,W*0.5,H*0.37,H*0.6);
     lockup(g,W*0.5,H*0.6,H*0.13,{two:false,tag:true});
@@ -180,8 +180,8 @@ window.__draw=draw;
       g.save(); g.shadowColor = 'rgba(255,170,70,0.35)'; g.shadowBlur = 60; rr(x - 14, y - 14, iw + 28, ih + 28, r + 12); g.fillStyle = '#0c0608'; g.fill(); g.restore();
       rr(x - 14, y - 14, iw + 28, ih + 28, r + 12); g.strokeStyle = gildGrad(g, x, y, x + iw, y + ih); g.lineWidth = 4; g.stroke();
       g.save(); rr(x, y, iw, ih, r); g.clip(); g.drawImage(ph, x, y, iw, ih); g.restore();
-      const cx = W * 0.69;
-      gildText(g, 'IN YOUR POCKET', cx, H * 0.36, 78);
+      const cx = W * 0.695;
+      gildText(g, 'IN YOUR POCKET', cx, H * 0.36, 62);
       rule(g, cx, H * 0.415, 560, 22);
       plainText(g, 'Thumb stick, a gold BET coin, phone layouts.', cx, H * 0.49, 40, '#fff2c0', { family: 'C', weight: 500, italic: true, track: 0.01 });
       plainText(g, 'Add it to your home screen — it plays offline.', cx, H * 0.545, 40, '#fff2c0', { family: 'C', weight: 500, italic: true, track: 0.01 });

@@ -149,7 +149,7 @@ const SCENES = {
     await until(page, "state==='playing' && gt>150", 60000);
     await page.evaluate(DRESS);
     await page.evaluate(() => {
-      pending.length = 0; P.xpNext = 1e9; window.startWave = () => {}; // no level-up table opens over the storm
+      pending.length = 0; window.openNextSlot = () => {}; window.startWave = () => {}; // no level-up table opens over the storm
       const types = ['shambler', 'husk', 'swarm', 'stalker', 'brute', 'wraith'];
       for (let i = 0; i < 300; i++) { const a = Math.random() * 6.283, d = 230 + Math.random() * 520;
         spawnEnemy(types[i % types.length], P.x + Math.cos(a) * d * 1.5, P.y + Math.sin(a) * d); const e = enemies[enemies.length - 1]; if (e) { e.hp = e.maxhp = e.maxhp * 40; e.dmg = 0; } }
@@ -159,6 +159,10 @@ const SCENES = {
     await shot(page, 'storm_a', { frames: 2 });
     await run(page, 40); await until(page, clear, 3000);
     await shot(page, 'storm_b', { frames: 2 });
+    // the clean plate for cover art: the same floor a beat later with every DOM layer (HUD, banners) lifted — canvas only
+    await run(page, 30); await until(page, clear, 3000);
+    await page.addStyleTag({ content: '#wrap > *:not(canvas), body > *:not(#wrap):not(script) { visibility: hidden !important; }' });
+    await shot(page, 'storm_clean', { frames: 2 });
     const n = await page.evaluate(() => enemies.length); console.error('    enemies on the floor: ' + n);
     await browser.close(); return errors;
   },
