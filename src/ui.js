@@ -346,7 +346,7 @@ function updateHUD(){
   _hSet('timer',fmt(gt));
   { let wv=$('waveInfo'); if(!wv){ wv=document.createElement('div'); wv.id='waveInfo'; const tm=$('timer'); if(tm&&tm.parentNode) tm.parentNode.insertBefore(wv,tm.nextSibling); }
     if(wv) { const left9=Math.max(0,enemies.filter(e=>!e.boss).length-waveClearTarget);
-      let wtxt='WAVE '+wave+(left9>0?' · '+left9+' TO THIN':'');
+      let wtxt='WAVE '+wave+(left9>0?' · SLAY '+left9:'');
       { const ha9=(typeof b2HouseAt==='function')?b2HouseAt():780; if(gt>=ha9-60&&gt<ha9&&!P._endless) wtxt='☷ THE HOUSE IN '+Math.ceil(ha9-gt)+'s ☷'; } if(_hud.wv!==wtxt){ _hud.wv=wtxt; wv.textContent=wtxt; } } }
   { const tgt=P.coins; if(window._coinDisp===undefined||window._coinDisp>tgt) window._coinDisp=tgt;
     const dd=tgt-window._coinDisp;
@@ -1288,7 +1288,10 @@ function a2Lane(){
     A2L.lastDead=true; return;
   }
   if(A2L.lastDead && go){ go.style.paddingTop=''; A2L.lastDead=false; }
-  if(!m){ n.classList.add('a2play'); a2FitAnn(an, availW); return; }
+  if(!m){ n.classList.add('a2play'); a2FitAnn(an, availW);
+    // I1: on phones the tarot card and curse tags start below whatever the column is showing
+    try{ const r=n.getBoundingClientRect(); document.documentElement.style.setProperty('--a2bot', (r.height>4?Math.round(r.bottom):0)+'px'); }catch(e){}
+    return; }
   a2FitAnn(an, availW);
   let hN=n.getBoundingClientRect().height;
   if(hN<4){ n.classList.add('a2above'); n.style.top='8px'; return; }
