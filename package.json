@@ -2,7 +2,7 @@
   "name": "ante-mortem",
   "private": true,
   "version": "1.0.0",
-  "description": "ANTE MORTEM \u2014 casino-of-death survivors game",
+  "description": "ANTE MORTEM — casino-of-death survivors game",
   "scripts": {
     "dev": "vite",
     "build": "node scripts-check.js && vite build",
@@ -12,7 +12,11 @@
     "phone": "node probes/phone.js",
     "pad": "node probes/pad.js",
     "music": "node probes/music.js",
-    "audio": "node probes/audio.js"
+    "audio": "node probes/audio.js",
+    "launch:shots": "node launch/tools/capture.js",
+    "launch:compose": "node launch/tools/compose.js",
+    "launch:gif": "node launch/tools/gif.js",
+    "launch:itch": "node launch/tools/itch.js"
   },
   "devDependencies": {
     "vite": "^6.3.5"

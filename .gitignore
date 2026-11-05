@@ -3,3 +3,5 @@ dist/*
 !dist/ante-mortem.html
 .claude/settings.local.json
 .DS_Store
+launch/raw/
+launch/tools/compose.html

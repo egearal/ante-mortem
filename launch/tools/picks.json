@@ -1,0 +1,28 @@
+{
+  "screens": [
+    ["storm_b", "ballroom_storm"],
+    ["slot_lands", "slot_mid_triple"],
+    ["slot_ceremony", "triple_max_level"],
+    ["evo_offer", "pairing_evolution"],
+    ["boss_croupier_coin", "boss_croupier"],
+    ["arcana_tower", "major_arcana_tower"],
+    ["book", "book_of_debts"],
+    ["phone_plate", "phone"]
+  ],
+  "bg": {
+    "cover-itch-630x500": "storm_clean",
+    "cover-itch-315x250": "storm_clean",
+    "capsule-steam-header-460x215": "storm_clean",
+    "capsule-steam-main-616x353": "storm_clean",
+    "hero-1920x1080": "storm_clean",
+    "social-1200x630": "storm_clean"
+  },
+  "focus": {
+    "cover-itch-630x500": [0.5, 0.5, 1.4],
+    "cover-itch-315x250": [0.5, 0.5, 1.4],
+    "capsule-steam-header-460x215": [0.42, 0.5, 1.45],
+    "capsule-steam-main-616x353": [0.42, 0.5, 1.3],
+    "hero-1920x1080": [0.5, 0.5, 1],
+    "social-1200x630": [0.5, 0.5, 1.05]
+  }
+}

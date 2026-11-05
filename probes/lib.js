@@ -117,15 +117,18 @@ const BOT = `(()=>{
   };
 })();`;
 
-async function launch({ viewport = { width: 1280, height: 720 }, which = 'dist', mobile = false, fresh = true, vclock = true, args = [] } = {}) {
+// H1: `scale` = deviceScaleFactor (the game honours DPR up to 2 — crisp store shots at the normal camera);
+// `seed` = replace Math.random with a seeded mulberry32 stream so a capture replays the same night
+async function launch({ viewport = { width: 1280, height: 720 }, which = 'dist', mobile = false, fresh = true, vclock = true, args = [], scale = 1, seed = null } = {}) {
   const browser = await chromium.launch(args.length ? { args } : undefined);
   const ctx = await browser.newContext(mobile
-    ? { viewport, deviceScaleFactor: 1, isMobile: true, hasTouch: true }
-    : { viewport, deviceScaleFactor: 1 });
+    ? { viewport, deviceScaleFactor: scale, isMobile: true, hasTouch: true }
+    : { viewport, deviceScaleFactor: scale });
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', e => errors.push('pageerror: ' + (e.stack || e.message)));
   page.on('console', m => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
+  if (seed != null) await page.addInitScript((sd) => { let a = sd >>> 0; Math.random = () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }, seed);
   if (vclock) await page.addInitScript(VCLOCK);
   if (fresh) await page.addInitScript(() => { try { if (!sessionStorage.getItem('__probeInit')) { localStorage.clear(); sessionStorage.setItem('__probeInit', '1'); } } catch (e) {} });
   await page.goto(target(which));
