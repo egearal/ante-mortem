@@ -1288,7 +1288,10 @@ function a2Lane(){
     A2L.lastDead=true; return;
   }
   if(A2L.lastDead && go){ go.style.paddingTop=''; A2L.lastDead=false; }
-  if(!m){ n.classList.add('a2play'); a2FitAnn(an, availW); return; }
+  if(!m){ n.classList.add('a2play'); a2FitAnn(an, availW);
+    // I1: on phones the tarot card and curse tags start below whatever the column is showing
+    try{ const r=n.getBoundingClientRect(); document.documentElement.style.setProperty('--a2bot', (r.height>4?Math.round(r.bottom):0)+'px'); }catch(e){}
+    return; }
   a2FitAnn(an, availW);
   let hN=n.getBoundingClientRect().height;
   if(hN<4){ n.classList.add('a2above'); n.style.top='8px'; return; }
