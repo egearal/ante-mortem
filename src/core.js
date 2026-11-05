@@ -699,7 +699,7 @@ function update(dt){
   while(fireAcc>=1){ fireAcc-=1; fire(); }
 
   // weapon timers
-  const orbitL=P.wlv.orbit||0, scytheL=P.wlv.scythe||0, chandL=P.wlv.chand||0, knivesL=P.wlv.knives||0, auraL=P.wlv.aura||0;
+  const orbitL=P.wlv.orbit||0, scytheL=P.wlv.scythe||0, chandL=P.wlv.chand||0, knivesL=P.wlv.knives||0, auraL=(P.evo&&P.evo.aura)?0:(P.wlv.aura||0); // H3: the Black Death takes the miasma away
   const cardsL=P.wlv.cards||0, novaL=P.wlv.nova||0, seekerL=P.wlv.seeker||0;
   const coilL=P.wlv.coil||0, mortarL=P.wlv.mortar||0, lanternL=P.wlv.lantern||0, fangsL=P.wlv.fangs||0, bellL=P.wlv.bell||0, diceL=P.wlv.dice||0, phantomL=P.wlv.phantom||0, coffinL=P.wlv.coffin||0, mothsL=P.wlv.moths||0;
   const razorL=P.wlv.razor||0, cindersL=P.wlv.cinders||0, pendL=P.wlv.pendulum||0, stakesL=P.wlv.stakes||0, serpL=P.wlv.serpent||0, chalL=P.wlv.chalice||0, gramoL=P.wlv.gramo||0, cylL=P.wlv.cylinder||0, candL=P.wlv.candelabra||0, guilL=P.wlv.guillotine||0;
@@ -1809,7 +1809,7 @@ function render(){
   hrDrawTop(); // C2
 
   // aura cloud (drawn under bullets)
-  if(P.wlv.aura){ const aR=90+P.wlv.aura*14; ctx.save(); ctx.globalCompositeOperation='screen'; ctx.translate(P.x,P.y);
+  if(P.wlv.aura && !(P.evo&&P.evo.aura)){ const aR=90+P.wlv.aura*14; // H3 ctx.save(); ctx.globalCompositeOperation='screen'; ctx.translate(P.x,P.y);
     window._auraG2=window._auraG2||{}; let g=window._auraG2[aR|0];
     if(!g){ g=ctx.createRadialGradient(0,0,0,0,0,aR); g.addColorStop(0,'rgba(90,190,110,0.02)'); g.addColorStop(0.6,'rgba(90,190,110,0.10)'); g.addColorStop(1,'rgba(60,150,90,0.18)'); window._auraG2[aR|0]=g; }
     ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,aR+Math.sin(gt*3)*4,0,6.28); ctx.fill(); ctx.strokeStyle='rgba(120,220,140,0.14)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(0,0,aR,0,6.28); ctx.stroke(); ctx.restore(); }

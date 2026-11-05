@@ -2851,3 +2851,8 @@ function h2Release(){
   setInterval(()=>{ try{ if(H2.rel || !P || !P._fnS || state!=='playing') return;
     if(!H2.s0) H2.s0=gt; if(gt>=H2.s0+9 || gt>=50){ H2.s0=0; h2Release(); } }catch(e){} }, 250);
 }
+/* ==== H3 — TEN MORE PAIRINGS: colors ==== */
+Object.assign(GLYPH_COL, {
+  chaingang:'#9b8cff', carpet:'#ff4a00', craps:'#00ff6a', shark:'#0099ff', queen:'#c050ff',
+  ouro:'#00e0b0', champagne:'#ffb3d1', heart:'#ff0060', grand:'#7fd4ff', blackdeath:'#8fbf00'
+});
