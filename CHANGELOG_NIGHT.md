@@ -52,6 +52,10 @@ into `main` only after it passed. Each session's full write-up is in `notes/<id>
 - **Launch kit (H1):** `launch/` holds store covers and capsules for itch.io and Steam, a 1080p hero image, 8 screenshots, a looping gameplay GIF and WebM, and a social preview image (wired into the page).
   - It also has itch.io and Steam store copy in `launch/STORE_PAGE.md`, and an upload-ready itch.io zip.
 
+- **Last cleanup (I1):** phone banners, tarot cards and curse tags no longer overlap at the top of the screen. The phone ledger leaves room under the Again coin, and the stale Cloakroom line is gone.
+  - Store art was re-rendered without leftover HUD text.
+  - The wave line now reads "SLAY N" instead of "N TO THIN".
+
 ## Fixed
 - **A rare crash:** when several enemies died in the same instant, the game could stop. GitHub's test run caught it, and it's fixed.
 - **A real softlock (B4):** the 7.77× Ascent jackpot card pick only took the 1/2/3 keys, so controller and Steam Deck players were stuck forever. It now works with arrows, the d-pad, SPACE and Ⓐ.
