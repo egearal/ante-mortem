@@ -346,7 +346,7 @@ function updateHUD(){
   _hSet('timer',fmt(gt));
   { let wv=$('waveInfo'); if(!wv){ wv=document.createElement('div'); wv.id='waveInfo'; const tm=$('timer'); if(tm&&tm.parentNode) tm.parentNode.insertBefore(wv,tm.nextSibling); }
     if(wv) { const left9=Math.max(0,enemies.filter(e=>!e.boss).length-waveClearTarget);
-      let wtxt='WAVE '+wave+(left9>0?' · '+left9+' TO THIN':'');
+      let wtxt='WAVE '+wave+(left9>0?' · SLAY '+left9:'');
       { const ha9=(typeof b2HouseAt==='function')?b2HouseAt():780; if(gt>=ha9-60&&gt<ha9&&!P._endless) wtxt='☷ THE HOUSE IN '+Math.ceil(ha9-gt)+'s ☷'; } if(_hud.wv!==wtxt){ _hud.wv=wtxt; wv.textContent=wtxt; } } }
   { const tgt=P.coins; if(window._coinDisp===undefined||window._coinDisp>tgt) window._coinDisp=tgt;
     const dd=tgt-window._coinDisp;
