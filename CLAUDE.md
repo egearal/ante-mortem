@@ -35,4 +35,4 @@ Design goal: **maximum dopamine**. Every system should feel like a slot machine 
 - `npm run probe -- --nights 3` plays full nights on the BUILT file with an autoplay bot on a virtual clock (~40s real per night). Exit 1 on any runtime error. Flags: `--src` (unbuilt index.html), `--god`, `--mobile`, `--rank N`, `--minutes N`.
 - `npm run shots -- <label>` writes a screenshot set to `shots/<label>/` (menu, slot, play 0:30, play 3:00, death ledger, phone menu, phone play). `shots/before/` is the v4.0 baseline. Visual work must commit an after-set and compare.
 - The harness lives in `probes/lib.js` (virtual clock + bot). The bot renders 1 frame in 30 for speed; shots render every frame.
-- The night's build plan and art direction live in `PLAN_NIGHT.md`.
+- The first night's build plan and art direction live in `PLAN_NIGHT.md`. The second night (THE FEED, THE ASCENT v3, THE LESSON) is `PLAN_FEED.md` with worker briefs in `notes/briefs/J1-J3.md`.
