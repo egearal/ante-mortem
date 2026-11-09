@@ -2500,6 +2500,90 @@ body.b2endless #hud #b2Mult{box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(154,92,2
 /* H2's own 720p ledger layout was dropped at merge in favour of G1's compact ledger (same goal, verified by probes/ledgerfit.js) */
 /* H2: on phones the wave line wrapped "THIN" onto its own line beside the timer */
 @media (max-width:640px){ #hud #waveInfo{white-space:nowrap;letter-spacing:.06em;font-size:9.5px;} }
+
+/* ==== J1 — THE FEED: the odds table burns in the tier's color; rows the feed forbids go dark ==== */
+#payTable.feed1{box-shadow:0 0 0 1px rgba(109,180,255,.5),0 0 28px rgba(109,180,255,.35);}
+#payTable.feed2{box-shadow:0 0 0 1px rgba(201,139,255,.6),0 0 34px rgba(201,139,255,.45);}
+#payTable.feed3{box-shadow:0 0 0 2px rgba(255,211,107,.8),0 0 44px rgba(255,211,107,.6);animation:feedTable 1.1s ease-in-out infinite alternate;}
+#payTable.feed1 .ptHead{color:#6db4ff;} #payTable.feed2 .ptHead{color:#c98bff;} #payTable.feed3 .ptHead{color:#ffd36b;text-shadow:0 0 12px #ffd36b;}
+#payTable .ptRow.ptOff{opacity:.22;filter:grayscale(1);text-decoration:line-through;}
+@keyframes feedTable{to{box-shadow:0 0 0 2px rgba(255,242,192,.95),0 0 64px rgba(255,211,107,.8);}}
+body.feed-1 #xpfill{background:linear-gradient(90deg,#1c4a7a,#6db4ff)!important;}
+body.feed-2 #xpfill{background:linear-gradient(90deg,#4a1c7a,#c98bff)!important;}
+body.feed-3 #xpfill{background:linear-gradient(90deg,#8a5a10,#ffd36b,#fff2c0)!important;box-shadow:0 0 12px #ffd36b;}
+/* J2: on phones the tier slams wrap inside the screen instead of running off it */
+@media (max-width:600px){ #crashSlam.tier{font-size:20px;letter-spacing:.1em;white-space:normal;width:calc(100vw - 24px);text-align:center;line-height:1.15;} }
+/* THE ARMORY speaks violet: its cards take the offer's color */
+#jkWrap .jkCard.b4sel{border-color:var(--jkc,#8bffd0);box-shadow:0 0 30px color-mix(in srgb,var(--jkc,#8bffd0) 60%,transparent);}
+@media (max-width:600px){
+  #jkWrap{gap:12px;padding:0 8px;}
+  #jkWrap .jkTitle{font-size:12px;letter-spacing:.14em;text-align:center;max-width:calc(100vw - 20px);line-height:1.4;}
+  #jkWrap .jkRow{gap:8px;width:100%;justify-content:center;}
+  #jkWrap .jkCard{width:auto;flex:1 1 0;min-width:0;max-width:150px;padding:12px 6px;}
+  #jkWrap .jkCard .jkN{font-size:12px;} #jkWrap .jkCard .jkD{font-size:10px;} #jkWrap .jkCard .jkR{font-size:9px;letter-spacing:.06em;}
+}
+/* J1: the machine wears the feed's tier — blue WARM, violet HOT, a gold FEAST that breathes */
+#machine.feedT1{box-shadow:0 0 0 2px rgba(109,180,255,.55),0 0 46px rgba(109,180,255,.35);}
+#machine.feedT2{box-shadow:0 0 0 2px rgba(201,139,255,.65),0 0 60px rgba(201,139,255,.45);}
+#machine.feedT3{box-shadow:0 0 0 3px #ffd36b,0 0 90px rgba(255,211,107,.6);animation:feastBreath 1.2s ease-in-out infinite alternate;}
+@keyframes feastBreath{to{box-shadow:0 0 0 3px #fff2c0,0 0 140px rgba(255,211,107,.85);}}
+
+/* ==== J3 — THE LESSON: the banner, the menu door, the stranger's chip ==== */
+#lessonBar{position:fixed;left:50%;top:84px;z-index:90;pointer-events:none;box-sizing:border-box;
+  padding:7px 22px 8px;text-align:center;font-family:var(--disp);color:#fff2c0;--lc:#ffd36b;
+  background:radial-gradient(120% 90% at 50% 0%,rgba(255,211,107,.10),transparent 60%),linear-gradient(180deg,rgba(22,9,12,.93),rgba(10,4,7,.95));
+  border:1px solid rgba(232,182,76,.55);border-radius:3px;
+  box-shadow:inset 0 0 0 3px rgba(10,4,7,.85),inset 0 0 0 4px rgba(232,182,76,.22),0 10px 28px rgba(0,0,0,.6),0 0 22px rgba(255,211,107,.12);
+  opacity:0;transform:translateY(-8px);transition:opacity .3s ease,transform .35s cubic-bezier(.2,1.4,.4,1);}
+#lessonBar.show{opacity:1;transform:none;}
+#lessonBar.fold,body.paused #lessonBar,#lessonBar.pz{opacity:0;}
+#lessonBar.pop{animation:lsnPop .5s cubic-bezier(.2,1.6,.4,1);}
+@keyframes lsnPop{0%{transform:scale(.94);filter:brightness(1.8);}60%{transform:scale(1.02);}100%{transform:none;filter:none;}}
+#lessonBar .lsnHead{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:9.5px;letter-spacing:.32em;color:#b98a2e;}
+#lessonBar .lsnPips{letter-spacing:.18em;font-style:normal;}
+#lessonBar .lsnPips i{font-style:normal;color:#4a3a34;}
+#lessonBar .lsnPips i.c{color:var(--pc);text-shadow:0 0 8px var(--pc);animation:lsnPip 1s ease-in-out infinite alternate;}
+#lessonBar .lsnPips i.d{color:var(--pc);text-shadow:0 0 6px var(--pc);}
+@keyframes lsnPip{to{opacity:.45;}}
+#lessonBar .lsnT{font-size:24px;font-weight:700;letter-spacing:.2em;line-height:1.15;margin-top:1px;color:#ffe9b0;
+  text-shadow:0 0 18px rgba(255,211,107,.35),0 2px 0 #000;}
+#lessonBar .lsnT em{font-style:normal;color:#8bffd0;text-shadow:0 0 12px #8bffd0;}
+#lessonBar .lsnRule{height:1px;margin:5px auto 5px;width:70%;background:linear-gradient(90deg,transparent,#e8b64c 20%,var(--lc) 50%,#e8b64c 80%,transparent);}
+#lessonBar .lsnD{font-size:12px;letter-spacing:.12em;line-height:1.4;color:#f2e7c8;text-wrap:balance;}
+#lessonBar .lsnS{font-size:10.5px;letter-spacing:.2em;margin-top:3px;color:var(--lc);text-shadow:0 0 10px var(--lc);min-height:1em;}
+#lessonBar .lsnS:empty{display:none;}
+#lessonBar.stepDone{border-color:rgba(139,255,208,.6);}
+#lessonBar.stepDone .lsnS{color:#8bffd0;text-shadow:0 0 10px #8bffd0;}
+/* a table is open: compact (one title line + the how-to) */
+#lessonBar.cmp{padding:5px 14px 6px;}
+#lessonBar.cmp .lsnT{font-size:15px;letter-spacing:.16em;}
+#lessonBar.cmp .lsnRule{margin:3px auto;}
+#lessonBar.cmp .lsnD{font-size:10.5px;}
+#lessonBar.cmp .lsnS{display:none;}
+body.touchUI #lessonBar{padding:5px 12px 6px;}
+body.touchUI #lessonBar .lsnT{font-size:17px;letter-spacing:.14em;}
+body.touchUI #lessonBar .lsnD{font-size:10.5px;letter-spacing:.08em;}
+body.touchUI #lessonBar .lsnHead{font-size:8.5px;letter-spacing:.24em;}
+/* the notice column steps down under the banner while the House teaches */
+body.lessonOn #a2Notes.a2play{top:calc(var(--lsnB,148px) + 8px);}
+/* the menu: the door and the stranger's chip */
+#menuRow2 #lessonBtn.lsnNew{box-shadow:0 0 18px rgba(255,211,107,.22);}
+#menuRow2 #lessonBtn .lsnOk{color:#8bffd0;font-size:11px;margin-left:4px;}
+#lessonChip{display:block;margin:10px 0 2px;padding:8px 16px;cursor:pointer;font-family:var(--disp);font-size:11px;letter-spacing:.2em;
+  color:#ffe9b0;background:linear-gradient(180deg,rgba(40,18,10,.85),rgba(16,7,6,.9));border:1px solid rgba(232,182,76,.55);border-radius:999px;
+  box-shadow:0 0 18px rgba(255,211,107,.18);animation:lsnChip 2.4s ease-in-out infinite;}
+#lessonChip:hover{border-color:#ffd36b;color:#fff2c0;box-shadow:0 0 26px rgba(255,211,107,.35);}
+@keyframes lsnChip{50%{box-shadow:0 0 26px rgba(255,211,107,.38);}}
+@media (max-width:600px){ #lessonChip{margin:8px auto 2px;font-size:10px;letter-spacing:.12em;} }
+@media (prefers-reduced-motion: reduce){ #lessonChip,#lessonBar.pop,#lessonBar .lsnPips i.c{animation:none;} }
+/* the tightest margin: one engraved line — n/6 · title · how-to */
+#lessonBar.one{padding:4px 12px 5px;display:flex;align-items:baseline;justify-content:center;gap:8px;flex-wrap:nowrap;}
+#lessonBar.one .lsnHead,#lessonBar.one .lsnRule,#lessonBar.one .lsnS{display:none;}
+#lessonBar.one .lsnT{font-size:12px;letter-spacing:.14em;white-space:nowrap;}
+#lessonBar.one .lsnD{font-size:10px;letter-spacing:.06em;line-height:1.3;}
+#lessonBar.fold{transition:none;}
+/* the lesson bar already says it — on narrow screens the House's tip box steps aside during the lesson */
+@media (max-width:600px){ body.lessonOn #coachToast{display:none!important;} }
 </style>
 </head>
 <body>
@@ -2551,7 +2635,7 @@ body.b2endless #hud #b2Mult{box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(154,92,2
         <button class="btn msm" id="gfxBtn">⚙ OPTIONS</button>
       </div>
       <div class="controls"><b>WASD</b> move &nbsp;·&nbsp; <b>SPACE</b> is every bet &nbsp;·&nbsp; your weapons fire themselves</div>
-      <div id="verStamp" title="the credits">v4.0 — FINAL · JUL 2026</div>
+      <div id="verStamp" title="the credits">v5.0 — ANTE MORTEM 2.0 · THE SECOND NIGHT</div>
       <div id="creditLine">the house was built by ege &amp; claude ›</div>
     </div>
   </div>
@@ -3130,7 +3214,6 @@ function applyScar(){
   return s.label;
 }
 function hurtPlayer(dmg){
-  if(P.ovT>=90) dmg=Math.round(dmg*1.5);
   if(P.frail) dmg=Math.round(dmg*1.25);
   if(P.dmgTakenMult) dmg=Math.round(dmg*P.dmgTakenMult);
   if(P.armor) dmg=Math.max(1,dmg-P.armor);
@@ -3330,20 +3413,7 @@ function update(dt){
   fnTick(dt); // A3 first night: first blood, first RAGE lesson + forgiveness
   if(DLY_RNG) try{ dlyTick(dt); }catch(e){} // B1: the minute-by-minute track
   if(typeof soulTick==='function') soulTick(dt); // D1: the seat's own rules (martyr/magpie/banker)
-  if(P.ovT>0){ P.ovAge+=dt;
-    P.ovT-=dt*(3.3+P.ovAge*0.35);
-    P._ovHb=(P._ovHb||0)-dt; if(P._ovHb<=0){ P._ovHb=Math.max(0.16,(11-P.ovHold)/40); tone(56,0.1,'sine',0.13,44); }
-    if(Math.random()<0.5) parts.push({x:P.x+rnd(-14,14),y:P.y+rnd(-8,12),vx:rnd(-16,16),vy:-rnd(60,140),life:rnd(.25,.5),col:'#ffd36b',r:rnd(1.4,2.6)});
-    if(P.ovT>=90){ const ph9=P.ovHold; P.ovHold+=dt;
-      if(Math.floor(P.ovHold)>Math.floor(ph9)){ tone(880+P.ovHold*90,0.1,'sine',0.12); flash(0.07,'#8bff9a'); }
-      // below 20% blood the crown is sealed — the bar holds but cannot ascend
-      if(P.ovHold>=ascTime && P.hp>=P.maxHp*0.2) rageAscend();
-    } else if(P.ovT>0) rageDrop();
-  }
-  if(ascPend>0){ const pp=ascPend; ascPend-=dt;
-    if(Math.ceil(ascPend)<Math.ceil(pp) && ascPend>0 && ascPend<=3){ tone(880+(3-Math.ceil(ascPend))*220,0.12,'sine',0.12); flash(0.08,'#8bff9a'); }
-    if(ascPend<=0){ ascPend=0; spawnAscentGate(); }
-  }
+  feedTick(dt); // J1: THE FEED (ascent.js)
   if(slowT>0) slowT-=dt;
   if(P.hp<prevHp && P.hp/P.maxHp<0.15 && prevHp/P.maxHp>=0.15){ slowT=0.5+(P.slowEdge||0); SFX.thud(); flash(0.4,'#8b1620'); }
   prevHp=P.hp;
@@ -3625,7 +3695,7 @@ function update(dt){
     c.vx*=0.9; c.vy*=0.9; c.x+=c.vx*dt; c.y+=c.vy*dt;
     const range=P.lode?9999:P.pickup;
     if(d<range){ const pull=P.lode?520:400; c.x+=dx/d*pull*dt; c.y+=dy/d*pull*dt; }
-    if(d<P.radius+7){ if(c.gold&&typeof magpieChip==='function') magpieChip(c); if(P.ovT>0){ coins.splice(i,1); P.ovT=Math.min(100,P.ovT+2.5*(P.ovFeed||1)); tone(600+P.ovT*9,0.06,'sine',0.1); flash(0.06,'#ffd36b'); ftext(P.x,P.y-12,'+FUEL','#ffd36b'); burst(P.x,P.y,3,'#ff9a3c'); continue; } const gain=Math.max(1,Math.round(P.comboMult)); P.coins+=gain; LT.coins+=gain; if(P.coins===777) secret('sevens','TRIPLE SEVENS'); bump('runCoins',P.coins); bump('ltCoins',LT.coins); if(P.midas)P.midasStacks=Math.min(25,P.midasStacks+1); coins.splice(i,1);
+    if(d<P.radius+7){ if(c.gold&&typeof magpieChip==='function') magpieChip(c); if(P.ovT>0){ coins.splice(i,1); P.ovT=Math.min(100,P.ovT+2.5*(P.ovFeed||1)); tone(600+P.ovT*9,0.06,'sine',0.1); flash(0.06,'#ffd36b'); ftext(P.x,P.y-12,'+FEED','#ffd36b'); burst(P.x,P.y,3,'#ff9a3c'); continue; } const gain=Math.max(1,Math.round(P.comboMult)); P.coins+=gain; LT.coins+=gain; if(P.coins===777) secret('sevens','TRIPLE SEVENS'); bump('runCoins',P.coins); bump('ltCoins',LT.coins); if(P.midas)P.midasStacks=Math.min(25,P.midasStacks+1); coins.splice(i,1);
       { const n8=performance.now(); P._coinCombo=(n8-(P._coinT||0)<800)?(P._coinCombo||0)+1:0; P._coinT=n8;
         SFX.coinStep(P._coinCombo);
         if(P._coinCombo>0 && P._coinCombo%10===0){ SFX.casinoDing(); sparkBurst(8); ftext(P.x,P.y-40,'COIN RUSH ×'+P._coinCombo,'#ffd36b'); }
@@ -3897,7 +3967,7 @@ function drawLandmarks(){
 function gainXP(n){
   n=Math.round(n*(P.xpMult||1));
   if(P.ovT>0 && !P._ovPass && n>0){
-    P.ovT=Math.min(100, P.ovT+n*0.5*(P.ovFeed||1));
+    P.ovT=Math.min(100, P.ovT+n*0.8*(P.ovFeed||1));
     tone(700+P.ovT*8,0.05,'sine',0.07);
     return;
   }
@@ -4731,7 +4801,8 @@ function render(){
   }
   // XP / RAGE — gilded gothic gauge, smooth-lerped
   if(state==='playing' && !window.__cleanPlate){ // I1: the launch kit's clean plate lifts the canvas gauge (and the FEVER line above)
-    let xw=Math.min(340,VW*0.44), xx=VW/2-xw/2, xy=VH-46; const bh=14;
+    const feeding=P.ovT>0; // J1: THE FEED — the gauge swells while it eats
+    let xw=feeding?Math.min(440,VW*0.56):Math.min(340,VW*0.44), xx=VW/2-xw/2, xy=VH-46; const bh=feeding?20:14;
     { const hr=_b4HpRect(); // B4: never under the blood bar — slide right of it, or (phones) ride just above it
       if(hr && xx<hr.r+14 && hr.t<VH-20){ const room=VW-(hr.r+14)-96;
         if(room>=170){ xx=hr.r+14; xw=Math.min(xw,room); }
@@ -4747,10 +4818,13 @@ function render(){
     a2GaugeFrame(xx,xy,xw,bh); // A2: the gauge sits in a cast-brass frame (ui.js)
     ctx.fillStyle='rgba(232,182,76,0.2)';
     for(let ti=1;ti<10;ti++) ctx.fillRect(xx+xw*ti/10-0.5,xy+2,1,bh-4);
-    { const mode=rage?(P.ovT>=90?'a':(P.ovT<25?'l':'m')):'n';
+    { const mode=rage?(P.ovT<25?'l':('t'+(P.ovTier||0))):'n';
       const gk='xpb'+mode+'|'+xx+'|'+xw; let g9=_lgCache[gk];
       if(!g9){ g9=ctx.createLinearGradient(xx,0,xx+xw,0);
-        if(mode==='a'){ g9.addColorStop(0,'#8a5a10'); g9.addColorStop(0.88,'#ffd36b'); g9.addColorStop(1,'#8bff9a'); }
+        if(mode==='t3'){ g9.addColorStop(0,'#8a5a10'); g9.addColorStop(0.7,'#ffd36b'); g9.addColorStop(1,'#fff2c0'); }
+        else if(mode==='t2'){ g9.addColorStop(0,'#3a1060'); g9.addColorStop(1,'#c98bff'); }
+        else if(mode==='t1'){ g9.addColorStop(0,'#123a66'); g9.addColorStop(1,'#6db4ff'); }
+        else if(mode==='t0'){ g9.addColorStop(0,'#7a3608'); g9.addColorStop(1,'#ff9a3c'); }
         else if(mode==='l'){ g9.addColorStop(0,'#5a0a12'); g9.addColorStop(1,'#ff3344'); }
         else if(mode==='m'){ g9.addColorStop(0,'#7a3608'); g9.addColorStop(1,'#ff9a3c'); }
         else { g9.addColorStop(0,'#5a1420'); g9.addColorStop(1,'#c81e2c'); }
@@ -4766,16 +4840,31 @@ function render(){
       ctx.beginPath(); ctx.arc(xx+xw*f+eo*0.4, xy+bh/2+eo, 1.3,0,6.28); ctx.fill(); }
     ctx.restore();
     if(rage){
-      const nx=xx+xw*0.9;
-      ctx.fillStyle='#ffd36b'; ctx.shadowColor='#ffd36b'; ctx.shadowBlur=9;
-      ctx.beginPath(); ctx.moveTo(nx,xy-9); ctx.lineTo(nx+4.6,xy-3.6); ctx.lineTo(nx,xy+1.6); ctx.lineTo(nx-4.6,xy-3.6); ctx.closePath(); ctx.fill(); ctx.shadowBlur=0;
+      // four jewel sockets ride the top edge: feeding · I · II · ★ FEAST
+      const tier=P.ovTier||0, ch=P.ovCharge||0;
+      for(let j=0;j<4;j++){ const jx=xx+xw*(0.16+j*0.225), jy=xy-2, lit=(j===0)||tier>=j, c=FEED_COL[j];
+        ctx.save(); ctx.translate(jx,jy);
+        const pr=(!lit && j===tier+1)?Math.max(0,Math.min(1,(ch-FEED_T[j-1])/(FEED_T[j]-FEED_T[j-1]))):0;
+        ctx.fillStyle='#120608'; ctx.strokeStyle='#a07828'; ctx.lineWidth=1.5;
+        const r=j===3?8:6.5;
+        ctx.beginPath(); ctx.moveTo(0,-r); ctx.lineTo(r,0); ctx.lineTo(0,r); ctx.lineTo(-r,0); ctx.closePath(); ctx.fill(); ctx.stroke();
+        if(lit||pr>0){ ctx.globalAlpha=lit?1:0.35+pr*0.4; ctx.fillStyle=c; ctx.shadowColor=c; ctx.shadowBlur=lit?(10+(j===tier?Math.sin(gt*10)*5:0)):0;
+          const rr=(r-2)*(lit?1:pr); ctx.beginPath(); ctx.moveTo(0,-rr); ctx.lineTo(rr,0); ctx.lineTo(0,rr); ctx.lineTo(-rr,0); ctx.closePath(); ctx.fill();
+          if(j===3&&lit){ ctx.shadowBlur=0; ctx.fillStyle='#fff2c0'; ctx.font="800 9px serif"; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('★',0,0.5); } }
+        ctx.restore(); }
+      const nxt=tier<3?Math.max(0,FEED_T[tier+1]-ch):0;
+      const tc=tier?FEED_COL[tier]:'#ffce8a';
       ctx.font="800 14px 'Cinzel',serif"; ctx.textAlign='center';
-      ctx.fillStyle='#8bff9a'; ctx.shadowColor='#8bff9a'; ctx.shadowBlur=10;
-      if(P.hp<P.maxHp*0.2){ ctx.fillStyle='#ff5560'; ctx.shadowColor='#ff5560';
-        ctx.fillText('☨ SEALED BY BLOOD — NO ASCENT BELOW 20% ♥ ☨', VW/2, xy-34); }
-      else ctx.fillText('⚡ RAGE '+Math.round(P.ovT)+'%  ·  HOLD 90%+  '+Math.max(0,ascTime-P.ovHold).toFixed(1)+'s → THE ASCENT ⚡', VW/2, xy-34);
-      ctx.font="700 11px 'Cinzel',serif"; ctx.fillStyle='#ffce8a'; ctx.shadowColor='#ff9a3c';
-      ctx.fillText('COINS & XP FEED THE BAR · ABOVE 90: +50% DMG DEALT & TAKEN · SLIP = −50% XP + SWEPT', VW/2, xy-18);
+      ctx.fillStyle=tc; ctx.shadowColor=tc; ctx.shadowBlur=10;
+      const nm=['COLD','WARM ◆','HOT ◆◆','FEAST ★'][tier];
+      const tl=tier<3?(nxt.toFixed(1)+'s TO '+['WARM','HOT','FEAST'][tier]):'THE REELS RUN GOLD';
+      const sp=(window._padUI?window._padA:window._touchUI?'◈ BET':'SPACE');
+      const narrow=VW<560, lx=narrow?xx+xw/2:VW/2, lw=narrow?Math.min(VW-16,xw+40):VW-16;
+      const t1=narrow?('✦ '+nm+' · '+(tier<3?tl:'GOLD REELS')+' ✦'):('✦ THE FEED · '+nm+' · '+tl+' · '+sp+' CASHES ✦');
+      { let fz=14; while(fz>9 && ctx.measureText(t1).width>lw){ fz--; ctx.font="800 "+fz+"px 'Cinzel',serif"; } }
+      ctx.fillText(t1, lx, xy-34);
+      ctx.font="700 11px 'Cinzel',serif"; if(narrow) ctx.font="700 9px 'Cinzel',serif"; ctx.fillStyle=P.ovT<30?'#ff7b7b':'#ffce8a'; ctx.shadowColor=P.ovT<30?'#ff3344':'#ff9a3c';
+      ctx.fillText(P.ovT<30?'☠ IT STARVES — FEED IT OR CASH IT ☠':(narrow?'FEED IT SOULS · '+sp+' CASHES':'SOULS & COINS FEED IT · STARVE = −25% XP'), lx, xy-18);
       ctx.shadowBlur=0;
     } else {
       ctx.font="700 11px 'Cinzel',serif"; ctx.textAlign='center';
@@ -4819,7 +4908,7 @@ function render(){
     if(stf<0.35){ ctx.shadowColor='#ff5566'; ctx.shadowBlur=8; }
     roundRect(VW-118,81,Math.max(2,100*stf),5,2.5); ctx.fill(); ctx.shadowBlur=0;
     if(killStreak>=27){ ctx.font="700 11px 'Cinzel',serif"; ctx.fillStyle='#8bff9a'; ctx.shadowBlur=8;
-      ctx.fillText((window._padUI?window._padA:window._touchUI?'◈ BET':'SPACE')+' — CASH +'+Math.floor(killStreak/3)+' ◈', VW-18, 92); }
+      ctx.fillText((window._padUI?window._padA:window._touchUI?'◈ BET':'SPACE')+' — CASH +'+Math.floor(killStreak/4)+' ◈', VW-18, 92); }
     ctx.restore();
   }
   ctx.restore();
@@ -5361,6 +5450,15 @@ function drawPlayer(){
     ctx.strokeStyle='rgba(255,220,140,'+(0.2+Math.sin(gt*10+2)*0.12)+')'; ctx.lineWidth=1.2;
     ctx.beginPath(); ctx.arc(0,0,33+Math.sin(gt*5.5)*4,0,6.28); ctx.stroke(); ctx.restore();
     if(Math.random()<0.25) parts.push({x:P.x+rnd(-20,20),y:P.y+rnd(-14,18),vx:rnd(-10,10),vy:-rnd(40,90),life:rnd(.2,.45),col:'#ff9a3c',r:rnd(1,2)}); }
+  if(P.ovT>0 && state==='playing'){ // J1: THE FEED wears on her — a halo in the tier's jewel color, tighter and brighter as it climbs
+    const tr=P.ovTier||0, c9=FEED_COL[tr], pulse=Math.sin(gt*(6+tr*3))*0.5+0.5;
+    ctx.save(); ctx.globalCompositeOperation='lighter';
+    ctx.globalAlpha=0.22+tr*0.1+pulse*0.12; ctx.strokeStyle=c9; ctx.lineWidth=2+tr*0.8; ctx.shadowColor=c9; ctx.shadowBlur=GFX.lite?0:10+tr*6;
+    ctx.beginPath(); ctx.arc(0,4,30+pulse*4,0,6.28); ctx.stroke();
+    if(tr>=3){ ctx.globalAlpha=0.35+pulse*0.25; ctx.strokeStyle='#fff2c0'; ctx.lineWidth=1.4; ctx.beginPath(); ctx.arc(0,4,38+pulse*5,0,6.28); ctx.stroke(); }
+    // the starve warning: the halo flickers red under 30
+    if(P.ovT<30 && ((gt*10)|0)%2===0){ ctx.globalAlpha=0.5; ctx.strokeStyle='#ff3344'; ctx.lineWidth=2; ctx.shadowColor='#ff3344'; ctx.beginPath(); ctx.arc(0,4,24,0,6.28); ctx.stroke(); }
+    ctx.restore(); }
   if(P.godT>0){ ctx.save(); ctx.globalCompositeOperation='lighter';
     ctx.strokeStyle='rgba(139,255,154,'+(0.6+Math.sin(gt*12)*0.3)+')'; ctx.lineWidth=2.6;
     ctx.beginPath(); ctx.arc(0,0,24+Math.sin(gt*9)*3,0,6.28); ctx.stroke(); ctx.restore(); }
@@ -5508,6 +5606,7 @@ function bossPlate(name,sub){
   SFX.bossRoar&&SFX.bossRoar(); setTimeout(()=>bp.classList.remove('go'),2600);
 }
 function spawnBoss(kindOverride){
+  if(window.LESSON&&window.LESSON.on) return; // J3: no bosses in class
   const order=hrBossOrder(); // C2 — the night's rotation (3 slots, each from its own pool, then THE HOUSE ITSELF)
   const kind=(kindOverride&&BOSS_DEFS[kindOverride]&&kindOverride!=='housegod')?kindOverride:order[(Math.max(1,Math.floor(wave/10))-1)%order.length];
   const a=rng('spawn')*6.283, dd=Math.max(VW,VH)*0.55;
@@ -6111,7 +6210,7 @@ function startGame(){
   waves=[]; guils=[]; gpools=[]; gstakes=[]; hrReset();
   owned.clear();
   window._runSeq=(window._runSeq||0)+1; slotStage='idle'; gamble=null; window._slotFF=null; try{ clearInterval(window._antiHb); }catch(e){}
-  gt=0; shake=0; hitstop=0; killStreak=0; streakT=0; goreT=null; _goreDryT=0; _goreDryI=0; _goreWinT=0; _goreWinN=0; excite=0; fireAcc=0; pending=[]; LT.runs++; bump('runs',LT.runs); fever=0; feverOn=false; feverT=0; tarots=[]; tarotT=14; decals=[]; wheelTok=null; wheelTokT=40; crashTok=null; crashTokT=50; bounty=null; bountyT=34; slotBank=0; vouchers=0; bountyStk=0; goldenT=0; ovBonusNext=false; slowT=0; prevHp=0; dare=null; dareT=46; ascTime=7; ascPend=0;
+  gt=0; shake=0; hitstop=0; killStreak=0; streakT=0; goreT=null; _goreDryT=0; _goreDryI=0; _goreWinT=0; _goreWinN=0; excite=0; fireAcc=0; pending=[]; LT.runs++; bump('runs',LT.runs); fever=0; feverOn=false; feverT=0; tarots=[]; tarotT=14; decals=[]; wheelTok=null; wheelTokT=40; crashTok=null; crashTokT=50; bounty=null; bountyT=34; slotBank=0; vouchers=0; bountyStk=0; goldenT=0; ovBonusNext=false; slotFeedTier=0; slotTierNow=0; slowT=0; prevHp=0; dare=null; dareT=46;  
   if(!RANK._ld){ RANK._ld=1; loadRank(); }
   if(!DLY_RNG){ applyRankPerks(); } recToasted=new Set(); if(!DLY_RNG){ applyVault(); applyAchPerks(); } // B1: the daily is a fair field
   // the soul at the table speaks last — then the floor, then the ink
@@ -6157,6 +6256,7 @@ function startGame(){
   debuffs=[];
   elMenu.classList.add('hidden'); elGO.classList.add('hidden'); elHud.classList.remove('hidden');
   fnStart(); // A3 first night: ease + lessons for a stranger's first 3 nights
+  if(typeof lessonBegin==='function') lessonBegin(); // J3: THE LESSON (lesson.js) takes the night if it was asked for
   if(DLY_RNG) try{ dlyStart(); }catch(e){ console.error('[daily start]',e); } // B1: the debt's terms
   state='playing'; last=performance.now();
 }
@@ -8722,7 +8822,7 @@ const PASSIVES=[
   {id:'tithe', n:'Blood Tithe',    g:'✝',rar:'rare',max:5,d:l=>'Every kill returns '+(1*l)+' lifeblood to you.',ap:()=>{P.onKillHeal=(P.onKillHeal||0)+1;},sc:m=>{P.onKillHeal=(P.onKillHeal||0)+Math.max(1,Math.round(m));}},
   {id:'shell', n:"Dead Man's Shell",g:'◐',rar:'epic',max:4,d:l=>'After taking a hit, remain untouchable +'+(0.1*l).toFixed(1)+'s longer.',ap:()=>{P.invBonus=(P.invBonus||0)+0.1;},sc:m=>{P.invBonus=(P.invBonus||0)+0.1*m;}},
   {id:'fortune',n:'Gilded Fortune', g:'✦',rar:'rare',max:10,d:l=>'The House favors you: +'+Math.round((Math.pow(1.04,l)-1)*100)+'% XP gained.',ap:()=>{P.xpMult=(P.xpMult||1)*1.04;},sc:m=>{P.xpMult=(P.xpMult||1)*Math.pow(1.04,m);}},
-  {id:'stoker', n:'Bar Stoker',     g:'⚗',rar:'rare',max:10,d:l=>'Rage fuel burns richer: bar feeds +'+Math.round((Math.pow(1.04,l)-1)*100)+'%.',ap:()=>{P.ovFeed=(P.ovFeed||1)*1.04;},sc:m=>{P.ovFeed=(P.ovFeed||1)*Math.pow(1.04,m);}},
+  {id:'stoker', n:'Bar Stoker',     g:'⚗',rar:'rare',max:10,d:l=>'THE FEED eats richer: every soul and coin feeds it +'+Math.round((Math.pow(1.04,l)-1)*100)+'%.',ap:()=>{P.ovFeed=(P.ovFeed||1)*1.04;},sc:m=>{P.ovFeed=(P.ovFeed||1)*Math.pow(1.04,m);}},
   {id:'dmg',   n:'Sharpened Aces', g:'♦',rar:'common',max:8,d:l=>'Sharper shots: +'+(5*l)+' damage.',ap:()=>{P.damage+=5;},sc:m=>{P.damage+=Math.round(5*m);}},
   {id:'fire',  n:'Swift Hands',    g:'♗',rar:'common',max:8,d:l=>'Fire faster: +'+(0.25*l)+' shots/sec.',ap:()=>{P.fireRate+=0.25;},sc:m=>{P.fireRate+=0.25*m;}},
   {id:'spd',   n:'Quick Step',     g:'♞',rar:'common',max:8,d:l=>'Fleeter of foot: +'+(20*l)+' move speed.',ap:()=>{P.speed+=20;},sc:m=>{P.speed+=Math.round(20*m);}},
@@ -9636,62 +9736,72 @@ function drawWheelTok(){
   ctx.restore(); ctx.globalAlpha=1;
 }
 let crashTok=null, crashTokT=38;
-let crashHist=[]; let ascTime=7; let ascPend=0;
+let crashHist=[];
 let crash={on:false, mult:1, cp:2, stakePct:2, wager:0, live:false, done:false, tick:0};
+/* ◆ J1 — THE FEED (replaced RAGE). A full XP bar becomes a mouth: souls and coins feed it,
+   it drains faster the longer it lives, and every second fed lights a jewel —
+   I WARM at 3s, II HOT at 7s, III FEAST at 12s. SPACE cashes any time: the next
+   level's reels run at the tier's odds. Let it starve and a quarter of the XP is gone. */
+const FEED_T=[0,3,7,12];
+const FEED_NAME=['','WARM ◆','HOT ◆◆','FEAST ★'];
+const FEED_COL=['#8fd977','#6db4ff','#c98bff','#ffd36b']; // jewel colors: feeding · I rare-blue · II epic-violet · III legendary-gold
 function startOvercharge(){
   if(P.ovT>0) return;
-  P.ovT=100; P.ovAge=0; P.ovHold=0; P._ovR=P.fireRate; P._ovD=P.damage;
+  P.ovT=100; P.ovAge=0; P.ovCharge=0; P.ovTier=0; P._ovR=P.fireRate; P._ovD=P.damage;
   P.fireRate*=1.5; P.damage*=1.5;
-  // H2: night one's first RAGE says only what the tip says — SPACE cashes it (the Ascent rule can wait)
   const h2r=(typeof fnOn==='function' && fnOn() && P._fnN===1 && !P._h2R); P._h2R=1;
-  announce(h2r?'⚡ RAGE — PRESS SPACE TO CASH IT ⚡':'⚡ RAGE — HOLD ABOVE 90 FOR 10s → THE ASCENT ⚡', true);
+  announce(h2r?'✦ THE FEED — KEEP KILLING · SPACE CASHES ✦':'✦ THE FEED — FEED IT SOULS · THE LONGER, THE RICHER ✦', true);
   SFX.riser(); SFX.hotSix(); flash(0.4,'#ff9a3c'); shake=Math.min(14,shake+6);
 }
 function ovRevert(){
   if(P._ovR!==undefined){ P.fireRate=P._ovR; P._ovR=undefined; }
   if(P._ovD!==undefined){ P.damage=P._ovD; P._ovD=undefined; }
-  P.ovT=0;
+  P.ovT=0; feedBody(0);
+}
+function feedBody(t){ if(feedBody._t===t) return; feedBody._t=t; const b=document.body; b.classList.remove('feed-1','feed-2','feed-3'); if(t>0) b.classList.add('feed-'+t); }
+function feedTick(dt){
+  if(!(P.ovT>0)){ if(feedBody._t) feedBody(0); return; }
+  P.ovAge+=dt;
+  P.ovT-=dt*(5+P.ovAge*0.5);
+  P.ovCharge=(P.ovCharge||0)+dt*(P.ovT>=50?1:0.5);
+  const tier=P.ovCharge>=FEED_T[3]?3:P.ovCharge>=FEED_T[2]?2:P.ovCharge>=FEED_T[1]?1:0;
+  if(tier>(P.ovTier||0)){ P.ovTier=tier; feedTierUp(tier); }
+  feedBody(P.ovTier||0);
+  P._ovHb=(P._ovHb||0)-dt; if(P._ovHb<=0){ P._ovHb=Math.max(0.16,0.45-P.ovTier*0.09); tone(56+P.ovTier*14,0.1,'sine',0.13,44); }
+  if(Math.random()<0.5) parts.push({x:P.x+rnd(-14,14),y:P.y+rnd(-8,12),vx:rnd(-16,16),vy:-rnd(60,140),life:rnd(.25,.5),col:P.ovTier?FEED_COL[P.ovTier]:'#ffd36b',r:rnd(1.4,2.6)});
+  if(P.ovT<30 && !P._ovWarn && P.ovT>0){ P._ovWarn=1; // it is about to starve — the room tells you
+    [740,560,420].forEach((f,i)=>setTimeout(()=>tone(f,0.11,'square',0.07),i*90)); showStreak('☠ IT STARVES — FEED IT OR CASH IT ☠'); }
+  if(P.ovT>=45) P._ovWarn=0;
+  if(P.ovT<=0) feedStarve();
+}
+function feedTierUp(t){
+  const c=FEED_COL[t]; P._tierUpT=gt;
+  try{ SFX.rarSting(t===3?4:t); }catch(e){ try{ SFX.dingBells(); }catch(x){} }
+  flash(0.18+t*0.08, c); shake=Math.min(16,shake+2+t*2);
+  ring(P.x,P.y,70+t*30,c); ring(P.x,P.y,40+t*16,'#fff2c0'); burst(P.x,P.y,10+t*6,c);
+  if(t===3){ SFX.seraph(); sparkBurst(26); }
+  announce(t===1?'◆ THE REELS RUN WARM ◆':t===2?'◆◆ THE REELS RUN HOT ◆◆':'★ THE FEAST — ONLY EPIC & LEGENDARY ★', c);
 }
 function cashRage(){
-  const bar=P.ovT, held=P.ovAge; ovRevert();
-  if(bar>=90){
-    if(held>=8){ ovBonusNext=true; SFX.seraph(); flash(0.5,'#ffd36b'); }
-    SFX.dingBells(); SFX.cashout(); sparkBurst(22);
-    announce(held>=8?'⚡ OVERCHARGED CASH-OUT — BONUS LEVEL ⚡':'⚡ CASHED AT '+Math.round(bar)+'% ⚡', true);
-  } else {
-    const kept=Math.floor(P.coins*bar/100), lost=P.coins-kept;
-    P.coins=kept;
-    announce('☠ THE HOUSE TAKES '+lost+' COINS — CASHED AT '+Math.round(bar)+'% ☠', false);
-    SFX.bust(); SFX.chipStack(); flash(0.45,'#8b1620'); shake=Math.min(16,shake+8);
-  }
+  const tier=P.ovTier||0; ovRevert(); P.ovCharge=0; P.ovTier=0;
+  try{ RUN.feedBest=Math.max(RUN.feedBest||0,tier); RUN.feeds=(RUN.feeds||0)+1; if(tier===3) RUN.feasts=(RUN.feasts||0)+1; }catch(e){}
+  slotFeedTier=Math.max(slotFeedTier||0, tier);
+  if(tier>0){ SFX.dingBells(); SFX.cashout(); sparkBurst(14+tier*8); flash(0.3+tier*0.08, FEED_COL[tier]);
+    if(tier===3){ SFX.seraph(); try{ domConfetti(); }catch(e){} setTimeout(()=>secret('glutton','THE GLUTTON'),900); }
+    if(!(gt-(P._tierUpT||-9)<1.2)) announce(tier===3?'★ CASHED AT THE FEAST — THE REELS RUN GOLD ★':tier===2?'◆◆ CASHED HOT — RICHER REELS ◆◆':'◆ CASHED WARM — BETTER REELS ◆', FEED_COL[tier]); }
+  else { SFX.cashout(); announce('◈ CASHED COLD — PLAIN REELS ◈', true); }
   P._ovPass=true; gainXP(0);
 }
-function rageAscend(){
-  ovRevert(); ovBonusNext=true; ascTime=Math.min(12,ascTime+2.5); ascPend=10;
-  announce('⚡ THE ASCENT WILL MANIFEST IN 10 SECONDS ⚡', true);
-  SFX.seraph(); SFX.dingBells(); flash(0.5,'#8bff9a'); sparkBurst(26);
-  P._ovPass=true; gainXP(0);
+const cashFeed=(...a)=>cashRage(...a);
+function feedStarve(){
+  ovRevert(); P.ovCharge=0; P.ovTier=0;
+  P.xp=Math.floor(P.xpNext*0.75);
+  announce('☠ THE BAR STARVES — A QUARTER OF YOUR XP IS GONE ☠', false);
+  SFX.bust(); noise(0.4,0.18,420); flash(0.45,'#8b1620'); shake=Math.min(18,shake+8);
+  ftext(P.x,P.y-26,'−25% XP','#ff6b6b',true);
 }
-function spawnAscentGate(){
-  const a=rng('ascent')*6.283, d=260+rng('ascent')*220;
-  crashTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:30, ph:rng('ascent')*6.28, blessed:true};
-  announce('▲ THE ASCENT HAS MANIFESTED — SEEK THE GATE ▲', true);
-  coachMark('ascent','the GREEN GATE stakes your LEVEL — ride the multiplier, cash before the crash');
-  SFX.dingBells(); SFX.casinoDing(); ring(crashTok.x,crashTok.y,120,'#8bff9a'); ring(crashTok.x,crashTok.y,70,'#fff2c0');
-}
-function rageDrop(){
-  ovRevert();
-  const swept=coins.length; for(const c5 of coins) burst(c5.x,c5.y,1,'#5a4a3a'); coins.length=0;
-  P.xp=Math.floor(P.xp*0.5); if(P.xp>=P.xpNext) P.xp=P.xpNext-1;
-  announce('☠ THE BAR SLIPS — HALF YOUR XP FORFEIT · THE FLOOR IS SWEPT ☠', false);
-  SFX.bossRoar(); SFX.bust(); noise(0.5,0.25,420); flash(0.55,'#8b1620'); shake=Math.min(24,shake+14);
-  if(swept>0) ftext(P.x,P.y-26,'−'+swept+' COINS SWEPT','#ff6b6b',true);
-}
-const CR_PCTS=[0.25,0.5,1.0], CR_LBL=['25%','50%','ALL'];
-function crashStakeUI(){ $('crashStake').innerHTML=CR_PCTS.map((p,i)=>'<span class="stk'+(i===crash.stakePct?' on':'')+'" data-i="'+i+'" style="cursor:pointer">'+(i+1)+' — '+CR_LBL[i]+' XP</span>').join('');
-  $('crashStake').querySelectorAll('.stk').forEach(el=>el.onclick=()=>{ if(!crash.live&&!crash.done){ crash.stakePct=+el.dataset.i; crashStakeUI(); SFX.uiDing(); } }); }
 function openCrash(){
-  state='crash'; crash={on:true, mult:1, cp:0, wager:0, live:false, done:false, next:0.25, msIdx:0, hb:0};
+  const rig9=crash&&crash.rigCp; state='crash'; crash={on:true, mult:1, cp:0, wager:0, live:false, done:false, next:0.25, msIdx:0, hb:0, rigCp:rig9||0};
   const rk=$('crashRocket'); rk.className=''; rk.style.bottom='0px'; rk.style.opacity='';
   $('crashLayer').style.filter=''; $('crashLayer').classList.remove('gatehold');
   { const cb9=$('crashBulbs'); if(cb9) cb9.classList.remove('frenzy'); }
@@ -9706,7 +9816,7 @@ function openCrash(){
     if(!d){ d=document.createElement('div'); d.id=id; $('crashMult').parentNode.insertBefore(d, id==='crashGhost'?$('crashMult'):$('crashMult').nextSibling); }
     d.className=''; d.textContent=''; });
   { let tl=$('tierLadder'); if(!tl){ tl=document.createElement('div'); tl.id='tierLadder';
-      tl.innerHTML='<div class="tln" data-x="7.77">☆ 7.77×</div><div class="tlbar"></div><div class="tln" data-x="3.69">III · 3.69×</div><div class="tlbar"></div><div class="tln" data-x="2.77">II · 2.77×</div><div class="tlbar"></div><div class="tln" data-x="1.77">I · 1.77×</div>';
+      tl.innerHTML='<div class="tln" data-x="7.77">☆ 7.77× · ASCENSION</div><div class="tlbar"></div><div class="tln" data-x="3.69">III 3.69× · THE ARMORY</div><div class="tlbar"></div><div class="tln" data-x="2.77">II 2.77× · HOT LEVEL</div><div class="tlbar"></div><div class="tln" data-x="1.77">I 1.77× · +1 LEVEL</div>';
       $('crashSky').appendChild(tl); }
     tl.querySelectorAll('.tln').forEach(n=>n.classList.remove('lit','pop')); }
   crash.band=0; crash.fz=0; crash.lastP=0; $('crashStrobe').style.opacity=0;
@@ -9729,15 +9839,14 @@ function openCrash(){
   { const shl=document.querySelector('#crashLayer .wheelShell'); if(shl) shl.style.transform=''; }
   { const ct=$('crashTimer'); if(ct) ct.remove(); }
   $('crashMult').textContent='1.00×'; $('crashMult').className='';
-  prerollAsc();
-  $('crashStake').innerHTML='<span class="stk" data-x="1.77">I at 1.77×: ~'+Math.round(80*1.77)+' ◈</span><span class="stk" data-x="2.77">II at 2.77×: ~'+Math.round(80*2.77)+' ◈</span><span class="stk" data-x="3.69">III at 3.69×: ~'+Math.round(80*3.69)+' ◈</span><span class="stk" data-x="7.77">7.77× JACKPOT: PICK OF 3 ASCENSIONS</span>';
+  $('crashStake').innerHTML='<span class="stk" data-x="1.77">I · +1 LEVEL</span><span class="stk" data-x="2.77">II · HOT LEVEL ◆◆</span><span class="stk" data-x="3.69">III · THE ARMORY</span><span class="stk" data-x="7.77">☆ ASCENSION + 2 FEASTS</span>';
   $('crashHist').innerHTML=crashHist.slice(-6).map(h=>'<span class="'+(h.ok?'ok':'no')+'">'+h.v.toFixed(2)+'×</span>').join('');
-  $('crashMsg').innerHTML='THE HOUSE ASKS NOTHING — ONLY NERVE · CASH FOR <b style="color:#ffd36b">GOLD</b> (I·II·III) OR RIDE TO <b style="color:#8bffd0">AN ASCENSION AT 7.77×</b> · CRASH: <b style="color:#ff6b6b">THE FALL — A RANDOM CURSE, 5-15s</b> · <span class="keyhint">SPACE</span> PUSH';
+  $('crashMsg').innerHTML='THE HOUSE ASKS ONLY NERVE · <span class="keyhint">'+(window._touchUI?'◈ BET':'SPACE')+'</span> LAUNCHES · IT CLIMBS ALONE · CASH ON ANY RUNG · CRASH: <b style="color:#ff6b6b">THE FALL — A CURSE, 5-15s</b>';
   $('crashLayer').classList.remove('hidden'); SFX.vaultOpen(); startDrone();
 }
 // crash-point sampler pinned to the director's reach odds:
-// P(cp≥1.77)=75% · P(cp≥2.77)=40% · P(cp≥3.69)=15% · P(cp≥7.77)=4%
-const CP_ANCH=[[1.01,1],[1.77,0.75],[2.77,0.40],[3.69,0.15],[7.77,0.04],[40,0.001]];
+// J2: P(cp≥1.77)=82% · P(cp≥2.77)=58% · P(cp≥3.69)=35% · P(cp≥7.77)=12%
+const CP_ANCH=[[1.01,1],[1.77,0.82],[2.77,0.58],[3.69,0.35],[7.77,0.12],[40,0.001]];
 function rollCrashPoint(){
   const u=rng('ascent');
   for(let i=1;i<CP_ANCH.length;i++){ const a=CP_ANCH[i-1], b=CP_ANCH[i];
@@ -9747,20 +9856,21 @@ function rollCrashPoint(){
 function launchCrash(){
   if(crash.live||crash.done) return;
   crash.wager=0; crash.loan=false;
-  crash.cp = rollCrashPoint();
-  if(crash.cp<1.01) crash.cp=1.01;
+  crash.cp = crash.rigCp || rollCrashPoint(); crash.rigCp=0; // J3's lesson can rig the ride
+  if(crash.cp<1.01) crash.cp=1.01; crash.ct=0; crash._mt=-1; crash.msIdx=crash.msIdx||0;
   crash.live=true; crash.mult=1+0.12*(P.ascStart||0); $('crashMult').textContent=crash.mult.toFixed(2)+'\u00d7';
   noise(0.45,0.18,140); tone(70,0.5,'sawtooth',0.14,220);
-  $('crashMsg').innerHTML='CLIMB FOR HIGHER TIERS · CRASH = <b style="color:#ff6b6b">THE FALL</b> · <span class="keyhint">ENTER</span> CASH';
+  $('crashMsg').innerHTML='IT CLIMBS ON ITS OWN · <span class="keyhint">'+(window._touchUI?'◈ BET':'SPACE')+'</span> CASHES · CRASH = <b style="color:#ff6b6b">THE FALL</b>';
   SFX.riser();
 }
 const CR_MS=[1.77,2.77,3.69,5,7.77,10,15,20];
 function tickCrash(dt){
   if(!crash.live) return;
+  climbCrash(dt); if(!crash.live) return;
   // ladder rungs light per FRAME against the ROUNDED display value — if the
   // big number reads 2.77x, rung II is lit. (True-mult 2.768 shows 2.77x; the
   // old per-press check against raw mult left the rung dark. Diagnosed live.)
-  { const md=+crash.mult.toFixed(2);
+  { const md=+Math.min(crash.mult,crash.cp).toFixed(2);
     document.querySelectorAll('#tierLadder .tln').forEach(n=>{
       if(md>=+n.dataset.x && !n.classList.contains('lit')){
         n.classList.add('lit','pop');
@@ -9770,7 +9880,6 @@ function tickCrash(dt){
     document.querySelectorAll('#crashStake .stk[data-x]').forEach(n=>{
       if(md>=+n.dataset.x) n.classList.add('on');
     }); }
-  { const fr=$('crashFrenzy'); if(fr && performance.now()-crash.lastP>520) fr.classList.remove('on'); }
   crash.hb-=dt; if(crash.hb<=0){ crash.hb=0.5/Math.min(3,crash.mult); tone(58,0.12,'sine',0.14,44);
     if(crash.mult>=3) setTimeout(()=>tone(72,0.08,'sine',0.1,50),90); }
   const cs9=$('crashStrobe');
@@ -9828,94 +9937,64 @@ function gateFx(x){
     G(950,()=>{ SFX.casinoDing(); const cz=$('crashZone'); if(cz){ cz.classList.remove('gatepop'); void cz.offsetWidth; cz.classList.add('gatepop'); } });
   }
 }
-function pushCrash(){
+/* ▲ J2 — THE ASCENT v3: it climbs on its own (1.77 at ~2.8s, 2.77 ~5.2s, 3.69 ~6.8s, 7.77 ~11s).
+   SPACE or ENTER cashes. Every rung pays something real: a level, a hot level, THE ARMORY, an Ascension. */
+function climbCrash(dt){
   if(!crash.live) return;
-  const inc=(0.01+rng('ascent')*0.19)*(1+crash.mult*0.08);
-  crash.mult+=inc;
+  const prev=crash.mult;
+  crash.mult+=dt*(0.06+0.16*crash.mult);
   // 7.77 is the ceiling of heaven — touch it and the jackpot claims you
-  if(crash.mult>=7.77){
+  if(crash.mult>=7.77 && crash.cp>=7.77){
     crash.mult=7.77; $('crashMult').textContent='7.77×';
     document.querySelectorAll('#tierLadder .tln, #crashStake .stk[data-x]').forEach(n=>{ if(+n.dataset.x<=7.77) n.classList.add(n.classList.contains('tln')?'lit':'on'); });
-    cashCrash();
-    return;
+    cashCrash(); return;
   }
-  const big=inc>(0.13*(1+crash.mult*0.08));
-  { const bf=200*Math.pow(crash.mult,0.85);
-    tone(bf,0.06,'square',0.09+Math.min(0.08,inc*0.5));
-    tone(bf*2.5,0.05,'sine',0.05); tone(bf*2.53,0.05,'sine',0.035);
-    tone(bf*4,0.14,'sine',0.03); }
-  if(Math.random()<0.5) tone(1800+Math.random()*900,0.05,'sine',0.045);
-  { const nn=Math.min(5,1+Math.floor(crash.mult));
-    for(let ti=0;ti<nn;ti++) setTimeout(()=>tone(1200*Math.pow(1.12,ti)*Math.pow(crash.mult,0.35),0.05,'sine',0.05),ti*28); }
-  tone(50+crash.mult*4,0.09,'sine',0.1+Math.min(0.12,crash.mult*0.02));
-  { const cp3=$('crashPing'); if(cp3){ cp3.style.width=cp3.style.height=(120+crash.mult*26)+'px';
-      cp3.classList.remove('go'); void cp3.offsetWidth; cp3.classList.add('go'); } }
-  { const shl=document.querySelector('#crashLayer .wheelShell');
-    if(shl && crash.mult>1.6){ const j=Math.min(7,crash.mult*1.2);
-      shl.style.transform='translate('+rnd(-j,j)+'px,'+rnd(-j,j)+'px)';
-      setTimeout(()=>{ if(shl) shl.style.transform=''; },70); } }
-  $('crashMult').style.animationDuration=Math.max(0.16,0.5-crash.mult*0.03)+'s';
+  const m9=Math.min(crash.mult, crash.cp);
+  // the climb sings: a tick whose pitch and pace follow the multiplier
+  crash.ct=(crash.ct||0)-dt;
+  if(crash.ct<=0){ crash.ct=Math.max(0.07,0.32/Math.pow(m9,0.8));
+    const bf=200*Math.pow(m9,0.85);
+    tone(bf,0.06,'square',0.07); tone(bf*2.5,0.05,'sine',0.04);
+    if(m9>=2) tone(bf*4,0.08,'sine',0.025); }
   const el=$('crashMult');
-  { const m9=crash.mult;
-    const bc = m9<1.77?'#e8d9c0': m9<2.77?'#8bff9a': m9<3.69?'#6fe3ff': m9<7.77?'#c98bff':'#fff2c0';
-    el.style.color=bc;
-    if(m9>=1.12) el.className='hot';
-    if(m9<2){ shake=Math.min(12,shake+1); flash(0.06,bc); }
+  const txt=m9.toFixed(2)+'×'; if(el.textContent!==txt) el.textContent=txt;
+  const bc = m9<1.77?'#e8d9c0': m9<2.77?'#8bff9a': m9<3.69?'#6fe3ff': m9<7.77?'#c98bff':'#fff2c0';
+  if(el._bc!==bc){ el._bc=bc; el.style.color=bc; const cp9=$('crashPing'); if(cp9) cp9.style.borderColor=bc; }
+  el.className=m9>=1.12?'hot':'';
+  el.style.fontWeight=m9>=5?'900':m9>=2.5?'800':'700'; el.style.letterSpacing=m9>=5?'-1px':'0';
+  el.style.transform='scale('+(1.04+Math.sin(gt*(8+m9*3))*0.03*Math.min(3,m9))+')';
+  $('crashMult').style.animationDuration=Math.max(0.16,0.5-m9*0.03)+'s';
+  if(Math.floor(prev*20)!==Math.floor(m9*20)){ // a few times a second, not every frame
     $('crashLayer').style.filter='saturate('+(1+Math.min(1.6,(m9-1)*0.4)).toFixed(2)+') contrast('+(1+Math.min(0.34,m9*0.035)).toFixed(2)+')';
-    const st9=$('crashStars'); if(st9) st9.style.filter='hue-rotate('+Math.round(m9*42)+'deg) saturate(1.7)';
-    const cp9=$('crashPing'); if(cp9) cp9.style.borderColor=bc;
+    const st9=$('crashStars'); if(st9){ st9.style.filter='hue-rotate('+Math.round(m9*42)+'deg) saturate(1.7)'; st9.style.setProperty('--sd',Math.max(0.35,2.4/(0.6+m9*0.45))+'s'); }
     const au9=$('crashAurora'); if(au9){ au9.style.opacity=Math.max(0,Math.min(0.9,(m9-1.15)/1.8)); au9.style.animationDuration=Math.max(1.1,6-m9*0.55)+'s'; }
-    if(m9>=3 && cp9){ setTimeout(()=>{ if(crash.live){ cp9.style.width=cp9.style.height=(180+m9*30)+'px'; cp9.classList.remove('go'); void cp9.offsetWidth; cp9.classList.add('go'); } },110); }
-    const nb=m9<1.77?0:m9<2.77?1:m9<3.69?2:m9<7.77?3:4;
+    const shl=document.querySelector('#crashLayer .wheelShell');
+    if(shl && m9>1.6){ const j=Math.min(6,m9*1.0); shl.style.transform='translate('+rnd(-j,j)+'px,'+rnd(-j,j)+'px)'; }
+    const cz=$('crashZone'); if(cz){
+      cz.textContent = m9<1.77?'LEAVING THE FLOOR': m9<2.77?'ABOVE THE CHANDELIERS': m9<3.69?'THROUGH THE VAULTED DARK': m9<7.77?'AMONG DEAD STARS':'THE HOUSE CANNOT SEE YOU';
+      cz.style.color = m9<2.77?'#9adcff': m9<3.69?'#c98bff': m9<7.77?'#ffd36b':'#fff2c0'; }
+    let eg=document.getElementById('ascEdge'); if(!eg){ eg=document.createElement('div'); eg.id='ascEdge'; $('crashLayer').appendChild(eg); }
+    eg.classList.toggle('on', m9>=5);
+  }
+  $('crashRocket').style.bottom=Math.min(104, Math.log(m9)*46)+'px';
+  { const nb=m9<1.77?0:m9<2.77?1:m9<3.69?2:m9<7.77?3:4;
     if(nb>crash.band){ crash.band=nb;
       noise(0.25,0.1,900+nb*500);
       [392,523,659].forEach((f9,i9)=>setTimeout(()=>tone(f9*Math.pow(1.25,nb),0.18,'triangle',0.1),i9*60));
-      $('crashLayer').classList.add('bandflash'); setTimeout(()=>$('crashLayer').classList.remove('bandflash'),260);
-    }
-  }
-  noise(0.06,0.03,1600+crash.mult*260);
-  { const st=$('crashStars'); if(st) st.style.setProperty('--sd',Math.max(0.35,2.4/(0.6+crash.mult*0.45))+'s'); }
-  { const cz=$('crashZone'); if(cz){ const m=crash.mult;
-      cz.textContent = m<1.77?'LEAVING THE FLOOR': m<2.77?'ABOVE THE CHANDELIERS': m<3.69?'THROUGH THE VAULTED DARK': m<7.77?'AMONG DEAD STARS':'THE HOUSE CANNOT SEE YOU';
-      cz.style.color = m<2.77?'#9adcff': m<3.69?'#c98bff': m<7.77?'#ffd36b':'#fff2c0'; } }
-  if(big){ SFX.uiDing(); flash(0.1,'#8bff9a'); sparkBurst(6); }
-  while(crash.msIdx<CR_MS.length && crash.mult>=CR_MS[crash.msIdx]){
+      $('crashLayer').classList.add('bandflash'); setTimeout(()=>$('crashLayer').classList.remove('bandflash'),260); } }
+  while(crash.msIdx<CR_MS.length && m9>=CR_MS[crash.msIdx]){
     SFX.casinoDing(); if(CR_MS[crash.msIdx]>=3) SFX.dingBells();
-    flash(0.18,'#8bff9a'); sparkBurst(12);
-    if(!(crash.slamHold&&performance.now()<crash.slamHold)){ const sl=$('crashSlam'); if(sl){ sl.textContent=CR_MS[crash.msIdx]+'×';
-        const m8=crash.mult; sl.style.color=m8<1.77?'#e8d9c0':m8<2.77?'#8bff9a':m8<3.69?'#6fe3ff':m8<7.77?'#c98bff':'#fff2c0';
+    flash(0.14,'#8bff9a'); sparkBurst(8);
+    if(!(crash.slamHold&&performance.now()<crash.slamHold)){ const sl=$('crashSlam'); if(sl){ sl.textContent=CR_MS[crash.msIdx]+'×'; sl.style.color=bc;
         sl.classList.remove('go'); void sl.offsetWidth; sl.classList.add('go'); } }
     crash.msIdx++;
   }
-  { const gh=$('crashGhost'); if(gh){ gh.textContent=el.textContent; gh.style.color=el.style.color||'#e8d9c0';
-      gh.classList.remove('go'); void gh.offsetWidth; gh.classList.add('go'); } }
-  { const nw=performance.now();
-    const was=crash.fz;
-    crash.fz=(nw-crash.lastP<280)?(crash.fz+1):1; crash.lastP=nw;
-    if(was>=4 && crash.fz===1) window._fzCd=nw+30000; // combo broke — the pit rests 30s
-    const cooled=window._fzCd && nw<window._fzCd;
-    const fr=$('crashFrenzy');
-    if(fr){ if(crash.fz>=4 && !cooled){
-        if(was<4){ // it IGNITES — a rarer, bigger moment
-          fr.classList.remove('ignite'); void fr.offsetWidth; fr.classList.add('ignite');
-          flash(0.3,'#ff9a3c'); shake=Math.min(14,shake+6);
-          [660,880,1174].forEach((f,i)=>setTimeout(()=>tone(f,0.09,'square',0.08),i*60)); }
-        fr.textContent='×'+crash.fz+' FRENZY'; fr.classList.add('on');
-        tone(900+crash.fz*70,0.05,'square',0.06); }
-      else fr.classList.remove('on','ignite'); } }
-  el.textContent=crash.mult.toFixed(2)+'×';
-  el.className=crash.mult>=2?'hot':'';
-  el.style.fontWeight=crash.mult>=5?'900':crash.mult>=2.5?'800':'700'; el.style.letterSpacing=crash.mult>=5?'-1px':'0'; // the number gains weight
-  { let eg=document.getElementById('ascEdge'); if(!eg){ eg=document.createElement('div'); eg.id='ascEdge'; $('crashLayer').appendChild(eg); }
-    eg.classList.toggle('on', !!crash.live && crash.mult>=5); } // past 5x the room itself glows mint
-  el.style.transform='scale('+(1+Math.min(0.5,0.1+inc*2.2))+')';
-  setTimeout(()=>{ if(crash.live) el.style.transform='scale(1.05)'; },80);
-  $('crashRocket').style.bottom=Math.min(104, Math.log(crash.mult)*46)+'px';
-  { const t=ascTier(crash.mult);
-    if(t>=4){ $('crashMsg').innerHTML='CASH: <b style="color:#fff2c0">☆ JACKPOT — CHOOSE OF 3 WEAPONS ☆</b> · <span class="keyhint">ENTER</span>'; }
-    else if(t===0){ $('crashMsg').innerHTML='CASH: <b style="color:#8a7a58">NOTHING — TIER I AT 1.77×</b> · <span class="keyhint">ENTER</span>'; }
-    else { const gates=[1.77,2.77,3.69,7.77];
-      $('crashMsg').innerHTML='CASH: <b style="color:#ffd36b">~'+Math.round(80*crash.mult)+' ◈</b> · AT '+gates[t]+'×: '+(t<3?'<b style="color:#ffd36b">MORE GOLD</b>':'<b style="color:#8bffd0">AN ASCENSION</b>')+' · <span class="keyhint">ENTER</span>'; } }
+  { const t=ascTier(m9);
+    if(crash._mt!==t){ crash._mt=t;
+      const sp='<span class="keyhint">'+(window._touchUI?'◈ BET':'SPACE')+'</span>';
+      const PRZ=['NOTHING YET — TIER I AT 1.77×','+1 LEVEL','A HOT LEVEL ◆◆ + 25% BLOOD','THE ARMORY — PICK 1 OF 3 EPIC+','☆ ASCENSION + 2 FEAST LEVELS'];
+      const NXT=['','HOT LEVEL AT 2.77×','THE ARMORY AT 3.69×','ASCENSION AT 7.77×',''];
+      $('crashMsg').innerHTML='CASH NOW: <b style="color:'+(t?['','#8bff9a','#6fb7ff','#c98bff','#fff2c0'][t]:'#8a7a58')+'">'+PRZ[t]+'</b>'+(NXT[t]?' · NEXT: '+NXT[t]:'')+' · '+sp+' CASHES'; } }
   if(crash.mult>=crash.cp){
     crash.live=false; crash.done=true;
     el.textContent=crash.cp.toFixed(2)+'× — CRASHED'; el.className='dead'; el.style.transform='';
@@ -9961,124 +10040,128 @@ function theFall(){
   return lbl;
 }
 function ascTier(m){ return m>=7.77?4:m>=3.69?3:m>=2.77?2:m>=1.77?1:0; }
-const ASC_POOLS=[null,['a_iron','a_eye','a_wind','a_gild','a_hand','a_skin'],['a_fang','a_storm','a_greed','a_fuse','a_holl','a_veil','a_swrm'],['a_crown','a_void','a_king','a_reap','a_engn','a_mirr']];
-function prerollAsc(){
-  crash.prz={};
-  for(let t=1;t<=3;t++){
-    const pool=PASSIVES.filter(p=>ASC_POOLS[t].includes(p.id) && !P.passiveList.find(x=>x.id===p.id));
-    crash.prz[t]=pool.length?pool[(rng('ascent')*pool.length)|0]:null;
-  }
-}
-function przLabel(t){ const p=crash.prz&&crash.prz[t]; return p?(p.n+' ('+p.fx+')'):'+'+(60*t)+' COINS'; }
-function grantAscPassive(m){
-  const t=ascTier(m);
-  const pools=[null,['a_iron','a_eye','a_wind'],['a_fang','a_storm','a_greed'],['a_crown','a_void','a_king']];
-  let pool=PASSIVES.filter(p=>pools[t].includes(p.id) && !P.passiveList.find(x=>x.id===p.id));
-  if(!pool.length && t<3) pool=PASSIVES.filter(p=>pools[t+1].includes(p.id) && !P.passiveList.find(x=>x.id===p.id));
-  if(!pool.length){ const g=Math.round(60*m); P.coins+=g; LT.coins+=g; coinRain(20); announce('◈ ALL PASSIVES HELD — +'+g+' COINS ◈',true); return null; }
-  const pd=pool[(rng('ascent')*pool.length)|0];
-  pd.ap(); addPassiveHUD(pd); renderRelics();
-  return pd;
-}
-function jackpotOffer(){
-  try{ SFX.ascMotif(); }catch(e){}
-  LT.crash=(LT.crash||0)+1; bump('crash',LT.crash);
-  secret('icarus','ICARUS ASCENDANT');
+// J2: one card offer for both prizes — the 7.77 Ascension (mint) and tier III's ARMORY (violet)
+function cardOffer({word, title, opts, color, tag, onPick, empty}){
+  crash.jkOpts=opts; crash.jkPick=onPick; crash.jkCol=color; crash.jkTag=tag;
+  if(!opts.length){ empty(); setTimeout(closeCrash,1600); return; }
   const lite=GFX.lite;
-  // THE PINNACLE — the 7.77x jackpot is the ONLY source of Ascensions now
-  const opts=[];
-  let pool=PASSIVES.filter(p=>p.rar==='ascend' && skillLevel(p.id)===0);
-  if(pool.length<3){ const up=PASSIVES.filter(p=>p.rar==='ascend' && skillLevel(p.id)>0 && skillLevel(p.id)<p.max && pool.indexOf(p)<0); pool=pool.concat(up); }
-  for(let i=0;i<3 && pool.length;i++){ const pk=pool[(rng('ascent')*pool.length)|0]; opts.push(pk); pool=pool.filter(w=>w!==pk); }
-  crash.jkOpts=opts;
-  if(!opts.length){ P.coins+=500; LT.coins+=500; announce('◈ ALL ASCENSIONS HELD — 500 COINS ◈',true); setTimeout(closeCrash,1600); return; }
-  // PHASE A — the letters: drumroll under J·A·C·K·P·O·T slamming in one by one
   startDrumroll();
   $('crashStrobe').style.opacity=1; $('crashStrobe').style.filter='hue-rotate(40deg) saturate(2)';
-  flash(0.7,'#fff2c0'); domConfetti(lite?16:34,'crashLayer'); SFX.seraph();
+  flash(0.6,color); domConfetti(lite?14:30,'crashLayer'); SFX.seraph();
   let mq=$('jkMarq'); if(!mq){ mq=document.createElement('div'); mq.id='jkMarq'; $('crashLayer').appendChild(mq); }
-  mq.innerHTML='JACKPOT'.split('').map((ch,i)=>'<span style="animation-delay:'+(i*0.12)+'s">'+ch+'</span>').join('');
+  mq.innerHTML=word.split('').map((ch,i)=>'<span style="animation-delay:'+(i*0.12)+'s;color:'+color+'">'+ch+'</span>').join('');
   mq.className='go';
-  'JACKPOT'.split('').forEach((_,i)=>setTimeout(()=>{ if(state!=='crash') return;
-    SFX.dingHit(1+Math.min(5,i)); if(i%2===0) flash(0.14,'#ffd36b'); shake=Math.min(20,shake+2); }, 120+i*120));
+  word.split('').forEach((_,i)=>setTimeout(()=>{ if(state!=='crash') return;
+    SFX.dingHit(1+Math.min(5,i)); if(i%2===0) flash(0.14,color); shake=Math.min(20,shake+2); }, 120+i*120));
   $('crashMsg').textContent='';
-  // PHASE B — the armory descends; keys live only now
   setTimeout(()=>{ if(state!=='crash') return;
-    stopDrumroll(); SFX.dingBells(); SFX.hotSix(); coinRain(lite?12:26);
+    stopDrumroll(); SFX.dingBells(); SFX.hotSix(); coinRain(lite?10:22);
     mq.classList.add('up');
     crash.jk=true;
+    { const aw=$('ascWin'); if(aw) aw.classList.remove('go'); }
     let w9=$('jkWrap'); if(!w9){ w9=document.createElement('div'); w9.id='jkWrap'; $('crashLayer').appendChild(w9); }
-    w9.innerHTML='<div class="jkTitle">☆ THE ASCENSION AWAITS — CHOOSE ☆</div><div class="jkRow">'+
-      opts.map((w,i)=>{ const lv=skillLevel(w.id);
-        return '<div class="jkCard" data-i="'+i+'"><div class="jkKey">'+(i+1)+'</div>'
-          +'<div class="jkG" style="color:'+(GLYPH_COL[w.id]||'#8bffd0')+'">'+w.g+'</div>'
-          +'<div class="jkN">'+w.n+'</div>'
-          +'<div class="jkR" style="color:#8bffd0">ASCENSION'+(lv>0?' · Lv '+lv+' → '+(lv+1):' · NEW')+'</div>'
-          +'<div class="jkD">'+w.fx+'</div></div>'; }).join('')+'</div>';
+    w9.style.setProperty('--jkc',color);
+    w9.innerHTML='<div class="jkTitle" style="color:'+color+'">'+title+'</div><div class="jkRow">'+
+      opts.map((o,i)=>'<div class="jkCard" data-i="'+i+'"><div class="jkKey">'+(i+1)+'</div>'
+          +'<div class="jkG" style="color:'+(GLYPH_COL[o.def.id]||color)+'">'+o.def.g+'</div>'
+          +'<div class="jkN">'+o.def.n+'</div>'
+          +'<div class="jkR" style="color:'+(o.col||color)+'">'+o.tag+'</div>'
+          +'<div class="jkD">'+o.desc+'</div></div>').join('')+'</div>';
     w9.classList.add('show');
     w9.querySelectorAll('.jkCard').forEach(c=>c.onclick=()=>pickJackpot(+c.dataset.i));
-    crash.jkSel=0; crash.jkT=performance.now(); jkPaint(); // B4: card I starts lit — ◀ ▶ walk it, SPACE / Ⓐ takes it
+    crash.jkSel=0; crash.jkT=performance.now(); jkPaint();
     $('crashMsg').innerHTML='<span class="keyhint">◀</span> <span class="keyhint">▶</span> CHOOSE · <span class="keyhint">SPACE</span> TAKES · OR <span class="keyhint">1</span> <span class="keyhint">2</span> <span class="keyhint">3</span> · OR CLICK';
-  }, 1050);
+  }, 120+word.length*120+200);
+}
+// a level paid by the Ascent: the counter climbs now, the reels wait for the ride to close (at the given feed tier)
+function ascLevel(ft){ P.level++; P.xpNext=Math.floor(20+P.level*7+P.level*P.level*1.3); if(P.xp>=P.xpNext) P.xp=P.xpNext-1;
+  pending.push({ft:ft||0}); bump('level',P.level); recCheck('level',P.level,'Level'); }
+function pick3(pool){ const out=[]; pool=pool.slice(); for(let i=0;i<3&&pool.length;i++){ const k=(rng('ascent')*pool.length)|0; out.push(pool[k]); pool.splice(k,1); } return out; }
+function jackpotOffer(){
+  try{ SFX.ascMotif(); }catch(e){}
+  secret('icarus','ICARUS ASCENDANT');
+  // the summit also feeds the machine: two levels at FEAST odds wait when the ride closes
+  ascLevel(3); ascLevel(3);
+  let pool=PASSIVES.filter(p=>p.rar==='ascend' && skillLevel(p.id)===0);
+  if(pool.length<3){ const up=PASSIVES.filter(p=>p.rar==='ascend' && skillLevel(p.id)>0 && skillLevel(p.id)<p.max && pool.indexOf(p)<0); pool=pool.concat(up); }
+  const opts=pick3(pool).map(w=>{ const lv=skillLevel(w.id); return {def:w, kind:'s', tag:'ASCENSION'+(lv>0?' · Lv '+lv+' → '+(lv+1):' · NEW'), desc:w.fx}; });
+  cardOffer({word:'JACKPOT', title:'☆ CHOOSE YOUR ASCENSION · 2 FEASTS FOLLOW ☆', opts, color:'#8bffd0', tag:'ASCENSION',
+    onPick:o=>{ grantSkill(o.def,1); return '☆ ASCENSION — '+o.def.n+' IS YOURS ☆'; },
+    empty:()=>{ P.coins+=500; LT.coins+=500; announce('◈ ALL ASCENSIONS HELD — 500 COINS + 2 FEAST LEVELS ◈',true); }});
+}
+// THE ARMORY (tier III): epic & legendary only — weapons and skills, new at Lv1 or +1 level
+function armoryOffer(){
+  const ws=availableWeapons().filter(w=>w.rar==='epic'||w.rar==='legendary').map(w=>{ const lv=P.wlv[w.id]||0; return {def:w, kind:'w', col:RARC[w.rar], tag:'⚔ '+(w.rar==='legendary'?'LEGENDARY':'EPIC')+' WEAPON'+(lv>0?' · Lv '+lv+' → '+(lv+1):' · NEW'), desc:(typeof w.d==='function'?w.d(lv+1):'')}; });
+  const ss=availableSkills().filter(p=>p.rar==='epic'||p.rar==='legendary').map(p=>{ const lv=skillLevel(p.id); return {def:p, kind:'s', col:RARC[p.rar], tag:'✦ '+(p.rar==='legendary'?'LEGENDARY':'EPIC')+(lv>0?' · Lv '+lv+' → '+(lv+1):' · NEW'), desc:(typeof p.d==='function'?p.d(lv+1):p.fx||'')}; });
+  // weapons first where the armory holds them — then skills fill the rack
+  let opts=pick3(ws).slice(0,ws.length>=2?2:ws.length); opts=opts.concat(pick3(ss.filter(x=>!opts.includes(x))).slice(0,3-opts.length));
+  cardOffer({word:'ARMORY', title:'⚔ THE ARMORY — EPIC & LEGENDARY · CHOOSE ⚔', opts, color:'#c98bff', tag:'ARMORY',
+    onPick:o=>{ if(o.kind==='w') grantWeaponLevels(o.def,1); else grantSkill(o.def,1); setTimeout(()=>secret('armorer','THE ARMORER'),1600); return '⚔ THE ARMORY — '+o.def.n+' IS YOURS ⚔'; },
+    empty:()=>{ ascLevel(3); announce('⚔ THE ARMORY IS BARE — A FEAST LEVEL INSTEAD ⚔',true); }});
 }
 function jkPaint(){ const w9=$('jkWrap'); if(!w9||!crash) return; w9.querySelectorAll('.jkCard').forEach((c,i)=>c.classList.toggle('b4sel', i===(crash.jkSel||0))); }
 function pickJackpot(i){
-  if(!crash.jk) return; const def=crash.jkOpts[i]; if(!def) return;
+  if(!crash.jk) return; const o=crash.jkOpts[i]; if(!o) return;
   crash.jk=false;
-  const lite=GFX.lite;
-  grantSkill(def,1);
+  const lite=GFX.lite, col=crash.jkCol||'#8bffd0', def=o.def;
+  const line=crash.jkPick(o);
   const w9=$('jkWrap'); if(w9){ const cd=w9.querySelectorAll('.jkCard')[i]; if(cd) cd.classList.add('take'); setTimeout(()=>{ w9.classList.remove('show'); w9.innerHTML=''; },600); }
   { const mq=$('jkMarq'); if(mq) mq.className=''; }
   let gd=$('ascGift');
   if(!gd){ gd=document.createElement('div'); gd.id='ascGift'; $('crashLayer').appendChild(gd); }
-  gd.innerHTML='<div class="agG" style="color:'+(GLYPH_COL[def.id]||'#8bffd0')+';text-shadow:0 0 30px currentColor">'+def.g+'</div><div class="agN">'+def.n+'</div><div class="agT">✦ ASCENSION · '+def.fx+'</div>';
+  gd.innerHTML='<div class="agG" style="color:'+(GLYPH_COL[def.id]||col)+';text-shadow:0 0 30px currentColor">'+def.g+'</div><div class="agN">'+def.n+'</div><div class="agT" style="color:'+col+'">✦ '+o.tag+'</div>';
   gd.classList.remove('go'); void gd.offsetWidth; gd.classList.add('go');
-  announce('☆ ASCENSION — '+def.n+' IS YOURS ☆', true);
+  announce(line, col);
   SFX.rarSting(4); SFX.cashout(); setTimeout(()=>SFX.seraph(),180); SFX.casinoDing();
-  gatePing('#fff2c0',520); flash(0.5,'#fff2c0'); shake=Math.min(24,shake+10);
+  gatePing(col,520); flash(0.5,col); shake=Math.min(24,shake+10);
   coinRain(lite?16:40); domConfetti(lite?20:50,'crashLayer'); sparkBurstAt('crashMult','crashLayer',lite?14:26);
   setTimeout(closeCrash, 2100);
 }
 function cashCrash(){
   if(!crash.live) return;
   crash.live=false; crash.done=true;
-  crashHist.push({v:crash.mult,ok:true}); RUN.crashPts.push(crash.cp);
-  const t=ascTier(crash.mult);
+  const m=Math.min(crash.mult,crash.cp);
+  try{ RUN.ascBest=Math.max(RUN.ascBest||0,m); if(ascTier(m)>=3) RUN.armory=(RUN.armory||0)+1; }catch(e){}
+  crashHist.push({v:m,ok:true}); RUN.crashPts.push(crash.cp);
+  const t=ascTier(m);
   const rk=$('crashRocket'); rk.classList.add('blast');
   $('crashStrobe').style.opacity=0.95; $('crashStrobe').style.filter='hue-rotate(40deg) saturate(1.5)';
   $('crashMult').className='hot';
   [784,988,1175,1568,1976,2637].forEach((f,i)=>setTimeout(()=>{ tone(f,0.22,'sine',0.13); tone(f/2,0.22,'triangle',0.07); },i*65));
   SFX.cashout(); setTimeout(()=>SFX.dingBells(),200); domConfetti(16+Math.min(3,t)*8,'crashLayer'); flash(0.45,t>=4?'#fff2c0':'#8bff9a'); shake=Math.min(20,shake+8+Math.min(3,t)*3);
+  LT.crash=(LT.crash||0)+1; bump('crash',LT.crash);
   if(t>=4){ jackpotOffer(); return; }
   if(t===0){
-    $('crashMsg').textContent='CASHED AT '+crash.mult.toFixed(2)+'× — BELOW THE MARK. NOTHING.';
+    $('crashMsg').textContent='CASHED AT '+m.toFixed(2)+'× — BELOW THE FIRST RUNG. NOTHING.';
     tone(220,0.3,'sawtooth',0.1,120); SFX.thud();
-    LT.crash=(LT.crash||0)+1; bump('crash',LT.crash);
     setTimeout(closeCrash, 1400); return; }
-  // lower rungs (I/II/III) pay escalating GOLD now — the Ascension lives only at 7.77x
-  { const g=Math.round(80*crash.mult); P.coins+=g; LT.coins+=g; coinRain(20);
-    ascWinSlam('+'+g+' COINS','TIER '+['','I','II','III'][t]+' — THE HOUSE PAYS GOLD','#ffd36b');
-    announce('◈ CASHED AT '+crash.mult.toFixed(2)+'× — +'+g+' COINS ◈',true);
-    try{ flyGlyphs('crashMult','coinCount','◈',8,'#ffd36b'); }catch(e){} }
-  $('crashMsg').textContent='CASHED AT '+crash.mult.toFixed(2)+'×';
-  if(crash.mult>=3.69) bigWin('×'+crash.mult.toFixed(1)+' — BIG GOLD',3);
-  LT.crash=(LT.crash||0)+1; bump('crash',LT.crash);
-  if(crash.mult>=7.77) secret('icarus','ICARUS ASCENDANT');
+  $('crashMsg').textContent='CASHED AT '+m.toFixed(2)+'×';
+  if(t===3){ const g=Math.round(60*m); P.coins+=g; LT.coins+=g;
+    ascWinSlam('THE ARMORY','TIER III — PICK 1 OF 3 · +'+g+' COINS','#c98bff'); coinRain(16); SFX.record();
+    announce('⚔ CASHED AT '+m.toFixed(2)+'× — THE ARMORY OPENS · +'+g+' COINS ⚔',true);
+    setTimeout(()=>{ if(state==='crash') armoryOffer(); }, 900); return; }
+  if(t===2){ ascLevel(2); const h=Math.round(P.maxHp*0.25); if(!P.martyr){ P.hp=Math.min(P.maxHp,P.hp+h); }
+    ascWinSlam('A HOT LEVEL ◆◆','TIER II — RICHER REELS'+(P.martyr?'':' · +'+h+' BLOOD'),'#6fb7ff');
+    announce('◆◆ CASHED AT '+m.toFixed(2)+'× — A HOT LEVEL'+(P.martyr?'':' + 25% BLOOD')+' ◆◆',true); SFX.levelUp(); }
+  else { ascLevel(1); const g=Math.round(40*m); P.coins+=g; LT.coins+=g; coinRain(14);
+    ascWinSlam('+1 LEVEL','TIER I — WARM REELS ◆ · +'+g+' COINS','#8bff9a');
+    announce('◆ CASHED AT '+m.toFixed(2)+'× — +1 LEVEL · +'+g+' COINS ◆',true); SFX.levelUp();
+    try{ flyGlyphs('crashMult','coinCount','◈',6,'#ffd36b'); }catch(e){} }
   setTimeout(closeCrash, 2100);
 }
-function closeCrash(){ crash.jk=false; { const w9=$('jkWrap'); if(w9){ w9.classList.remove('show'); w9.innerHTML=''; } } $('crashLayer').classList.add('hidden'); $('crashLayer').style.filter=''; stopDrone(); if(state==='crash'){ state='playing'; while(P.xp>=P.xpNext){ P.xp-=P.xpNext; P.level++; P.xpNext=Math.round(P.xpNext*1.18); pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); SFX.levelUp(); }
+function closeCrash(){ crash.jk=false; { const w9=$('jkWrap'); if(w9){ w9.classList.remove('show'); w9.innerHTML=''; } } $('crashLayer').classList.add('hidden'); $('crashLayer').style.filter=''; stopDrone(); if(state==='crash'){ state='playing'; while(P.xp>=P.xpNext){ P.xp-=P.xpNext; P.level++; P.xpNext=Math.floor(20+P.level*7+P.level*P.level*1.3); pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); SFX.levelUp(); }
   if(pending.length) setTimeout(()=>{ if(state==='playing' && pending.length) openNextSlot(); },450); } }
 (function(){ const wrap=f=>function(...a){ try{ return f.apply(this,a); }catch(e){ if(!window._ascErr){ window._ascErr=1; console.error('[ANTE ASCENT]',e); } } };
-  openCrash=wrap(openCrash); launchCrash=wrap(launchCrash); pushCrash=wrap(pushCrash); cashCrash=wrap(cashCrash); closeCrash=wrap(closeCrash);
+  openCrash=wrap(openCrash); launchCrash=wrap(launchCrash); cashCrash=wrap(cashCrash); closeCrash=wrap(closeCrash);
 })();
 function tickCrashTok(dt){
   if(houseActive) return;
   if(!crashTok){ crashTokT-=dt;
-    if(crashTokT<=0){ crashTokT=68+rng('ascent')*24-12; // pity window: 56-80s
+    if(crashTokT<=0){ crashTokT=55+rng('ascent')*20-10; // pity window: 45-65s (J1: the Ascent comes by token and wheel only)
       const a=rng('ascent')*6.283, d=300+rng('ascent')*300;
       crashTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:20, ph:rng('ascent')*6.28};
       announce('▲ THE ASCENT BECKONS ▲', true); SFX.dingBells();
-      coachMark('ascent','the GREEN GATE stakes your LEVEL — ride the multiplier, cash before the crash');
+      coachMark('ascent','the GREEN GATE — it climbs alone · SPACE cashes · higher is richer');
       [988,1318,1760].forEach((f,i)=>setTimeout(()=>tone(f,0.14,'sine',0.08),i*110)); // come-play beckon
       ring(crashTok.x,crashTok.y,90,'#8bffd0'); ring(crashTok.x,crashTok.y,54,'#fff2c0'); }
   } else {
@@ -10159,9 +10242,12 @@ function weightedByRarity(arr, wOver){
   const w=wOver||CFG.weights, buckets={};
   arr.forEach(o=>{ (buckets[o.rar]=buckets[o.rar]||[]).push(o); });
   const keys=Object.keys(buckets); if(!keys.length) return rpick('slot',arr);
-  let t=0; keys.forEach(k=>t+=w[k]||1);
-  let x=rng('slot')*t, chosen=keys[0];
-  for(const k of keys){ if(x<(w[k]||1)){ chosen=k; break; } x-=(w[k]||1); }
+  const wk=k=>(w[k]===0?0:(w[k]||1));
+  let t=0; keys.forEach(k=>t+=wk(k));
+  if(t<=0){ // the feast forbids every rarity this pool still holds — climb to the richest one there is
+    const ord=['legendary','epic','rare','uncommon','common','ascend','mythic']; const top=ord.find(k=>buckets[k]); return rpick('slot',buckets[top||keys[0]]); }
+  let x=rng('slot')*t, chosen=keys.find(k=>wk(k)>0)||keys[0];
+  for(const k of keys){ const v=wk(k); if(v<=0) continue; if(x<v){ chosen=k; break; } x-=v; }
   if(typeof arcUp==='function') chosen=arcUp(chosen,buckets); // D4 — X WHEEL OF FORTUNE lifts every reel one rarity
   return rpick('slot',buckets[chosen]);
 }
@@ -10194,6 +10280,7 @@ function endSeance(){
 function openNextSlot(){
   if(!pending.length) return;
   const p=pending.shift();
+  slotTierNow=Math.max(p.ft||0, slotFeedTier||0); slotFeedTier=0; // J1: the feed's tier rides this pull
   coachMark('slot','SPACE stops each reel — match three for the strongest pulls');
   slotFloor=p.floor||null;
   state='slot';
@@ -10207,10 +10294,13 @@ function openNextSlot(){
   elSlot.classList.toggle('lastrites', lastRites);
   $('machine').classList.remove('win','jackpot','bust','pulling','dicing');
   SFX.levelUp();
-  const weaponTurn = (slotForceWeapon || slotIndex % 4 === 0) && availableWeapons().length>0;
+  const weaponTurn = (slotForceWeapon || slotIndex===2 || (slotIndex>2 && (slotIndex-2)%3===0)) && availableWeapons().length>0; // J1: weapons at slots 2, 5, 8 …
   slotForceWeapon=false;
+  let wt=weaponTurn;
+  // J1: a FEAST promises epic & legendary — if the armory has none unlocked yet, the feast feeds a skill and the weapon waits one slot
+  if(wt && slotTierNow>=3 && !availableWeapons().some(w=>w.rar==='epic'||w.rar==='legendary')){ wt=false; slotForceWeapon=true; }
   if(lastRites) enterRedTable();
-  openSlotReady(weaponTurn?'weapon':'skill');
+  openSlotReady(wt?'weapon':'skill');
 }
 function enterRedTable(){
   redForgiven=false;
@@ -10239,11 +10329,12 @@ function ensurePayTable(){
   const pips=(typeof GFX!=='undefined'&&GFX.cb)
     ? {common:'●',uncommon:'●●',rare:'▲▲▲',epic:'■■■■',legendary:'✦✦✦✦✦'} // shape-coded for colorblind hands
     : {common:'◆',uncommon:'◆◆',rare:'◆◆◆',epic:'◆◆◆◆',legendary:'◆◆◆◆◆'}; // one symbol, every table — the color carries the mood
-  const row=(rar)=>'<div class="ptRow" data-rar="'+rar+'" style="--pc:'+RARC[rar]+'"><span class="ptN">'+SLOT_RAR[rar]+'</span><span class="ptPips">'+pips[rar]+'</span></div>';
+  const row=(rar)=>'<div class="ptRow'+((slotTierNow>0&&FEED_W[slotTierNow][rar]===0)?' ptOff':'')+'" data-rar="'+rar+'" style="--pc:'+RARC[rar]+'"><span class="ptN">'+SLOT_RAR[rar]+'</span><span class="ptPips">'+pips[rar]+'</span></div>';
   pt.classList.toggle('red', !!lastRites);
+  const fw=slotTierNow>0?FEED_W[slotTierNow]:null; pt.classList.remove('feed1','feed2','feed3'); if(fw) pt.classList.add('feed'+slotTierNow);
   const bankChips=slotBank>0?('<div class="ptBank">'+'●'.repeat(Math.min(7,slotBank))+'○'.repeat(Math.max(0,7-slotBank))+' BANK</div>'):'';
   const vchChips=vouchers>0?('<div class="ptBank" style="color:#ffd36b">◈×'+vouchers+' VOUCHER'+(vouchers>1?'S':'')+'</div>'):'';
-  pt.innerHTML=bankChips+vchChips+'<div class="ptHead">'+(lastRites?'☨ THE RED TABLE ☨':'THE ODDS')+'</div>'
+  pt.innerHTML=bankChips+vchChips+'<div class="ptHead">'+(lastRites?'☨ THE RED TABLE ☨':(slotTierNow>0?'✦ THE FEED · '+['','WARM ◆','HOT ◆◆','FEAST ★'][slotTierNow]+' ✦':'THE ODDS'))+'</div>'
     +row('common')+row('uncommon')+row('rare')+row('epic')+row('legendary')
     +'<div class="ptFoot">'+(lastRites?'<b style="color:#ff7b7b">ANY MISS BURNS THE STAKE</b><br>ALL FOUR DICE = HOUSE&#39;S BLESSING':'<b>PAIR = LEVEL 2 · TRIPLE = MAX</b><br>EVERY DICE WIN = +1 LEVEL')+'</div>';
 }
@@ -10261,7 +10352,7 @@ function ensureBulbs(){
 }
 function buildPreStrips(pool, defs){
   const preStrips=[$('strip0'),$('strip1'),$('strip2')];
-  preStrips.forEach(el=>{ const seq=[]; for(let k=0;k<22;k++) seq.push(weightedByRarity(pool, slotHot()).id); buildStrip(el,seq,defs); el.classList.remove('blur'); el.style.transition='none'; el.style.transform='translateY(0px)'; });
+  preStrips.forEach(el=>{ const seq=[]; for(let k=0;k<22;k++) seq.push(weightedByRarity(pool, slotWeights()).id); buildStrip(el,seq,defs); el.classList.remove('blur'); el.style.transition='none'; el.style.transform='translateY(0px)'; });
   requestAnimationFrame(()=>{ preStrips.forEach(el=>{ const symH=(el.children[0]&&el.children[0].offsetHeight)||63; const boxH=(el.parentElement&&el.parentElement.clientHeight)||189; el.style.transform='translateY('+(boxH/2 - symH*1.5)+'px)'; }); });
 }
 function openSlotReady(kind){
@@ -10269,9 +10360,12 @@ function openSlotReady(kind){
   slotKind=kind; gamble=null; diceShown=false; const isW=kind==='weapon';
   elSlot.classList.toggle('arsenal', isW);
   $('machine').classList.toggle('hotdeck', !!(P&&P.hotSlots>0)); // the deck runs red while HOT
+  { const m8=$('machine'); m8.classList.remove('feedT1','feedT2','feedT3'); if(slotTierNow>0){ m8.classList.add('feedT'+slotTierNow); // J1: the feed's tier dresses the machine
+      if(slotTierNow>=3){ setTimeout(()=>{ try{ SFX.seraph(); SFX.dingBells(); }catch(e){} },120); flash(0.4,'#ffd36b'); sparkBurst(24); try{ domConfetti(18); }catch(e){} }
+      else { setTimeout(()=>{ try{ SFX.rarSting(slotTierNow); }catch(e){} },120); flash(0.22,slotTierNow>=2?'#c98bff':'#6db4ff'); } } }
   { const xf=document.getElementById('xpfill'); if(xf){ xf.classList.remove('drain'); void xf.offsetWidth; xf.classList.add('drain'); }
     const m9=$('machine'); if(m9){ m9.classList.remove('mGlow'); void m9.offsetWidth; m9.classList.add('mGlow'); setTimeout(()=>m9.classList.remove('mGlow'),900); } } // the bar pours into the machine
-  $('slotTag').textContent = (lastRites?'☨ THE RED TABLE — YOUR SKILL RIDES ☨':(isW?'⚔ THE ARSENAL WHEEL ⚔':'THE WHEELS OF FATE'))+((P&&P.hotSlots>0)?' · ⚜ HOT DECK':'')+(slotBank>0?' · BANK '+slotBank+'/7':'');
+  $('slotTag').textContent = (lastRites?'☨ THE RED TABLE — YOUR SKILL RIDES ☨':(isW?'⚔ THE ARSENAL WHEEL ⚔':'THE WHEELS OF FATE'))+((P&&P.hotSlots>0)?' · ⚜ HOT DECK':'')+(slotTierNow>0?' · '+['','◆ WARM','◆◆ HOT','★ FEAST'][slotTierNow]:'')+(slotBank>0?' · BANK '+slotBank+'/7':'');
   $('slotTag').title = slotBank>0 ? 'THE BANK — every PAIR banks a chip · 7 chips = a HOUSE VOUCHER (+1 level, spent on your next offer)' : '';
   $('reelsRow').style.display=''; $('diceRow').style.display='none'; $('riskWrap').style.display='none';
   $('prizeTag').textContent = isW?'YOUR WEAPON':'YOUR SKILL';
@@ -10296,6 +10390,13 @@ const MFATE={T:0.008, P:0.09};
 // hot reels are a PURCHASED privilege now (HIGH ROLLER indulgence) — the red
 // table itself deals honest weights
 function slotHot(){ return (P&&P.hotSlots>0)?RED_W:null; }
+// J1 — THE FEED: a cashed feed parks its tier; the next slot's reels run at that tier's odds
+const FEED_W=[null,
+  {common:24, uncommon:30, rare:25, epic:17, legendary:4},
+  {common:0,  uncommon:22, rare:38, epic:30, legendary:10},
+  {common:0,  uncommon:0,  rare:0,  epic:80, legendary:20}];
+let slotFeedTier=0, slotTierNow=0;
+function slotWeights(){ if(slotTierNow>0) return FEED_W[slotTierNow]; return slotHot(); }
 let slotFate=null;
 let redStake=null, redForgiven=false; // THE SACRIFICE — a skill of yours on the side table
 function dealFate(seqs, pool){
@@ -10309,7 +10410,7 @@ function dealFate(seqs, pool){
   const fm=(P&&P.fateMult)||1; // B1: a daily debt can lean the reels cold
   const n = u<MFATE.T*fm ? 3 : (u<(MFATE.T+pB)*fm ? 2 : 0);
   if(!n){ slotFate={n:0}; return; }
-  const s=weightedByRarity(pool, slotHot()).id;
+  const s=weightedByRarity(pool, slotWeights()).id;
   const p0=(rng('slot')*seqs[0].length)|0;
   seqs.forEach(sq=>{ for(let j=0;j<3;j++) sq[(p0+j*7)%sq.length]=s; });
   slotFate={n, s};
@@ -10321,7 +10422,7 @@ function spinReels(){
   const strips=[$('strip0'),$('strip1'),$('strip2')];
   document.querySelectorAll('.reelbox').forEach(b=>b.classList.remove('antici','slam','pick','locked')); $('reelsRow').classList.remove('sweeping');
   const N=22;
-  const seqs=[0,1,2].map(()=>{ const s=[]; for(let k=0;k<N;k++) s.push(weightedByRarity(pool, slotHot()).id); return s; });
+  const seqs=[0,1,2].map(()=>{ const s=[]; for(let k=0;k<N;k++) s.push(weightedByRarity(pool, slotWeights()).id); return s; });
   dealFate(seqs, pool);
   slotReels = strips.map((el,i)=>{
     buildStrip(el,seqs[i],defs); el.style.transition='none';
@@ -10962,6 +11063,7 @@ function closeSlot(){
   elSlot.classList.add('hidden'); elSlot.classList.remove('lastrites');
   noise(0.18,0.05,900); // the felt brushes itself clean
   if(P&&P.hotSlots>0) P.hotSlots--; // the HIGH ROLLER deck cools one slot at a time
+  slotTierNow=0;
   if(pending.length){ setTimeout(openNextSlot,250); }
   else { state='playing'; last=performance.now(); }
 }
@@ -11460,7 +11562,7 @@ async function actuallyDie(){
     tick(); };
   { const fp9=((P.kills*7+Math.round(gt)*13+P.level*101+score)>>>0).toString(16).toUpperCase().slice(0,6);
     let fpEl=$('goSeed'); if(!fpEl){ fpEl=document.createElement('div'); fpEl.id='goSeed'; $('goStats').parentNode.insertBefore(fpEl,$('goStats')); }
-    fpEl.textContent='NIGHT №'+(LT.runs||0)+' · LEDGER '+fp9+' · v4.0 FINAL'; }
+    fpEl.textContent='NIGHT №'+(LT.runs||0)+' · LEDGER '+fp9+' · v5.0 THE FEED'; }
   countUp($('goScore'), score, 1200);
   countUp($('goGilt'), giltEarned, 900); $('goGiltTotal').textContent=gilt;
   // THE LEDGER — the whole run at a glance: wave, arsenal, skills, wounds, the dice record, the best pull
@@ -11475,6 +11577,8 @@ async function actuallyDie(){
         (lo9?'<div class="glRow" style="color:#c9b78e;letter-spacing:.12em">'+lo9+'</div>':'')+
         '<div class="glRow"><span>WAVE</span><b>'+wave+'</b><span>CURSES</span><b>'+(RUN.curses||0)+'</b><span>SCARS</span><b>'+((P.scars||[]).length)+'</b><span>DICE</span><b>'+RUN.diceWins+'/'+RUN.diceTries+'</b>'
         +(bp?'<span>BEST PULL</span><b style="color:'+RARC[bp]+'">'+SLOT_RAR[bp]+'</b>':'')+'</div>'
+        +((RUN.feeds||RUN.ascBest)?'<div class="glRow">'+(RUN.feeds?'<span>BEST FEED</span><b style="color:'+FEED_COL[RUN.feedBest||0]+'">'+['COLD','WARM ◆','HOT ◆◆','FEAST ★'][RUN.feedBest||0]+'</b>'+(RUN.feasts?'<span>FEASTS</span><b style="color:#ffd36b">'+RUN.feasts+'</b>':''):'')
+          +(RUN.ascBest?'<span>HIGHEST ASCENT</span><b style="color:'+(RUN.ascBest>=7.77?'#fff2c0':RUN.ascBest>=3.69?'#c98bff':RUN.ascBest>=2.77?'#6fb7ff':'#8bff9a')+'">'+RUN.ascBest.toFixed(2)+'×</b>':'')+'</div>':'')
         +(wchips?'<div class="glRow glChips">'+wchips+'</div>':'')
         +(schips?'<div class="glRow glChips">'+schips+'</div>':'');
       try{ b2Ledger(); }catch(e){}
@@ -11563,6 +11667,7 @@ function a3Night(){
 }
 function a3Line(n){
   return '♠ ANTE MORTEM — survived '+n.time+' · level '+n.level+' · '+n.jack+' jackpot'+(n.jack===1?'':'s')
+    +((RUN&&RUN.feasts)?' · '+RUN.feasts+' feast'+(RUN.feasts===1?'':'s')+' ★':'')+((RUN&&RUN.ascBest>=3.69)?' · ascended '+RUN.ascBest.toFixed(2)+'×':'')
     +(n.by?' · taken by '+n.by:'')+((typeof b2ShareBits==='function')?b2ShareBits():'')+' · '+A3_URL;
 }
 function a3Copy(txt){
@@ -11756,6 +11861,8 @@ const WHISPERS={
   debtor:['DEATH\'S DEBTOR','Talk death out of it twice in one lifetime.','Won the final press twice, ever.'],
   broke:['BROKE AT THE END','Die without a coin to your name.','Died holding exactly 0 coins.'],
   icarus:['ICARUS ASCENDANT','Ride the climb past the seventh heaven.','Passed 7.77x in the Ascent.'],
+  glutton:['THE GLUTTON','Let the bar eat until only gold remains.','Cashed THE FEED at the FEAST.'],
+  armorer:['THE ARMORER','Climb past the third heaven and take up arms.','Took a card from THE ARMORY.'],
   coldfeet:['COLD FEET','Hesitate thirteen times in one night.','Paused 13 times in one run.'],
   theegg:['THE EGG','Something small and golden hides far from the lights.','Found and ate the golden egg.'],
   pactbreaker:['PACT BREAKER','Take from the red table thrice, and never roll.','Took 3 red-table offers in one night without dicing.'],
@@ -11878,6 +11985,7 @@ function whisperSweep(){
 const WHISPER_TOTAL=Object.keys(WHISPERS).length;
 let secPaid=false;
 function secret(id,name){
+  if(window.LESSON&&window.LESSON.on) return; // J3: the lesson leaves no marks
   if(SEC.has(id)) return; SEC.add(id); achSaveSoon();
   gilt+=25; saveGilt(); // every whisper answered pays
   announce('🗝 SECRET — '+name+' · +25 GILT 🗝', true);
@@ -12014,6 +12122,7 @@ const ACH_PERKS={
 };
 function applyAchPerks(){ if(DLY_RNG) return; for(const id in ACH_PERKS){ const pk=ACH_PERKS[id]; if(pk.ap && unlocked.has(id)) try{ pk.ap(); }catch(e){} } }
 function bump(stat,value){
+  if(window.LESSON&&window.LESSON.on) return; // J3: the lesson leaves no marks
   const arr=ACH_BY_STAT[stat]; if(!arr) return;
   for(const a of arr){ if(a.v>value) break; if(!unlocked.has(a.id)){ unlocked.add(a.id); achQ.push(a);
     const pk=ACH_PERKS[a.id];
@@ -12035,6 +12144,7 @@ function pumpToasts(){
 }
 let recToasted=new Set();
 function recCheck(key,value,label){
+  if(window.LESSON&&window.LESSON.on) return; // J3: the lesson leaves no marks
   if(value>REC[key]){ const had=REC[key]>0; REC[key]=value; achSaveSoon();
     if(had && !recToasted.has(key)){ recToasted.add(key); const box=$('achToasts'); if(box){ const t=document.createElement('div'); t.className='achToast record';
       t.innerHTML='<span class="achIcon">✦</span><span class="achTxt"><b>NEW RECORD</b><i>'+label+': '+value+'</i></span>';
@@ -12326,7 +12436,7 @@ const RANK_MILESTONES={
  50:{r:'FINAL PRESS STARTS +2%',      ap:()=>{ P.pressBase=(P.pressBase||0)+0.02; }},
  60:{r:'CURSES 15% SHORTER',          ap:()=>{ P.curseCut=Math.min(P.curseCut||1,0.85); }},
  70:{r:'VAULT PRICES −8%',            ap:()=>{ P.vaultDisc=(P.vaultDisc||0)+0.08; }},
- 80:{r:'RAGE FEED +15%',              ap:()=>{ P.ovFeed=(P.ovFeed||1)*1.15; }},
+ 80:{r:'THE FEED EATS +15%',              ap:()=>{ P.ovFeed=(P.ovFeed||1)*1.15; }},
  90:{r:'FINAL PRESS STARTS +2%',      ap:()=>{ P.pressBase=(P.pressBase||0)+0.02; }},
  100:{r:'ALL COINS +15% — THE HOUSE IS YOURS', ap:()=>{ P.coinMult=(P.coinMult||1)*1.15; }}
 };
@@ -12357,6 +12467,7 @@ async function loadRank(){ try{ if(!store)return; const v=await store.get(RANK_K
   RANK.rank=Math.min(RANKS.length, Math.max(RANK.rank, rankFromMarks(RANK.marks))); }
 async function saveRank(){ try{ if(!store)return; await store.set(RANK_KEY,JSON.stringify({v:3,marks:RANK.marks,rank:RANK.rank}),false); }catch(e){} }
 function awardMarks(m){
+  if(window.LESSON&&window.LESSON.on) return { up:false, reward:'', have:0, need:1, pct:0 }; // J3: the lesson leaves no marks
   RANK.marks+=m; let up=false, reward='';
   while(RANK.rank<RANKS.length && RANK.marks>=rkCum(RANK.rank+1)){
     RANK.rank++; up=true; const rk=RANKS[RANK.rank-1]; reward=rk.r||'';
@@ -12423,9 +12534,9 @@ function fnTick(dt){
     SFX.casinoDing(); setTimeout(()=>{ try{ SFX.coinPling(); SFX.coinPling(); }catch(e){} },90); }
   // the first RAGE: teach SPACE, and if the lesson doesn't land, the House cashes once
   if(P.ovT>0 && !P._fnR){ P._fnR=1;
-    coachMark('fn_space','SPACE IS EVERY BET — press it NOW to cash the RAGE · reels, dice, wheel: all SPACE'); }
-  if(P.ovT>0 && P.ovT<90.6 && P._fnR===1){ P._fnR=2;
-    P.ovT=90.6; P.ovAge=0; cashRage();
+    coachMark('fn_space','THE BAR EATS SOULS & COINS — the longer it feeds, the richer the reels · SPACE cashes any time'); }
+  if(P.ovT>0 && P.ovT<30 && P._fnR===1){ P._fnR=2; // the first feed is about to starve: the House cashes it, once
+    cashRage();
     setTimeout(()=>announce('◈ THE HOUSE CASHED FOR YOU — THIS ONCE · NEXT TIME, SPACE ◈', true), 200); }
   // back on the floor after the first pull: say what the machine is for
   if(P._fnL && !P._fnS && state==='playing'){ P._fnS=1;
@@ -12954,7 +13065,7 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
         ['MOVE','WASD or arrows. Your weapons fire by themselves. You just dodge and collect.'],
         ['DON\'T GET TOUCHED','Everything that moves wants to touch you. Don\'t let it.'],
         ['PICK UP THE LIGHT','Dead enemies drop light. Walk over it. When the bottom bar fills, you level up.'],
-        ['RAGE','A full bar sets you on fire: +50% power. Hold it hot for a few seconds and a green gate appears. SPACE banks it early.'],
+        ['THE FEED','A full bar turns into THE FEED: +50% power, and it starts to starve. Keep killing to feed it. The longer it feeds, the richer the next reels: WARM at 3s, HOT at 7s, FEAST at 12s (only epic & legendary). SPACE cashes any time. Let it starve and you lose a quarter of the XP.'],
         ['THE CLOCK','At 13:00 something unkillable arrives. At 15:00 the run ends. Nobody survives the night — score big before it.']
       ]},
       {ico:'🎰', name:'THE MACHINE', col:'#ffd36b', items:[
@@ -12965,12 +13076,12 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
       ]},
       {ico:'🎡', name:'THE GAMBLES', col:'#c98bff', items:[
         ['THE CASE','A little gold case appears on the floor. It costs a cut of your coins. SPACE snaps each chain, then SPACE spins for a prize.'],
-        ['THE ASCENT','The green gate. SPACE pushes a number up, ENTER cashes out. Higher = better prizes. 7.77 is the jackpot — but crash and you\'re cursed.'],
+        ['THE ASCENT','The green gate. SPACE launches it and the number climbs ON ITS OWN. SPACE again cashes. Every rung pays: 1.77 a level, 2.77 a HOT level, 3.69 THE ARMORY (pick an epic or legendary), 7.77 an Ascension + two FEAST levels. Crash first and you\'re cursed.'],
         ['TAROT','Ghost cards on the floor. Half bless you. Half don\'t. The violet arrow points the way.'],
         ['THE FINAL PRESS','When you die, the House offers one roll to live. MASH SPACE to raise your odds, then watch the number drop. Under your odds = one more hand.']
       ]},
       {ico:'◈', name:'THE LONG GAME', col:'#ff9a9a', items:[
-        ['COINS','This run\'s money. Feeds your rage bar, pays for the case.'],
+        ['COINS','This run\'s money. Feeds THE FEED, pays for the case.'],
         ['GILT','Forever-money. You keep it when you die. Spend it in the VAULT for permanent power.'],
         ['THE VAULT','A great door in the arena. The first boss drops its KEY. One seal per visit.'],
         ['RANKS','Every run earns MARKS. Marks raise your HOUSE RANK — 100 levels, every one pays, new weapons unlock as you climb.'],
@@ -12982,7 +13093,7 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
       +s.items.map(h=>'<div class="howItem"><div><div class="howName">'+h[0]+'</div><div class="howDesc">'+h[1]+'</div></div></div>').join('')+'</div>';
     const RULES_TAB={ico:'▣', name:'HOUSE RULES', col:'#e8b64c', items:[
       ['THE BET','You are Vesper. You owe the House your soul. Survive, level up, gamble — win it back or die trying.'],
-      ['ONE BUTTON','Almost everything is SPACE. Spin, stop, roll, snap, push, live. WASD walks. That\'s the whole game.'],
+      ['ONE BUTTON','Almost everything is SPACE. Spin, stop, roll, snap, cash, live. WASD walks. That\'s the whole game.'],
       ['EVERY RUN ENDS','At 15:00 the House forecloses, always. The goal isn\'t to survive — it\'s to matter before you don\'t.'],
       ['THE HOUSE ALWAYS BLEEDS','…but it never loses. Play accordingly.']
     ]};
@@ -13222,7 +13333,7 @@ function buildGfxPanel(){
     +GFX_DEFS.filter(d=>d.k!=='vol').map(d=>'<div class="gxRow"><span class="gxName">'+d.n+'</span><button class="gxBtn" data-k="'+d.k+'">'+gfxLabel(d)+'</button></div>').join('')
     +'<div class="gxRow"><span class="gxName">FULLSCREEN</span><button class="gxBtn" id="gxFull">F — TOGGLE</button></div>'
     +'<div class="gxRow"><span class="gxName">EVERYTHING</span><button class="gxBtn" id="gxReset">RESET TO DEFAULTS</button></div>'
-    +'<div class="gxKeys">⌨ WASD walk · SPACE every bet · ENTER cash the ascent · ESC pause · TAB codex · M mute · R (hold) re-ante</div>'
+    +'<div class="gxKeys">⌨ WASD walk · SPACE every bet (cashes the feed & the ascent) · ESC pause · TAB codex · M mute · R (hold) re-ante</div>'
     +'<div class="gxRow"><span class="gxName">YOUR SOUL, PORTABLE</span><span><button class="gxBtn" id="gxExport">EXPORT</button> <button class="gxBtn" id="gxImport">IMPORT</button></span></div>'
     +'<button class="gxBtn gxClose" id="gfxClose">CLOSE</button></div>';
   document.body.appendChild(p);
@@ -13264,6 +13375,8 @@ function _annPump(){
   const a=$('announce');
   if(a){
     a.textContent=txt; a.className='ann '+(good?'good':'bad');
+    { const c=(typeof good==='string')?good:''; // J1: a color in place of `true` — the banner wears it (the feed's jewels)
+      a.style.color=c; a.style.borderColor=c?c+'99':''; a.style.textShadow=c?'0 0 18px '+c:''; a.style.boxShadow=c?'0 0 26px '+c+'59':''; }
     a.style.animation='none'; void a.offsetWidth; a.style.animation='';
     a.classList.remove('hidden');
     tone(good?1760:520,0.07,'sine',0.06); tone(98,0.5,'sine',0.032,80); // the room leans in
@@ -13414,8 +13527,9 @@ window.addEventListener('keydown',e=>{
     if(state==='vault'){ $('vaultPanel').classList.add('hidden'); state='playing'; SFX.casinoDing(); return; }
     if(state==='playing'){ state='paused'; document.body.classList.add('paused'); $('pauseLayer').classList.remove('hidden'); SFX.thud(); window._pzT=performance.now();
       { const pt=document.querySelector('.pauseCard .pz'); if(pt) pt.textContent='◈ PAUSED ◈'; }
+      { const qb=$('quitBtn'); if(qb) qb.textContent=(window.LESSON&&window.LESSON.on)?'LEAVE THE LESSON':'QUIT TO MENU'; } // J3
       $('pauseStats').innerHTML='<div class="ps"><b>'+P.kills+'</b><i>KILLS</i></div><div class="ps"><b>'+P.level+'</b><i>LEVEL</i></div><div class="ps"><b>'+P.coins+'</b><i>COINS</i></div><div class="ps"><b>'+wave+'</b><i>WAVE</i></div><div class="ps"><b>'+Math.floor(gt/60)+':'+String(Math.floor(gt%60)).padStart(2,'0')+'</b><i>TIME</i></div>'+'<div style="flex-basis:100%;text-align:center;font-family:var(--disp);font-size:10px;letter-spacing:.08em;color:#9a8f7e;margin-top:8px">◈ COINS — the House&#39;s gold, this run · ⚜ XP — level charge, wagered in the Ascent · GILT — eternal Vault currency</div>'; if(P){ P._pauses=(P._pauses||0)+1; if(P._pauses>=13) secret('coldfeet','COLD FEET'); }
-      { let pf=$('pzFoot'); if(!pf){ pf=document.createElement('div'); pf.id='pzFoot'; $('pauseStats').parentNode.appendChild(pf); } pf.textContent='NIGHT №'+(LT.runs||0)+' · v4.0 — FINAL'; } }
+      { let pf=$('pzFoot'); if(!pf){ pf=document.createElement('div'); pf.id='pzFoot'; $('pauseStats').parentNode.appendChild(pf); } pf.textContent='NIGHT №'+(LT.runs||0)+' · v5.0 — THE FEED'; } }
     else if(state==='paused'){
       if(performance.now()-(window._pzT||0)<500){ quitToMenu(); return; } // ESC·ESC — straight to the door
       state='playing'; document.body.classList.remove('paused'); $('pauseLayer').classList.add('hidden'); SFX.casinoDing(); }
@@ -13448,8 +13562,8 @@ window.addEventListener('keydown',e=>{
       else if(n9 && !e.repeat && (k===' '||k==='enter') && performance.now()-(crash.jkT||0)>450) pickJackpot(crash.jkSel||0);
       return; }
     e.preventDefault();
-    if(k===' '){ if(crash.live){ SFX.press(); pressPulse('crashMsg'); pushCrash(); } else if(!crash.done){ SFX.press(); pressPulse('crashMsg'); launchCrash(); } }
-    else if(k==='enter'){ if(crash.live){ SFX.press(); pressPulse('crashMsg'); cashCrash(); } }
+    if(e.repeat) return; // J2: a held key never cashes the instant it launches
+    if(k===' '||k==='enter'){ if(crash.live){ SFX.press(); pressPulse('crashMsg'); cashCrash(); } else if(!crash.done && k===' '){ SFX.press(); pressPulse('crashMsg'); launchCrash(); } }
     return;
   }
   if(state==='marker'){
@@ -13861,8 +13975,8 @@ const SOULS=[
    pips:'♥♥♥♥ · 👢👢👢 · ⚔⚔⚔⚔⚔', u:()=>(LT.rites||0)>=10, uTxt:'SIT AT THE RED TABLE 10 TIMES', ap:()=>{ P.martyr=true; P.maxHp+=40; P.hp=P.maxHp; P.regen=0; P.lifesteal=0; }},
  {id:'magpie', n:'THE MAGPIE',    g:'✧', col:'#2ee6ff', d:'Pickup reach ×2.5. Every coin has a 3% chance to be a GOLDEN CHIP — grab it and a free mini-slot spins: triple = a free level, pair = a free power, bust = coins. −20% damage.',
    pips:'♥♥♥ · 👢👢👢👢 · ◈◈◈◈', u:()=>(LT.coins||0)>=5000, uTxt:'PICK UP 5,000 LIFETIME COINS', ap:()=>{ P.magpie=true; P.pickup*=2.5; P.damage*=0.8; }},
- {id:'banker', n:'THE BANKER\'S GHOST', g:'♖', col:'#c4ff4d', d:'Interest: every 60s, +8% of the coins you hold. Cash RAGE at 90%+ and it pays DOUBLE that: +16% of your purse. The wheel won\'t spin for the dead — no Wheel of Souls. −10 max blood.',
-   pips:'♥♥ · 👢👢👢 · ◈◈◈◈◈', u:()=>((typeof SEATS!=='undefined'&&SEATS.st.rage)||0)>=15, uTxt:'CASH OUT RAGE AT 90%+ 15 TIMES', ap:()=>{ P.banker=true; P.maxHp=Math.max(40,P.maxHp-10); P.hp=P.maxHp; }},
+ {id:'banker', n:'THE BANKER\'S GHOST', g:'♖', col:'#c4ff4d', d:'Interest: every 60s, +8% of the coins you hold. Cash THE FEED HOT (◆◆) or richer and it pays DOUBLE that: +16% of your purse. The wheel won\'t spin for the dead — no Wheel of Souls. −10 max blood.',
+   pips:'♥♥ · 👢👢👢 · ◈◈◈◈◈', u:()=>((typeof SEATS!=='undefined'&&SEATS.st.rage)||0)>=15, uTxt:'CASH THE FEED HOT OR RICHER 15 TIMES', ap:()=>{ P.banker=true; P.maxHp=Math.max(40,P.maxHp-10); P.hp=P.maxHp; }},
  {id:'twin',   n:'THE OBSIDIAN TWIN', g:'♝', col:'#d36bff', stake:true, d:'Fights beside its own shadow: +1 projectile on every shot, every dice target −1. Half a soul: −30 max blood.',
    pips:'♥ · 👢👢👢 · 🎲🎲🎲🎲🎲', u:()=>!!(typeof STK!=='undefined'&&STK.first&&STK.first[2]), uTxt:'CLEAR THE OBSIDIAN DECK', ap:()=>{ P.projectiles+=1; P.diceEase=(P.diceEase||0)+1; P.maxHp=Math.max(40,P.maxHp-30); P.hp=P.maxHp; }}
 ];
@@ -14423,7 +14537,7 @@ function tcSync(){
   let lbl='BET';
   if(state==='dead') lbl=(window._recapDone?'AGAIN':'READ');
   else if(state==='marker') lbl='PRESS';
-  else if(state==='crash') lbl=crash&&crash.live?'PUSH':'LAUNCH';
+  else if(state==='crash') lbl=crash&&crash.live?'CASH':'LAUNCH';
   else if(state==='slot' && typeof slotStage!=='undefined' && slotStage==='offer') lbl='HOLD';
   const key=state+'|'+betOn+'|'+crashLive+'|'+lbl;
   if(key===TC.last) return; TC.last=key;
@@ -15395,7 +15509,7 @@ function sharpDeal(pool, redeal){
   window._sharpPool=pool;
   const u=rng('slot'), pB=MFATE.P+(P.yolkFate?0.03:0);
   const n = P.coldDeck ? 1 : (u<MFATE.T ? 3 : (u<MFATE.T+pB ? 2 : 1));
-  const d=weightedByRarity(pool, slotHot());
+  const d=weightedByRarity(pool, slotWeights());
   window._sharpTell={n, s:d.id};
   sharpShow();
 }
@@ -15426,10 +15540,10 @@ function sharpRedeal(){
   sharpDeal(window._sharpPool, true); showSlotButtons();
 }
 window.addEventListener('keydown',e=>{ try{ if(state==='slot' && slotStage==='ready' && P && P.sharp && (e.key||'').toLowerCase()==='r' && !e.repeat){ e.preventDefault(); sharpRedeal(); } }catch(err){} });
-// THE BANKER'S GHOST — no wheel for the dead; the RAGE pays a dividend. Every 90%+ cash counts toward his seat.
+// THE BANKER'S GHOST — no wheel for the dead; THE FEED pays a dividend. Every HOT-or-richer cash counts toward his seat (key name 'rage' kept).
 { const _tw=tickWheelTok; tickWheelTok=function(dt){ if(P&&P.banker){ wheelTok=null; return; } return _tw.apply(this,arguments); }; }
 { const _ow=openWheel; openWheel=function(){ if(P&&P.banker){ announce('♖ THE WHEEL WILL NOT SPIN FOR THE DEAD ♖', false); return; } return _ow.apply(this,arguments); }; }
-{ const _cr=cashRage; cashRage=function(){ const good=P&&P.ovT>=90, purse=P?P.coins:0; const r=_cr.apply(this,arguments);
+{ const _cr=cashRage; cashRage=function(){ const good=P&&(P.ovTier||0)>=2, purse=P?P.coins:0; const r=_cr.apply(this,arguments);
     if(good){ SEATS.st.rage=(SEATS.st.rage||0)+1; seatsSaveSoon();
       if(P.banker){ const g=Math.max(10,Math.round(purse*0.16)); P.coins+=g; LT.coins+=g;
         setTimeout(()=>{ announce('♖ THE DIVIDEND — +'+g+' COINS ♖', true); try{ SFX.register(); }catch(e){} coinRain(Math.min(34,10+Math.floor(g/4))); flash(0.3,'#c4ff4d'); }, 500); } }
@@ -15488,7 +15602,7 @@ const E2_RX=[
  [/ANSWER (\d+) WHISPERS/,       n=>[SEC.size, n, 'WHISPERS']],
  [/(\d+) TRIPLES/,               n=>[LT.triples||0, n, 'TRIPLES']],
  [/RED TABLE (\d+) TIMES/,       n=>[LT.rites||0, n, 'RITES']],
- [/RAGE AT 90%\+ (\d+) TIMES/,   n=>[(typeof SEATS!=='undefined'&&SEATS.st.rage)||0, n, 'CASH-OUTS']]
+ [/FEED HOT OR RICHER (\d+) TIMES/,   n=>[(typeof SEATS!=='undefined'&&SEATS.st.rage)||0, n, 'CASH-OUTS']]
 ];
 function e2Parse(txt){
   let best=null;
@@ -15782,9 +15896,10 @@ function h2Release(){
   const _s=secret; // the reveal card + its banner wait too, so nothing talks over the first lesson
   secret=function(id, name){ if(h2Hush() && !SEC.has(id)){ if(!H2.held.some(f=>f._id===id)){ const f=()=>_s(id, name); f._id=id; H2.held.push(f); } return; } return _s(id, name); };
   const _p=pumpToasts;
-  pumpToasts=function(){ if(h2Hush()){ H2.ach=true; return; } return _p.apply(this, arguments); };
+  // I1/H2 #18: night one's 0:00 toasts ("Regular ×1") fire in startGame before the first-night flag exists — hold those too
+  pumpToasts=function(){ if(h2Hush() || ((LT.runs||0)<=1 && typeof gt==='number' && gt<2 && !H2.rel)){ H2.ach=true; H2.early=1; return; } return _p.apply(this, arguments); };
   const _fs=fnStart;
-  fnStart=function(){ H2.held.length=0; H2.ach=false; H2.rel=0; H2.s0=0;
+  fnStart=function(){ H2.held.length=0; H2.ach=!!H2.early; H2.early=0; H2.rel=0; H2.s0=0;
     const r=_fs.apply(this, arguments);
     try{ for(const k in REC) if(!(REC[k]>0)) recToasted.add(k); }catch(e){} // no record yet → nothing to beat tonight
     return r; };
@@ -16089,6 +16204,357 @@ if(typeof renderChips==='function'){ const _rc=renderChips;
   renderChips=function(){ const r=_rc.apply(this, arguments); try{ dlyPlaque(); }catch(e){} return r; }; }
 try{ dlyPlaque(); }catch(e){}
 dlyLoad().then(()=>{ try{ dlyPlaque(); }catch(e){} });
+/* ==== J3 — THE LESSON (the interactive tutorial) ====
+   Six short lessons on a gentle floor, one per system: WALK · HUNT · THE FEED ·
+   THE REELS · THE WHEEL · THE ASCENT. ~2 minutes, cannot be lost.
+   - entry: lessonPlay() (menu button ✒ THE LESSON, the NEW HERE? chip, hotkey T).
+     It seats Vesper on THE PIT with no contracts/indulgences/stake, then calls
+     startGame(); startGame calls lessonBegin() right after fnStart().
+   - while LESSON.on: bump/awardMarks/recCheck/secret/idxSee are silent (guards in
+     ranks.js read window.LESSON — never a bare LESSON: the build concatenates every
+     script into one, so a bare reference from an earlier file would hit the TDZ),
+     no bosses (spawnBoss guard), only crawlers, no tarot/bounty/dare/props, blood
+     never falls under 40% and death is refused. LT is snapshotted before the
+     night and restored after it: the lesson leaves no fingerprints on the ledger
+     (LT.runs included — no gentle night is consumed).
+   - each step: #lessonBar banner (n/6, title, how-to line, live status) + the
+     matching coach toast; on its condition: SFX.levelDing, gold ring, next in 900ms.
+   - finish: '♠ THE HOUSE IS OPEN — PLAY TONIGHT ♠', confetti, seraph, save, menu in 2.5s.
+   - persistence: NEW additive key am_lesson_v1 = {done:0|1, n:plays}.
+   Loaded LAST (after daily.js), so it may wrap globals declared earlier.          */
+const LESSON_KEY='am_lesson_v1';
+const LESSON=window.LESSON={ on:false, step:0, done:false, flags:{}, data:{done:0,n:0}, ring:null, kills0:0, gt0:0, w0:0, res:null, _lt:null, _iv:0, _nx:0, _seq:0, starved:0 };
+const LSN_COL={ walk:'#ffd36b', hunt:'#ff5560', feed:'#ff9a3c', reels:'#6db4ff', wheel:'#c98bff', ascent:'#8bff9a' };
+try{ for(const id in LSN_COL) GLYPH_COL['lsn_'+id]=LSN_COL[id]; }catch(e){}
+function lsnTouch(){ return !!window._touchUI; }
+function lsnAuto(){ return typeof pushCrash!=='function'; } // J2's ascent climbs on its own and retires pushCrash
+const LSN_STEPS=[
+  null,
+  { id:'walk',   g:'♞', n:'WALK',       how:()=>(lsnTouch()?'DRAG':'WASD')+' to walk · reach the gold ring',
+    coach:()=>(lsnTouch()?'DRAG anywhere':'WASD or ARROWS')+' to walk — follow the gold arrow to the ring' },
+  { id:'hunt',   g:'⚔', n:'HUNT',       how:()=>'your bolt aims itself · kill 8',
+    coach:()=>'you never aim — your bolt finds the nearest dead · just keep moving and reap 8' },
+  { id:'feed',   g:'◆', n:'THE FEED',   how:()=>'THE BAR EATS · keep killing · watch the jewels light · cash with SPACE at ◆◆ or risk the FEAST',
+    coach:()=>'a full bar becomes THE FEED — souls feed it, the jewels light as it feeds · SPACE cashes for richer reels' },
+  { id:'reels',  g:'♠', n:'THE REELS',  how:()=>'SPACE stops each reel · TAKE, or hold SPACE to ROLL the dice',
+    coach:()=>'every level pulls the slot — SPACE stops each reel · then TAKE it, or HOLD SPACE and roll for more' },
+  { id:'wheel',  g:'☸', n:'THE WHEEL',  how:()=>'the purple case · SPACE snaps the chains, SPACE spins, SPACE brakes',
+    coach:()=>'walk into the purple case — SPACE snaps each chain, SPACE spins, SPACE brakes' },
+  { id:'ascent', g:'▲', n:'THE ASCENT', how:()=>lsnAuto()
+      ? 'the green gate climbs alone · SPACE cashes · the higher, the richer · crash = a curse'
+      : 'the green gate · SPACE launches & climbs · ENTER cashes · the higher, the richer · crash = a curse',
+    coach:()=>lsnAuto()
+      ? 'walk into the green gate — it climbs alone · SPACE cashes · higher is richer · a crash curses you'
+      : 'walk into the green gate — SPACE climbs, ENTER cashes · higher is richer · a crash curses you' }
+];
+
+/* ---------- persistence ---------- */
+async function lessonLoad(){ try{ if(!store) return; const v=await store.get(LESSON_KEY);
+  if(v&&v.value){ const o=JSON.parse(v.value); LESSON.data.done=o.done?1:0; LESSON.data.n=Math.max(0,+o.n||0); } }catch(e){} }
+async function lessonSave(){ try{ if(!store) return; await store.set(LESSON_KEY, JSON.stringify({done:LESSON.data.done?1:0, n:LESSON.data.n|0}), false); }catch(e){} }
+
+/* ---------- entry ---------- */
+function lessonPlay(){
+  if(state!=='menu' || LESSON.on) return;
+  try{ LESSON._lt=JSON.parse(JSON.stringify(LT)); }catch(e){ LESSON._lt=null; }
+  LESSON.data.n=(LESSON.data.n|0)+1; lessonSave();
+  LESSON.on=true; LESSON.step=0; LESSON.done=false; LESSON.res=null; LESSON.flags={}; LESSON.starved=0;
+  try{ DLY.next=null; }catch(e){}
+  // the lesson always seats Vesper in THE PIT, plain terms — the player's own picks wait for a real night
+  const keep={}; try{ keep.sl=IDX.sl; keep.fl=IDX.fl; keep.ct=IDX.ct; keep.ind=IDX.ind; IDX.sl='vesper'; IDX.fl='pit'; IDX.ct=[]; IDX.ind=[]; }catch(e){}
+  try{ keep.stk=STK.sel; STK.sel=0; }catch(e){}
+  try{ SFX.press&&SFX.press(); SFX.casinoDing(); }catch(e){}
+  try{ fadeVeil&&fadeVeil(); }catch(e){}
+  try{ startGame(); }
+  finally{ try{ IDX.sl=keep.sl; IDX.fl=keep.fl; IDX.ct=keep.ct; IDX.ind=keep.ind; }catch(e){} try{ STK.sel=keep.stk; }catch(e){} }
+}
+// called by startGame() right after fnStart()
+function lessonBegin(){
+  if(!LESSON.on) return;
+  if(LESSON._lt) LT.runs=LESSON._lt.runs; // a lesson is not a night
+  P._fn=false; if(P._fnXp){ P._fnXp=0; P.xpMult=(P.xpMult||1)/FN.xpBoost; }
+  window._fmods={horde:0.35, noRanged:true}; document.body.classList.remove('floor-cellar','floor-chapel');
+  tarotT=bountyT=dareT=interT=9e9; wheelTok=null; crashTok=null; wheelTokT=crashTokT=9e9; eggProp=null; bounty=null; dare=null;
+  waveGap=9e9; // the floor stays empty until the first lesson is walked
+  P.xp=0; P.xpNext=12;
+  LESSON._seq=window._runSeq; LESSON.gt0=gt; LESSON.w0=performance.now(); LESSON.kills0=0;
+  document.body.classList.add('lessonOn');
+  lsnBar();
+  setTimeout(()=>{ if(lsnLive()) announce('✒ THE LESSON — SIX THINGS, TWO MINUTES · YOU CANNOT DIE ✒', true); }, 300);
+  setTimeout(()=>{ if(lsnLive()) lsnGo(1); }, 1300);
+  clearInterval(LESSON._iv); LESSON._iv=setInterval(lsnPoll, 150);
+}
+function lsnLive(){ return LESSON.on && window._runSeq===LESSON._seq && state!=='menu' && state!=='dead'; }
+
+/* ---------- steps ---------- */
+function lsnGo(n){
+  if(!lsnLive()) return;
+  LESSON.step=n; LESSON.stepDone=false; const S=LSN_STEPS[n];
+  if(n===1){ // a gold ring 300px away, toward the open floor
+    const a=(VH>VW*1.15)?1.25:0.32; // down on a tall phone, right on a wide screen — on the glass, clear of the banner
+    LESSON.ring={x:clamp(P.x+Math.cos(a)*300,80,CFG.arena-80), y:clamp(P.y+Math.sin(a)*300,80,CFG.arena-80), r:46, born:gt};
+    ring(LESSON.ring.x,LESSON.ring.y,120,'#ffd36b'); }
+  if(n===2){ LESSON.kills0=P.kills; waveGap=0.3; }
+  if(n===3){ LESSON.flags.cashed=false; if(!(P.ovT>0)) P.xp=Math.max(P.xp, Math.ceil(P.xpNext*0.7)); }
+  if(n===5){ P.coins=Math.max(P.coins||0,20); try{ wheel.rigSeg='90 COINS'; }catch(e){} lsnToken('wheel'); }
+  if(n===6){ lsnToken('crash'); }
+  announce('✒ LESSON '+n+' OF 6 — '+S.n+' ✒', true);
+  try{ SFX.tingle(); setTimeout(()=>{ try{ tone(784,0.12,'sine',0.08); tone(1175,0.18,'sine',0.06); }catch(e){} },120); }catch(e){}
+  lsnCoach(S);
+  lsnBar(true);
+}
+function lsnCoach(S){ try{ LT.coach=LT.coach||{}; const id='lesson_'+S.id; delete LT.coach[id]; coachMark(id, S.coach()); delete LT.coach[id]; }catch(e){} }
+// the case and the gate land a short walk away (toward the open floor), and wait
+function lsnToken(kind){
+  const C=CFG.arena/2, a=Math.atan2(C-P.y, C-P.x)+(kind==='wheel'?0.7:-0.7)+(Math.random()-0.5)*0.4, d=190;
+  const t={x:clamp(P.x+Math.cos(a)*d,80,CFG.arena-80), y:clamp(P.y+Math.sin(a)*d,80,CFG.arena-80), t:9e9, ph:Math.random()*6.28};
+  if(kind==='wheel'){ wheelTok=t; announce('☸ THE WHEEL OF SOULS MANIFESTS ☸', true); ring(t.x,t.y,90,'#c98bff'); ring(t.x,t.y,54,'#ffd36b'); }
+  else { crashTok=t; announce('▲ THE ASCENT BECKONS ▲', true); ring(t.x,t.y,90,'#8bffd0'); ring(t.x,t.y,54,'#fff2c0'); }
+  try{ SFX.dingBells(); [988,1318,1760].forEach((f,i)=>setTimeout(()=>tone(f,0.14,'sine',0.08),i*110)); }catch(e){}
+}
+function lsnDone(n){
+  if(!lsnLive() || LESSON.step!==n || LESSON.stepDone) return;
+  LESSON.stepDone=true; const S=LSN_STEPS[n];
+  try{ SFX.levelDing(); }catch(e){}
+  if(state==='playing'){ ring(P.x,P.y,130,'#ffd36b'); ring(P.x,P.y,80,'#fff2c0'); burst(P.x,P.y,16,LSN_COL[S.id]); ftext(P.x,P.y-44,'✦ '+S.n+' — LEARNED ✦','#ffd36b',true); }
+  flash(0.22,'#ffd36b');
+  lsnBar(true);
+  if(n===6){ clearTimeout(LESSON._nx); LESSON._nx=setTimeout(lsnFinish, 900); return; }
+  clearTimeout(LESSON._nx); LESSON._nx=setTimeout(()=>lsnGo(n+1), 900);
+}
+function lsnFinish(){
+  if(!lsnLive()) return;
+  LESSON.done=true; LESSON.step=7;
+  LESSON.res={ gt:+(gt-LESSON.gt0).toFixed(1), ms:Math.round(performance.now()-LESSON.w0) };
+  LESSON.data.done=1; lessonSave();
+  pending.length=0;
+  // the House clears its floor for the graduate
+  if(state==='playing'){ for(const e of enemies){ burst(e.x,e.y,6,'#ffd36b'); } enemies.length=0; waveGap=9e9; ebullets.length=0;
+    ring(P.x,P.y,260,'#ffd36b'); ring(P.x,P.y,170,'#fff2c0'); ring(P.x,P.y,90,'#8bffd0'); }
+  announce('♠ THE HOUSE IS OPEN — PLAY TONIGHT ♠', true);
+  try{ SFX.seraph(); setTimeout(()=>{ try{ SFX.dingBells(); SFX.cashout(); }catch(e){} },260); }catch(e){}
+  try{ bigWin('LESSON LEARNED', 4); }catch(e){}
+  try{ domConfetti(GFX.lite?30:70); }catch(e){} try{ coinRain(GFX.lite?14:30); }catch(e){} try{ sparkBurst(30); }catch(e){}
+  flash(0.45,'#fff2c0'); shake=Math.min(16,shake+8);
+  lsnBar(true);
+  const seq=LESSON._seq;
+  setTimeout(()=>{ if(LESSON.on && window._runSeq===seq && state!=='menu'){ lsnLeave(); } }, 2500);
+}
+// back to the menu — through a slot/wheel/gate if one is somehow still open
+function lsnLeave(){
+  try{ ['slot','wheelLayer','crashLayer'].forEach(id=>{ const e=$(id); if(e) e.classList.add('hidden'); }); }catch(e){}
+  try{ const jk=$('jkWrap'); if(jk){ jk.classList.remove('show'); jk.innerHTML=''; } }catch(e){}
+  quitToMenu();
+}
+function lessonEnd(){
+  if(!LESSON.on) return;
+  const fin=LESSON.done;
+  LESSON.on=false; LESSON.step=0; clearInterval(LESSON._iv); clearTimeout(LESSON._nx);
+  LESSON.ring=null; document.body.classList.remove('lessonOn');
+  { const b=$('lessonBar'); if(b) b.classList.remove('show'); }
+  // the lesson leaves no fingerprints: the lifetime ledger is restored as it was (today's first-ante stamp stays)
+  if(LESSON._lt){ try{ const keepDay=LT.lastAnte; for(const k of Object.keys(LT)) delete LT[k]; Object.assign(LT, LESSON._lt); if(keepDay!==undefined) LT.lastAnte=keepDay; achSaveSoon(); }catch(e){} LESSON._lt=null; }
+  if(fin) setTimeout(()=>{ if(state==='menu'){ try{ announce('♠ LESSON LEARNED — THE TABLE IS YOURS ♠', true); }catch(e){} } }, 700);
+}
+
+/* ---------- the banner ---------- */
+function lsnBar(pop){
+  let b=$('lessonBar');
+  if(!b){ b=document.createElement('div'); b.id='lessonBar';
+    b.innerHTML='<div class="lsnHead"><span class="lsnN"></span><span class="lsnPips"></span></div><div class="lsnT"></div><div class="lsnRule"></div><div class="lsnD"></div><div class="lsnS"></div>';
+    document.body.appendChild(b); }
+  if(!LESSON.on){ b.classList.remove('show'); return; }
+  const n=LESSON.step, S=LSN_STEPS[Math.min(6,Math.max(1,n))];
+  let pips=''; for(let i=1;i<=6;i++){ const st=i<n||(i===n&&LESSON.stepDone)||n>6?'d':(i===n?'c':''); pips+='<i class="'+st+'" style="--pc:'+LSN_COL[LSN_STEPS[i].id]+'">'+(st==='d'?'◆':'◇')+'</i>'; }
+  const q=s=>b.querySelector(s);
+  if(n<1){ q('.lsnN').textContent='THE LESSON'; q('.lsnT').textContent='✒ THE HOUSE TEACHES ✒'; q('.lsnD').textContent='six things · two minutes · you cannot die here'; }
+  else if(n>6){ q('.lsnN').textContent='THE LESSON · LEARNED'; q('.lsnT').textContent='♠ ALL SIX LEARNED ♠'; q('.lsnD').textContent='walk · hunt · feed · reels · wheel · ascent — every bet is yours now'; }
+  else { q('.lsnN').textContent='LESSON '+n+' / 6'; q('.lsnT').innerHTML='<b style="color:'+LSN_COL[S.id]+'">'+S.g+'</b> '+S.n+(LESSON.stepDone?' <em>✓</em>':''); q('.lsnD').textContent=S.how(); }
+  q('.lsnPips').innerHTML=pips;
+  b.style.setProperty('--lc', n>=1&&n<=6?LSN_COL[S.id]:'#ffd36b');
+  b.classList.toggle('stepDone', !!LESSON.stepDone || n>6);
+  lsnStatus();
+  b.classList.add('show');
+  if(pop){ b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); }
+  lsnPlace();
+}
+// the live line under the lesson: counters, the feed's jewels, what to do next
+function lsnStatus(){
+  const b=$('lessonBar'); if(!b) return; const s=b.querySelector('.lsnS'); if(!s) return;
+  const n=LESSON.step; let t='';
+  if(!P || n<1 || n>6){ t=''; }
+  else if(LESSON.stepDone) t='✦ LEARNED ✦';
+  else if(n===1){ const r=LESSON.ring; t=r?('THE RING · '+Math.max(0,Math.round(Math.hypot(r.x-P.x,r.y-P.y)-r.r))+' PACES'):''; }
+  else if(n===2){ t='SOULS REAPED · '+Math.min(8,P.kills-LESSON.kills0)+' / 8'; }
+  else if(n===3){
+    if(P.ovT>0){ const tr=P.ovTier||0, ch=P.ovCharge||0, nx=tr<3?FEED_T[tr+1]:0;
+      t='FEEDING '+['◇◇◇','◆◇◇','◆◆◇','◆◆★'][tr]+' · '+(tr?FEED_NAME[tr]:'COLD')+(tr<3?' · '+Math.max(0,nx-ch).toFixed(1)+'s TO '+FEED_NAME[tr+1]:'')+(tr>=2?' · CASH IT — SPACE':'');
+      if(P.ovT<35) t='☠ IT STARVES — SPACE NOW ☠'; }
+    else if(LESSON.starved) t='☠ IT STARVED: −25% XP · it refills fast · this time cash before it empties';
+    else t='FILL THE BAR · '+Math.floor(P.xp)+' / '+P.xpNext+' XP'; }
+  else if(n===4){ t=state==='slot'?'THE REELS ARE YOURS':'THE MACHINE IS WAITING'; }
+  else if(n===5){ t=state==='wheel'?'SNAP · SPIN · BRAKE':'FOLLOW THE VIOLET ARROW · '+(P.coins|0)+' ◈ IN YOUR POCKET'; }
+  else if(n===6){ t=state==='crash'?(crash&&crash.live?'CLIMBING · '+(+crash.mult||1).toFixed(2)+'×':'LAUNCH IT'):'FOLLOW THE GREEN ARROW'; }
+  if(s.textContent!==t) s.textContent=t;
+}
+/* placement: on the floor the banner hangs under the HUD and the notice column moves
+   below it; when a table is open it takes the free margin the table and the
+   notice column leave (below → beside → above), else it folds away. */
+function lsnRect(el){ if(!el) return null; if(el.closest&&el.closest('.hidden')) return null; const r=el.getBoundingClientRect(); return (r.width>0&&r.height>0)?r:null; }
+function lsnHit(a,b){ return a&&b && a.left<b.right && a.right>b.left && a.top<b.bottom && a.bottom>b.top; }
+function lsnPlace(){
+  const b=$('lessonBar'); if(!b || !b.classList.contains('show')) return;
+  const W=innerWidth, H=innerHeight, touchy=document.body.classList.contains('touchUI');
+  // the top HUD (+ the combo line, + the phone's codex coin) is sacred
+  let hudB=0;
+  for(const el of [document.querySelector('.hudTop'), $('xpbar')]){ const r=lsnRect(el); if(r) hudB=Math.max(hudB,r.bottom); }
+  hudB=Math.max(hudB, touchy?80:78);
+  { const cx=lsnRect($('tcCodex')); if(cx && cx.top<160) hudB=Math.max(hudB, cx.bottom); }
+  let m=null, parts=[];
+  if(state==='slot') parts=[lsnRect($('machine')), lsnRect($('payTable')), lsnRect($('sacCard'))].filter(Boolean);
+  else if(state==='wheel') parts=[lsnRect(document.querySelector('#wheelLayer .wheelShell'))].filter(Boolean);
+  else if(state==='crash') parts=[lsnRect(document.querySelector('#crashLayer .wheelShell')), lsnRect($('jkWrap'))].filter(Boolean);
+  if(parts.length) m={left:Math.min(...parts.map(r=>r.left)), right:Math.max(...parts.map(r=>r.right)), top:Math.min(...parts.map(r=>r.top)), bottom:Math.max(...parts.map(r=>r.bottom))};
+  // a table that has just opened is still growing in (and the notice column is still moving): stand aside a beat
+  if(state!==LESSON._ps){ LESSON._ps=state; LESSON._psT=performance.now(); }
+  if((state==='slot'||state==='wheel'||state==='crash') && (!m || performance.now()-LESSON._psT<450)){ b.classList.add('fold'); return; }
+  const set=(x,y,w,cmp)=>{ b.classList.toggle('cmp',!!cmp); b.classList.toggle('one',cmp===2); b.classList.remove('fold'); b.style.width=Math.round(w)+'px'; b.style.left=Math.round(x)+'px'; b.style.top=Math.round(y)+'px'; };
+  if(!m){ // on the floor: under the HUD, centered
+    const w=Math.min(touchy?W-16:600, W-16); set((W-w)/2, hudB+6, w, false);
+    const r=b.getBoundingClientRect(); document.documentElement.style.setProperty('--lsnB', Math.round(r.bottom)+'px');
+    return; }
+  // a table is open: find the margin it leaves (the notice column keeps whichever lane it chose)
+  const nt=$('a2Notes'), lane=nt?(nt.classList.contains('a2above')?'above':nt.classList.contains('a2side')?'side':nt.classList.contains('a2below')?'below':''):'';
+  const ntR=lsnRect(nt);
+  const obst=[...parts, ntR, lsnRect($('hpwrap')), lsnRect($('tcBet')), lsnRect($('tcCash')), lsnRect(document.querySelector('.hudBottom > div:last-child')), lsnRect($('coachToast'))].filter(Boolean);
+  const tryOne=(x,y,w,maxH,cmp)=>{ if(w<200 || maxH<24) return false; set(x,y,w,cmp); const r=b.getBoundingClientRect();
+    if(r.height>maxH) return false; for(const o of obst) if(lsnHit(r,o)) return false; return true; };
+  // each margin tries the full card (sides) or the compact plate, then a single engraved line
+  const tryAt=(x,y,w,maxH,cmp)=>tryOne(x,y,w,maxH,cmp) || (cmp!==2 && tryOne(x,y,w,maxH,cmp?2:true)) || (!cmp && tryOne(x,y,w,maxH,2));
+  const cands=[];
+  // below the table (left of the phone's BET coin)
+  if(lane!=='below'){ const y=m.bottom+8; let right=W-8; for(const c of [lsnRect($('tcBet')), lsnRect($('tcCash'))]) if(c && c.bottom>y && c.left>W*0.4) right=Math.min(right, c.left-8);
+    const w=Math.min(560, right-8); cands.push([Math.max(8,Math.min((W-w)/2, right-w)), y, w, Math.max(0,H-8-y), true]); }
+  // beside it (the side the notice column didn't take)
+  const sideL=ntR && ntR.right<=m.left+4, sideR=ntR && ntR.left>=m.right-4;
+  if(!(lane==='side'&&sideL)){ const w=Math.min(300, m.left-24); cands.push([m.left-12-w, Math.max(hudB+8, m.top+20), w, H-120-Math.max(hudB+8, m.top+20), false]); }
+  if(!(lane==='side'&&sideR)){ const w=Math.min(300, W-m.right-24); cands.push([m.right+12, Math.max(hudB+8, m.top+20), w, H-120-Math.max(hudB+8, m.top+20), false]); }
+  if(lane==='side'||lane==='below'){ const w=Math.min(560, W-16); cands.push([(W-w)/2, hudB+6, w, m.top-6-(hudB+6), true]); }
+  if(!touchy && cands.length>1 && lane!=='below') cands.push(cands.shift()); // a desk has room beside the table — the margin under it is the fallback
+  for(const c of cands){ if(tryAt(...c)) return; }
+  b.classList.add('fold'); // nowhere clean to stand — the table speaks for itself
+}
+
+/* ---------- per-frame (playing) + poll (every state) ---------- */
+function lessonTick(dt){
+  if(!lsnLive()) return;
+  // you cannot die here — hits still land and flash, blood never drops under 40%
+  if(P.hp<P.maxHp*0.4) P.hp=P.maxHp*0.4;
+  if(enemies.length>46){ for(let i=enemies.length-1;i>=0 && enemies.length>46;i--){ const e=enemies[i]; if(!inView(e.x,e.y,60)) enemies.splice(i,1); } }
+  const n=LESSON.step;
+  if(n===1 && LESSON.ring && !LESSON.stepDone){ const r=LESSON.ring;
+    if(Math.hypot(P.x-r.x,P.y-r.y)<r.r+P.radius){ burst(r.x,r.y,22,'#ffd36b'); ring(r.x,r.y,140,'#fff2c0'); LESSON.ring=null; lsnDone(1); } }
+  if(n===2 && !LESSON.stepDone && P.kills-LESSON.kills0>=8) lsnDone(2);
+  if(n===5 && !LESSON.stepDone && !wheelTok && state==='playing' && !LESSON.flags.wheelDone) lsnToken('wheel'); // never strand the lesson
+  if(n===6 && !LESSON.stepDone && !crashTok && state==='playing' && !LESSON.flags.crashDone) lsnToken('crash');
+  lsnCheck();
+}
+// the event-driven lessons complete in any state (a cash opens the slot at once — update() sleeps while it is open)
+function lsnCheck(){
+  const n=LESSON.step; if(!lsnLive() || LESSON.stepDone) return;
+  if(n===3 && LESSON.flags.cashed) lsnDone(3);
+  if(n===4 && LESSON.flags.slotDone && state==='playing') lsnDone(4);
+  if(n===5 && LESSON.flags.wheelDone) lsnDone(5);
+  if(n===6 && LESSON.flags.crashDone) lsnDone(6);
+}
+function lsnPoll(){
+  if(!LESSON.on) return;
+  if(window._runSeq!==LESSON._seq || state==='menu'){ lessonEnd(); return; }
+  const b=$('lessonBar'); if(b) b.classList.toggle('pz', state==='paused');
+  if(state==='paused'){ const qb=$('quitBtn'); if(qb && qb.textContent!=='LEAVE THE LESSON') qb.textContent='LEAVE THE LESSON'; }
+  try{ lsnCheck(); }catch(e){ console.error('[lesson]',e); }
+  lsnStatus(); lsnPlace();
+}
+// what the lesson wants you to walk to (also read by probes/lesson.js)
+LESSON.target=function(){ if(!LESSON.on||!P) return null; const n=LESSON.step;
+  if(n===1&&LESSON.ring) return LESSON.ring; if(n===5&&wheelTok) return wheelTok; if(n===6&&crashTok) return crashTok; return null; };
+
+/* ---------- hooks (wrapped by name; every call site looks the name up at call time) ---------- */
+{ const _u=update; update=function(dt){ const r=_u.apply(this,arguments); if(LESSON.on) try{ lessonTick(dt); }catch(e){ console.error('[lesson]',e); } return r; }; }
+// the bar fills only when the lesson is about the bar
+{ const _g=gainXP; gainXP=function(n){
+    if(LESSON.on && n>0 && !(LESSON.step===3 && !LESSON.stepDone) && !(P.ovT>0)){
+      const room=Math.floor((P.xpNext-1-P.xp)/(P.xpMult||1)); if(room<=0) return; n=Math.min(n,room); }
+    return _g.apply(this,[n]); }; }
+{ const _c=cashRage; cashRage=function(){ const r=_c.apply(this,arguments); if(LESSON.on && LESSON.step===3) LESSON.flags.cashed=true; return r; }; }
+{ const _s=feedStarve; feedStarve=function(){ const r=_s.apply(this,arguments);
+    if(LESSON.on && LESSON.step===3){ LESSON.starved++; P.xp=Math.max(P.xp, Math.floor(P.xpNext*0.85));
+      setTimeout(()=>{ if(lsnLive()) announce('✒ IT STARVED — FEED IT, THEN SPACE BEFORE IT EMPTIES ✒', false); }, 900); } return r; }; }
+{ const _cs=closeSlot; closeSlot=function(){ const r=_cs.apply(this,arguments); if(LESSON.on && LESSON.step>=3) LESSON.flags.slotDone=true; return r; }; }
+{ const _fw=finishWheel; finishWheel=function(){ const r=_fw.apply(this,arguments); if(LESSON.on && LESSON.step===5) LESSON.flags.wheelDone=true; return r; }; }
+{ const _ow=openWheel; openWheel=function(){ if(LESSON.on){ try{ wheel.rigSeg='90 COINS'; }catch(e){} } return _ow.apply(this,arguments); }; }
+// J2's planned rig: crash.rigCp overrides the roll. openCrash rebuilds `crash`, so the rig is set after it opens;
+// rollCrashPoint honors it today too (J2 reads it in launchCrash — either way the gate breaks at 4.2×)
+{ const _oc=openCrash; openCrash=function(){ const r=_oc.apply(this,arguments); if(LESSON.on){ try{ crash.rigCp=4.2; }catch(e){} lsnPlace(); } return r; }; }
+if(typeof rollCrashPoint==='function'){ const _rc=rollCrashPoint; rollCrashPoint=function(){ if(LESSON.on && crash && crash.rigCp) return crash.rigCp; return _rc.apply(this,arguments); }; }
+{ const _cc=closeCrash; closeCrash=function(){ const was=state; const r=_cc.apply(this,arguments);
+    if(LESSON.on && was==='crash'){ if(LESSON.step===6||LESSON.step===5){ LESSON.flags.crashDone=true; pending.length=0; } } return r; }; }
+// only the gentle crawlers come to class
+{ const _se=spawnEnemy; spawnEnemy=function(type,x,y){ if(LESSON.on && type!=='shambler' && type!=='swarm') type='shambler'; return _se.call(this,type,x,y); }; }
+// the gold ring + its arrow
+{ const _dg=drawGuides; drawGuides=function(){ const r0=_dg.apply(this,arguments);
+    if(LESSON.on && state==='playing' && LESSON.ring){ const r=LESSON.ring, pu=0.75+Math.sin(gt*5)*0.25;
+      ctx.save(); ctx.globalCompositeOperation='lighter';
+      const g=ctx.createRadialGradient(r.x,r.y,0,r.x,r.y,r.r*1.6); g.addColorStop(0,'rgba(255,211,107,0.30)'); g.addColorStop(1,'rgba(255,211,107,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(r.x,r.y,r.r*1.6,0,6.283); ctx.fill(); ctx.restore();
+      ctx.save(); ctx.strokeStyle='#ffd36b'; ctx.shadowColor='#ffd36b'; ctx.shadowBlur=18; ctx.lineWidth=4; ctx.globalAlpha=pu;
+      ctx.beginPath(); ctx.arc(r.x,r.y,r.r,0,6.283); ctx.stroke();
+      ctx.lineWidth=1.5; ctx.strokeStyle='#fff2c0'; ctx.setLineDash([6,8]); ctx.lineDashOffset=-gt*30;
+      ctx.beginPath(); ctx.arc(r.x,r.y,r.r+12+Math.sin(gt*4)*4,0,6.283); ctx.stroke(); ctx.setLineDash([]);
+      ctx.globalAlpha=1; ctx.shadowBlur=0; ctx.fillStyle='#ffd36b'; ctx.font='700 20px Cinzel, Georgia, serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('✦', r.x, r.y+Math.sin(gt*3)*3); ctx.restore();
+      drawGuide(r.x, r.y, '#ffd36b'); }
+    return r0; }; }
+// the ledger stays shut while the House teaches
+{ const _is=idxSee; idxSee=function(){ if(LESSON.on) return; return _is.apply(this,arguments); }; }
+// death is refused (a backstop — blood is floored in lessonTick)
+if(typeof die==='function'){ const _d=die; die=function(){ if(LESSON.on && lsnLive()){ P.hp=Math.max(1,P.maxHp*0.4); P.inv=1; return; } return _d.apply(this,arguments); }; }
+{ const _q=quitToMenu; quitToMenu=function(){ const r=_q.apply(this,arguments); try{ lessonEnd(); }catch(e){ console.error('[lesson end]',e); } try{ lsnMenu(); }catch(e){} return r; }; }
+window.addEventListener('resize',()=>{ try{ lsnPlace(); }catch(e){} try{ if(state==='menu') lsnMenu(); }catch(e){} });
+// a table opening or closing re-seats the banner at once (the poll would lag a beat)
+setTimeout(()=>{ try{ ['slot','wheelLayer','crashLayer','pauseLayer','a2Notes'].forEach(id=>{ const e=$(id); if(e) new MutationObserver(()=>{ if(LESSON.on){ try{ lsnPlace(); }catch(x){} } }).observe(e,{attributes:true,attributeFilter:['class']}); }); }catch(e){} }, 0);
+
+/* ---------- the menu: a button in the parlor row, a chip for strangers, hotkey T ---------- */
+function lsnMenu(){
+  const row=$('menuRow2'); if(!row) return;
+  let b=$('lessonBtn');
+  if(!b){ b=document.createElement('button'); b.id='lessonBtn'; b.className='btn msm'; b.type='button';
+    const how=$('howMenuBtn'); if(how && how.parentNode===row) row.insertBefore(b, how.nextSibling); else row.appendChild(b);
+    b.addEventListener('click',()=>lessonPlay()); }
+  b.innerHTML='✒ THE LESSON'+(LESSON.data.done?' <small class="lsnOk">✓</small>':'');
+  b.title='THE LESSON — six things, two minutes (T)';
+  b.classList.toggle('lsnNew', !LESSON.data.done);
+  const pn=$('menu')&&$('menu').querySelector('.panel'); if(!pn) return;
+  let c=$('lessonChip');
+  const want=(LT.runs||0)===0 && !LESSON.data.done;
+  if(!want){ if(c) c.remove(); return; }
+  if(!c){ c=document.createElement('button'); c.id='lessonChip'; c.type='button'; c.textContent='✦ NEW HERE? TAKE THE LESSON · 2 MINUTES ✦';
+    c.addEventListener('click',ev=>{ ev.stopPropagation(); lessonPlay(); }); }
+  const anchor=$('loadoutLine')||$('startBtn');
+  if(anchor && anchor.parentNode===pn){ if(c.previousSibling!==anchor || c.parentNode!==pn) pn.insertBefore(c, anchor.nextSibling); }
+  else if(c.parentNode!==pn) pn.appendChild(c);
+}
+{ const _rc=renderChips; renderChips=function(){ const r=_rc.apply(this,arguments); try{ lsnMenu(); }catch(e){} return r; }; }
+window.addEventListener('keydown',e=>{
+  if((e.key||'').toLowerCase()!=='t' || e.repeat || state!=='menu') return;
+  const m=$('menu'); if(!m || m.classList.contains('hidden')) return;
+  if(document.activeElement && document.activeElement.tagName==='INPUT') return;
+  if(document.querySelector('.layer:not(.hidden):not(#menu):not(#hud)')) return;
+  if(['storyPanel','indexPanel','achPanel','vaultPanel','gfxPanel','howPanel','antePanel','booksPanel'].some(id=>{ const p=$(id); return p && !p.classList.contains('hidden'); })) return;
+  e.preventDefault(); lessonPlay();
+});
+try{ lsnMenu(); }catch(e){}
+lessonLoad().then(()=>{ try{ if(state==='menu') lsnMenu(); }catch(e){} });
 </script>
 </body>
 </html>
