@@ -1333,7 +1333,7 @@ function drawSigil(cx,cy){
 function drawPillar(px,py,r){
   // warm light pool
   ctx.save(); ctx.globalCompositeOperation='screen';
-  if(!qLow){ const pr=r*5; ctx.globalAlpha=0.13; // J0: the low tier drops the pillar pools (the flame keeps its glow)
+  { const pr=r*5; ctx.globalAlpha=0.13; // pillar pools stay on every tier — the director asked for speed without losing the look
     ctx.drawImage(glowSprite('rgba(232,150,60,1)','rgba(232,150,60,0)',pr), px-pr, py-pr, pr*2, pr*2); ctx.globalAlpha=1; } ctx.restore();
   // square plinth + shadow
   ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.beginPath(); ctx.ellipse(px+6,py+11,r*1.25,r*1.15,0,0,6.283); ctx.fill();
@@ -1631,7 +1631,7 @@ function render(){
   // cathedral light shafts — slanted beams falling from unseen windows onto the pools
   ctx.save(); ctx.globalCompositeOperation='lighter';
   for(const gp of glassPools){
-    if(!GFX.shafts || GFX.lite || qLow) break; // J0: no shafts on the low tier
+    if(!GFX.shafts || GFX.lite) break; // shafts stay on the low tier (narrow strips, cheap) — no visible loss on phones
     if(!inView(gp.x,gp.y,gp.r+460)) continue;
     const shm=0.5+Math.sin(gt*0.5+gp.ph*2)*0.25;
     const topX=gp.x+180, topY=gp.y-420;
@@ -1995,7 +1995,7 @@ function render(){
 
   PROF.mark('post');
   // light shafts (screen space, prebaked sprite ×3) — now honors the LIGHT SHAFTS toggle
-  if(GFX.shafts && !GFX.lite && !qLow && vignB){ // J0: skipped on the low tier
+  if(GFX.shafts && !GFX.lite && vignB){ // shafts stay on the low tier — no visible loss on phones
     ctx.save(); ctx.globalCompositeOperation='screen';
     for(let i=0;i<3;i++){ const lx=VW*(0.2+i*0.3)+Math.sin(gt*0.2+i)*40;
       ctx.drawImage(vignB.shaft, lx-20, 0, 190, VH); }

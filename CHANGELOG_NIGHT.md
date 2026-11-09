@@ -1,7 +1,13 @@
 # THE SECOND NIGHT — THE FEED, THE ASCENT v3, THE LESSON (2026-11-09)
 
-The director said the RAGE bar felt like a chore, the 7.77 Ascent almost never paid, weapons came too late, and there was no tutorial. All four are fixed. Full write-ups: `notes/J1.md`, `notes/J2.md`, `notes/J3.md`.
+The director said the RAGE bar felt like a chore, the 7.77 Ascent almost never paid, weapons came too late, and there was no tutorial. All four are fixed, and the game now runs smoothly in big fights. Full write-ups: `notes/J0.md`, `notes/J1.md`, `notes/J2.md`, `notes/J3.md`.
 
+- **THE SMOOTH TABLE (J0): the frame rate.** Before, in a big fight one second of game took several real seconds. Two things caused it:
+  - The screen was painted about 26 times per frame. It is now painted about 14 times (12 on the low tier) and looks the same.
+  - Slow frames used to turn into slow motion. Now game time keeps pace with real time down to 10 frames per second.
+  - When a machine struggles, the resolution drops to 1.5× before it drops to 1×, and climbs back the same way.
+  - Light shafts and candle pools stay on every machine, phones included.
+  - Full write-up: `notes/J0.md`.
 - **THE FEED replaces RAGE (J1).** A full XP bar now gets hungry instead of punishing you.
   - Keep killing to feed it. Jewels light at 3s (WARM ◆), 7s (HOT ◆◆) and 12s (FEAST ★).
   - SPACE cashes any time, and the next slot's reels run at that tier's odds. At the FEAST only epic and legendary can land, and the machine glows gold.
