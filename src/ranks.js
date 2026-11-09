@@ -178,6 +178,7 @@ function whisperSweep(){
 const WHISPER_TOTAL=Object.keys(WHISPERS).length;
 let secPaid=false;
 function secret(id,name){
+  if(window.LESSON&&window.LESSON.on) return; // J3: the lesson leaves no marks
   if(SEC.has(id)) return; SEC.add(id); achSaveSoon();
   gilt+=25; saveGilt(); // every whisper answered pays
   announce('🗝 SECRET — '+name+' · +25 GILT 🗝', true);
@@ -314,6 +315,7 @@ const ACH_PERKS={
 };
 function applyAchPerks(){ if(DLY_RNG) return; for(const id in ACH_PERKS){ const pk=ACH_PERKS[id]; if(pk.ap && unlocked.has(id)) try{ pk.ap(); }catch(e){} } }
 function bump(stat,value){
+  if(window.LESSON&&window.LESSON.on) return; // J3: the lesson leaves no marks
   const arr=ACH_BY_STAT[stat]; if(!arr) return;
   for(const a of arr){ if(a.v>value) break; if(!unlocked.has(a.id)){ unlocked.add(a.id); achQ.push(a);
     const pk=ACH_PERKS[a.id];
@@ -335,6 +337,7 @@ function pumpToasts(){
 }
 let recToasted=new Set();
 function recCheck(key,value,label){
+  if(window.LESSON&&window.LESSON.on) return; // J3: the lesson leaves no marks
   if(value>REC[key]){ const had=REC[key]>0; REC[key]=value; achSaveSoon();
     if(had && !recToasted.has(key)){ recToasted.add(key); const box=$('achToasts'); if(box){ const t=document.createElement('div'); t.className='achToast record';
       t.innerHTML='<span class="achIcon">✦</span><span class="achTxt"><b>NEW RECORD</b><i>'+label+': '+value+'</i></span>';
@@ -657,6 +660,7 @@ async function loadRank(){ try{ if(!store)return; const v=await store.get(RANK_K
   RANK.rank=Math.min(RANKS.length, Math.max(RANK.rank, rankFromMarks(RANK.marks))); }
 async function saveRank(){ try{ if(!store)return; await store.set(RANK_KEY,JSON.stringify({v:3,marks:RANK.marks,rank:RANK.rank}),false); }catch(e){} }
 function awardMarks(m){
+  if(window.LESSON&&window.LESSON.on) return { up:false, reward:'', have:0, need:1, pct:0 }; // J3: the lesson leaves no marks
   RANK.marks+=m; let up=false, reward='';
   while(RANK.rank<RANKS.length && RANK.marks>=rkCum(RANK.rank+1)){
     RANK.rank++; up=true; const rk=RANKS[RANK.rank-1]; reward=rk.r||'';
