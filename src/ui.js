@@ -2846,9 +2846,10 @@ function h2Release(){
   const _s=secret; // the reveal card + its banner wait too, so nothing talks over the first lesson
   secret=function(id, name){ if(h2Hush() && !SEC.has(id)){ if(!H2.held.some(f=>f._id===id)){ const f=()=>_s(id, name); f._id=id; H2.held.push(f); } return; } return _s(id, name); };
   const _p=pumpToasts;
-  pumpToasts=function(){ if(h2Hush()){ H2.ach=true; return; } return _p.apply(this, arguments); };
+  // I1/H2 #18: night one's 0:00 toasts ("Regular ×1") fire in startGame before the first-night flag exists — hold those too
+  pumpToasts=function(){ if(h2Hush() || ((LT.runs||0)<=1 && typeof gt==='number' && gt<2 && !H2.rel)){ H2.ach=true; H2.early=1; return; } return _p.apply(this, arguments); };
   const _fs=fnStart;
-  fnStart=function(){ H2.held.length=0; H2.ach=false; H2.rel=0; H2.s0=0;
+  fnStart=function(){ H2.held.length=0; H2.ach=!!H2.early; H2.early=0; H2.rel=0; H2.s0=0;
     const r=_fs.apply(this, arguments);
     try{ for(const k in REC) if(!(REC[k]>0)) recToasted.add(k); }catch(e){} // no record yet → nothing to beat tonight
     return r; };
