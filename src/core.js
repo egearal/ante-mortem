@@ -3354,25 +3354,30 @@ Object.assign(_EYEC,{hr_croupier:'255,236,200',hr_bookie:'255,120,60',hr_twin:'2
 /* ============================================================
    LOOP + START
    ============================================================ */
-let last=0, _lastTick=0;
-// One tick, two possible drivers (rAF + a fallback interval). The dedup guard
-// keeps them from ever double-driving: whichever fires first runs the frame, the
-// other's near-simultaneous call is skipped.
+let last=0, _lastTick=0, _rafSeen=-1e9;
+// J0 — ONE frame driver. rAF drives while the tab is visible and painting. The
+// dedup guard stays as a belt for the hand-over moments.
 function tick(now){ if(now-_lastTick<8) return; _lastTick=now; frame(now); }
 function loop(now){
   requestAnimationFrame(loop);
+  _rafSeen=performance.now();
   tick(now);
 }
 // FALLBACK TICKER at ~60Hz — browsers HARD-PAUSE requestAnimationFrame for hidden/
 // embedded documents (preview panels, iframes). Without a fallback the whole game
-// freezes at 0:00 there; at 60Hz it also runs SMOOTH, not the 20fps of a slower
-// interval. On a healthy focused tab rAF wins every tick and the dedup guard makes
-// this a no-op, so it never costs a real tab anything.
-{ let _prk=0; setInterval(()=>{ if(document.hidden&&window._autoPaused){ if((++_prk)%16) return; } tick(performance.now()); }, 15); }
+// freezes at 0:00 there. J0: it only takes the wheel when the document is hidden or
+// rAF has gone quiet for 100ms — on a healthy tab it never races rAF for the frame.
+{ let _prk=0; setInterval(()=>{ const n=performance.now();
+    if(!document.hidden && n-_rafSeen<100) return; // rAF is alive: it owns the frame
+    if(document.hidden&&window._autoPaused){ if((++_prk)%16) return; }
+    tick(n); }, 15); }
 function frame(now){
   if(typeof GFX==='undefined') return; // A4: hosted build loads 13 scripts — the ticker can beat ui.js to the felt
   try{
-  const dt=Math.min(Math.max((now-last)/1000,0),0.05); last=now;
+  // J0: a long frame stays REAL-TIME (cap 0.1s, simulated as ≤2 slices of ≤0.05s) — the old
+  // 0.05 cap turned every slow frame into slow motion ("1s in game = 5s real")
+  const dt=Math.min(Math.max((now-last)/1000,0),0.1); last=now;
+  const nSub=dt>0.05?2:1, sdt=dt/nSub;
   if(loopPrev){ frameAvg=frameAvg*0.93+(now-loopPrev)*0.07; } loopPrev=now;
   { // C8 — hysteresis: quality changes at most once per 5s dwell; upgrading demands 45
     // consecutive good frames; the ~30 frames after any flip/resize/state change are
@@ -3395,14 +3400,20 @@ function frame(now){
   if(qLow!==window._qPrev){ window._qPrev=qLow; window._qGrace=30; resize(); }
   if(GFX.shake===0) shake=0;
   document.body.classList.toggle('gamble', state==='slot'||state==='wheel'||state==='crash'||state==='marker');
-  if(state==='playing'){
-    if(hitstop>0){ hitstop-=dt; }
-    else if(!tabHold){ update(dt*1.71*(slowT>0?0.35:1)); }
-    updateHUD();
+  // each slice re-reads the state: a slice that opens a slot / kills / pauses ends the frame's sim
+  const st0=state;
+  for(let si=0; si<nSub && state===st0; si++){
+    if(state==='playing'){
+      if(hitstop>0){ hitstop-=sdt; }
+      else if(!tabHold){ update(sdt*1.71*(slowT>0?0.35:1)); }
+      else break;
+    }
+    else if(state==='wheel'){ tickWheel(sdt); }
+    else if(state==='crash'){ tickCrash(sdt); }
+    else if(state==='slot'){ tickSlot(sdt); }
+    else break;
   }
-  else if(state==='wheel'){ tickWheel(dt); }
-  else if(state==='crash'){ tickCrash(dt); }
-  else if(state==='slot'){ tickSlot(dt); }
+  if(st0==='playing') updateHUD();
   if(P && state!=='menu'){ PROF.frameStart(); render(); PROF.frameEnd(); } // H2: the menu never shows last night's frozen floor
   }catch(_e){ if(!window._amErr){ window._amErr=1; console.error('[ANTE MORTEM]',_e); } }
 }
