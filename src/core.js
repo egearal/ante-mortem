@@ -1278,18 +1278,41 @@ function bakeSigil(){
     for(let i=0;i<12;i++){ const a=i/12*6.283-Math.PI/2; g.save(); g.translate(Math.cos(a)*640,Math.sin(a)*640); g.rotate(a+Math.PI/2); g.fillText(RG[i],0,0); g.restore(); } }
   window._sigilBk=bk;
 }
+// J0 — the sigil is COMPOSED: the four layers (static + three slow turns) are flattened
+// into ONE 728² half-res canvas — only the part the camera can see, re-composed when the
+// fastest ring has turned ~1px or the camera leaves the composed patch — then the visible
+// part is blitted once, smoothly upscaled. Was four rotated 1456² blits every frame.
+// On the low tier the turning freezes (its own clock stops; no jump when it resumes).
+let _sigC=null, _sigT=0, _sigGt=null, _sigAt=-1e9, _sigR=null;
+function sigilCompose(bk,r){
+  if(!_sigC){ _sigC=document.createElement('canvas'); _sigC.width=_sigC.height=728; }
+  const g=_sigC.getContext('2d');
+  g.setTransform(1,0,0,1,0,0); g.clearRect(0,0,728,728);
+  g.save(); g.beginPath(); g.rect((r[0]+728)/2,(r[1]+728)/2,(r[2]-r[0])/2,(r[3]-r[1])/2); g.clip();
+  g.translate(364,364);
+  g.drawImage(bk.stat,-364,-364,728,728);
+  g.save(); g.rotate(_sigT*0.03); g.drawImage(bk.spokes,-364,-364,728,728); g.restore();
+  g.save(); g.rotate(-_sigT*0.05); g.drawImage(bk.petals,-364,-364,728,728); g.restore();
+  g.save(); g.globalCompositeOperation='screen'; g.rotate(_sigT*0.015); g.drawImage(bk.runes,-364,-364,728,728); g.restore();
+  g.restore(); _sigR=r; _sigAt=_sigT;
+}
 function drawSigil(cx,cy){
   if(!inView(cx,cy,780)) return; // the heart of the arena sleeps off-screen
   if(!window._sigilBk) bakeSigil();
   const bk=window._sigilBk;
+  // the sigil's own clock: follows gt, stands still on the low tier
+  if(_sigGt===null || gt<_sigGt){ _sigGt=gt; _sigT=gt; } if(!qLow) _sigT+=gt-_sigGt; _sigGt=gt;
+  // visible window in sigil-local px (8px slack covers the shake offset)
+  const vx0=Math.max(-728,camX-8-cx), vy0=Math.max(-728,camY-8-cy), vx1=Math.min(728,camX+VW+8-cx), vy1=Math.min(728,camY+VH+8-cy);
   ctx.save(); ctx.translate(cx,cy);
-  ctx.save(); ctx.beginPath(); ctx.rect(camX-cx,camY-cy,VW,VH); ctx.clip(); // never rasterize past the viewport
-  ctx.globalAlpha=0.5; // A1 GILT NOIR — the seal is engraved into the dark, not painted in gold over it
-  ctx.drawImage(bk.stat,-728,-728,1456,1456);
-  ctx.save(); ctx.rotate(gt*0.03); ctx.drawImage(bk.spokes,-728,-728,1456,1456); ctx.restore();
-  ctx.save(); ctx.rotate(-gt*0.05); ctx.drawImage(bk.petals,-728,-728,1456,1456); ctx.restore();
-  ctx.save(); ctx.globalCompositeOperation='screen'; ctx.rotate(gt*0.015); ctx.drawImage(bk.runes,-728,-728,1456,1456); ctx.restore();
-  ctx.globalAlpha=1; ctx.restore();
+  if(vx1>vx0 && vy1>vy0){
+    const R=_sigR;
+    if(!R || vx0<R[0] || vy0<R[1] || vx1>R[2] || vy1>R[3] || Math.abs(_sigT-_sigAt)>0.05)
+      sigilCompose(bk,[Math.max(-728,vx0-64),Math.max(-728,vy0-64),Math.min(728,vx1+64),Math.min(728,vy1+64)]);
+    ctx.globalAlpha=0.5; // A1 GILT NOIR — the seal is engraved into the dark, not painted in gold over it
+    ctx.drawImage(_sigC,(vx0+728)/2,(vy0+728)/2,(vx1-vx0)/2,(vy1-vy0)/2, vx0,vy0,vx1-vx0,vy1-vy0);
+    ctx.globalAlpha=1;
+  }
   // slow blood ring — one live stroke keeps the pulse organic
   ctx.save(); ctx.rotate(gt*0.02); ctx.strokeStyle='rgba(200,30,44,0.12)'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(0,0,648,0,6.283); ctx.stroke(); ctx.restore();
   // pulsing center glow — deepens with the night's danger
