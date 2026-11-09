@@ -280,6 +280,7 @@ function a3Night(){
 }
 function a3Line(n){
   return '♠ ANTE MORTEM — survived '+n.time+' · level '+n.level+' · '+n.jack+' jackpot'+(n.jack===1?'':'s')
+    +((RUN&&RUN.feasts)?' · '+RUN.feasts+' feast'+(RUN.feasts===1?'':'s')+' ★':'')+((RUN&&RUN.ascBest>=3.69)?' · ascended '+RUN.ascBest.toFixed(2)+'×':'')
     +(n.by?' · taken by '+n.by:'')+((typeof b2ShareBits==='function')?b2ShareBits():'')+' · '+A3_URL;
 }
 function a3Copy(txt){
