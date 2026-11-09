@@ -33,6 +33,9 @@ function feedTick(dt){
   feedBody(P.ovTier||0);
   P._ovHb=(P._ovHb||0)-dt; if(P._ovHb<=0){ P._ovHb=Math.max(0.16,0.45-P.ovTier*0.09); tone(56+P.ovTier*14,0.1,'sine',0.13,44); }
   if(Math.random()<0.5) parts.push({x:P.x+rnd(-14,14),y:P.y+rnd(-8,12),vx:rnd(-16,16),vy:-rnd(60,140),life:rnd(.25,.5),col:P.ovTier?FEED_COL[P.ovTier]:'#ffd36b',r:rnd(1.4,2.6)});
+  if(P.ovT<30 && !P._ovWarn && P.ovT>0){ P._ovWarn=1; // it is about to starve — the room tells you
+    [740,560,420].forEach((f,i)=>setTimeout(()=>tone(f,0.11,'square',0.07),i*90)); showStreak('☠ IT STARVES — FEED IT OR CASH IT ☠'); }
+  if(P.ovT>=45) P._ovWarn=0;
   if(P.ovT<=0) feedStarve();
 }
 function feedTierUp(t){
