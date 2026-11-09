@@ -67,6 +67,8 @@ const BOT = `(()=>{
     let best=null, bd=420;
     for(const arr of [orbs, coins]) if(arr) for(const o of arr){ const d=Math.hypot(o.x-P.x,o.y-P.y); if(d<bd){ bd=d; best=o; } }
     if(best){ const danger=Math.hypot(fx,fy); const w=danger<0.4?2.2:0.9; fx+=(best.x-P.x)/bd*w; fy+=(best.y-P.y)/bd*w; }
+    // a player answers the green gate when the floor allows (the guide arrow shows the way) — J2's Ascent gets ridden
+    if(!B.noGate && typeof crashTok!=='undefined' && crashTok && P.hp>=P.maxHp*0.2){ const d=Math.hypot(crashTok.x-P.x,crashTok.y-P.y)||1, danger=Math.hypot(fx,fy); const w=danger<0.6?2.6:1.2; fx+=(crashTok.x-P.x)/d*w; fy+=(crashTok.y-P.y)/d*w; }
     for(const k of K) keys.delete(k);
     const L=Math.hypot(fx,fy); if(L<0.05) return;
     const ux=fx/L, uy=fy/L;
