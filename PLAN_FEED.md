@@ -4,6 +4,35 @@ How to start on the laptop, in Claude Code desktop with the `ante-mortem` folder
 > Read PLAN_FEED.md and notes/briefs/J1.md, J2.md, J3.md. Do J1 first on branch claude/j1-the-feed and merge it. Then run J2 and J3 in parallel as subagents in their own worktrees, merge them, then do J4.
 
 
+## Update 2026-11-09 — build it here, now
+The director said: "can you improve the game version 2.0 like 10 times better??? build the plan we planned."
+So this session now builds the whole plan itself instead of handing it to the laptop. Two additions make it a real 2.0:
+- **J0 — THE SMOOTH TABLE (frame rate).** The director's biggest complaint was "1 second in game is like 5 seconds real life". The analysis is done (below); J0 applies it. A slow game makes every other improvement feel worse, so it runs first, in parallel with J1.
+- **Version stamp** becomes `v5.0 — ANTE MORTEM 2.0 · THE SECOND NIGHT` (`index.html:79`), and CHANGELOG gets a plain-English 2.0 section.
+
+### How it runs (this session, on the director's plan usage)
+- Workers are in-session subagents (Agent tool, `isolation: "worktree"`, background), not separate cloud sessions. Each gets its brief from `notes/briefs/` and works on its own branch; it does not commit `dist/`.
+- **Wave 1 (parallel):** J0 perf + J1 THE FEED. They touch different regions of `core.js` (J0: render passes 1295-1410, 1950-2001, loop 3340-3385, `resize` 48; J1: 431, 631-644, 926, 1195-1218, the gauge 2030-2089).
+- **Merge wave 1**, rebuild, gates.
+- **Wave 2 (parallel):** J2 ASCENT v3 + J3 THE LESSON, both from the merged main.
+- **J4 integrate + ship** (me): merge, rebuild, all gates, after-shots, changelog, version stamp, commit `dist/`, push main → live on GitHub Pages.
+- If the plan's usage limit is hit mid-way, the work pauses; everything merged so far is already pushed, and `notes/J*.md` say where each lane stands.
+
+### J0 — THE SMOOTH TABLE (new brief `notes/briefs/J0.md`)
+Facts from the earlier analysis: the game is fill-rate bound at about 19 full-screen paints per frame; JS work is about 2ms; audio, memory and hit-stop are ruled out. Because `frame()` caps `dt` at 0.05 (`core.js:3360`), any frame slower than 50ms runs the world in slow motion, which is exactly "1s in game = 5s real".
+Changes, in order, each measured before/after with `probes/perf.js` (p50/p95 frame ms at 0:30 and in a 300-enemy storm, q=high and q=low, 1280×720 and 1920×1080 at DPR 2):
+1. **One frame driver.** `tick` runs from rAF only while the tab is visible; the 15ms `setInterval` (`core.js:3355`) only drives when `document.hidden` or rAF has not fired for 100ms (embedded previews). Removes double-driving jitter.
+2. **Raise the dt cap to 0.1** and sub-step `update` in ≤0.05 slices when a frame is long, so slow frames stay real-time instead of slow motion (cap the sub-steps at 2).
+3. **One overlay bake.** `vignB.warm`, `main` and `grd` (`core.js:1363-1406`, drawn 1979-2001) are static per (size, danger bucket, grade): compose them into a single canvas when baked and draw it with one `drawImage` (keep `danger` and `heart` separate because they pulse).
+4. **Sigil at half size.** `drawSigil` (`core.js:1295`) draws four rotated 1456px layers per frame, one with `'screen'`: pre-compose the static layers into one half-resolution canvas, upscale with smoothing; keep only the rotating layer live.
+5. **Half-resolution light buffer.** Candle pools, sconce glows, player halo (`lightSprite` draws) go into a VW/2×VH/2 offscreen canvas composited once with `'lighter'`.
+6. **Make the low tier real.** When `qLow` trips (`frameAvg>19`, `core.js:3374`): DPR 1.5 cap instead of 1 only at the bottom, skip shafts and the sigil's live layer, halve light sprites. Thresholds unchanged.
+Gate (headless Chromium has no GPU, so absolute fps there is not the target):
+- **≥40% fewer screen-areas painted per frame**, measured by wrapping `ctx.drawImage`/`fillRect`/`fill` and summing painted area ÷ screen area. The scratchpad tool `fillarea.js` from the analysis did this; copy it into `probes/fillarea.js`.
+- **Game time keeps pace with real time**: with frames forced to 60ms, one real second must advance `gt` by ≥0.95s (was ~0.85 at 60ms, far worse at 100ms+).
+- **No visible change**: `npm run shots -- j0` next to the current set; only sub-pixel softness in light and sigil is allowed.
+Files: `src/core.js` only (render, loop, resize), plus `probes/perf.js` / new `probes/fillarea.js`. Must not touch the gauge (J1) or any gameplay number.
+
 ## Context
 The director played the night build and said:
 - The 7.77 Ascent isn't good: 7.77 is almost never reached (4% of rides) and the lower tiers pay only coins.
@@ -13,7 +42,7 @@ The director played the night build and said:
 - A tutorial section.
 Confirmed choices: starve = lose 25% XP and keep playing (no coin sweep). The Ascent climbs on its own, SPACE cashes. Ascent rewards change at every tier.
 
-Where the work runs: on the director's laptop in Claude Code desktop, on their subscription. The cloud session that wrote this only committed the plan and the briefs (`notes/briefs/J1-J3.md`); no game code was changed by it.
+Where the work runs: the cloud session, per the update above.
 
 ## What exists today (facts from the code)
 - Level-up is a slot machine, not a card pick. `openNextSlot` (`src/slot.js:82`), reels drawn by `weightedByRarity(pool, wOver)` (`slot.js:46`), weights `CFG.weights {common:48, uncommon:27, rare:15, epic:9, legendary:1}` (`core.js:14`), red table `RED_W` via `slotHot()` (`slot.js:185`). Weapon turn: `slotIndex % 4 === 0` (`slot.js:98`).
