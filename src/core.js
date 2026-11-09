@@ -2664,6 +2664,15 @@ function drawPlayer(){
     ctx.strokeStyle='rgba(255,220,140,'+(0.2+Math.sin(gt*10+2)*0.12)+')'; ctx.lineWidth=1.2;
     ctx.beginPath(); ctx.arc(0,0,33+Math.sin(gt*5.5)*4,0,6.28); ctx.stroke(); ctx.restore();
     if(Math.random()<0.25) parts.push({x:P.x+rnd(-20,20),y:P.y+rnd(-14,18),vx:rnd(-10,10),vy:-rnd(40,90),life:rnd(.2,.45),col:'#ff9a3c',r:rnd(1,2)}); }
+  if(P.ovT>0 && state==='playing'){ // J1: THE FEED wears on her — a halo in the tier's jewel color, tighter and brighter as it climbs
+    const tr=P.ovTier||0, c9=FEED_COL[tr], pulse=Math.sin(gt*(6+tr*3))*0.5+0.5;
+    ctx.save(); ctx.globalCompositeOperation='lighter';
+    ctx.globalAlpha=0.22+tr*0.1+pulse*0.12; ctx.strokeStyle=c9; ctx.lineWidth=2+tr*0.8; ctx.shadowColor=c9; ctx.shadowBlur=GFX.lite?0:10+tr*6;
+    ctx.beginPath(); ctx.arc(0,4,30+pulse*4,0,6.28); ctx.stroke();
+    if(tr>=3){ ctx.globalAlpha=0.35+pulse*0.25; ctx.strokeStyle='#fff2c0'; ctx.lineWidth=1.4; ctx.beginPath(); ctx.arc(0,4,38+pulse*5,0,6.28); ctx.stroke(); }
+    // the starve warning: the halo flickers red under 30
+    if(P.ovT<30 && ((gt*10)|0)%2===0){ ctx.globalAlpha=0.5; ctx.strokeStyle='#ff3344'; ctx.lineWidth=2; ctx.shadowColor='#ff3344'; ctx.beginPath(); ctx.arc(0,4,24,0,6.28); ctx.stroke(); }
+    ctx.restore(); }
   if(P.godT>0){ ctx.save(); ctx.globalCompositeOperation='lighter';
     ctx.strokeStyle='rgba(139,255,154,'+(0.6+Math.sin(gt*12)*0.3)+')'; ctx.lineWidth=2.6;
     ctx.beginPath(); ctx.arc(0,0,24+Math.sin(gt*9)*3,0,6.28); ctx.stroke(); ctx.restore(); }
