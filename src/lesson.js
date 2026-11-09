@@ -128,7 +128,7 @@ function lsnFinish(){
     ring(P.x,P.y,260,'#ffd36b'); ring(P.x,P.y,170,'#fff2c0'); ring(P.x,P.y,90,'#8bffd0'); }
   announce('♠ THE HOUSE IS OPEN — PLAY TONIGHT ♠', true);
   try{ SFX.seraph(); setTimeout(()=>{ try{ SFX.dingBells(); SFX.cashout(); }catch(e){} },260); }catch(e){}
-  try{ bigWin('LESSON LEARNED', 2); }catch(e){}
+  try{ bigWin('LESSON LEARNED', 4); }catch(e){}
   try{ domConfetti(GFX.lite?30:70); }catch(e){} try{ coinRain(GFX.lite?14:30); }catch(e){} try{ sparkBurst(30); }catch(e){}
   flash(0.45,'#fff2c0'); shake=Math.min(16,shake+8);
   lsnBar(true);
