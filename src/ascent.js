@@ -48,6 +48,7 @@ function feedTierUp(t){
 }
 function cashRage(){
   const tier=P.ovTier||0; ovRevert(); P.ovCharge=0; P.ovTier=0;
+  try{ RUN.feedBest=Math.max(RUN.feedBest||0,tier); RUN.feeds=(RUN.feeds||0)+1; if(tier===3) RUN.feasts=(RUN.feasts||0)+1; }catch(e){}
   slotFeedTier=Math.max(slotFeedTier||0, tier);
   if(tier>0){ SFX.dingBells(); SFX.cashout(); sparkBurst(14+tier*8); flash(0.3+tier*0.08, FEED_COL[tier]);
     if(tier===3){ SFX.seraph(); try{ domConfetti(); }catch(e){} setTimeout(()=>secret('glutton','THE GLUTTON'),900); }
@@ -384,6 +385,7 @@ function cashCrash(){
   if(!crash.live) return;
   crash.live=false; crash.done=true;
   const m=Math.min(crash.mult,crash.cp);
+  try{ RUN.ascBest=Math.max(RUN.ascBest||0,m); if(ascTier(m)>=3) RUN.armory=(RUN.armory||0)+1; }catch(e){}
   crashHist.push({v:m,ok:true}); RUN.crashPts.push(crash.cp);
   const t=ascTier(m);
   const rk=$('crashRocket'); rk.classList.add('blast');

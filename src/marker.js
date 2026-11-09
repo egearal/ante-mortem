@@ -190,6 +190,8 @@ async function actuallyDie(){
         (lo9?'<div class="glRow" style="color:#c9b78e;letter-spacing:.12em">'+lo9+'</div>':'')+
         '<div class="glRow"><span>WAVE</span><b>'+wave+'</b><span>CURSES</span><b>'+(RUN.curses||0)+'</b><span>SCARS</span><b>'+((P.scars||[]).length)+'</b><span>DICE</span><b>'+RUN.diceWins+'/'+RUN.diceTries+'</b>'
         +(bp?'<span>BEST PULL</span><b style="color:'+RARC[bp]+'">'+SLOT_RAR[bp]+'</b>':'')+'</div>'
+        +((RUN.feeds||RUN.ascBest)?'<div class="glRow">'+(RUN.feeds?'<span>BEST FEED</span><b style="color:'+FEED_COL[RUN.feedBest||0]+'">'+['COLD','WARM ◆','HOT ◆◆','FEAST ★'][RUN.feedBest||0]+'</b>'+(RUN.feasts?'<span>FEASTS</span><b style="color:#ffd36b">'+RUN.feasts+'</b>':''):'')
+          +(RUN.ascBest?'<span>HIGHEST ASCENT</span><b style="color:'+(RUN.ascBest>=7.77?'#fff2c0':RUN.ascBest>=3.69?'#c98bff':RUN.ascBest>=2.77?'#6fb7ff':'#8bff9a')+'">'+RUN.ascBest.toFixed(2)+'×</b>':'')+'</div>':'')
         +(wchips?'<div class="glRow glChips">'+wchips+'</div>':'')
         +(schips?'<div class="glRow glChips">'+schips+'</div>':'');
       try{ b2Ledger(); }catch(e){}
