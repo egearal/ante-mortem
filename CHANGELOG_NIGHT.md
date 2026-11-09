@@ -1,3 +1,20 @@
+# THE SECOND NIGHT — THE FEED, THE ASCENT v3, THE LESSON (2026-11-09)
+
+The director said the RAGE bar felt like a chore, the 7.77 Ascent almost never paid, weapons came too late, and there was no tutorial. All four are fixed. Full write-ups: `notes/J1.md`, `notes/J2.md`, `notes/J3.md`.
+
+- **THE FEED replaces RAGE (J1).** A full XP bar now gets hungry instead of punishing you.
+  - Keep killing to feed it. Jewels light at 3s (WARM ◆), 7s (HOT ◆◆) and 12s (FEAST ★).
+  - SPACE cashes any time, and the next slot's reels run at that tier's odds. At the FEAST only epic and legendary can land, and the machine glows gold.
+  - Let it starve and you lose a quarter of your XP. That's the only penalty: no more coin sweep, no extra damage taken.
+- **Weapons sooner (J1):** your 2nd level-up is a new weapon, then every 3rd.
+- **THE ASCENT v3 (J2):** the multiplier climbs on its own and SPACE cashes. Every rung pays:
+  - I: a level.
+  - II: a HOT level plus 25% blood.
+  - III: THE ARMORY, a pick of 3 epic/legendary weapons and skills.
+  - ☆ 7.77: an Ascension plus two FEAST slots.
+  - Reaching each rung is far likelier than before: 82/58/35/12% (was 75/40/15/4).
+- **Balance (bot, 16 nights each):** median survival went from 3:50 to ~5:40, with more levels. The Ascent now pays real power. If it should bite harder, the first knob is the tier II heal.
+
 # THE LONG NIGHT — what changed on 2026-11-04
 
 Play it: **https://egearal.github.io/ante-mortem/** (phone: Add to Home Screen to install).
