@@ -428,7 +428,6 @@ function applyScar(){
   return s.label;
 }
 function hurtPlayer(dmg){
-  if(P.ovT>=90) dmg=Math.round(dmg*1.5);
   if(P.frail) dmg=Math.round(dmg*1.25);
   if(P.dmgTakenMult) dmg=Math.round(dmg*P.dmgTakenMult);
   if(P.armor) dmg=Math.max(1,dmg-P.armor);
@@ -628,20 +627,7 @@ function update(dt){
   fnTick(dt); // A3 first night: first blood, first RAGE lesson + forgiveness
   if(DLY_RNG) try{ dlyTick(dt); }catch(e){} // B1: the minute-by-minute track
   if(typeof soulTick==='function') soulTick(dt); // D1: the seat's own rules (martyr/magpie/banker)
-  if(P.ovT>0){ P.ovAge+=dt;
-    P.ovT-=dt*(3.3+P.ovAge*0.35);
-    P._ovHb=(P._ovHb||0)-dt; if(P._ovHb<=0){ P._ovHb=Math.max(0.16,(11-P.ovHold)/40); tone(56,0.1,'sine',0.13,44); }
-    if(Math.random()<0.5) parts.push({x:P.x+rnd(-14,14),y:P.y+rnd(-8,12),vx:rnd(-16,16),vy:-rnd(60,140),life:rnd(.25,.5),col:'#ffd36b',r:rnd(1.4,2.6)});
-    if(P.ovT>=90){ const ph9=P.ovHold; P.ovHold+=dt;
-      if(Math.floor(P.ovHold)>Math.floor(ph9)){ tone(880+P.ovHold*90,0.1,'sine',0.12); flash(0.07,'#8bff9a'); }
-      // below 20% blood the crown is sealed — the bar holds but cannot ascend
-      if(P.ovHold>=ascTime && P.hp>=P.maxHp*0.2) rageAscend();
-    } else if(P.ovT>0) rageDrop();
-  }
-  if(ascPend>0){ const pp=ascPend; ascPend-=dt;
-    if(Math.ceil(ascPend)<Math.ceil(pp) && ascPend>0 && ascPend<=3){ tone(880+(3-Math.ceil(ascPend))*220,0.12,'sine',0.12); flash(0.08,'#8bff9a'); }
-    if(ascPend<=0){ ascPend=0; spawnAscentGate(); }
-  }
+  feedTick(dt); // J1: THE FEED (ascent.js)
   if(slowT>0) slowT-=dt;
   if(P.hp<prevHp && P.hp/P.maxHp<0.15 && prevHp/P.maxHp>=0.15){ slowT=0.5+(P.slowEdge||0); SFX.thud(); flash(0.4,'#8b1620'); }
   prevHp=P.hp;
@@ -1195,7 +1181,7 @@ function drawLandmarks(){
 function gainXP(n){
   n=Math.round(n*(P.xpMult||1));
   if(P.ovT>0 && !P._ovPass && n>0){
-    P.ovT=Math.min(100, P.ovT+n*0.5*(P.ovFeed||1));
+    P.ovT=Math.min(100, P.ovT+n*0.8*(P.ovFeed||1));
     tone(700+P.ovT*8,0.05,'sine',0.07);
     return;
   }
@@ -2029,7 +2015,8 @@ function render(){
   }
   // XP / RAGE — gilded gothic gauge, smooth-lerped
   if(state==='playing' && !window.__cleanPlate){ // I1: the launch kit's clean plate lifts the canvas gauge (and the FEVER line above)
-    let xw=Math.min(340,VW*0.44), xx=VW/2-xw/2, xy=VH-46; const bh=14;
+    const feeding=P.ovT>0; // J1: THE FEED — the gauge swells while it eats
+    let xw=feeding?Math.min(440,VW*0.56):Math.min(340,VW*0.44), xx=VW/2-xw/2, xy=VH-46; const bh=feeding?20:14;
     { const hr=_b4HpRect(); // B4: never under the blood bar — slide right of it, or (phones) ride just above it
       if(hr && xx<hr.r+14 && hr.t<VH-20){ const room=VW-(hr.r+14)-96;
         if(room>=170){ xx=hr.r+14; xw=Math.min(xw,room); }
@@ -2045,10 +2032,13 @@ function render(){
     a2GaugeFrame(xx,xy,xw,bh); // A2: the gauge sits in a cast-brass frame (ui.js)
     ctx.fillStyle='rgba(232,182,76,0.2)';
     for(let ti=1;ti<10;ti++) ctx.fillRect(xx+xw*ti/10-0.5,xy+2,1,bh-4);
-    { const mode=rage?(P.ovT>=90?'a':(P.ovT<25?'l':'m')):'n';
+    { const mode=rage?(P.ovT<25?'l':('t'+(P.ovTier||0))):'n';
       const gk='xpb'+mode+'|'+xx+'|'+xw; let g9=_lgCache[gk];
       if(!g9){ g9=ctx.createLinearGradient(xx,0,xx+xw,0);
-        if(mode==='a'){ g9.addColorStop(0,'#8a5a10'); g9.addColorStop(0.88,'#ffd36b'); g9.addColorStop(1,'#8bff9a'); }
+        if(mode==='t3'){ g9.addColorStop(0,'#8a5a10'); g9.addColorStop(0.7,'#ffd36b'); g9.addColorStop(1,'#fff2c0'); }
+        else if(mode==='t2'){ g9.addColorStop(0,'#3a1060'); g9.addColorStop(1,'#c98bff'); }
+        else if(mode==='t1'){ g9.addColorStop(0,'#123a66'); g9.addColorStop(1,'#6db4ff'); }
+        else if(mode==='t0'){ g9.addColorStop(0,'#7a3608'); g9.addColorStop(1,'#ff9a3c'); }
         else if(mode==='l'){ g9.addColorStop(0,'#5a0a12'); g9.addColorStop(1,'#ff3344'); }
         else if(mode==='m'){ g9.addColorStop(0,'#7a3608'); g9.addColorStop(1,'#ff9a3c'); }
         else { g9.addColorStop(0,'#5a1420'); g9.addColorStop(1,'#c81e2c'); }
@@ -2064,16 +2054,31 @@ function render(){
       ctx.beginPath(); ctx.arc(xx+xw*f+eo*0.4, xy+bh/2+eo, 1.3,0,6.28); ctx.fill(); }
     ctx.restore();
     if(rage){
-      const nx=xx+xw*0.9;
-      ctx.fillStyle='#ffd36b'; ctx.shadowColor='#ffd36b'; ctx.shadowBlur=9;
-      ctx.beginPath(); ctx.moveTo(nx,xy-9); ctx.lineTo(nx+4.6,xy-3.6); ctx.lineTo(nx,xy+1.6); ctx.lineTo(nx-4.6,xy-3.6); ctx.closePath(); ctx.fill(); ctx.shadowBlur=0;
+      // four jewel sockets ride the top edge: feeding · I · II · ★ FEAST
+      const tier=P.ovTier||0, ch=P.ovCharge||0;
+      for(let j=0;j<4;j++){ const jx=xx+xw*(0.16+j*0.225), jy=xy-2, lit=(j===0)||tier>=j, c=FEED_COL[j];
+        ctx.save(); ctx.translate(jx,jy);
+        const pr=(!lit && j===tier+1)?Math.max(0,Math.min(1,(ch-FEED_T[j-1])/(FEED_T[j]-FEED_T[j-1]))):0;
+        ctx.fillStyle='#120608'; ctx.strokeStyle='#a07828'; ctx.lineWidth=1.5;
+        const r=j===3?8:6.5;
+        ctx.beginPath(); ctx.moveTo(0,-r); ctx.lineTo(r,0); ctx.lineTo(0,r); ctx.lineTo(-r,0); ctx.closePath(); ctx.fill(); ctx.stroke();
+        if(lit||pr>0){ ctx.globalAlpha=lit?1:0.35+pr*0.4; ctx.fillStyle=c; ctx.shadowColor=c; ctx.shadowBlur=lit?(10+(j===tier?Math.sin(gt*10)*5:0)):0;
+          const rr=(r-2)*(lit?1:pr); ctx.beginPath(); ctx.moveTo(0,-rr); ctx.lineTo(rr,0); ctx.lineTo(0,rr); ctx.lineTo(-rr,0); ctx.closePath(); ctx.fill();
+          if(j===3&&lit){ ctx.shadowBlur=0; ctx.fillStyle='#fff2c0'; ctx.font="800 9px serif"; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('★',0,0.5); } }
+        ctx.restore(); }
+      const nxt=tier<3?Math.max(0,FEED_T[tier+1]-ch):0;
+      const tc=tier?FEED_COL[tier]:'#ffce8a';
       ctx.font="800 14px 'Cinzel',serif"; ctx.textAlign='center';
-      ctx.fillStyle='#8bff9a'; ctx.shadowColor='#8bff9a'; ctx.shadowBlur=10;
-      if(P.hp<P.maxHp*0.2){ ctx.fillStyle='#ff5560'; ctx.shadowColor='#ff5560';
-        ctx.fillText('☨ SEALED BY BLOOD — NO ASCENT BELOW 20% ♥ ☨', VW/2, xy-34); }
-      else ctx.fillText('⚡ RAGE '+Math.round(P.ovT)+'%  ·  HOLD 90%+  '+Math.max(0,ascTime-P.ovHold).toFixed(1)+'s → THE ASCENT ⚡', VW/2, xy-34);
-      ctx.font="700 11px 'Cinzel',serif"; ctx.fillStyle='#ffce8a'; ctx.shadowColor='#ff9a3c';
-      ctx.fillText('COINS & XP FEED THE BAR · ABOVE 90: +50% DMG DEALT & TAKEN · SLIP = −50% XP + SWEPT', VW/2, xy-18);
+      ctx.fillStyle=tc; ctx.shadowColor=tc; ctx.shadowBlur=10;
+      const nm=['COLD','WARM ◆','HOT ◆◆','FEAST ★'][tier];
+      const tl=tier<3?(nxt.toFixed(1)+'s TO '+['WARM','HOT','FEAST'][tier]):'THE REELS RUN GOLD';
+      const sp=(window._padUI?window._padA:window._touchUI?'◈ BET':'SPACE');
+      const narrow=VW<560, lx=narrow?xx+xw/2:VW/2, lw=narrow?Math.min(VW-16,xw+40):VW-16;
+      const t1=narrow?('✦ '+nm+' · '+(tier<3?tl:'GOLD REELS')+' ✦'):('✦ THE FEED · '+nm+' · '+tl+' · '+sp+' CASHES ✦');
+      { let fz=14; while(fz>9 && ctx.measureText(t1).width>lw){ fz--; ctx.font="800 "+fz+"px 'Cinzel',serif"; } }
+      ctx.fillText(t1, lx, xy-34);
+      ctx.font="700 11px 'Cinzel',serif"; if(narrow) ctx.font="700 9px 'Cinzel',serif"; ctx.fillStyle=P.ovT<30?'#ff7b7b':'#ffce8a'; ctx.shadowColor=P.ovT<30?'#ff3344':'#ff9a3c';
+      ctx.fillText(P.ovT<30?'☠ IT STARVES — FEED IT OR CASH IT ☠':(narrow?'FEED IT SOULS · '+sp+' CASHES':'SOULS & COINS FEED IT · STARVE = −25% XP'), lx, xy-18);
       ctx.shadowBlur=0;
     } else {
       ctx.font="700 11px 'Cinzel',serif"; ctx.textAlign='center';
@@ -2117,7 +2122,7 @@ function render(){
     if(stf<0.35){ ctx.shadowColor='#ff5566'; ctx.shadowBlur=8; }
     roundRect(VW-118,81,Math.max(2,100*stf),5,2.5); ctx.fill(); ctx.shadowBlur=0;
     if(killStreak>=27){ ctx.font="700 11px 'Cinzel',serif"; ctx.fillStyle='#8bff9a'; ctx.shadowBlur=8;
-      ctx.fillText((window._padUI?window._padA:window._touchUI?'◈ BET':'SPACE')+' — CASH +'+Math.floor(killStreak/3)+' ◈', VW-18, 92); }
+      ctx.fillText((window._padUI?window._padA:window._touchUI?'◈ BET':'SPACE')+' — CASH +'+Math.floor(killStreak/4)+' ◈', VW-18, 92); }
     ctx.restore();
   }
   ctx.restore();
@@ -3409,7 +3414,7 @@ function startGame(){
   waves=[]; guils=[]; gpools=[]; gstakes=[]; hrReset();
   owned.clear();
   window._runSeq=(window._runSeq||0)+1; slotStage='idle'; gamble=null; window._slotFF=null; try{ clearInterval(window._antiHb); }catch(e){}
-  gt=0; shake=0; hitstop=0; killStreak=0; streakT=0; goreT=null; _goreDryT=0; _goreDryI=0; _goreWinT=0; _goreWinN=0; excite=0; fireAcc=0; pending=[]; LT.runs++; bump('runs',LT.runs); fever=0; feverOn=false; feverT=0; tarots=[]; tarotT=14; decals=[]; wheelTok=null; wheelTokT=40; crashTok=null; crashTokT=50; bounty=null; bountyT=34; slotBank=0; vouchers=0; bountyStk=0; goldenT=0; ovBonusNext=false; slowT=0; prevHp=0; dare=null; dareT=46; ascTime=7; ascPend=0;
+  gt=0; shake=0; hitstop=0; killStreak=0; streakT=0; goreT=null; _goreDryT=0; _goreDryI=0; _goreWinT=0; _goreWinN=0; excite=0; fireAcc=0; pending=[]; LT.runs++; bump('runs',LT.runs); fever=0; feverOn=false; feverT=0; tarots=[]; tarotT=14; decals=[]; wheelTok=null; wheelTokT=40; crashTok=null; crashTokT=50; bounty=null; bountyT=34; slotBank=0; vouchers=0; bountyStk=0; goldenT=0; ovBonusNext=false; slotFeedTier=0; slotTierNow=0; slowT=0; prevHp=0; dare=null; dareT=46;  
   if(!RANK._ld){ RANK._ld=1; loadRank(); }
   if(!DLY_RNG){ applyRankPerks(); } recToasted=new Set(); if(!DLY_RNG){ applyVault(); applyAchPerks(); } // B1: the daily is a fair field
   // the soul at the table speaks last — then the floor, then the ink

@@ -16,7 +16,7 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
         ['MOVE','WASD or arrows. Your weapons fire by themselves. You just dodge and collect.'],
         ['DON\'T GET TOUCHED','Everything that moves wants to touch you. Don\'t let it.'],
         ['PICK UP THE LIGHT','Dead enemies drop light. Walk over it. When the bottom bar fills, you level up.'],
-        ['RAGE','A full bar sets you on fire: +50% power. Hold it hot for a few seconds and a green gate appears. SPACE banks it early.'],
+        ['THE FEED','A full bar turns into THE FEED: +50% power, and it starts to starve. Keep killing to feed it. The longer it feeds, the richer the next reels: WARM at 3s, HOT at 7s, FEAST at 12s (only epic & legendary). SPACE cashes any time. Let it starve and you lose a quarter of the XP.'],
         ['THE CLOCK','At 13:00 something unkillable arrives. At 15:00 the run ends. Nobody survives the night — score big before it.']
       ]},
       {ico:'🎰', name:'THE MACHINE', col:'#ffd36b', items:[
@@ -32,7 +32,7 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
         ['THE FINAL PRESS','When you die, the House offers one roll to live. MASH SPACE to raise your odds, then watch the number drop. Under your odds = one more hand.']
       ]},
       {ico:'◈', name:'THE LONG GAME', col:'#ff9a9a', items:[
-        ['COINS','This run\'s money. Feeds your rage bar, pays for the case.'],
+        ['COINS','This run\'s money. Feeds THE FEED, pays for the case.'],
         ['GILT','Forever-money. You keep it when you die. Spend it in the VAULT for permanent power.'],
         ['THE VAULT','A great door in the arena. The first boss drops its KEY. One seal per visit.'],
         ['RANKS','Every run earns MARKS. Marks raise your HOUSE RANK — 100 levels, every one pays, new weapons unlock as you climb.'],
@@ -923,8 +923,8 @@ const SOULS=[
    pips:'♥♥♥♥ · 👢👢👢 · ⚔⚔⚔⚔⚔', u:()=>(LT.rites||0)>=10, uTxt:'SIT AT THE RED TABLE 10 TIMES', ap:()=>{ P.martyr=true; P.maxHp+=40; P.hp=P.maxHp; P.regen=0; P.lifesteal=0; }},
  {id:'magpie', n:'THE MAGPIE',    g:'✧', col:'#2ee6ff', d:'Pickup reach ×2.5. Every coin has a 3% chance to be a GOLDEN CHIP — grab it and a free mini-slot spins: triple = a free level, pair = a free power, bust = coins. −20% damage.',
    pips:'♥♥♥ · 👢👢👢👢 · ◈◈◈◈', u:()=>(LT.coins||0)>=5000, uTxt:'PICK UP 5,000 LIFETIME COINS', ap:()=>{ P.magpie=true; P.pickup*=2.5; P.damage*=0.8; }},
- {id:'banker', n:'THE BANKER\'S GHOST', g:'♖', col:'#c4ff4d', d:'Interest: every 60s, +8% of the coins you hold. Cash RAGE at 90%+ and it pays DOUBLE that: +16% of your purse. The wheel won\'t spin for the dead — no Wheel of Souls. −10 max blood.',
-   pips:'♥♥ · 👢👢👢 · ◈◈◈◈◈', u:()=>((typeof SEATS!=='undefined'&&SEATS.st.rage)||0)>=15, uTxt:'CASH OUT RAGE AT 90%+ 15 TIMES', ap:()=>{ P.banker=true; P.maxHp=Math.max(40,P.maxHp-10); P.hp=P.maxHp; }},
+ {id:'banker', n:'THE BANKER\'S GHOST', g:'♖', col:'#c4ff4d', d:'Interest: every 60s, +8% of the coins you hold. Cash THE FEED HOT (◆◆) or richer and it pays DOUBLE that: +16% of your purse. The wheel won\'t spin for the dead — no Wheel of Souls. −10 max blood.',
+   pips:'♥♥ · 👢👢👢 · ◈◈◈◈◈', u:()=>((typeof SEATS!=='undefined'&&SEATS.st.rage)||0)>=15, uTxt:'CASH THE FEED HOT OR RICHER 15 TIMES', ap:()=>{ P.banker=true; P.maxHp=Math.max(40,P.maxHp-10); P.hp=P.maxHp; }},
  {id:'twin',   n:'THE OBSIDIAN TWIN', g:'♝', col:'#d36bff', stake:true, d:'Fights beside its own shadow: +1 projectile on every shot, every dice target −1. Half a soul: −30 max blood.',
    pips:'♥ · 👢👢👢 · 🎲🎲🎲🎲🎲', u:()=>!!(typeof STK!=='undefined'&&STK.first&&STK.first[2]), uTxt:'CLEAR THE OBSIDIAN DECK', ap:()=>{ P.projectiles+=1; P.diceEase=(P.diceEase||0)+1; P.maxHp=Math.max(40,P.maxHp-30); P.hp=P.maxHp; }}
 ];
@@ -2457,7 +2457,7 @@ function sharpDeal(pool, redeal){
   window._sharpPool=pool;
   const u=rng('slot'), pB=MFATE.P+(P.yolkFate?0.03:0);
   const n = P.coldDeck ? 1 : (u<MFATE.T ? 3 : (u<MFATE.T+pB ? 2 : 1));
-  const d=weightedByRarity(pool, slotHot());
+  const d=weightedByRarity(pool, slotWeights());
   window._sharpTell={n, s:d.id};
   sharpShow();
 }
@@ -2488,10 +2488,10 @@ function sharpRedeal(){
   sharpDeal(window._sharpPool, true); showSlotButtons();
 }
 window.addEventListener('keydown',e=>{ try{ if(state==='slot' && slotStage==='ready' && P && P.sharp && (e.key||'').toLowerCase()==='r' && !e.repeat){ e.preventDefault(); sharpRedeal(); } }catch(err){} });
-// THE BANKER'S GHOST — no wheel for the dead; the RAGE pays a dividend. Every 90%+ cash counts toward his seat.
+// THE BANKER'S GHOST — no wheel for the dead; THE FEED pays a dividend. Every HOT-or-richer cash counts toward his seat (key name 'rage' kept).
 { const _tw=tickWheelTok; tickWheelTok=function(dt){ if(P&&P.banker){ wheelTok=null; return; } return _tw.apply(this,arguments); }; }
 { const _ow=openWheel; openWheel=function(){ if(P&&P.banker){ announce('♖ THE WHEEL WILL NOT SPIN FOR THE DEAD ♖', false); return; } return _ow.apply(this,arguments); }; }
-{ const _cr=cashRage; cashRage=function(){ const good=P&&P.ovT>=90, purse=P?P.coins:0; const r=_cr.apply(this,arguments);
+{ const _cr=cashRage; cashRage=function(){ const good=P&&(P.ovTier||0)>=2, purse=P?P.coins:0; const r=_cr.apply(this,arguments);
     if(good){ SEATS.st.rage=(SEATS.st.rage||0)+1; seatsSaveSoon();
       if(P.banker){ const g=Math.max(10,Math.round(purse*0.16)); P.coins+=g; LT.coins+=g;
         setTimeout(()=>{ announce('♖ THE DIVIDEND — +'+g+' COINS ♖', true); try{ SFX.register(); }catch(e){} coinRain(Math.min(34,10+Math.floor(g/4))); flash(0.3,'#c4ff4d'); }, 500); } }
@@ -2550,7 +2550,7 @@ const E2_RX=[
  [/ANSWER (\d+) WHISPERS/,       n=>[SEC.size, n, 'WHISPERS']],
  [/(\d+) TRIPLES/,               n=>[LT.triples||0, n, 'TRIPLES']],
  [/RED TABLE (\d+) TIMES/,       n=>[LT.rites||0, n, 'RITES']],
- [/RAGE AT 90%\+ (\d+) TIMES/,   n=>[(typeof SEATS!=='undefined'&&SEATS.st.rage)||0, n, 'CASH-OUTS']]
+ [/FEED HOT OR RICHER (\d+) TIMES/,   n=>[(typeof SEATS!=='undefined'&&SEATS.st.rage)||0, n, 'CASH-OUTS']]
 ];
 function e2Parse(txt){
   let best=null;

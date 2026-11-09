@@ -626,7 +626,7 @@ const RANK_MILESTONES={
  50:{r:'FINAL PRESS STARTS +2%',      ap:()=>{ P.pressBase=(P.pressBase||0)+0.02; }},
  60:{r:'CURSES 15% SHORTER',          ap:()=>{ P.curseCut=Math.min(P.curseCut||1,0.85); }},
  70:{r:'VAULT PRICES −8%',            ap:()=>{ P.vaultDisc=(P.vaultDisc||0)+0.08; }},
- 80:{r:'RAGE FEED +15%',              ap:()=>{ P.ovFeed=(P.ovFeed||1)*1.15; }},
+ 80:{r:'THE FEED EATS +15%',              ap:()=>{ P.ovFeed=(P.ovFeed||1)*1.15; }},
  90:{r:'FINAL PRESS STARTS +2%',      ap:()=>{ P.pressBase=(P.pressBase||0)+0.02; }},
  100:{r:'ALL COINS +15% — THE HOUSE IS YOURS', ap:()=>{ P.coinMult=(P.coinMult||1)*1.15; }}
 };
@@ -723,9 +723,9 @@ function fnTick(dt){
     SFX.casinoDing(); setTimeout(()=>{ try{ SFX.coinPling(); SFX.coinPling(); }catch(e){} },90); }
   // the first RAGE: teach SPACE, and if the lesson doesn't land, the House cashes once
   if(P.ovT>0 && !P._fnR){ P._fnR=1;
-    coachMark('fn_space','SPACE IS EVERY BET — press it NOW to cash the RAGE · reels, dice, wheel: all SPACE'); }
-  if(P.ovT>0 && P.ovT<90.6 && P._fnR===1){ P._fnR=2;
-    P.ovT=90.6; P.ovAge=0; cashRage();
+    coachMark('fn_space','THE BAR EATS SOULS & COINS — the longer it feeds, the richer the reels · SPACE cashes any time'); }
+  if(P.ovT>0 && P.ovT<30 && P._fnR===1){ P._fnR=2; // the first feed is about to starve: the House cashes it, once
+    cashRage();
     setTimeout(()=>announce('◈ THE HOUSE CASHED FOR YOU — THIS ONCE · NEXT TIME, SPACE ◈', true), 200); }
   // back on the floor after the first pull: say what the machine is for
   if(P._fnL && !P._fnS && state==='playing'){ P._fnS=1;

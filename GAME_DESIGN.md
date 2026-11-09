@@ -40,7 +40,15 @@ Caps: WEAPON_CAP=5 owned weapons, SKILL_CAP=7 distinct passives.
 ## ☨ THE RED TABLE (≤40% blood — replaced LAST RITES 2026-07)
 Same red dressing (class 'lastrites', drone, whispers, court), new deal: **no blood costs, no heals** — reels run RICHER (weights 30/40/22/8, hot in THE ODDS), dice soften to 7+, but **ANY miss = instant bust + SCAR** ('THE TABLE TAKES'). BLOOD CODICIL contract = first miss forgiven, once per table. LT.rites/achievements/'edge' secret intact. The `lastRites` flag name survives for CSS/stat continuity; only semantics changed.
 
-## RAGE (Overcharge)
+## ✦ THE FEED (J1 — replaced RAGE, 2026-11)
+XP-full (blood ≥20%) → the bar becomes THE FEED: `P.ovT` 100, +50% damage & fire rate (no damage-taken penalty any more). `feedTick` (ascent.js): drains `dt*(5+ovAge*0.5)` (unfed it starves in ~11s); XP gems feed `+n*0.8*ovFeed`, coins `+2.5*ovFeed`, cap 100. Charge `P.ovCharge += dt*(ovT≥50 ? 1 : 0.5)` → `P.ovTier`: **I WARM at 3s, II HOT at 7s, III FEAST at 12s** (`FEED_T`), each tier-up = rarSting + flash in the jewel color + announce + ring.
+**SPACE = `cashRage()`** (alias `cashFeed`), any time, no penalty: buff reverts, `slotFeedTier=ovTier`, level passes. The next `openNextSlot` moves it into `slotTierNow` (or a pending entry's `{ft:n}`), and `slotWeights()` (slot.js) feeds every reel draw: `FEED_W` I 24/30/25/17/4 · II 0/22/38/30/10 · III 0/0/0/80/20 (common/uncommon/rare/epic/legendary). Else `RED_W` if HIGH ROLLER hot slots, else CFG.weights. Zero weights stay zero in `weightedByRarity`; if a pool has nothing above zero it takes its richest bucket. A FEAST that lands on a weapon turn with no epic/legendary weapon unlocked becomes a skill pull and the weapon waits one slot. THE ODDS plate retitles ('✦ THE FEED · HOT ◆◆ ✦'), glows the tier color and strikes forbidden rows.
+**Starve** (`ovT≤0`) → `feedStarve`: buff reverts, `P.xp = 75% of xpNext`, tier reset, '☠ THE BAR STARVES — A QUARTER OF YOUR XP IS GONE ☠'. No coin sweep. Refill → a fresh feed at tier 0.
+Gauge (core.js render): 20px tall, `min(440,VW*0.56)` wide while feeding; four jewel sockets on the top edge (feeding green · I blue · II violet · ★ FEAST gold), the next one fills as charge builds; label '✦ THE FEED · HOT ◆◆ · 4.2s TO FEAST · SPACE CASHES ✦', hint 'SOULS & COINS FEED IT · STARVE = −25% XP' (narrow screens: shorter, centered over the gauge). DOM `#xpbar` tints via `body.feed-1/2/3`.
+Night one: if the first feed falls under 30 the House cashes it once. Banker soul: dividend + seat count on HOT-or-richer cashes (`SEATS.st.rage`, key name kept). Ascent entry is tokens (45-65s pity window) and the wheel only; `rageAscend`/`ascTime`/`ascPend` are gone.
+**Weapons sooner:** weapon turns are slots 2, 5, 8, … (`slotIndex===2 || (slotIndex-2)%3===0`); slot 1 stays a skill.
+
+## (legacy) RAGE (Overcharge) — replaced by THE FEED
 XP-full → bar 100, +50% dmg & fire rate; at ≥90% also +50% damage TAKEN. Drains at accelerating rate; coins feed +2.5×ovFeed; XP gains feed the bar during rage. SPACE = cash rage into the level. **Hold ≥90% for ascTime (5s, +2.5 per success, cap 10) → THE ASCENT manifests in 10s** → blessed gate token spawns 260-480px away (30s life, white embers, gold guide-arrow). Slipping below 90: all ground coins swept + XP halved.
 
 ## ▲ THE ASCENT — ladder truth + JACKPOT v2 (Batch 8)

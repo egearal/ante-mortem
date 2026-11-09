@@ -103,7 +103,8 @@ const BOT = `(()=>{
       if(B.god && P && (!B.godUntil || gt<B.godUntil)){ P.hp=P.maxHp; P.inv=Math.max(P.inv||0,0.25); }
       if(B.manual){ for(const k of K) keys.delete(k); return; } // a human thumb is driving (probes/phone.js)
       steer();
-      if(P.ovT>0 && typeof cashRage==='function'){ try{ cashRage(); }catch(e){} }
+      // J1 THE FEED: hold it until it runs WARM (or --feed-tier N), cash before it starves
+      if(P.ovT>0 && typeof cashRage==='function' && ((P.ovTier||0)>=(B.feedTier||1) || P.ovT<35)){ try{ cashRage(); }catch(e){} }
       if(B.n%9===0) { /* cash streaks and anything else wanting SPACE */ }
       return;
     }

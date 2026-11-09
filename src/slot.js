@@ -47,9 +47,12 @@ function weightedByRarity(arr, wOver){
   const w=wOver||CFG.weights, buckets={};
   arr.forEach(o=>{ (buckets[o.rar]=buckets[o.rar]||[]).push(o); });
   const keys=Object.keys(buckets); if(!keys.length) return rpick('slot',arr);
-  let t=0; keys.forEach(k=>t+=w[k]||1);
-  let x=rng('slot')*t, chosen=keys[0];
-  for(const k of keys){ if(x<(w[k]||1)){ chosen=k; break; } x-=(w[k]||1); }
+  const wk=k=>(w[k]===0?0:(w[k]||1));
+  let t=0; keys.forEach(k=>t+=wk(k));
+  if(t<=0){ // the feast forbids every rarity this pool still holds — climb to the richest one there is
+    const ord=['legendary','epic','rare','uncommon','common','ascend','mythic']; const top=ord.find(k=>buckets[k]); return rpick('slot',buckets[top||keys[0]]); }
+  let x=rng('slot')*t, chosen=keys.find(k=>wk(k)>0)||keys[0];
+  for(const k of keys){ const v=wk(k); if(v<=0) continue; if(x<v){ chosen=k; break; } x-=v; }
   if(typeof arcUp==='function') chosen=arcUp(chosen,buckets); // D4 — X WHEEL OF FORTUNE lifts every reel one rarity
   return rpick('slot',buckets[chosen]);
 }
@@ -82,6 +85,7 @@ function endSeance(){
 function openNextSlot(){
   if(!pending.length) return;
   const p=pending.shift();
+  slotTierNow=Math.max(p.ft||0, slotFeedTier||0); slotFeedTier=0; // J1: the feed's tier rides this pull
   coachMark('slot','SPACE stops each reel — match three for the strongest pulls');
   slotFloor=p.floor||null;
   state='slot';
@@ -95,10 +99,13 @@ function openNextSlot(){
   elSlot.classList.toggle('lastrites', lastRites);
   $('machine').classList.remove('win','jackpot','bust','pulling','dicing');
   SFX.levelUp();
-  const weaponTurn = (slotForceWeapon || slotIndex % 4 === 0) && availableWeapons().length>0;
+  const weaponTurn = (slotForceWeapon || slotIndex===2 || (slotIndex>2 && (slotIndex-2)%3===0)) && availableWeapons().length>0; // J1: weapons at slots 2, 5, 8 …
   slotForceWeapon=false;
+  let wt=weaponTurn;
+  // J1: a FEAST promises epic & legendary — if the armory has none unlocked yet, the feast feeds a skill and the weapon waits one slot
+  if(wt && slotTierNow>=3 && !availableWeapons().some(w=>w.rar==='epic'||w.rar==='legendary')){ wt=false; slotForceWeapon=true; }
   if(lastRites) enterRedTable();
-  openSlotReady(weaponTurn?'weapon':'skill');
+  openSlotReady(wt?'weapon':'skill');
 }
 function enterRedTable(){
   redForgiven=false;
@@ -127,11 +134,12 @@ function ensurePayTable(){
   const pips=(typeof GFX!=='undefined'&&GFX.cb)
     ? {common:'●',uncommon:'●●',rare:'▲▲▲',epic:'■■■■',legendary:'✦✦✦✦✦'} // shape-coded for colorblind hands
     : {common:'◆',uncommon:'◆◆',rare:'◆◆◆',epic:'◆◆◆◆',legendary:'◆◆◆◆◆'}; // one symbol, every table — the color carries the mood
-  const row=(rar)=>'<div class="ptRow" data-rar="'+rar+'" style="--pc:'+RARC[rar]+'"><span class="ptN">'+SLOT_RAR[rar]+'</span><span class="ptPips">'+pips[rar]+'</span></div>';
+  const row=(rar)=>'<div class="ptRow'+((slotTierNow>0&&FEED_W[slotTierNow][rar]===0)?' ptOff':'')+'" data-rar="'+rar+'" style="--pc:'+RARC[rar]+'"><span class="ptN">'+SLOT_RAR[rar]+'</span><span class="ptPips">'+pips[rar]+'</span></div>';
   pt.classList.toggle('red', !!lastRites);
+  const fw=slotTierNow>0?FEED_W[slotTierNow]:null; pt.classList.remove('feed1','feed2','feed3'); if(fw) pt.classList.add('feed'+slotTierNow);
   const bankChips=slotBank>0?('<div class="ptBank">'+'●'.repeat(Math.min(7,slotBank))+'○'.repeat(Math.max(0,7-slotBank))+' BANK</div>'):'';
   const vchChips=vouchers>0?('<div class="ptBank" style="color:#ffd36b">◈×'+vouchers+' VOUCHER'+(vouchers>1?'S':'')+'</div>'):'';
-  pt.innerHTML=bankChips+vchChips+'<div class="ptHead">'+(lastRites?'☨ THE RED TABLE ☨':'THE ODDS')+'</div>'
+  pt.innerHTML=bankChips+vchChips+'<div class="ptHead">'+(lastRites?'☨ THE RED TABLE ☨':(slotTierNow>0?'✦ THE FEED · '+['','WARM ◆','HOT ◆◆','FEAST ★'][slotTierNow]+' ✦':'THE ODDS'))+'</div>'
     +row('common')+row('uncommon')+row('rare')+row('epic')+row('legendary')
     +'<div class="ptFoot">'+(lastRites?'<b style="color:#ff7b7b">ANY MISS BURNS THE STAKE</b><br>ALL FOUR DICE = HOUSE&#39;S BLESSING':'<b>PAIR = LEVEL 2 · TRIPLE = MAX</b><br>EVERY DICE WIN = +1 LEVEL')+'</div>';
 }
@@ -149,7 +157,7 @@ function ensureBulbs(){
 }
 function buildPreStrips(pool, defs){
   const preStrips=[$('strip0'),$('strip1'),$('strip2')];
-  preStrips.forEach(el=>{ const seq=[]; for(let k=0;k<22;k++) seq.push(weightedByRarity(pool, slotHot()).id); buildStrip(el,seq,defs); el.classList.remove('blur'); el.style.transition='none'; el.style.transform='translateY(0px)'; });
+  preStrips.forEach(el=>{ const seq=[]; for(let k=0;k<22;k++) seq.push(weightedByRarity(pool, slotWeights()).id); buildStrip(el,seq,defs); el.classList.remove('blur'); el.style.transition='none'; el.style.transform='translateY(0px)'; });
   requestAnimationFrame(()=>{ preStrips.forEach(el=>{ const symH=(el.children[0]&&el.children[0].offsetHeight)||63; const boxH=(el.parentElement&&el.parentElement.clientHeight)||189; el.style.transform='translateY('+(boxH/2 - symH*1.5)+'px)'; }); });
 }
 function openSlotReady(kind){
@@ -159,7 +167,7 @@ function openSlotReady(kind){
   $('machine').classList.toggle('hotdeck', !!(P&&P.hotSlots>0)); // the deck runs red while HOT
   { const xf=document.getElementById('xpfill'); if(xf){ xf.classList.remove('drain'); void xf.offsetWidth; xf.classList.add('drain'); }
     const m9=$('machine'); if(m9){ m9.classList.remove('mGlow'); void m9.offsetWidth; m9.classList.add('mGlow'); setTimeout(()=>m9.classList.remove('mGlow'),900); } } // the bar pours into the machine
-  $('slotTag').textContent = (lastRites?'☨ THE RED TABLE — YOUR SKILL RIDES ☨':(isW?'⚔ THE ARSENAL WHEEL ⚔':'THE WHEELS OF FATE'))+((P&&P.hotSlots>0)?' · ⚜ HOT DECK':'')+(slotBank>0?' · BANK '+slotBank+'/7':'');
+  $('slotTag').textContent = (lastRites?'☨ THE RED TABLE — YOUR SKILL RIDES ☨':(isW?'⚔ THE ARSENAL WHEEL ⚔':'THE WHEELS OF FATE'))+((P&&P.hotSlots>0)?' · ⚜ HOT DECK':'')+(slotTierNow>0?' · '+['','◆ WARM','◆◆ HOT','★ FEAST'][slotTierNow]:'')+(slotBank>0?' · BANK '+slotBank+'/7':'');
   $('slotTag').title = slotBank>0 ? 'THE BANK — every PAIR banks a chip · 7 chips = a HOUSE VOUCHER (+1 level, spent on your next offer)' : '';
   $('reelsRow').style.display=''; $('diceRow').style.display='none'; $('riskWrap').style.display='none';
   $('prizeTag').textContent = isW?'YOUR WEAPON':'YOUR SKILL';
@@ -184,6 +192,13 @@ const MFATE={T:0.008, P:0.09};
 // hot reels are a PURCHASED privilege now (HIGH ROLLER indulgence) — the red
 // table itself deals honest weights
 function slotHot(){ return (P&&P.hotSlots>0)?RED_W:null; }
+// J1 — THE FEED: a cashed feed parks its tier; the next slot's reels run at that tier's odds
+const FEED_W=[null,
+  {common:24, uncommon:30, rare:25, epic:17, legendary:4},
+  {common:0,  uncommon:22, rare:38, epic:30, legendary:10},
+  {common:0,  uncommon:0,  rare:0,  epic:80, legendary:20}];
+let slotFeedTier=0, slotTierNow=0;
+function slotWeights(){ if(slotTierNow>0) return FEED_W[slotTierNow]; return slotHot(); }
 let slotFate=null;
 let redStake=null, redForgiven=false; // THE SACRIFICE — a skill of yours on the side table
 function dealFate(seqs, pool){
@@ -197,7 +212,7 @@ function dealFate(seqs, pool){
   const fm=(P&&P.fateMult)||1; // B1: a daily debt can lean the reels cold
   const n = u<MFATE.T*fm ? 3 : (u<(MFATE.T+pB)*fm ? 2 : 0);
   if(!n){ slotFate={n:0}; return; }
-  const s=weightedByRarity(pool, slotHot()).id;
+  const s=weightedByRarity(pool, slotWeights()).id;
   const p0=(rng('slot')*seqs[0].length)|0;
   seqs.forEach(sq=>{ for(let j=0;j<3;j++) sq[(p0+j*7)%sq.length]=s; });
   slotFate={n, s};
@@ -209,7 +224,7 @@ function spinReels(){
   const strips=[$('strip0'),$('strip1'),$('strip2')];
   document.querySelectorAll('.reelbox').forEach(b=>b.classList.remove('antici','slam','pick','locked')); $('reelsRow').classList.remove('sweeping');
   const N=22;
-  const seqs=[0,1,2].map(()=>{ const s=[]; for(let k=0;k<N;k++) s.push(weightedByRarity(pool, slotHot()).id); return s; });
+  const seqs=[0,1,2].map(()=>{ const s=[]; for(let k=0;k<N;k++) s.push(weightedByRarity(pool, slotWeights()).id); return s; });
   dealFate(seqs, pool);
   slotReels = strips.map((el,i)=>{
     buildStrip(el,seqs[i],defs); el.style.transition='none';
@@ -850,6 +865,7 @@ function closeSlot(){
   elSlot.classList.add('hidden'); elSlot.classList.remove('lastrites');
   noise(0.18,0.05,900); // the felt brushes itself clean
   if(P&&P.hotSlots>0) P.hotSlots--; // the HIGH ROLLER deck cools one slot at a time
+  slotTierNow=0;
   if(pending.length){ setTimeout(openNextSlot,250); }
   else { state='playing'; last=performance.now(); }
 }

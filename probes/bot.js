@@ -21,6 +21,7 @@ const which = opt('src', false) ? 'src' : 'dist';
     await page.evaluate(({ god, rank, godUntil, stake, floor }) => { window.__bot.god = god; if (floor) window.__probeFloor = floor; if (godUntil) window.__bot.godUntil = +godUntil; if (rank) { try { RANK.rank = +rank; RANK._ld = 1; } catch (e) {} }
       if (stake != null) { try { STK.won = 1; STK.best = {}; SOULS.forEach(s => { STK.best[s.id] = Math.max(-1, +stake - 1); }); STK.sel = +stake; } catch (e) {} } }, { god: !!opt('god', false) || !!godUntil, rank, godUntil, stake, floor: opt('floor', null) });
     // --soul <id>: seat a soul for the night (D1) — unseals it for this page only
+    if (opt('feed-tier', null) != null) await page.evaluate(n => { window.__bot.feedTier = n; }, +opt('feed-tier', 1));
     const soul = opt('soul', null);
     if (soul) await page.evaluate((id) => { const s = SOULS.find(x => x.id === id); if (!s) throw new Error('no soul ' + id); s.u = () => true; IDX.sl = id; }, soul);
     const t0 = Date.now();

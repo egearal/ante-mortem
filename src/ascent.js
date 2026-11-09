@@ -1,55 +1,64 @@
 "use strict";
 let crashTok=null, crashTokT=38;
-let crashHist=[]; let ascTime=7; let ascPend=0;
+let crashHist=[];
 let crash={on:false, mult:1, cp:2, stakePct:2, wager:0, live:false, done:false, tick:0};
+/* ◆ J1 — THE FEED (replaced RAGE). A full XP bar becomes a mouth: souls and coins feed it,
+   it drains faster the longer it lives, and every second fed lights a jewel —
+   I WARM at 3s, II HOT at 7s, III FEAST at 12s. SPACE cashes any time: the next
+   level's reels run at the tier's odds. Let it starve and a quarter of the XP is gone. */
+const FEED_T=[0,3,7,12];
+const FEED_NAME=['','WARM ◆','HOT ◆◆','FEAST ★'];
+const FEED_COL=['#8fd977','#6db4ff','#c98bff','#ffd36b']; // jewel colors: feeding · I rare-blue · II epic-violet · III legendary-gold
 function startOvercharge(){
   if(P.ovT>0) return;
-  P.ovT=100; P.ovAge=0; P.ovHold=0; P._ovR=P.fireRate; P._ovD=P.damage;
+  P.ovT=100; P.ovAge=0; P.ovCharge=0; P.ovTier=0; P._ovR=P.fireRate; P._ovD=P.damage;
   P.fireRate*=1.5; P.damage*=1.5;
-  // H2: night one's first RAGE says only what the tip says — SPACE cashes it (the Ascent rule can wait)
   const h2r=(typeof fnOn==='function' && fnOn() && P._fnN===1 && !P._h2R); P._h2R=1;
-  announce(h2r?'⚡ RAGE — PRESS SPACE TO CASH IT ⚡':'⚡ RAGE — HOLD ABOVE 90 FOR 10s → THE ASCENT ⚡', true);
+  announce(h2r?'✦ THE FEED — KEEP KILLING · SPACE CASHES ✦':'✦ THE FEED — FEED IT SOULS · THE LONGER, THE RICHER ✦', true);
   SFX.riser(); SFX.hotSix(); flash(0.4,'#ff9a3c'); shake=Math.min(14,shake+6);
 }
 function ovRevert(){
   if(P._ovR!==undefined){ P.fireRate=P._ovR; P._ovR=undefined; }
   if(P._ovD!==undefined){ P.damage=P._ovD; P._ovD=undefined; }
-  P.ovT=0;
+  P.ovT=0; feedBody(0);
+}
+function feedBody(t){ if(feedBody._t===t) return; feedBody._t=t; const b=document.body; b.classList.remove('feed-1','feed-2','feed-3'); if(t>0) b.classList.add('feed-'+t); }
+function feedTick(dt){
+  if(!(P.ovT>0)){ if(feedBody._t) feedBody(0); return; }
+  P.ovAge+=dt;
+  P.ovT-=dt*(5+P.ovAge*0.5);
+  P.ovCharge=(P.ovCharge||0)+dt*(P.ovT>=50?1:0.5);
+  const tier=P.ovCharge>=FEED_T[3]?3:P.ovCharge>=FEED_T[2]?2:P.ovCharge>=FEED_T[1]?1:0;
+  if(tier>(P.ovTier||0)){ P.ovTier=tier; feedTierUp(tier); }
+  feedBody(P.ovTier||0);
+  P._ovHb=(P._ovHb||0)-dt; if(P._ovHb<=0){ P._ovHb=Math.max(0.16,0.45-P.ovTier*0.09); tone(56+P.ovTier*14,0.1,'sine',0.13,44); }
+  if(Math.random()<0.5) parts.push({x:P.x+rnd(-14,14),y:P.y+rnd(-8,12),vx:rnd(-16,16),vy:-rnd(60,140),life:rnd(.25,.5),col:P.ovTier?FEED_COL[P.ovTier]:'#ffd36b',r:rnd(1.4,2.6)});
+  if(P.ovT<=0) feedStarve();
+}
+function feedTierUp(t){
+  const c=FEED_COL[t];
+  try{ SFX.rarSting(t===3?4:t); }catch(e){ try{ SFX.dingBells(); }catch(x){} }
+  flash(0.18+t*0.08, c); shake=Math.min(16,shake+2+t*2);
+  ring(P.x,P.y,70+t*30,c); ring(P.x,P.y,40+t*16,'#fff2c0'); burst(P.x,P.y,10+t*6,c);
+  if(t===3){ SFX.seraph(); sparkBurst(26); }
+  announce(t===1?'◆ THE REELS RUN WARM ◆':t===2?'◆◆ THE REELS RUN HOT ◆◆':'★ THE FEAST — ONLY EPIC & LEGENDARY ★', true);
 }
 function cashRage(){
-  const bar=P.ovT, held=P.ovAge; ovRevert();
-  if(bar>=90){
-    if(held>=8){ ovBonusNext=true; SFX.seraph(); flash(0.5,'#ffd36b'); }
-    SFX.dingBells(); SFX.cashout(); sparkBurst(22);
-    announce(held>=8?'⚡ OVERCHARGED CASH-OUT — BONUS LEVEL ⚡':'⚡ CASHED AT '+Math.round(bar)+'% ⚡', true);
-  } else {
-    const kept=Math.floor(P.coins*bar/100), lost=P.coins-kept;
-    P.coins=kept;
-    announce('☠ THE HOUSE TAKES '+lost+' COINS — CASHED AT '+Math.round(bar)+'% ☠', false);
-    SFX.bust(); SFX.chipStack(); flash(0.45,'#8b1620'); shake=Math.min(16,shake+8);
-  }
+  const tier=P.ovTier||0; ovRevert(); P.ovCharge=0; P.ovTier=0;
+  slotFeedTier=Math.max(slotFeedTier||0, tier);
+  if(tier>0){ SFX.dingBells(); SFX.cashout(); sparkBurst(14+tier*8); flash(0.3+tier*0.08, FEED_COL[tier]);
+    if(tier===3){ SFX.seraph(); try{ domConfetti(); }catch(e){} }
+    announce(tier===3?'★ CASHED AT THE FEAST — THE REELS RUN GOLD ★':tier===2?'◆◆ CASHED HOT — RICHER REELS ◆◆':'◆ CASHED WARM — BETTER REELS ◆', true); }
+  else { SFX.cashout(); announce('◈ CASHED COLD — PLAIN REELS ◈', true); }
   P._ovPass=true; gainXP(0);
 }
-function rageAscend(){
-  ovRevert(); ovBonusNext=true; ascTime=Math.min(12,ascTime+2.5); ascPend=10;
-  announce('⚡ THE ASCENT WILL MANIFEST IN 10 SECONDS ⚡', true);
-  SFX.seraph(); SFX.dingBells(); flash(0.5,'#8bff9a'); sparkBurst(26);
-  P._ovPass=true; gainXP(0);
-}
-function spawnAscentGate(){
-  const a=rng('ascent')*6.283, d=260+rng('ascent')*220;
-  crashTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:30, ph:rng('ascent')*6.28, blessed:true};
-  announce('▲ THE ASCENT HAS MANIFESTED — SEEK THE GATE ▲', true);
-  coachMark('ascent','the GREEN GATE stakes your LEVEL — ride the multiplier, cash before the crash');
-  SFX.dingBells(); SFX.casinoDing(); ring(crashTok.x,crashTok.y,120,'#8bff9a'); ring(crashTok.x,crashTok.y,70,'#fff2c0');
-}
-function rageDrop(){
-  ovRevert();
-  const swept=coins.length; for(const c5 of coins) burst(c5.x,c5.y,1,'#5a4a3a'); coins.length=0;
-  P.xp=Math.floor(P.xp*0.5); if(P.xp>=P.xpNext) P.xp=P.xpNext-1;
-  announce('☠ THE BAR SLIPS — HALF YOUR XP FORFEIT · THE FLOOR IS SWEPT ☠', false);
-  SFX.bossRoar(); SFX.bust(); noise(0.5,0.25,420); flash(0.55,'#8b1620'); shake=Math.min(24,shake+14);
-  if(swept>0) ftext(P.x,P.y-26,'−'+swept+' COINS SWEPT','#ff6b6b',true);
+const cashFeed=(...a)=>cashRage(...a);
+function feedStarve(){
+  ovRevert(); P.ovCharge=0; P.ovTier=0;
+  P.xp=Math.floor(P.xpNext*0.75);
+  announce('☠ THE BAR STARVES — A QUARTER OF YOUR XP IS GONE ☠', false);
+  SFX.bust(); noise(0.4,0.18,420); flash(0.45,'#8b1620'); shake=Math.min(18,shake+8);
+  ftext(P.x,P.y-26,'−25% XP','#ff6b6b',true);
 }
 const CR_PCTS=[0.25,0.5,1.0], CR_LBL=['25%','50%','ALL'];
 function crashStakeUI(){ $('crashStake').innerHTML=CR_PCTS.map((p,i)=>'<span class="stk'+(i===crash.stakePct?' on':'')+'" data-i="'+i+'" style="cursor:pointer">'+(i+1)+' — '+CR_LBL[i]+' XP</span>').join('');
@@ -438,7 +447,7 @@ function closeCrash(){ crash.jk=false; { const w9=$('jkWrap'); if(w9){ w9.classL
 function tickCrashTok(dt){
   if(houseActive) return;
   if(!crashTok){ crashTokT-=dt;
-    if(crashTokT<=0){ crashTokT=68+rng('ascent')*24-12; // pity window: 56-80s
+    if(crashTokT<=0){ crashTokT=55+rng('ascent')*20-10; // pity window: 45-65s (J1: the Ascent comes by token and wheel only)
       const a=rng('ascent')*6.283, d=300+rng('ascent')*300;
       crashTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:20, ph:rng('ascent')*6.28};
       announce('▲ THE ASCENT BECKONS ▲', true); SFX.dingBells();
