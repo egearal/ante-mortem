@@ -45,7 +45,8 @@ const cv = document.getElementById('c');
 const ctx = cv.getContext('2d',{alpha:false}); // opaque canvas — the compositor stops blending the page behind every frame
 let VW=0, VH=0, DPR=1, ZOOM=1;
 function resize(){
-  DPR = Math.min(window.devicePixelRatio||1, window._qPrev===true?1:2);
+  // J0: the low tier steps the resolution down in two stages — 1.5 first, 1 only if still slow
+  DPR = Math.min(window.devicePixelRatio||1, window._qPrev===true?(window._qDeep===false?1.5:1):2);
   // A4: phones pull the camera back — visual scale only (VW/VH are logical px)
   { const sw=window.innerWidth, sh=window.innerHeight, s=Math.min(sw,sh);
     ZOOM = s<540 ? Math.max(0.72, s/540) : 1;
@@ -1332,7 +1333,7 @@ function drawSigil(cx,cy){
 function drawPillar(px,py,r){
   // warm light pool
   ctx.save(); ctx.globalCompositeOperation='screen';
-  { const pr=r*5; ctx.globalAlpha=0.13;
+  if(!qLow){ const pr=r*5; ctx.globalAlpha=0.13; // J0: the low tier drops the pillar pools (the flame keeps its glow)
     ctx.drawImage(glowSprite('rgba(232,150,60,1)','rgba(232,150,60,0)',pr), px-pr, py-pr, pr*2, pr*2); ctx.globalAlpha=1; } ctx.restore();
   // square plinth + shadow
   ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.beginPath(); ctx.ellipse(px+6,py+11,r*1.25,r*1.15,0,0,6.283); ctx.fill();
@@ -1630,7 +1631,7 @@ function render(){
   // cathedral light shafts — slanted beams falling from unseen windows onto the pools
   ctx.save(); ctx.globalCompositeOperation='lighter';
   for(const gp of glassPools){
-    if(!GFX.shafts || GFX.lite) break;
+    if(!GFX.shafts || GFX.lite || qLow) break; // J0: no shafts on the low tier
     if(!inView(gp.x,gp.y,gp.r+460)) continue;
     const shm=0.5+Math.sin(gt*0.5+gp.ph*2)*0.25;
     const topX=gp.x+180, topY=gp.y-420;
@@ -1687,7 +1688,8 @@ function render(){
 
   // stray candlelight pools — A1: real additive light, soft falloff, wandering like a carried candle
   ctx.save(); ctx.globalCompositeOperation='lighter';
-  if(!GFX.lite) for(let i=0;i<2;i++){ const px=camX+VW*(0.3+i*0.4)+Math.sin(gt*0.23+i*2.1)*90+Math.sin(gt*0.11+i)*38; const py=camY+VH*(0.35+i*0.3)+Math.cos(gt*0.17+i*1.3)*70+Math.cos(gt*0.07)*26; const rr=250+Math.sin(gt*4+i)*12;
+  if(!GFX.lite) for(let i=0;i<(qLow?1:2);i++){ // J0: one wandering pool on the low tier
+    const px=camX+VW*(0.3+i*0.4)+Math.sin(gt*0.23+i*2.1)*90+Math.sin(gt*0.11+i)*38; const py=camY+VH*(0.35+i*0.3)+Math.cos(gt*0.17+i*1.3)*70+Math.cos(gt*0.07)*26; const rr=250+Math.sin(gt*4+i)*12;
     ctx.globalAlpha=Math.min(1,0.20*cf);
     ctx.drawImage(lightSprite(255,150,70), px-rr, py-rr*0.8, rr*2, rr*1.6); }
   ctx.globalAlpha=1; ctx.restore();
@@ -1993,7 +1995,7 @@ function render(){
 
   PROF.mark('post');
   // light shafts (screen space, prebaked sprite ×3) — now honors the LIGHT SHAFTS toggle
-  if(GFX.shafts && !GFX.lite && vignB){
+  if(GFX.shafts && !GFX.lite && !qLow && vignB){ // J0: skipped on the low tier
     ctx.save(); ctx.globalCompositeOperation='screen';
     for(let i=0;i<3;i++){ const lx=VW*(0.2+i*0.3)+Math.sin(gt*0.2+i)*40;
       ctx.drawImage(vignB.shaft, lx-20, 0, 190, VH); }
@@ -3442,7 +3444,9 @@ function frame(now){
     // consecutive good frames; the ~30 frames after any flip/resize/state change are
     // amnestied (the flip itself causes a slow frame — the old code fed on its own wake).
     const was=qLow;
-    if(GFX.q==='low') qLow=true;
+    // J0: two low stages — the first trip caps DPR at 1.5; still slow 5s later → DPR 1 ("deep").
+    // Recovery climbs back the same two steps. Thresholds are the C8 ones, unchanged.
+    if(GFX.q==='low'){ qLow=true; window._qDeep=true; } // chosen by the player: straight to the floor
     else if(GFX.q==='high') qLow=false;
     else {
       const nw9=now;
@@ -3450,13 +3454,14 @@ function frame(now){
       if(state!==window._qState){ window._qState=state; window._qGrace=30; }
       if(window._qGrace>0){ window._qGrace--; window._qGood=0; }
       else if(nw9-(window._qFlipT||0)>5000){
-        if(!qLow && frameAvg>19){ qLow=true; window._qFlipT=nw9; }
+        if(!qLow && frameAvg>19){ qLow=true; window._qDeep=false; window._qFlipT=nw9; }
+        else if(qLow && window._qDeep===false && frameAvg>19 && (window.devicePixelRatio||1)>1){ window._qDeep=true; window._qFlipT=nw9; window._qGood=0; }
         else if(qLow){ if(frameAvg<15.5) window._qGood=(window._qGood||0)+1; else window._qGood=0;
-          if(window._qGood>=45){ qLow=false; window._qFlipT=nw9; window._qGood=0; } }
+          if(window._qGood>=45){ if(window._qDeep!==false) window._qDeep=false; else qLow=false; window._qFlipT=nw9; window._qGood=0; } }
       }
     }
     if(qLow&&!was&&state==='playing'&&!window._smoothT9){ window._smoothT9=true; showStreak('✦ THE HOUSE SMOOTHS THE FELT ✦'); setTimeout(()=>window._smoothT9=false,30000); } }
-  if(qLow!==window._qPrev){ window._qPrev=qLow; window._qGrace=30; resize(); }
+  { const dp=window._qDeep!==false; if(qLow!==window._qPrev || (qLow && dp!==window._qDeepPrev)){ window._qPrev=qLow; window._qDeepPrev=dp; window._qGrace=30; resize(); } }
   if(GFX.shake===0) shake=0;
   document.body.classList.toggle('gamble', state==='slot'||state==='wheel'||state==='crash'||state==='marker');
   // each slice re-reads the state: a slice that opens a slot / kills / pauses ends the frame's sim
