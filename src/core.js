@@ -1287,13 +1287,20 @@ let _sigC=null, _sigT=0, _sigGt=null, _sigAt=-1e9, _sigR=null;
 function sigilCompose(bk,r){
   if(!_sigC){ _sigC=document.createElement('canvas'); _sigC.width=_sigC.height=728; }
   const g=_sigC.getContext('2d');
-  g.setTransform(1,0,0,1,0,0); g.clearRect(0,0,728,728);
-  g.save(); g.beginPath(); g.rect((r[0]+728)/2,(r[1]+728)/2,(r[2]-r[0])/2,(r[3]-r[1])/2); g.clip();
+  const h0=r[0]/2, h1=r[1]/2, h2=r[2]/2, h3=r[3]/2; // the patch, half-res, centred on the seal
+  g.setTransform(1,0,0,1,0,0); g.clearRect(h0+364,h1+364,h2-h0,h3-h1);
+  g.save(); g.beginPath(); g.rect(h0+364,h1+364,h2-h0,h3-h1); g.clip();
   g.translate(364,364);
-  g.drawImage(bk.stat,-364,-364,728,728);
-  g.save(); g.rotate(_sigT*0.03); g.drawImage(bk.spokes,-364,-364,728,728); g.restore();
-  g.save(); g.rotate(-_sigT*0.05); g.drawImage(bk.petals,-364,-364,728,728); g.restore();
-  g.save(); g.globalCompositeOperation='screen'; g.rotate(_sigT*0.015); g.drawImage(bk.runes,-364,-364,728,728); g.restore();
+  // each layer: only the source rect that can land inside the patch at this angle
+  const layer=(img,a)=>{ const c=Math.cos(a), s=Math.sin(a); let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+    for(const [px,py] of [[h0,h1],[h2,h1],[h0,h3],[h2,h3]]){ const qx=c*px+s*py, qy=-s*px+c*py; if(qx<x0)x0=qx; if(qx>x1)x1=qx; if(qy<y0)y0=qy; if(qy>y1)y1=qy; }
+    x0=Math.max(-364,Math.floor(x0)-2); y0=Math.max(-364,Math.floor(y0)-2); x1=Math.min(364,Math.ceil(x1)+2); y1=Math.min(364,Math.ceil(y1)+2);
+    if(x1<=x0||y1<=y0) return;
+    g.save(); if(a) g.rotate(a); g.drawImage(img,x0+364,y0+364,x1-x0,y1-y0,x0,y0,x1-x0,y1-y0); g.restore(); };
+  layer(bk.stat,0);
+  layer(bk.spokes,_sigT*0.03);
+  layer(bk.petals,-_sigT*0.05);
+  g.globalCompositeOperation='screen'; layer(bk.runes,_sigT*0.015);
   g.restore(); _sigR=r; _sigAt=_sigT;
 }
 function drawSigil(cx,cy){
@@ -1415,6 +1422,30 @@ function bakeVign(danger,db,tb){
   vignB=B;
   function mk2(w2,h2){ const c=document.createElement('canvas'); c.width=w2; c.height=h2; return c; }
 }
+// J0 — THE ATMOSPHERE: fog, the danger red and the vignette are plain source-over layers
+// drawn one after another, so they stack into ONE half-res canvas (source-over is
+// associative — the stack is the same picture) and the frame pays one full-screen blit
+// instead of three passes plus four fog blits. The stack is re-laid every 6th frame (fog
+// drifts <1px, the pulses move <1%) or at once when the vignette is rebaked.
+let _atm=null, _atmN=0, _atmB=null;
+function atmosDraw(danger,cf){
+  const w=Math.max(2,VW>>1), h=Math.max(2,VH>>1);
+  if(!_atm) _atm=document.createElement('canvas');
+  if(_atm.width!==w || _atm.height!==h){ _atm.width=w; _atm.height=h; _atmB=null; }
+  if(_atmB!==vignB || (++_atmN)%6===0){
+    const g=_atm.getContext('2d');
+    g.setTransform(1,0,0,1,0,0); g.globalAlpha=1; g.clearRect(0,0,w,h);
+    if(!GFX.lite){ g.setTransform(w/VW,0,0,h/VH,0,0);
+      for(let fi=0;fi<fogPuffs.length;fi+=2){ const f=fogPuffs[fi], col=f.warm?'150,90,60':'70,80,120';
+        g.globalAlpha=Math.max(0,Math.min(1,f.a*cf));
+        g.drawImage(glowSprite('rgba('+col+',1)','rgba('+col+',0)',f.r), f.x-f.r, f.y-f.r, f.r*2, f.r*2); }
+      g.setTransform(1,0,0,1,0,0); }
+    if(danger>0.02){ g.globalAlpha=danger*(0.6+Math.sin(gt*1.4)*0.15); g.drawImage(vignB.danger,0,0,w,h); }
+    g.globalAlpha=Math.min(1,cf); g.drawImage(vignB.main,0,0,w,h); g.globalAlpha=1;
+    _atmB=vignB;
+  }
+  ctx.drawImage(_atm,0,0,VW,VH);
+}
 const _bgCache={};
 function bulletGrad(kind,r){
   const k=kind+(r|0); let g=_bgCache[k]; if(g) return g;
@@ -1515,10 +1546,16 @@ function render(){
   const _bR=!!(window._fmods&&window._fmods.ballroom&&typeof balTile==='function'); // D3: THE BALLROOM bakes its own mirror floor
   const cx0=Math.floor(camX/cs), cy0=Math.floor(camY/cs);
   const cxn=Math.ceil((camX+VW)/cs), cyn=Math.ceil((camY+VH)/cs);
+  // J0: edge tiles blit only the part on screen (+1px slack) — the overhang was ~a whole extra screen of fill
+  const vX0=Math.floor(camX-sx-1), vY0=Math.floor(camY-sy-1), vX1=Math.ceil(camX-sx+VW+1), vY1=Math.ceil(camY-sy+VH+1);
   for(let gx=cx0;gx<=cxn;gx++) for(let gy=cy0;gy<=cyn;gy++){
     const dark=(((gx+gy)&1)===0);
     const h=((gx*73856093)^(gy*19349663))>>>0;
-    ctx.drawImage(_bR?balTile(dark,h%24):tileSprite(dark,h%24), gx*cs, gy*cs);
+    const tx=gx*cs, ty=gy*cs, x0=Math.max(tx,vX0), y0=Math.max(ty,vY0), x1=Math.min(tx+cs,vX1), y1=Math.min(ty+cs,vY1);
+    if(x1<=x0 || y1<=y0) continue;
+    const tsp=_bR?balTile(dark,h%24):tileSprite(dark,h%24);
+    if(x1-x0===cs && y1-y0===cs) ctx.drawImage(tsp, tx, ty);
+    else ctx.drawImage(tsp, x0-tx, y0-ty, x1-x0, y1-y0, x0, y0, x1-x0, y1-y0);
   }
   ctx.strokeStyle='rgba(0,0,0,0.45)'; ctx.lineWidth=2;
   for(let gx=cx0;gx<=cxn;gx++){ ctx.beginPath(); ctx.moveTo(gx*cs,camY-cs); ctx.lineTo(gx*cs,camY+VH+cs); ctx.stroke(); }
@@ -1963,13 +2000,10 @@ function render(){
     ctx.restore();
   }
 
-  // drifting fog (screen space, atmospheric depth)
-  if(!GFX.lite){ ctx.save();
+  // drifting fog (screen space, atmospheric depth) — J0: it drifts here; it is painted inside
+  // the atmosphere layer with the vignette (atmosDraw), not as four big blits of its own
   // A1: half the haze — fog lifted the blacks (law 2) and was the single biggest fill cost (~2.4M px/frame)
-  for(let fi=0;fi<fogPuffs.length;fi+=2){ const f=fogPuffs[fi]; f.x+=f.vx/60; f.y+=f.vy/60; if(f.x<-f.r)f.x=VW+f.r; else if(f.x>VW+f.r)f.x=-f.r; if(f.y<-f.r)f.y=VH+f.r; else if(f.y>VH+f.r)f.y=-f.r;
-    const col=f.warm?'150,90,60':'70,80,120'; ctx.globalAlpha=Math.max(0,Math.min(1,f.a*cf));
-    ctx.drawImage(glowSprite('rgba('+col+',1)','rgba('+col+',0)',f.r), f.x-f.r, f.y-f.r, f.r*2, f.r*2); ctx.globalAlpha=1; }
-  ctx.restore(); }
+  if(!GFX.lite) for(let fi=0;fi<fogPuffs.length;fi+=2){ const f=fogPuffs[fi]; f.x+=f.vx/60; f.y+=f.vy/60; if(f.x<-f.r)f.x=VW+f.r; else if(f.x>VW+f.r)f.x=-f.r; if(f.y<-f.r)f.y=VH+f.r; else if(f.y>VH+f.r)f.y=-f.r; }
 
   // drifting embers (screen space)
   if(!GFX.lite){ ctx.save(); ctx.globalCompositeOperation='screen';
@@ -1979,7 +2013,10 @@ function render(){
   if(!GFX.lite && !(qLow && state==='playing')) drawAudience();
 
   // film grain
-  if(grainReady && !GFX.lite){ ctx.save(); ctx.globalAlpha=0.5; const ox=(Math.random()*140)|0, oy=(Math.random()*140)|0; for(let x=-ox;x<VW;x+=140) for(let y=-oy;y<VH;y+=140){ ctx.drawImage(grainC,x,y); } ctx.restore(); }
+  // J0: one pattern fill of exactly the screen (was ~60 tile blits spilling past the edges)
+  if(grainReady && !GFX.lite){ ctx.save(); ctx.globalAlpha=0.5; const ox=(Math.random()*140)|0, oy=(Math.random()*140)|0;
+    if(!grainC._pat) grainC._pat=ctx.createPattern(grainC,'repeat');
+    ctx.translate(-ox,-oy); ctx.fillStyle=grainC._pat; ctx.fillRect(ox,oy,VW,VH); ctx.restore(); }
 
   // vignette — warm heart, cold edges, darkening with danger (prebaked, alpha-modulated live)
   const danger = Math.min(0.40, ((P.level||1)-1)*0.020 + Math.min(0.12, gt/900));
@@ -1988,8 +2025,7 @@ function render(){
     if(!vignB || vignB.w!==VW || vignB.h!==VH || vignB.db!==db || vignB.tb!==tb || vignB.grade!==GFX.grade) bakeVign(danger,db,tb);
     ctx.save(); ctx.globalCompositeOperation='screen'; ctx.globalAlpha=0.5+excite*0.5;
     ctx.drawImage(vignB.warm,0,0,VW,VH); ctx.restore();
-    if(danger>0.02){ ctx.globalAlpha=danger*(0.6+Math.sin(gt*1.4)*0.15); ctx.drawImage(vignB.danger,0,0,VW,VH); ctx.globalAlpha=1; }
-    ctx.globalAlpha=Math.min(1,cf); ctx.drawImage(vignB.main,0,0,VW,VH); ctx.globalAlpha=1; }
+    atmosDraw(danger,cf); } // J0: fog + danger + vignette, one blit
   // Death's court gathers around the slot — for LAST RITES (ice-eyed) and the FATE SPINS séance (violet-eyed)
   { const seance = state==='slot' && !lastRites && (slotStage==='select'||slotStage==='locking') && typeof selPos!=='undefined';
     if(state==='slot' && (lastRites || seance)){
