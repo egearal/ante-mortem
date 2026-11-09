@@ -27,7 +27,7 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
       ]},
       {ico:'🎡', name:'THE GAMBLES', col:'#c98bff', items:[
         ['THE CASE','A little gold case appears on the floor. It costs a cut of your coins. SPACE snaps each chain, then SPACE spins for a prize.'],
-        ['THE ASCENT','The green gate. SPACE pushes a number up, ENTER cashes out. Higher = better prizes. 7.77 is the jackpot — but crash and you\'re cursed.'],
+        ['THE ASCENT','The green gate. SPACE launches it and the number climbs ON ITS OWN. SPACE again cashes. Every rung pays: 1.77 a level, 2.77 a HOT level, 3.69 THE ARMORY (pick an epic or legendary), 7.77 an Ascension + two FEAST levels. Crash first and you\'re cursed.'],
         ['TAROT','Ghost cards on the floor. Half bless you. Half don\'t. The violet arrow points the way.'],
         ['THE FINAL PRESS','When you die, the House offers one roll to live. MASH SPACE to raise your odds, then watch the number drop. Under your odds = one more hand.']
       ]},
@@ -44,7 +44,7 @@ $('vaultBtn').addEventListener('click',()=>{ vaultBrowse=true; openVault(); SFX.
       +s.items.map(h=>'<div class="howItem"><div><div class="howName">'+h[0]+'</div><div class="howDesc">'+h[1]+'</div></div></div>').join('')+'</div>';
     const RULES_TAB={ico:'▣', name:'HOUSE RULES', col:'#e8b64c', items:[
       ['THE BET','You are Vesper. You owe the House your soul. Survive, level up, gamble — win it back or die trying.'],
-      ['ONE BUTTON','Almost everything is SPACE. Spin, stop, roll, snap, push, live. WASD walks. That\'s the whole game.'],
+      ['ONE BUTTON','Almost everything is SPACE. Spin, stop, roll, snap, cash, live. WASD walks. That\'s the whole game.'],
       ['EVERY RUN ENDS','At 15:00 the House forecloses, always. The goal isn\'t to survive — it\'s to matter before you don\'t.'],
       ['THE HOUSE ALWAYS BLEEDS','…but it never loses. Play accordingly.']
     ]};
@@ -284,7 +284,7 @@ function buildGfxPanel(){
     +GFX_DEFS.filter(d=>d.k!=='vol').map(d=>'<div class="gxRow"><span class="gxName">'+d.n+'</span><button class="gxBtn" data-k="'+d.k+'">'+gfxLabel(d)+'</button></div>').join('')
     +'<div class="gxRow"><span class="gxName">FULLSCREEN</span><button class="gxBtn" id="gxFull">F — TOGGLE</button></div>'
     +'<div class="gxRow"><span class="gxName">EVERYTHING</span><button class="gxBtn" id="gxReset">RESET TO DEFAULTS</button></div>'
-    +'<div class="gxKeys">⌨ WASD walk · SPACE every bet · ENTER cash the ascent · ESC pause · TAB codex · M mute · R (hold) re-ante</div>'
+    +'<div class="gxKeys">⌨ WASD walk · SPACE every bet (cashes the feed & the ascent) · ESC pause · TAB codex · M mute · R (hold) re-ante</div>'
     +'<div class="gxRow"><span class="gxName">YOUR SOUL, PORTABLE</span><span><button class="gxBtn" id="gxExport">EXPORT</button> <button class="gxBtn" id="gxImport">IMPORT</button></span></div>'
     +'<button class="gxBtn gxClose" id="gfxClose">CLOSE</button></div>';
   document.body.appendChild(p);
@@ -326,6 +326,8 @@ function _annPump(){
   const a=$('announce');
   if(a){
     a.textContent=txt; a.className='ann '+(good?'good':'bad');
+    { const c=(typeof good==='string')?good:''; // J1: a color in place of `true` — the banner wears it (the feed's jewels)
+      a.style.color=c; a.style.borderColor=c?c+'99':''; a.style.textShadow=c?'0 0 18px '+c:''; a.style.boxShadow=c?'0 0 26px '+c+'59':''; }
     a.style.animation='none'; void a.offsetWidth; a.style.animation='';
     a.classList.remove('hidden');
     tone(good?1760:520,0.07,'sine',0.06); tone(98,0.5,'sine',0.032,80); // the room leans in

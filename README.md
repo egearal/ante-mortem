@@ -18,14 +18,14 @@ Press **SPACE**. Saves live in your browser's storage.
 
 ## Controls
 
-- **Keyboard:** WASD walk · SPACE is every bet · ENTER cashes the Ascent · ESC pause · TAB codex · M mute · R (hold, when dead) re-ante. Rebind in OPTIONS.
+- **Keyboard:** WASD walk · SPACE is every bet: it cashes THE FEED, stops the reels, and cashes the climbing Ascent (ENTER works too) · ESC pause · TAB codex · M mute · R (hold, when dead) re-ante. Rebind in OPTIONS.
 - **Phone / tablet:** left thumb drags a floating stick · the gold **BET** coin is SPACE · ⏸ and ✦ CODEX buttons up top.
 - **Controller / Steam Deck:** left stick moves · Ⓐ bet · Ⓑ back · START pause · every menu walks with the d-pad.
 
 ## What's in the House
 
 10 souls with their own rules · 4 floors (THE PIT, THE CELLAR, THE CHAPEL, THE BALLROOM) · 29 weapons and
-10 secret **Pairings** that evolve them · the slot, dice, wheel, crash-game Ascent and Death Roll · tarot plus
+10 secret **Pairings** that evolve them · the slot, dice, wheel, THE FEED (a full XP bar you feed for richer reels), the self-climbing Ascent with THE ARMORY, and Death Roll · tarot plus
 12 rare **Major Arcana** · 7 bosses including three gambling lords and THE HOUSE at 13:00 · **Daily Debt**, one
 seeded night per day for everyone · 5 **Stakes** and the **Endless** floor after you win · the **Book of Debts**
 mapping every unlock · 100 House ranks, feats, the Index and the Vault.

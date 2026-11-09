@@ -2494,3 +2494,8 @@ body.feed-3 #xpfill{background:linear-gradient(90deg,#8a5a10,#ffd36b,#fff2c0)!im
   #jkWrap .jkCard{width:auto;flex:1 1 0;min-width:0;max-width:150px;padding:12px 6px;}
   #jkWrap .jkCard .jkN{font-size:12px;} #jkWrap .jkCard .jkD{font-size:10px;} #jkWrap .jkCard .jkR{font-size:9px;letter-spacing:.06em;}
 }
+/* J1: the machine wears the feed's tier — blue WARM, violet HOT, a gold FEAST that breathes */
+#machine.feedT1{box-shadow:0 0 0 2px rgba(109,180,255,.55),0 0 46px rgba(109,180,255,.35);}
+#machine.feedT2{box-shadow:0 0 0 2px rgba(201,139,255,.65),0 0 60px rgba(201,139,255,.45);}
+#machine.feedT3{box-shadow:0 0 0 3px #ffd36b,0 0 90px rgba(255,211,107,.6);animation:feastBreath 1.2s ease-in-out infinite alternate;}
+@keyframes feastBreath{to{box-shadow:0 0 0 3px #fff2c0,0 0 140px rgba(255,211,107,.85);}}

@@ -165,6 +165,9 @@ function openSlotReady(kind){
   slotKind=kind; gamble=null; diceShown=false; const isW=kind==='weapon';
   elSlot.classList.toggle('arsenal', isW);
   $('machine').classList.toggle('hotdeck', !!(P&&P.hotSlots>0)); // the deck runs red while HOT
+  { const m8=$('machine'); m8.classList.remove('feedT1','feedT2','feedT3'); if(slotTierNow>0){ m8.classList.add('feedT'+slotTierNow); // J1: the feed's tier dresses the machine
+      if(slotTierNow>=3){ setTimeout(()=>{ try{ SFX.seraph(); SFX.dingBells(); }catch(e){} },120); flash(0.4,'#ffd36b'); sparkBurst(24); try{ domConfetti(18); }catch(e){} }
+      else { setTimeout(()=>{ try{ SFX.rarSting(slotTierNow); }catch(e){} },120); flash(0.22,slotTierNow>=2?'#c98bff':'#6db4ff'); } } }
   { const xf=document.getElementById('xpfill'); if(xf){ xf.classList.remove('drain'); void xf.offsetWidth; xf.classList.add('drain'); }
     const m9=$('machine'); if(m9){ m9.classList.remove('mGlow'); void m9.offsetWidth; m9.classList.add('mGlow'); setTimeout(()=>m9.classList.remove('mGlow'),900); } } // the bar pours into the machine
   $('slotTag').textContent = (lastRites?'☨ THE RED TABLE — YOUR SKILL RIDES ☨':(isW?'⚔ THE ARSENAL WHEEL ⚔':'THE WHEELS OF FATE'))+((P&&P.hotSlots>0)?' · ⚜ HOT DECK':'')+(slotTierNow>0?' · '+['','◆ WARM','◆◆ HOT','★ FEAST'][slotTierNow]:'')+(slotBank>0?' · BANK '+slotBank+'/7':'');

@@ -41,14 +41,14 @@ function feedTierUp(t){
   flash(0.18+t*0.08, c); shake=Math.min(16,shake+2+t*2);
   ring(P.x,P.y,70+t*30,c); ring(P.x,P.y,40+t*16,'#fff2c0'); burst(P.x,P.y,10+t*6,c);
   if(t===3){ SFX.seraph(); sparkBurst(26); }
-  announce(t===1?'◆ THE REELS RUN WARM ◆':t===2?'◆◆ THE REELS RUN HOT ◆◆':'★ THE FEAST — ONLY EPIC & LEGENDARY ★', true);
+  announce(t===1?'◆ THE REELS RUN WARM ◆':t===2?'◆◆ THE REELS RUN HOT ◆◆':'★ THE FEAST — ONLY EPIC & LEGENDARY ★', c);
 }
 function cashRage(){
   const tier=P.ovTier||0; ovRevert(); P.ovCharge=0; P.ovTier=0;
   slotFeedTier=Math.max(slotFeedTier||0, tier);
   if(tier>0){ SFX.dingBells(); SFX.cashout(); sparkBurst(14+tier*8); flash(0.3+tier*0.08, FEED_COL[tier]);
     if(tier===3){ SFX.seraph(); try{ domConfetti(); }catch(e){} }
-    announce(tier===3?'★ CASHED AT THE FEAST — THE REELS RUN GOLD ★':tier===2?'◆◆ CASHED HOT — RICHER REELS ◆◆':'◆ CASHED WARM — BETTER REELS ◆', true); }
+    announce(tier===3?'★ CASHED AT THE FEAST — THE REELS RUN GOLD ★':tier===2?'◆◆ CASHED HOT — RICHER REELS ◆◆':'◆ CASHED WARM — BETTER REELS ◆', FEED_COL[tier]); }
   else { SFX.cashout(); announce('◈ CASHED COLD — PLAIN REELS ◈', true); }
   P._ovPass=true; gainXP(0);
 }
@@ -371,7 +371,7 @@ function pickJackpot(i){
   if(!gd){ gd=document.createElement('div'); gd.id='ascGift'; $('crashLayer').appendChild(gd); }
   gd.innerHTML='<div class="agG" style="color:'+(GLYPH_COL[def.id]||col)+';text-shadow:0 0 30px currentColor">'+def.g+'</div><div class="agN">'+def.n+'</div><div class="agT" style="color:'+col+'">✦ '+o.tag+'</div>';
   gd.classList.remove('go'); void gd.offsetWidth; gd.classList.add('go');
-  announce(line, true);
+  announce(line, col);
   SFX.rarSting(4); SFX.cashout(); setTimeout(()=>SFX.seraph(),180); SFX.casinoDing();
   gatePing(col,520); flash(0.5,col); shake=Math.min(24,shake+10);
   coinRain(lite?16:40); domConfetti(lite?20:50,'crashLayer'); sparkBurstAt('crashMult','crashLayer',lite?14:26);
