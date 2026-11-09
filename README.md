@@ -15,6 +15,7 @@ On a phone, use your browser's *Add to Home Screen* to install it as an app — 
 Or download **[`dist/ante-mortem.html`](dist/ante-mortem.html)** and open it in any
 browser. No install, no server, no internet — fonts and art are baked in.
 Press **SPACE**. Saves live in your browser's storage.
+New here? Press **T** on the menu (or tap **✒ THE LESSON**) for a two-minute interactive lesson you cannot lose.
 
 ## Controls
 
@@ -28,13 +29,14 @@ Press **SPACE**. Saves live in your browser's storage.
 10 secret **Pairings** that evolve them · the slot, dice, wheel, THE FEED (a full XP bar you feed for richer reels), the self-climbing Ascent with THE ARMORY, and Death Roll · tarot plus
 12 rare **Major Arcana** · 7 bosses including three gambling lords and THE HOUSE at 13:00 · **Daily Debt**, one
 seeded night per day for everyone · 5 **Stakes** and the **Endless** floor after you win · the **Book of Debts**
-mapping every unlock · 100 House ranks, feats, the Index and the Vault.
+mapping every unlock · 100 House ranks, feats, the Index and the Vault · **THE LESSON**, a six-step
+interactive tutorial.
 
 See `CHANGELOG_NIGHT.md` for everything added on the night of 2026-11-04.
 
 ## Build from source
 
-The game is 14 plain scripts in `src/` sharing global scope, concatenated by Vite:
+The game is 15 plain scripts in `src/` sharing global scope, concatenated by Vite:
 
 ```
 npm install

@@ -2820,6 +2820,7 @@ function bossPlate(name,sub){
   SFX.bossRoar&&SFX.bossRoar(); setTimeout(()=>bp.classList.remove('go'),2600);
 }
 function spawnBoss(kindOverride){
+  if(window.LESSON&&window.LESSON.on) return; // J3: no bosses in class
   const order=hrBossOrder(); // C2 — the night's rotation (3 slots, each from its own pool, then THE HOUSE ITSELF)
   const kind=(kindOverride&&BOSS_DEFS[kindOverride]&&kindOverride!=='housegod')?kindOverride:order[(Math.max(1,Math.floor(wave/10))-1)%order.length];
   const a=rng('spawn')*6.283, dd=Math.max(VW,VH)*0.55;
@@ -3469,6 +3470,7 @@ function startGame(){
   debuffs=[];
   elMenu.classList.add('hidden'); elGO.classList.add('hidden'); elHud.classList.remove('hidden');
   fnStart(); // A3 first night: ease + lessons for a stranger's first 3 nights
+  if(typeof lessonBegin==='function') lessonBegin(); // J3: THE LESSON (lesson.js) takes the night if it was asked for
   if(DLY_RNG) try{ dlyStart(); }catch(e){ console.error('[daily start]',e); } // B1: the debt's terms
   state='playing'; last=performance.now();
 }
