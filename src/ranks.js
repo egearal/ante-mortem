@@ -56,6 +56,8 @@ const WHISPERS={
   debtor:['DEATH\'S DEBTOR','Talk death out of it twice in one lifetime.','Won the final press twice, ever.'],
   broke:['BROKE AT THE END','Die without a coin to your name.','Died holding exactly 0 coins.'],
   icarus:['ICARUS ASCENDANT','Ride the climb past the seventh heaven.','Passed 7.77x in the Ascent.'],
+  glutton:['THE GLUTTON','Let the bar eat until only gold remains.','Cashed THE FEED at the FEAST.'],
+  armorer:['THE ARMORER','Climb past the third heaven and take up arms.','Took a card from THE ARMORY.'],
   coldfeet:['COLD FEET','Hesitate thirteen times in one night.','Paused 13 times in one run.'],
   theegg:['THE EGG','Something small and golden hides far from the lights.','Found and ate the golden egg.'],
   pactbreaker:['PACT BREAKER','Take from the red table thrice, and never roll.','Took 3 red-table offers in one night without dicing.'],

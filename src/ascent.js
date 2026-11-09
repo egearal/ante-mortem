@@ -36,7 +36,7 @@ function feedTick(dt){
   if(P.ovT<=0) feedStarve();
 }
 function feedTierUp(t){
-  const c=FEED_COL[t];
+  const c=FEED_COL[t]; P._tierUpT=gt;
   try{ SFX.rarSting(t===3?4:t); }catch(e){ try{ SFX.dingBells(); }catch(x){} }
   flash(0.18+t*0.08, c); shake=Math.min(16,shake+2+t*2);
   ring(P.x,P.y,70+t*30,c); ring(P.x,P.y,40+t*16,'#fff2c0'); burst(P.x,P.y,10+t*6,c);
@@ -47,8 +47,8 @@ function cashRage(){
   const tier=P.ovTier||0; ovRevert(); P.ovCharge=0; P.ovTier=0;
   slotFeedTier=Math.max(slotFeedTier||0, tier);
   if(tier>0){ SFX.dingBells(); SFX.cashout(); sparkBurst(14+tier*8); flash(0.3+tier*0.08, FEED_COL[tier]);
-    if(tier===3){ SFX.seraph(); try{ domConfetti(); }catch(e){} }
-    announce(tier===3?'★ CASHED AT THE FEAST — THE REELS RUN GOLD ★':tier===2?'◆◆ CASHED HOT — RICHER REELS ◆◆':'◆ CASHED WARM — BETTER REELS ◆', FEED_COL[tier]); }
+    if(tier===3){ SFX.seraph(); try{ domConfetti(); }catch(e){} setTimeout(()=>secret('glutton','THE GLUTTON'),900); }
+    if(!(gt-(P._tierUpT||-9)<1.2)) announce(tier===3?'★ CASHED AT THE FEAST — THE REELS RUN GOLD ★':tier===2?'◆◆ CASHED HOT — RICHER REELS ◆◆':'◆ CASHED WARM — BETTER REELS ◆', FEED_COL[tier]); }
   else { SFX.cashout(); announce('◈ CASHED COLD — PLAIN REELS ◈', true); }
   P._ovPass=true; gainXP(0);
 }
@@ -356,7 +356,7 @@ function armoryOffer(){
   // weapons first where the armory holds them — then skills fill the rack
   let opts=pick3(ws).slice(0,ws.length>=2?2:ws.length); opts=opts.concat(pick3(ss.filter(x=>!opts.includes(x))).slice(0,3-opts.length));
   cardOffer({word:'ARMORY', title:'⚔ THE ARMORY — EPIC & LEGENDARY · CHOOSE ⚔', opts, color:'#c98bff', tag:'ARMORY',
-    onPick:o=>{ if(o.kind==='w') grantWeaponLevels(o.def,1); else grantSkill(o.def,1); return '⚔ THE ARMORY — '+o.def.n+' IS YOURS ⚔'; },
+    onPick:o=>{ if(o.kind==='w') grantWeaponLevels(o.def,1); else grantSkill(o.def,1); setTimeout(()=>secret('armorer','THE ARMORER'),1600); return '⚔ THE ARMORY — '+o.def.n+' IS YOURS ⚔'; },
     empty:()=>{ ascLevel(3); announce('⚔ THE ARMORY IS BARE — A FEAST LEVEL INSTEAD ⚔',true); }});
 }
 function jkPaint(){ const w9=$('jkWrap'); if(!w9||!crash) return; w9.querySelectorAll('.jkCard').forEach((c,i)=>c.classList.toggle('b4sel', i===(crash.jkSel||0))); }

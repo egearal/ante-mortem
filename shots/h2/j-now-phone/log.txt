@@ -1,0 +1,549 @@
+MENU:
+♠
+♥
+♦
+♣
+♠
+♥
+THE HOUSE ALWAYS BLEEDS
+ANTE MORTEM
+
+You are Vesper, a soul the House has claimed. Survive the court of the damned, level up, and let the Dealer deal — then wager your blood for more. Beat the house. Win your soul back.
+
+🏛
+2% OF THE HOUSE
+🗡
+NEW WEAPON AT RANK 3: GALLOWS COIL
+☀
+DAILY BLESSING +30 GILT · DAY 1
+⚜ RANK 1 — FRESH MEAT I
+0 / 135 MARKS TO RANK 2
+✦ YOUR FIRST NIGHT — TAP PLAY ✦
+♠ PLAY TONIGHT
+♠ VESPER · ♠ THE PIT — change
+☀ DAILY DEBT #5
+NEXT DEBT IN 23:00:11
+THE MARKER OF THE LAST SEXTON
+◈ THE DEBTOR · ♠ THE PIT · ❄ reels lean cold
+TODAY UNPAID
+BEST —
+🔥 STREAK 0
+✦ NO GENTLE NIGHTS HERE — NEW? PLAY TONIGHT FIRST ✦
+☀ PAY TODAY'S DEBT
+⚖ THE BOOK OF DEBTS
+EVERY DEBT IS PAID
+📖 THE INDEX
+🏆 FEATS
+🗝 THE VAULT
+📜 THE LEDGER
+✒ HOW TO PLAY
+⚙ OPTIONS
+LEFT THUMB move  ·  ◈ BET is every bet  ·  your weapons fire themselves
+v4.0 — FINAL · JUL 2026
+the house was built by ege & claude ›
+
+EVENTS:
+0.0 playing TOAST: 🏆Regular ×1Play 1 run
+0.0 playing TOAST: 🏆Secret Keeper ×1Uncover 1 of the House's secrets
+1.5 playing coachMark: fn_move | DRAG to walk — your bolt aims itself at the nearest dead · never stand still
+2.5 playing SHOWN: ✦ THE HOUSE OPENS GENTLY — FOR NOW ✦
+2.7 playing SHOWN: ✦ THE HOUSE OPENS GENTLY — FOR NOW ✦
+7.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+9.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+16.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+23.7 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+23.7 playing coachMark: fn_space | THE BAR EATS SOULS & COINS — the longer it feeds, the richer the reels · SPACE cashes any time
+23.7 playing SHOWN: ✦ THE FEED — KEEP KILLING · ◈ BET CASHES ✦
+23.8 playing SHOWN: ✦ THE FEED — KEEP KILLING · ◈ BET CASHES ✦
+23.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+24.0 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+24.5 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+24.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+24.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+25.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+26.7 playing coachMark: slot | SPACE stops each reel — match three for the strongest pulls
+26.7 slot SHOWN: ◆ THE REELS RUN WARM ◆
+26.7 slot SHOWN: ◆ CASHED WARM — BETTER REELS ◆
+26.7 slot SHOWN: ♛ FIRST LEVEL — THE REELS ARE YOURS ♛
+26.7 slot SHOWN: ♛ FIRST LEVEL — THE REELS ARE YOURS ♛
+26.7 slot coachMark: offer | TAKE keeps the prize · DICE gambles it one rung higher
+26.9 playing SHOWN: ✦ DEEP POCKETS — Lv 0 → 1 ✦
+27.0 playing SHOWN: ✦ DEEP POCKETS — Lv 0 → 1 ✦
+35.2 playing coachMark: fn_slot | EVERY LEVEL PULLS THE SLOT — what lands is yours for the night: weapons, skills, sometimes a curse
+35.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+36.6 playing TOAST: 🏆Deep Pockets IDeep Pockets to level 1
+36.6 playing TOAST: 🏆Headhunter ×1Claim 1 bounty
+36.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+36.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+36.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+37.0 playing SHOWN: ☀ FIRST ANTE OF THE DAY — +15 GILT ☀
+37.1 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+37.2 playing SHOWN: ☀ FIRST ANTE OF THE DAY — +15 GILT ☀
+37.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+38.0 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+40.0 playing SHOWN: ☸ THE WHEEL OF SOULS MANIFESTS ☸
+40.1 playing SHOWN: ☸ THE WHEEL OF SOULS MANIFESTS ☸
+40.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+40.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+41.2 playing SHOWN: ☠ BOUNTY MARKED — 15 COINS ☠
+41.3 playing SHOWN: ☠ BOUNTY MARKED — 15 COINS ☠
+43.2 playing SHOWN: ☠ BOUNTY ×1 — +15 ◈ ☠
+44.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+44.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+45.3 playing TOAST: 🏆Secret Keeper ×3Uncover 3 of the House's secrets
+45.7 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+46.0 playing SHOWN: ⚔ HOUSE DARE — 13 KILLS IN 10s → +40 ◈ ⚔
+46.2 playing SHOWN: ⚔ HOUSE DARE — 13 KILLS IN 10s → +40 ◈ ⚔
+47.1 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+48.3 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+49.7 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+50.0 playing coachMark: ascent | the GREEN GATE — it climbs alone · SPACE cashes · higher is richer
+50.0 playing SHOWN: ▲ THE ASCENT BECKONS ▲
+50.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+51.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+54.1 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+54.1 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+54.4 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+55.1 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+56.1 playing SHOWN: … THE HOUSE SCOFFS …
+58.7 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+59.4 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+59.5 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+60.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+62.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+72.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+73.3 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+73.9 playing TOAST: 🏆Untouchable ×50Kill 50 without taking damage
+74.3 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+74.5 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+74.7 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+75.2 playing SHOWN: ☠ BOUNTY MARKED — 15 COINS ☠
+75.5 playing SHOWN: ☠ BOUNTY MARKED — 15 COINS ☠
+82.4 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+82.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+83.4 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+84.7 playing SHOWN: ☨ DEATH ☨
+84.7 playing TOAST: 🏆Fortune Read ×1Collect 1 tarot cards
+85.0 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+85.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+86.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+88.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+89.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+89.3 playing SHOWN: ✦ THE FEED — FEED IT SOULS · THE LONGER, THE RICHER ✦
+89.6 playing SHOWN: ✦ THE FEED — FEED IT SOULS · THE LONGER, THE RICHER ✦
+89.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+91.1 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+91.4 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+92.3 playing coachMark: slot | SPACE stops each reel — match three for the strongest pulls
+92.3 slot SHOWN: ◆ THE REELS RUN WARM ◆
+92.3 slot SHOWN: ◆ CASHED WARM — BETTER REELS ◆
+92.3 slot coachMark: offer | TAKE keeps the prize · DICE gambles it one rung higher
+92.4 playing TOAST: 🏆Dealer's Hand IDealer's Hand to level 1
+92.4 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+92.6 playing SHOWN: ⚔ DEALER'S HAND — Lv 0 → 1 ⚔
+92.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+94.7 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+94.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+97.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+99.4 playing SHOWN: ⚔ HOUSE DARE — 14 KILLS IN 10s → +40 ◈ ⚔
+99.7 playing SHOWN: ⚔ HOUSE DARE — 14 KILLS IN 10s → +40 ◈ ⚔
+99.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+101.9 playing SHOWN: ☸ THE WHEEL OF SOULS MANIFESTS ☸
+102.1 playing SHOWN: ☸ THE WHEEL OF SOULS MANIFESTS ☸
+105.8 playing SHOWN: ⚔ DARE MET — +40 COINS ⚔
+109.3 playing TOAST: 🏆Eternal Reaper ×100100 lifetime kills
+109.7 playing SHOWN: ⚔ 10 STREAK ⚔
+109.7 playing TOAST: 🏆Streak Mark 10Hit a 10 kill streak
+112.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+112.3 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+112.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+112.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+112.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+113.0 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+113.1 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+113.3 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+113.4 playing SHOWN: ⚔ 20 STREAK ⚔
+113.4 playing TOAST: 🏆Streak Mark 20Hit a 20 kill streak
+114.5 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+119.7 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+119.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+119.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+120.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+121.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+121.7 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+122.8 playing SHOWN: ☠ BOUNTY MARKED — 15 COINS ☠
+123.1 playing SHOWN: ☠ BOUNTY MARKED — 15 COINS ☠
+123.4 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+126.3 playing coachMark: ascent | the GREEN GATE — it climbs alone · SPACE cashes · higher is richer
+126.4 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+126.4 playing SHOWN: ▲ THE ASCENT BECKONS ▲
+126.5 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+129.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+130.0 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+130.3 playing SHOWN: ⚔ 10 STREAK ⚔
+130.3 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+130.5 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+130.6 playing TOAST: 🏆High Roller 100Hold 100 coins in one run
+130.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+131.0 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+131.0 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+131.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+131.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+131.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+131.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+131.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+131.4 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+131.6 playing TOAST: 🏆Wave 5Survive to wave 5
+131.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+131.8 playing SHOWN: ✦ THE FEED — FEED IT SOULS · THE LONGER, THE RICHER ✦
+132.3 playing SHOWN: ☠ BOUNTY ×1 — +15 ◈ ☠
+132.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+132.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+132.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+133.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+134.6 playing coachMark: slot | SPACE stops each reel — match three for the strongest pulls
+134.6 slot SHOWN: ◆ THE REELS RUN WARM ◆
+134.6 slot SHOWN: ◆ CASHED WARM — BETTER REELS ◆
+134.6 slot SHOWN: ◆ CASHED WARM — BETTER REELS ◆
+134.6 slot coachMark: offer | TAKE keeps the prize · DICE gambles it one rung higher
+134.6 playing TOAST: 🏆Dealer's Tempo IDealer's Tempo to level 1
+134.9 playing SHOWN: ✦ DEALER'S TEMPO — Lv 0 → 1 ✦
+135.2 playing SHOWN: ✦ DEALER'S TEMPO — Lv 0 → 1 ✦
+135.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+135.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+135.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+137.5 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+137.5 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+137.5 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+138.5 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+139.4 playing bigWin: FEVER | 2
+139.4 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+139.4 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+139.4 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+139.5 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+139.5 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+139.5 playing SHOWN: ☘ UNTOUCHABLE — YOUR TOUCH IS DEATH · 3s ☘
+139.5 playing TOAST: 🏆FEVER ×1Enter Fever Mode once
+139.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+139.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+139.7 playing SHOWN: ⚔ 10 STREAK ⚔
+139.7 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+139.7 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+139.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+140.0 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+141.0 playing SHOWN: ⚔ 20 STREAK ⚔
+141.7 playing TOAST: 🏆Bloodrush ×2727 kill streak
+142.2 playing SHOWN: ⚔ 30 STREAK ⚔
+142.2 playing TOAST: 🏆Streak Mark 30Hit a 30 kill streak
+147.2 playing SHOWN: ⚔ 10 STREAK ⚔
+147.4 playing SHOWN: ⚔ 20 STREAK ⚔
+149.0 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+149.5 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+150.3 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+151.0 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+151.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+152.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+152.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+152.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+153.0 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+153.5 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+154.3 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+154.3 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+155.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+155.7 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+155.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+155.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+156.1 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+156.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+157.0 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+157.1 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+157.7 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+157.7 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+157.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+158.0 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+158.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+159.8 marker coachMark: red | THE RED TABLE — hammer SPACE to raise your odds before the wheel decides
+159.8 marker TOAST: 🏆Marker Called ×1Face the House Marker once
+159.8 marker TOAST: 🏆Secret Keeper ×5Uncover 5 of the House's secrets
+159.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+159.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+159.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+159.9 playing SHOWN: ⚔ 10 STREAK ⚔
+159.9 playing TOAST: 🏆Swarm Bane ×100Slay 100 swarms
+159.9 playing TOAST: 🏆Eternal Reaper ×250250 lifetime kills
+159.9 playing TOAST: 🏆Streak Mark 40Hit a 40 kill streak
+160.0 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+160.0 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+160.2 playing SHOWN: ⚔ 20 STREAK ⚔
+161.1 playing SHOWN: ⚔ 30 STREAK ⚔
+161.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+162.1 playing SHOWN: ⚔ 40 STREAK ⚔
+163.0 playing SHOWN: ⚔ HOUSE DARE — 15 KILLS IN 10s → +40 ◈ ⚔
+163.3 playing SHOWN: ⚔ HOUSE DARE — 15 KILLS IN 10s → +40 ◈ ⚔
+165.5 playing SHOWN: ☸ THE WHEEL OF SOULS MANIFESTS ☸
+165.8 playing SHOWN: ☸ THE WHEEL OF SOULS MANIFESTS ☸
+166.1 playing SHOWN: ☠ BOUNTY MARKED — 15 COINS ☠
+166.3 playing SHOWN: ☠ BOUNTY MARKED — 15 COINS ☠
+167.0 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+169.8 playing SHOWN: ⚔ DARE MET — +40 COINS ⚔
+171.3 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+171.7 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+173.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+173.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+173.2 playing TOAST: 🏆High Roller 250Hold 250 coins in one run
+175.4 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+176.3 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+178.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+179.5 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+180.0 playing SHOWN: ✨ GOLDEN HOUR — DOUBLE COINS 20s ✨
+180.0 playing TOAST: 🏆3 Minutes in HellSurvive 3 minutes in one run
+180.3 playing SHOWN: ✨ GOLDEN HOUR — DOUBLE COINS 20s ✨
+181.0 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+181.1 playing SHOWN: ★ HOUSE FAVOR SEALED — PIT LEGS: +2 MOVE SPEED, FOREVER ★
+181.3 playing SHOWN: ★ HOUSE FAVOR SEALED — PIT LEGS: +2 MOVE SPEED, FOREVER ★
+181.5 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+181.5 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+182.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+183.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+184.0 playing SHOWN: ✦ THE FEED — FEED IT SOULS · THE LONGER, THE RICHER ✦
+184.3 playing SHOWN: ✦ THE FEED — FEED IT SOULS · THE LONGER, THE RICHER ✦
+186.8 playing SHOWN: ⚔ 10 STREAK ⚔
+186.9 playing coachMark: slot | SPACE stops each reel — match three for the strongest pulls
+186.9 slot SHOWN: ◆ THE REELS RUN WARM ◆
+186.9 slot TOAST: 🏆Ascendant 5Reach level 5 in one run
+186.9 slot SHOWN: ◆ CASHED WARM — BETTER REELS ◆
+186.9 slot SHOWN: ◆ CASHED WARM — BETTER REELS ◆
+186.9 slot coachMark: offer | TAKE keeps the prize · DICE gambles it one rung higher
+186.9 playing TOAST: 🏆Snake Eyes ISnake Eyes to level 1
+187.1 playing SHOWN: ✦ SNAKE EYES — Lv 0 → 1 ✦
+187.5 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+188.1 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+188.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+189.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+189.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+190.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+190.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+190.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+190.9 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+191.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+191.4 playing coachMark: ascent | the GREEN GATE — it climbs alone · SPACE cashes · higher is richer
+191.5 playing SHOWN: ▲ THE ASCENT BECKONS ▲
+192.4 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+192.4 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+194.1 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+194.1 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+194.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+194.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+195.1 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+195.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+196.1 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+196.7 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+196.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+197.1 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+197.1 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+197.1 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+198.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+198.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+198.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+200.4 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+201.2 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+201.4 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+206.3 playing SHOWN: ✦ A MAJOR ARCANUM MANIFESTS ✦
+206.6 playing SHOWN: ✦ A MAJOR ARCANUM MANIFESTS ✦
+211.3 playing SHOWN: ✦ GOLDEN WAVE — THE GILDED WALK ✦
+211.5 playing SHOWN: ✦ GOLDEN WAVE — THE GILDED WALK ✦
+213.3 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+213.6 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+214.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+214.8 playing coachMark: orb | SOULS FEED THE RED BAR — fill it and the reels appear
+215.8 dead TOAST: 🏆The House Always Wins ×1Die once
+215.8 dead TOAST: 🏆Gilt Hoard 10Earn 10 lifetime Gilt
+215.8 dead TOAST: 🏆Gilt Hoard 50Earn 50 lifetime Gilt
+215.8 dead SHOWN: ⚜ RANK 3 — FRESH MEAT III · UNLOCKED: +18 GILT ⚜
+215.8 dead coachMark: death | every night pays MARKS toward your RANK — HOW TO PLAY waits on the menu
+215.8 dead SHOWN: 📜 A LEDGER PAGE BURNS INTO MEMORY 📜
+215.8 dead TOAST: 🏆Gilt Hoard 100Earn 100 lifetime Gilt
+215.8 dead TOAST: 🏆Legend 1000Score 1000 in one run
+
+OVERLAYS:
+n1 0.4 playing [1] streak:WAVE 1
+n1 0.9 playing [1] streak:WAVE 1
+n1 1.3 playing [1] streak:WAVE 1
+n1 1.8 playing [1] streak:WAVE 1
+n1 2.2 playing [1] streak:WAVE 1
+n1 2.7 playing [2] coachToast:✒ DRAG to walk — your bolt aims itself a ‖ streak:WAVE 1
+n1 3.1 playing [3] announce:✦ THE HOUSE OPENS GENTLY — FOR NOW ✦ ‖ coachToast:✒ DRAG to walk — your bolt aims itself a ‖ streak:WAVE 1
+n1 3.5 playing [2] announce:✦ THE HOUSE OPENS GENTLY — FOR NOW ✦ ‖ coachToast:✒ DRAG to walk — your bolt aims itself a
+n1 4.0 playing [2] announce:✦ THE HOUSE OPENS GENTLY — FOR NOW ✦ ‖ coachToast:✒ DRAG to walk — your bolt aims itself a
+n1 4.3 playing [2] announce:✦ THE HOUSE OPENS GENTLY — FOR NOW ✦ ‖ coachToast:✒ DRAG to walk — your bolt aims itself a
+n1 4.8 playing [2] announce:✦ THE HOUSE OPENS GENTLY — FOR NOW ✦ ‖ coachToast:✒ DRAG to walk — your bolt aims itself a
+n1 5.2 playing [2] announce:✦ THE HOUSE OPENS GENTLY — FOR NOW ✦ ‖ coachToast:✒ DRAG to walk — your bolt aims itself a
+n1 5.6 playing [2] announce:✦ THE HOUSE OPENS GENTLY — FOR NOW ✦ ‖ coachToast:✒ DRAG to walk — your bolt aims itself a
+n1 6.0 playing [2] announce:✦ THE HOUSE OPENS GENTLY — FOR NOW ✦ ‖ coachToast:✒ DRAG to walk — your bolt aims itself a
+n1 6.4 playing [2] announce:✦ THE HOUSE OPENS GENTLY — FOR NOW ✦ ‖ coachToast:✒ DRAG to walk — your bolt aims itself a
+n1 6.9 playing [1] coachToast:✒ DRAG to walk — your bolt aims itself a
+n1 7.2 playing [1] coachToast:✒ DRAG to walk — your bolt aims itself a
+n1 7.6 playing [1] coachToast:✒ DRAG to walk — your bolt aims itself a
+n1 8.0 playing [1] coachToast:✒ SOULS FEED THE RED BAR — fill it and t
+n1 8.4 playing [1] coachToast:✒ SOULS FEED THE RED BAR — fill it and t
+n1 8.8 playing [1] coachToast:✒ SOULS FEED THE RED BAR — fill it and t
+n1 9.2 playing [1] coachToast:✒ SOULS FEED THE RED BAR — fill it and t
+n1 9.6 playing [1] coachToast:✒ SOULS FEED THE RED BAR — fill it and t
+n1 10.0 playing [1] coachToast:✒ SOULS FEED THE RED BAR — fill it and t
+n1 10.5 playing [2] coachToast:✒ SOULS FEED THE RED BAR — fill it and t ‖ streak:🎡 A FLOOR BET OPENS
+n1 10.9 playing [2] coachToast:✒ SOULS FEED THE RED BAR — fill it and t ‖ streak:🎡 A FLOOR BET OPENS
+n1 11.3 playing [2] coachToast:✒ SOULS FEED THE RED BAR — fill it and t ‖ streak:🎡 A FLOOR BET OPENS
+n1 11.7 playing [2] coachToast:✒ SOULS FEED THE RED BAR — fill it and t ‖ streak:🎡 A FLOOR BET OPENS
+n1 12.1 playing [2] coachToast:✒ SOULS FEED THE RED BAR — fill it and t ‖ streak:🎡 A FLOOR BET OPENS
+n1 12.5 playing [2] coachToast:✒ SOULS FEED THE RED BAR — fill it and t ‖ streak:🎡 A FLOOR BET OPENS
+n1 12.9 playing [2] coachToast:✒ SOULS FEED THE RED BAR — fill it and t ‖ streak:🎡 A FLOOR BET OPENS
+n1 13.3 playing [2] coachToast:✒ SOULS FEED THE RED BAR — fill it and t ‖ streak:🎡 A FLOOR BET OPENS
+n1 13.8 playing [2] coachToast:✒ SOULS FEED THE RED BAR — fill it and t ‖ streak:🎡 A FLOOR BET OPENS
+n1 14.2 playing [2] coachToast:✒ SOULS FEED THE RED BAR — fill it and t ‖ streak:☨ A TAROT CARD MANIFESTS ☨
+n1 14.6 playing [2] coachToast:✒ SOULS FEED THE RED BAR — fill it and t ‖ streak:☨ A TAROT CARD MANIFESTS ☨
+n1 15.0 playing [2] coachToast:✒ SOULS FEED THE RED BAR — fill it and t ‖ streak:☨ A TAROT CARD MANIFESTS ☨
+n1 15.4 playing [1] streak:☨ A TAROT CARD MANIFESTS ☨
+n1 23.8 playing [1] coachToast:✒ THE BAR EATS SOULS & COINS — the longe
+n1 24.2 playing [1] coachToast:✒ THE BAR EATS SOULS & COINS — the longe
+n1 24.6 playing [2] announce:✦ THE FEED — KEEP KILLING · ◈ BET CASHES ‖ coachToast:✒ THE BAR EATS SOULS & COINS — the longe
+n1 25.0 playing [2] announce:✦ THE FEED — KEEP KILLING · ◈ BET CASHES ‖ coachToast:✒ THE BAR EATS SOULS & COINS — the longe
+n1 25.4 playing [2] announce:✦ THE FEED — KEEP KILLING · ◈ BET CASHES ‖ coachToast:✒ THE BAR EATS SOULS & COINS — the longe
+n1 25.8 playing [2] announce:✦ THE FEED — KEEP KILLING · ◈ BET CASHES ‖ coachToast:✒ THE BAR EATS SOULS & COINS — the longe
+n1 26.2 playing [2] announce:✦ THE FEED — KEEP KILLING · ◈ BET CASHES ‖ coachToast:✒ THE BAR EATS SOULS & COINS — the longe
+n1 26.6 playing [2] announce:✦ THE FEED — KEEP KILLING · ◈ BET CASHES ‖ coachToast:✒ THE BAR EATS SOULS & COINS — the longe
+n1 26.7 slot [1] coachToast:✒ ◈ BET stops each reel — match three fo
+n1 26.7 slot [1] coachToast:✒ ◈ BET stops each reel — match three fo
+n1 26.7 slot [2] announce:♛ FIRST LEVEL — THE REELS ARE YOURS ♛ ‖ coachToast:✒ ◈ BET stops each reel — match three fo
+n1 26.7 slot [2] announce:♛ FIRST LEVEL — THE REELS ARE YOURS ♛ ‖ coachToast:✒ ◈ BET stops each reel — match three fo
+n1 26.7 slot [2] announce:♛ FIRST LEVEL — THE REELS ARE YOURS ♛ ‖ coachToast:✒ ◈ BET stops each reel — match three fo
+n1 26.7 slot [2] announce:♛ FIRST LEVEL — THE REELS ARE YOURS ♛ ‖ coachToast:✒ ◈ BET stops each reel — match three fo
+n1 27.0 playing [1] coachToast:✒ TAKE keeps the prize · DICE gambles it
+n1 27.4 playing [1] coachToast:✒ TAKE keeps the prize · DICE gambles it
+n1 27.8 playing [1] coachToast:✒ TAKE keeps the prize · DICE gambles it
+n1 28.2 playing [2] announce:✦ DEEP POCKETS — Lv 0 → 1 ✦ ‖ coachToast:✒ TAKE keeps the prize · DICE gambles it
+n1 28.7 playing [2] announce:✦ DEEP POCKETS — Lv 0 → 1 ✦ ‖ coachToast:✒ TAKE keeps the prize · DICE gambles it
+n1 29.1 playing [2] announce:✦ DEEP POCKETS — Lv 0 → 1 ✦ ‖ coachToast:✒ TAKE keeps the prize · DICE gambles it
+n1 29.5 playing [2] announce:✦ DEEP POCKETS — Lv 0 → 1 ✦ ‖ coachToast:✒ TAKE keeps the prize · DICE gambles it
+n1 29.9 playing [2] announce:✦ DEEP POCKETS — Lv 0 → 1 ✦ ‖ coachToast:✒ TAKE keeps the prize · DICE gambles it
+n1 30.3 playing [2] announce:✦ DEEP POCKETS — Lv 0 → 1 ✦ ‖ coachToast:✒ TAKE keeps the prize · DICE gambles it
+n1 30.7 playing [2] announce:✦ DEEP POCKETS — Lv 0 → 1 ✦ ‖ coachToast:✒ TAKE keeps the prize · DICE gambles it
+n1 31.1 playing [2] announce:✦ DEEP POCKETS — Lv 0 → 1 ✦ ‖ coachToast:✒ TAKE keeps the prize · DICE gambles it
+n1 31.5 playing [1] coachToast:✒ TAKE keeps the prize · DICE gambles it
+n1 31.9 playing [1] coachToast:✒ TAKE keeps the prize · DICE gambles it
+n1 32.3 playing [1] coachToast:✒ TAKE keeps the prize · DICE gambles it
+n1 32.7 playing [1] coachToast:✒ TAKE keeps the prize · DICE gambles it
+n1 33.1 playing [1] coachToast:✒ TAKE keeps the prize · DICE gambles it
+n1 33.5 playing [1] coachToast:✒ TAKE keeps the prize · DICE gambles it
+n1 33.9 playing [1] coachToast:✒ TAKE keeps the prize · DICE gambles it
+n1 35.6 playing [1] coachToast:✒ EVERY LEVEL PULLS THE SLOT — what land
+n1 36.0 playing [1] coachToast:✒ EVERY LEVEL PULLS THE SLOT — what land
+n1 36.4 playing [1] coachToast:✒ EVERY LEVEL PULLS THE SLOT — what land
+n1 36.8 playing [1] coachToast:✒ EVERY LEVEL PULLS THE SLOT — what land
+n1 37.2 playing [1] coachToast:✒ EVERY LEVEL PULLS THE SLOT — what land
+n1 37.6 playing [1] coachToast:✒ EVERY LEVEL PULLS THE SLOT — what land
+n1 38.0 playing [2] announce:☀ FIRST ANTE OF THE DAY — +15 GILT ☀ ‖ coachToast:✒ EVERY LEVEL PULLS THE SLOT — what land
+n1 38.4 playing [2] announce:☀ FIRST ANTE OF THE DAY — +15 GILT ☀ ‖ coachToast:✒ EVERY LEVEL PULLS THE SLOT — what land
+n1 38.8 playing [2] announce:☀ FIRST ANTE OF THE DAY — +15 GILT ☀ ‖ coachToast:✒ EVERY LEVEL PULLS THE SLOT — what land
+n1 39.2 playing [2] announce:☀ FIRST ANTE OF THE DAY — +15 GILT ☀ ‖ coachToast:✒ EVERY LEVEL PULLS THE SLOT — what land
+n1 39.6 playing [2] announce:☀ FIRST ANTE OF THE DAY — +15 GILT ☀ ‖ coachToast:✒ EVERY LEVEL PULLS THE SLOT — what land
+n1 40.0 playing [1] coachToast:✒ EVERY LEVEL PULLS THE SLOT — what land
+n1 40.5 playing [2] announce:☸ THE WHEEL OF SOULS MANIFESTS ☸ ‖ coachToast:✒ EVERY LEVEL PULLS THE SLOT — what land
+n1 40.9 playing [2] announce:☸ THE WHEEL OF SOULS MANIFESTS ☸ ‖ coachToast:✒ EVERY LEVEL PULLS THE SLOT — what land
+n1 41.3 playing [1] coachToast:✒ EVERY LEVEL PULLS THE SLOT — what land
+n1 41.7 playing [2] announce:☠ BOUNTY MARKED — 15 COINS ☠ ‖ coachToast:✒ EVERY LEVEL PULLS THE SLOT — what land
+n1 42.1 playing [2] announce:☠ BOUNTY MARKED — 15 COINS ☠ ‖ coachToast:✒ EVERY LEVEL PULLS THE SLOT — what land
+n1 42.5 playing [2] announce:☠ BOUNTY MARKED — 15 COINS ☠ ‖ coachToast:✒ EVERY LEVEL PULLS THE SLOT — what land
+n1 42.9 playing [1] announce:☠ BOUNTY MARKED — 15 COINS ☠
+n1 44.1 playing [1] announce:☠ BOUNTY ×1 — +15 ◈ ☠
+n1 44.5 playing [1] announce:☠ BOUNTY ×1 — +15 ◈ ☠
+n1 44.9 playing [1] announce:☠ BOUNTY ×1 — +15 ◈ ☠
+n1 45.3 playing [1] announce:☠ BOUNTY ×1 — +15 ◈ ☠
+n1 45.8 playing [1] announce:☠ BOUNTY ×1 — +15 ◈ ☠
+n1 46.6 playing [1] announce:⚔ HOUSE DARE — 13 KILLS IN 10s → +40 ◈ ⚔
+n1 47.0 playing [1] announce:⚔ HOUSE DARE — 13 KILLS IN 10s → +40 ◈ ⚔
+n1 47.4 playing [1] announce:⚔ HOUSE DARE — 13 KILLS IN 10s → +40 ◈ ⚔
+n1 47.8 playing [1] announce:⚔ HOUSE DARE — 13 KILLS IN 10s → +40 ◈ ⚔
+n1 48.2 playing [1] announce:⚔ HOUSE DARE — 13 KILLS IN 10s → +40 ◈ ⚔
+n1 48.6 playing [1] announce:⚔ HOUSE DARE — 13 KILLS IN 10s → +40 ◈ ⚔
+n1 48.9 playing [1] announce:⚔ HOUSE DARE — 13 KILLS IN 10s → +40 ◈ ⚔
+n1 49.3 playing [1] announce:⚔ HOUSE DARE — 13 KILLS IN 10s → +40 ◈ ⚔
+n1 49.8 playing [1] announce:⚔ HOUSE DARE — 13 KILLS IN 10s → +40 ◈ ⚔
+n1 50.2 playing [1] coachToast:✒ the GREEN GATE — it climbs alone · ◈ B
+n1 50.6 playing [2] announce:▲ THE ASCENT BECKONS ▲ ‖ coachToast:✒ the GREEN GATE — it climbs alone · ◈ B
+n1 51.0 playing [2] announce:▲ THE ASCENT BECKONS ▲ ‖ coachToast:✒ the GREEN GATE — it climbs alone · ◈ B
+n1 51.4 playing [2] announce:▲ THE ASCENT BECKONS ▲ ‖ coachToast:✒ the GREEN GATE — it climbs alone · ◈ B
+n1 51.8 playing [2] announce:▲ THE ASCENT BECKONS ▲ ‖ coachToast:✒ the GREEN GATE — it climbs alone · ◈ B
+n1 52.2 playing [2] announce:▲ THE ASCENT BECKONS ▲ ‖ coachToast:✒ the GREEN GATE — it climbs alone · ◈ B
+n1 52.6 playing [2] announce:▲ THE ASCENT BECKONS ▲ ‖ coachToast:✒ the GREEN GATE — it climbs alone · ◈ B
+n1 53.0 playing [2] announce:▲ THE ASCENT BECKONS ▲ ‖ coachToast:✒ the GREEN GATE — it climbs alone · ◈ B
+n1 53.4 playing [2] announce:▲ THE ASCENT BECKONS ▲ ‖ coachToast:✒ the GREEN GATE — it climbs alone · ◈ B
+n1 53.8 playing [2] announce:▲ THE ASCENT BECKONS ▲ ‖ coachToast:✒ the GREEN GATE — it climbs alone · ◈ B
+n1 54.2 playing [2] announce:▲ THE ASCENT BECKONS ▲ ‖ coachToast:✒ the GREEN GATE — it climbs alone · ◈ B
+n1 54.6 playing [1] coachToast:✒ the GREEN GATE — it climbs alone · ◈ B
+n1 55.0 playing [1] coachToast:✒ the GREEN GATE — it climbs alone · ◈ B
+n1 55.4 playing [1] coachToast:✒ the GREEN GATE — it climbs alone · ◈ B
+n1 55.8 playing [1] coachToast:✒ the GREEN GATE — it climbs alone · ◈ B
+n1 56.3 playing [1] coachToast:✒ the GREEN GATE — it climbs alone · ◈ B
+n1 56.7 playing [1] coachToast:✒ the GREEN GATE — it climbs alone · ◈ B
+n1 57.1 playing [2] announce:… THE HOUSE SCOFFS … ‖ coachToast:✒ the GREEN GATE — it climbs alone · ◈ B
+n1 57.5 playing [1] announce:… THE HOUSE SCOFFS …
+n1 57.9 playing [1] announce:… THE HOUSE SCOFFS …
+n1 58.3 playing [1] announce:… THE HOUSE SCOFFS …
+n1 58.7 playing [1] announce:… THE HOUSE SCOFFS …
+n1 59.0 playing [1] announce:… THE HOUSE SCOFFS …
+n1 59.4 playing [1] announce:… THE HOUSE SCOFFS …
+n1 59.8 playing [1] announce:… THE HOUSE SCOFFS …
+n1 60.2 playing [1] announce:… THE HOUSE SCOFFS …
+n1 76.4 playing [1] announce:☠ BOUNTY MARKED — 15 COINS ☠
+n1 76.8 playing [1] announce:☠ BOUNTY MARKED — 15 COINS ☠
+n1 77.2 playing [1] announce:☠ BOUNTY MARKED — 15 COINS ☠
+n1 77.6 playing [1] announce:☠ BOUNTY MARKED — 15 COINS ☠
+n1 78.0 playing [1] announce:☠ BOUNTY MARKED — 15 COINS ☠
+n1 78.4 playing [1] announce:☠ BOUNTY MARKED — 15 COINS ☠
+n1 78.8 playing [1] announce:☠ BOUNTY MARKED — 15 COINS ☠
+n1 79.2 playing [1] announce:☠ BOUNTY MARKED — 15 COINS ☠
+n1 85.6 playing [1] announce:☨ DEATH ☨
+n1 86.0 playing [1] announce:☨ DEATH ☨
+n1 86.4 playing [1] announce:☨ DEATH ☨
+n1 86.8 playing [1] announce:☨ DEATH ☨
+n1 87.2 playing [1] announce:☨ DEATH ☨
+n1 87.7 playing [1] announce:☨ DEATH ☨
+n1 88.1 playing [1] announce:☨ DEATH ☨
+n1 88.5 playing [1] announce:☨ DEATH ☨
+n1 88.9 playing [1] announce:☨ DEATH ☨
+n1 90.1 playing [1] announce:✦ THE FEED — FEED IT SOULS · THE LONGER,
+n1 90.5 playing [1] announce:✦ THE FEED — FEED IT SOULS · THE LONGER,
+n1 90.9 playing [1] announce:✦ THE FEED — FEED IT SOULS · THE LONGER,
+n1 91.3 playing [1] announce:✦ THE FEED — FEED IT SOULS · THE LONGER,
+n1 91.7 playing [1] announce:✦ THE FEED — FEED IT SOULS · THE LONGER,
+n1 92.0 playing [1] announce:✦ THE FEED — FEED IT SOULS · THE LONGER,
+n1 92.3 slot [1] announce:◆ CASHED WARM — BETTER REELS ◆
+n1 92.3 slot [1] announce:◆ CASHED WARM — BETTER REELS ◆
+n1 92.3 slot [1] announce:◆ CASHED WARM — BETTER REELS ◆
+n1 92.4 playing [1] announce:◆ CASHED WARM — BETTER REELS ◆
+n1 93.9 playing [1] announce:⚔ DEALER'S HAND — Lv 0 → 1 ⚔
+n1 94.2 playing [1] announce:⚔ DEALER'S HAND — Lv 0 → 1 ⚔
+n1 94.5 playing [1] announce:⚔ DEALER'S HAND — Lv 0 → 1 ⚔
+n1 94.9 playing [1] announce:⚔ DEALER'S HAND — Lv 0 → 1 ⚔
+n1 95.3 playing [1] announce:⚔ DEALER'S HAND — Lv 0 → 1 ⚔
+n1 95.7 playing [1] announce:⚔ DEALER'S HAND — Lv 0 → 1 ⚔
+n1 96.2 playing [2] announce:⚔ DEALER'S HAND — Lv 0 → 1 ⚔ ‖ streak:HORDE INCOMING
+n1 96.4 playing [1] streak:HORDE INCOMING
+n1 99.8 playing [1] announce:⚔ HOUSE DARE — 14 KILLS IN 10s → +40 ◈ ⚔
+n1 100.2 playing [1] announce:⚔ HOUSE DARE — 14 KILLS IN 10s → +40 ◈ ⚔
+n1 100.5 playing [1] announce:⚔ HOUSE DARE — 14 KILLS IN 10s → +40 ◈ ⚔
+n1 101.0 playing [1] announce:⚔ HOUSE DARE — 14 KILLS IN 10s → +40 ◈ ⚔
+n1 101.4 playing [1] announce:⚔ HOUSE DARE — 14 KILLS IN 10s → +40 ◈ ⚔
+n1 101.8 playing [1] announce:⚔ HOUSE DARE — 14 KILLS IN 10s → +40 ◈ ⚔
+n1 102.8 playing [1] announce:☸ THE WHEEL OF SOULS MANIFESTS ☸
+n1 103.2 playing [1] announce:☸ THE WHEEL OF SOULS MANIFESTS ☸
+n1 103.7 playing [1] announce:☸ THE WHEEL OF SOULS MANIFESTS ☸
+n1 104.0 playing [1] announce:☸ THE WHEEL OF SOULS MANIFESTS ☸
+n1 104.3 playing [1] announce:☸ THE WHEEL OF SOULS MANIFESTS ☸
+n1 104.7 playing [1] announce:☸ THE WHEEL OF SOULS MANIFESTS ☸
+n1 105.1 playing [1] announce:☸ THE WHEEL OF SOULS MANIFESTS ☸
+n1 105.5 playing [1] announce:☸ THE WHEEL OF SOULS MANIFESTS ☸
+n1 106.6 playing [1] announce:⚔ DARE MET — +40 COINS ⚔
+n1 107.0 playing [1] announce:⚔ DARE MET — +40 COINS ⚔
+
+ERRORS:
