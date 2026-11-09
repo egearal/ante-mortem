@@ -13,6 +13,16 @@ The director said the RAGE bar felt like a chore, the 7.77 Ascent almost never p
   - III: THE ARMORY, a pick of 3 epic/legendary weapons and skills.
   - ☆ 7.77: an Ascension plus two FEAST slots.
   - Reaching each rung is far likelier than before: 82/58/35/12% (was 75/40/15/4).
+- **THE LESSON (J3):** a two-minute interactive tutorial. Start it from the menu's ✒ THE LESSON button, the "NEW HERE?" chip a first-timer sees under PLAY TONIGHT, or T.
+  - Six steps, each with its own gilt banner and live status: walk, hunt, feed the bar, pull the reels, spin the wheel, ride the Ascent.
+  - You can't die, and it leaves no trace on your save (no runs, marks or records). It ends with a LESSON LEARNED fanfare.
+  - The bot finishes it in about 40 game-seconds on desktop and phone.
+- **Little things:**
+  - Vesper wears the feed as a colored halo, with an alarm when it's about to starve.
+  - Two new secrets: THE GLUTTON and THE ARMORER.
+  - Tier banners come in their jewel colors.
+  - Night one's 0:00 trophy toasts now wait their turn.
+  - v5.0 stamps, and the offline install updates itself and stores every script.
 - **Balance (bot, 16 nights each):** median survival went from 3:50 to ~5:40, with more levels. The Ascent now pays real power. If it should bite harder, the first knob is the tier II heal.
 
 # THE LONG NIGHT — what changed on 2026-11-04

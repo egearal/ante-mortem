@@ -5,7 +5,7 @@
 // (ante-mortem.html). Missing files are skipped, never fatal.
 'use strict';
 const CACHE = 'ante-mortem-v5-j';
-const SRC = ['core', 'sfx', 'fx', 'weapons', 'passives', 'tarot', 'wheel', 'ascent', 'slot', 'marker', 'ranks', 'vault', 'ui', 'daily'];
+const SRC = ['core', 'sfx', 'fx', 'weapons', 'passives', 'tarot', 'wheel', 'ascent', 'slot', 'marker', 'ranks', 'vault', 'ui', 'daily', 'lesson'];
 const PRECACHE = ['./', './index.html', './styles.css', './ante-mortem.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/icon-180.png', './icons/icon.svg']
   .concat(SRC.map(s => './src/' + s + '.js'));
