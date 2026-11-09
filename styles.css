@@ -2483,3 +2483,14 @@ body.b2endless #hud #b2Mult{box-shadow:0 0 0 1px #140a03,0 0 0 2px rgba(154,92,2
 body.feed-1 #xpfill{background:linear-gradient(90deg,#1c4a7a,#6db4ff)!important;}
 body.feed-2 #xpfill{background:linear-gradient(90deg,#4a1c7a,#c98bff)!important;}
 body.feed-3 #xpfill{background:linear-gradient(90deg,#8a5a10,#ffd36b,#fff2c0)!important;box-shadow:0 0 12px #ffd36b;}
+/* J2: on phones the tier slams wrap inside the screen instead of running off it */
+@media (max-width:600px){ #crashSlam.tier{font-size:20px;letter-spacing:.1em;white-space:normal;width:calc(100vw - 24px);text-align:center;line-height:1.15;} }
+/* THE ARMORY speaks violet: its cards take the offer's color */
+#jkWrap .jkCard.b4sel{border-color:var(--jkc,#8bffd0);box-shadow:0 0 30px color-mix(in srgb,var(--jkc,#8bffd0) 60%,transparent);}
+@media (max-width:600px){
+  #jkWrap{gap:12px;padding:0 8px;}
+  #jkWrap .jkTitle{font-size:12px;letter-spacing:.14em;text-align:center;max-width:calc(100vw - 20px);line-height:1.4;}
+  #jkWrap .jkRow{gap:8px;width:100%;justify-content:center;}
+  #jkWrap .jkCard{width:auto;flex:1 1 0;min-width:0;max-width:150px;padding:12px 6px;}
+  #jkWrap .jkCard .jkN{font-size:12px;} #jkWrap .jkCard .jkD{font-size:10px;} #jkWrap .jkCard .jkR{font-size:9px;letter-spacing:.06em;}
+}

@@ -60,11 +60,8 @@ function feedStarve(){
   SFX.bust(); noise(0.4,0.18,420); flash(0.45,'#8b1620'); shake=Math.min(18,shake+8);
   ftext(P.x,P.y-26,'−25% XP','#ff6b6b',true);
 }
-const CR_PCTS=[0.25,0.5,1.0], CR_LBL=['25%','50%','ALL'];
-function crashStakeUI(){ $('crashStake').innerHTML=CR_PCTS.map((p,i)=>'<span class="stk'+(i===crash.stakePct?' on':'')+'" data-i="'+i+'" style="cursor:pointer">'+(i+1)+' — '+CR_LBL[i]+' XP</span>').join('');
-  $('crashStake').querySelectorAll('.stk').forEach(el=>el.onclick=()=>{ if(!crash.live&&!crash.done){ crash.stakePct=+el.dataset.i; crashStakeUI(); SFX.uiDing(); } }); }
 function openCrash(){
-  state='crash'; crash={on:true, mult:1, cp:0, wager:0, live:false, done:false, next:0.25, msIdx:0, hb:0};
+  const rig9=crash&&crash.rigCp; state='crash'; crash={on:true, mult:1, cp:0, wager:0, live:false, done:false, next:0.25, msIdx:0, hb:0, rigCp:rig9||0};
   const rk=$('crashRocket'); rk.className=''; rk.style.bottom='0px'; rk.style.opacity='';
   $('crashLayer').style.filter=''; $('crashLayer').classList.remove('gatehold');
   { const cb9=$('crashBulbs'); if(cb9) cb9.classList.remove('frenzy'); }
@@ -79,7 +76,7 @@ function openCrash(){
     if(!d){ d=document.createElement('div'); d.id=id; $('crashMult').parentNode.insertBefore(d, id==='crashGhost'?$('crashMult'):$('crashMult').nextSibling); }
     d.className=''; d.textContent=''; });
   { let tl=$('tierLadder'); if(!tl){ tl=document.createElement('div'); tl.id='tierLadder';
-      tl.innerHTML='<div class="tln" data-x="7.77">☆ 7.77×</div><div class="tlbar"></div><div class="tln" data-x="3.69">III · 3.69×</div><div class="tlbar"></div><div class="tln" data-x="2.77">II · 2.77×</div><div class="tlbar"></div><div class="tln" data-x="1.77">I · 1.77×</div>';
+      tl.innerHTML='<div class="tln" data-x="7.77">☆ 7.77× · ASCENSION</div><div class="tlbar"></div><div class="tln" data-x="3.69">III 3.69× · THE ARMORY</div><div class="tlbar"></div><div class="tln" data-x="2.77">II 2.77× · HOT LEVEL</div><div class="tlbar"></div><div class="tln" data-x="1.77">I 1.77× · +1 LEVEL</div>';
       $('crashSky').appendChild(tl); }
     tl.querySelectorAll('.tln').forEach(n=>n.classList.remove('lit','pop')); }
   crash.band=0; crash.fz=0; crash.lastP=0; $('crashStrobe').style.opacity=0;
@@ -102,15 +99,14 @@ function openCrash(){
   { const shl=document.querySelector('#crashLayer .wheelShell'); if(shl) shl.style.transform=''; }
   { const ct=$('crashTimer'); if(ct) ct.remove(); }
   $('crashMult').textContent='1.00×'; $('crashMult').className='';
-  prerollAsc();
-  $('crashStake').innerHTML='<span class="stk" data-x="1.77">I at 1.77×: ~'+Math.round(80*1.77)+' ◈</span><span class="stk" data-x="2.77">II at 2.77×: ~'+Math.round(80*2.77)+' ◈</span><span class="stk" data-x="3.69">III at 3.69×: ~'+Math.round(80*3.69)+' ◈</span><span class="stk" data-x="7.77">7.77× JACKPOT: PICK OF 3 ASCENSIONS</span>';
+  $('crashStake').innerHTML='<span class="stk" data-x="1.77">I · +1 LEVEL</span><span class="stk" data-x="2.77">II · HOT LEVEL ◆◆</span><span class="stk" data-x="3.69">III · THE ARMORY</span><span class="stk" data-x="7.77">☆ ASCENSION + 2 FEASTS</span>';
   $('crashHist').innerHTML=crashHist.slice(-6).map(h=>'<span class="'+(h.ok?'ok':'no')+'">'+h.v.toFixed(2)+'×</span>').join('');
-  $('crashMsg').innerHTML='THE HOUSE ASKS NOTHING — ONLY NERVE · CASH FOR <b style="color:#ffd36b">GOLD</b> (I·II·III) OR RIDE TO <b style="color:#8bffd0">AN ASCENSION AT 7.77×</b> · CRASH: <b style="color:#ff6b6b">THE FALL — A RANDOM CURSE, 5-15s</b> · <span class="keyhint">SPACE</span> PUSH';
+  $('crashMsg').innerHTML='THE HOUSE ASKS ONLY NERVE · <span class="keyhint">'+(window._touchUI?'◈ BET':'SPACE')+'</span> LAUNCHES · IT CLIMBS ALONE · CASH ON ANY RUNG · CRASH: <b style="color:#ff6b6b">THE FALL — A CURSE, 5-15s</b>';
   $('crashLayer').classList.remove('hidden'); SFX.vaultOpen(); startDrone();
 }
 // crash-point sampler pinned to the director's reach odds:
-// P(cp≥1.77)=75% · P(cp≥2.77)=40% · P(cp≥3.69)=15% · P(cp≥7.77)=4%
-const CP_ANCH=[[1.01,1],[1.77,0.75],[2.77,0.40],[3.69,0.15],[7.77,0.04],[40,0.001]];
+// J2: P(cp≥1.77)=82% · P(cp≥2.77)=58% · P(cp≥3.69)=35% · P(cp≥7.77)=12%
+const CP_ANCH=[[1.01,1],[1.77,0.82],[2.77,0.58],[3.69,0.35],[7.77,0.12],[40,0.001]];
 function rollCrashPoint(){
   const u=rng('ascent');
   for(let i=1;i<CP_ANCH.length;i++){ const a=CP_ANCH[i-1], b=CP_ANCH[i];
@@ -120,20 +116,21 @@ function rollCrashPoint(){
 function launchCrash(){
   if(crash.live||crash.done) return;
   crash.wager=0; crash.loan=false;
-  crash.cp = rollCrashPoint();
-  if(crash.cp<1.01) crash.cp=1.01;
+  crash.cp = crash.rigCp || rollCrashPoint(); crash.rigCp=0; // J3's lesson can rig the ride
+  if(crash.cp<1.01) crash.cp=1.01; crash.ct=0; crash._mt=-1; crash.msIdx=crash.msIdx||0;
   crash.live=true; crash.mult=1+0.12*(P.ascStart||0); $('crashMult').textContent=crash.mult.toFixed(2)+'\u00d7';
   noise(0.45,0.18,140); tone(70,0.5,'sawtooth',0.14,220);
-  $('crashMsg').innerHTML='CLIMB FOR HIGHER TIERS · CRASH = <b style="color:#ff6b6b">THE FALL</b> · <span class="keyhint">ENTER</span> CASH';
+  $('crashMsg').innerHTML='IT CLIMBS ON ITS OWN · <span class="keyhint">'+(window._touchUI?'◈ BET':'SPACE')+'</span> CASHES · CRASH = <b style="color:#ff6b6b">THE FALL</b>';
   SFX.riser();
 }
 const CR_MS=[1.77,2.77,3.69,5,7.77,10,15,20];
 function tickCrash(dt){
   if(!crash.live) return;
+  climbCrash(dt); if(!crash.live) return;
   // ladder rungs light per FRAME against the ROUNDED display value — if the
   // big number reads 2.77x, rung II is lit. (True-mult 2.768 shows 2.77x; the
   // old per-press check against raw mult left the rung dark. Diagnosed live.)
-  { const md=+crash.mult.toFixed(2);
+  { const md=+Math.min(crash.mult,crash.cp).toFixed(2);
     document.querySelectorAll('#tierLadder .tln').forEach(n=>{
       if(md>=+n.dataset.x && !n.classList.contains('lit')){
         n.classList.add('lit','pop');
@@ -143,7 +140,6 @@ function tickCrash(dt){
     document.querySelectorAll('#crashStake .stk[data-x]').forEach(n=>{
       if(md>=+n.dataset.x) n.classList.add('on');
     }); }
-  { const fr=$('crashFrenzy'); if(fr && performance.now()-crash.lastP>520) fr.classList.remove('on'); }
   crash.hb-=dt; if(crash.hb<=0){ crash.hb=0.5/Math.min(3,crash.mult); tone(58,0.12,'sine',0.14,44);
     if(crash.mult>=3) setTimeout(()=>tone(72,0.08,'sine',0.1,50),90); }
   const cs9=$('crashStrobe');
@@ -201,94 +197,64 @@ function gateFx(x){
     G(950,()=>{ SFX.casinoDing(); const cz=$('crashZone'); if(cz){ cz.classList.remove('gatepop'); void cz.offsetWidth; cz.classList.add('gatepop'); } });
   }
 }
-function pushCrash(){
+/* ▲ J2 — THE ASCENT v3: it climbs on its own (1.77 at ~2.8s, 2.77 ~5.2s, 3.69 ~6.8s, 7.77 ~11s).
+   SPACE or ENTER cashes. Every rung pays something real: a level, a hot level, THE ARMORY, an Ascension. */
+function climbCrash(dt){
   if(!crash.live) return;
-  const inc=(0.01+rng('ascent')*0.19)*(1+crash.mult*0.08);
-  crash.mult+=inc;
+  const prev=crash.mult;
+  crash.mult+=dt*(0.06+0.16*crash.mult);
   // 7.77 is the ceiling of heaven — touch it and the jackpot claims you
-  if(crash.mult>=7.77){
+  if(crash.mult>=7.77 && crash.cp>=7.77){
     crash.mult=7.77; $('crashMult').textContent='7.77×';
     document.querySelectorAll('#tierLadder .tln, #crashStake .stk[data-x]').forEach(n=>{ if(+n.dataset.x<=7.77) n.classList.add(n.classList.contains('tln')?'lit':'on'); });
-    cashCrash();
-    return;
+    cashCrash(); return;
   }
-  const big=inc>(0.13*(1+crash.mult*0.08));
-  { const bf=200*Math.pow(crash.mult,0.85);
-    tone(bf,0.06,'square',0.09+Math.min(0.08,inc*0.5));
-    tone(bf*2.5,0.05,'sine',0.05); tone(bf*2.53,0.05,'sine',0.035);
-    tone(bf*4,0.14,'sine',0.03); }
-  if(Math.random()<0.5) tone(1800+Math.random()*900,0.05,'sine',0.045);
-  { const nn=Math.min(5,1+Math.floor(crash.mult));
-    for(let ti=0;ti<nn;ti++) setTimeout(()=>tone(1200*Math.pow(1.12,ti)*Math.pow(crash.mult,0.35),0.05,'sine',0.05),ti*28); }
-  tone(50+crash.mult*4,0.09,'sine',0.1+Math.min(0.12,crash.mult*0.02));
-  { const cp3=$('crashPing'); if(cp3){ cp3.style.width=cp3.style.height=(120+crash.mult*26)+'px';
-      cp3.classList.remove('go'); void cp3.offsetWidth; cp3.classList.add('go'); } }
-  { const shl=document.querySelector('#crashLayer .wheelShell');
-    if(shl && crash.mult>1.6){ const j=Math.min(7,crash.mult*1.2);
-      shl.style.transform='translate('+rnd(-j,j)+'px,'+rnd(-j,j)+'px)';
-      setTimeout(()=>{ if(shl) shl.style.transform=''; },70); } }
-  $('crashMult').style.animationDuration=Math.max(0.16,0.5-crash.mult*0.03)+'s';
+  const m9=Math.min(crash.mult, crash.cp);
+  // the climb sings: a tick whose pitch and pace follow the multiplier
+  crash.ct=(crash.ct||0)-dt;
+  if(crash.ct<=0){ crash.ct=Math.max(0.07,0.32/Math.pow(m9,0.8));
+    const bf=200*Math.pow(m9,0.85);
+    tone(bf,0.06,'square',0.07); tone(bf*2.5,0.05,'sine',0.04);
+    if(m9>=2) tone(bf*4,0.08,'sine',0.025); }
   const el=$('crashMult');
-  { const m9=crash.mult;
-    const bc = m9<1.77?'#e8d9c0': m9<2.77?'#8bff9a': m9<3.69?'#6fe3ff': m9<7.77?'#c98bff':'#fff2c0';
-    el.style.color=bc;
-    if(m9>=1.12) el.className='hot';
-    if(m9<2){ shake=Math.min(12,shake+1); flash(0.06,bc); }
+  const txt=m9.toFixed(2)+'×'; if(el.textContent!==txt) el.textContent=txt;
+  const bc = m9<1.77?'#e8d9c0': m9<2.77?'#8bff9a': m9<3.69?'#6fe3ff': m9<7.77?'#c98bff':'#fff2c0';
+  if(el._bc!==bc){ el._bc=bc; el.style.color=bc; const cp9=$('crashPing'); if(cp9) cp9.style.borderColor=bc; }
+  el.className=m9>=1.12?'hot':'';
+  el.style.fontWeight=m9>=5?'900':m9>=2.5?'800':'700'; el.style.letterSpacing=m9>=5?'-1px':'0';
+  el.style.transform='scale('+(1.04+Math.sin(gt*(8+m9*3))*0.03*Math.min(3,m9))+')';
+  $('crashMult').style.animationDuration=Math.max(0.16,0.5-m9*0.03)+'s';
+  if(Math.floor(prev*20)!==Math.floor(m9*20)){ // a few times a second, not every frame
     $('crashLayer').style.filter='saturate('+(1+Math.min(1.6,(m9-1)*0.4)).toFixed(2)+') contrast('+(1+Math.min(0.34,m9*0.035)).toFixed(2)+')';
-    const st9=$('crashStars'); if(st9) st9.style.filter='hue-rotate('+Math.round(m9*42)+'deg) saturate(1.7)';
-    const cp9=$('crashPing'); if(cp9) cp9.style.borderColor=bc;
+    const st9=$('crashStars'); if(st9){ st9.style.filter='hue-rotate('+Math.round(m9*42)+'deg) saturate(1.7)'; st9.style.setProperty('--sd',Math.max(0.35,2.4/(0.6+m9*0.45))+'s'); }
     const au9=$('crashAurora'); if(au9){ au9.style.opacity=Math.max(0,Math.min(0.9,(m9-1.15)/1.8)); au9.style.animationDuration=Math.max(1.1,6-m9*0.55)+'s'; }
-    if(m9>=3 && cp9){ setTimeout(()=>{ if(crash.live){ cp9.style.width=cp9.style.height=(180+m9*30)+'px'; cp9.classList.remove('go'); void cp9.offsetWidth; cp9.classList.add('go'); } },110); }
-    const nb=m9<1.77?0:m9<2.77?1:m9<3.69?2:m9<7.77?3:4;
+    const shl=document.querySelector('#crashLayer .wheelShell');
+    if(shl && m9>1.6){ const j=Math.min(6,m9*1.0); shl.style.transform='translate('+rnd(-j,j)+'px,'+rnd(-j,j)+'px)'; }
+    const cz=$('crashZone'); if(cz){
+      cz.textContent = m9<1.77?'LEAVING THE FLOOR': m9<2.77?'ABOVE THE CHANDELIERS': m9<3.69?'THROUGH THE VAULTED DARK': m9<7.77?'AMONG DEAD STARS':'THE HOUSE CANNOT SEE YOU';
+      cz.style.color = m9<2.77?'#9adcff': m9<3.69?'#c98bff': m9<7.77?'#ffd36b':'#fff2c0'; }
+    let eg=document.getElementById('ascEdge'); if(!eg){ eg=document.createElement('div'); eg.id='ascEdge'; $('crashLayer').appendChild(eg); }
+    eg.classList.toggle('on', m9>=5);
+  }
+  $('crashRocket').style.bottom=Math.min(104, Math.log(m9)*46)+'px';
+  { const nb=m9<1.77?0:m9<2.77?1:m9<3.69?2:m9<7.77?3:4;
     if(nb>crash.band){ crash.band=nb;
       noise(0.25,0.1,900+nb*500);
       [392,523,659].forEach((f9,i9)=>setTimeout(()=>tone(f9*Math.pow(1.25,nb),0.18,'triangle',0.1),i9*60));
-      $('crashLayer').classList.add('bandflash'); setTimeout(()=>$('crashLayer').classList.remove('bandflash'),260);
-    }
-  }
-  noise(0.06,0.03,1600+crash.mult*260);
-  { const st=$('crashStars'); if(st) st.style.setProperty('--sd',Math.max(0.35,2.4/(0.6+crash.mult*0.45))+'s'); }
-  { const cz=$('crashZone'); if(cz){ const m=crash.mult;
-      cz.textContent = m<1.77?'LEAVING THE FLOOR': m<2.77?'ABOVE THE CHANDELIERS': m<3.69?'THROUGH THE VAULTED DARK': m<7.77?'AMONG DEAD STARS':'THE HOUSE CANNOT SEE YOU';
-      cz.style.color = m<2.77?'#9adcff': m<3.69?'#c98bff': m<7.77?'#ffd36b':'#fff2c0'; } }
-  if(big){ SFX.uiDing(); flash(0.1,'#8bff9a'); sparkBurst(6); }
-  while(crash.msIdx<CR_MS.length && crash.mult>=CR_MS[crash.msIdx]){
+      $('crashLayer').classList.add('bandflash'); setTimeout(()=>$('crashLayer').classList.remove('bandflash'),260); } }
+  while(crash.msIdx<CR_MS.length && m9>=CR_MS[crash.msIdx]){
     SFX.casinoDing(); if(CR_MS[crash.msIdx]>=3) SFX.dingBells();
-    flash(0.18,'#8bff9a'); sparkBurst(12);
-    if(!(crash.slamHold&&performance.now()<crash.slamHold)){ const sl=$('crashSlam'); if(sl){ sl.textContent=CR_MS[crash.msIdx]+'×';
-        const m8=crash.mult; sl.style.color=m8<1.77?'#e8d9c0':m8<2.77?'#8bff9a':m8<3.69?'#6fe3ff':m8<7.77?'#c98bff':'#fff2c0';
+    flash(0.14,'#8bff9a'); sparkBurst(8);
+    if(!(crash.slamHold&&performance.now()<crash.slamHold)){ const sl=$('crashSlam'); if(sl){ sl.textContent=CR_MS[crash.msIdx]+'×'; sl.style.color=bc;
         sl.classList.remove('go'); void sl.offsetWidth; sl.classList.add('go'); } }
     crash.msIdx++;
   }
-  { const gh=$('crashGhost'); if(gh){ gh.textContent=el.textContent; gh.style.color=el.style.color||'#e8d9c0';
-      gh.classList.remove('go'); void gh.offsetWidth; gh.classList.add('go'); } }
-  { const nw=performance.now();
-    const was=crash.fz;
-    crash.fz=(nw-crash.lastP<280)?(crash.fz+1):1; crash.lastP=nw;
-    if(was>=4 && crash.fz===1) window._fzCd=nw+30000; // combo broke — the pit rests 30s
-    const cooled=window._fzCd && nw<window._fzCd;
-    const fr=$('crashFrenzy');
-    if(fr){ if(crash.fz>=4 && !cooled){
-        if(was<4){ // it IGNITES — a rarer, bigger moment
-          fr.classList.remove('ignite'); void fr.offsetWidth; fr.classList.add('ignite');
-          flash(0.3,'#ff9a3c'); shake=Math.min(14,shake+6);
-          [660,880,1174].forEach((f,i)=>setTimeout(()=>tone(f,0.09,'square',0.08),i*60)); }
-        fr.textContent='×'+crash.fz+' FRENZY'; fr.classList.add('on');
-        tone(900+crash.fz*70,0.05,'square',0.06); }
-      else fr.classList.remove('on','ignite'); } }
-  el.textContent=crash.mult.toFixed(2)+'×';
-  el.className=crash.mult>=2?'hot':'';
-  el.style.fontWeight=crash.mult>=5?'900':crash.mult>=2.5?'800':'700'; el.style.letterSpacing=crash.mult>=5?'-1px':'0'; // the number gains weight
-  { let eg=document.getElementById('ascEdge'); if(!eg){ eg=document.createElement('div'); eg.id='ascEdge'; $('crashLayer').appendChild(eg); }
-    eg.classList.toggle('on', !!crash.live && crash.mult>=5); } // past 5x the room itself glows mint
-  el.style.transform='scale('+(1+Math.min(0.5,0.1+inc*2.2))+')';
-  setTimeout(()=>{ if(crash.live) el.style.transform='scale(1.05)'; },80);
-  $('crashRocket').style.bottom=Math.min(104, Math.log(crash.mult)*46)+'px';
-  { const t=ascTier(crash.mult);
-    if(t>=4){ $('crashMsg').innerHTML='CASH: <b style="color:#fff2c0">☆ JACKPOT — CHOOSE OF 3 WEAPONS ☆</b> · <span class="keyhint">ENTER</span>'; }
-    else if(t===0){ $('crashMsg').innerHTML='CASH: <b style="color:#8a7a58">NOTHING — TIER I AT 1.77×</b> · <span class="keyhint">ENTER</span>'; }
-    else { const gates=[1.77,2.77,3.69,7.77];
-      $('crashMsg').innerHTML='CASH: <b style="color:#ffd36b">~'+Math.round(80*crash.mult)+' ◈</b> · AT '+gates[t]+'×: '+(t<3?'<b style="color:#ffd36b">MORE GOLD</b>':'<b style="color:#8bffd0">AN ASCENSION</b>')+' · <span class="keyhint">ENTER</span>'; } }
+  { const t=ascTier(m9);
+    if(crash._mt!==t){ crash._mt=t;
+      const sp='<span class="keyhint">'+(window._touchUI?'◈ BET':'SPACE')+'</span>';
+      const PRZ=['NOTHING YET — TIER I AT 1.77×','+1 LEVEL','A HOT LEVEL ◆◆ + 25% BLOOD','THE ARMORY — PICK 1 OF 3 EPIC+','☆ ASCENSION + 2 FEAST LEVELS'];
+      const NXT=['','HOT LEVEL AT 2.77×','THE ARMORY AT 3.69×','ASCENSION AT 7.77×',''];
+      $('crashMsg').innerHTML='CASH NOW: <b style="color:'+(t?['','#8bff9a','#6fb7ff','#c98bff','#fff2c0'][t]:'#8a7a58')+'">'+PRZ[t]+'</b>'+(NXT[t]?' · NEXT: '+NXT[t]:'')+' · '+sp+' CASHES'; } }
   if(crash.mult>=crash.cp){
     crash.live=false; crash.done=true;
     el.textContent=crash.cp.toFixed(2)+'× — CRASHED'; el.className='dead'; el.style.transform='';
@@ -334,115 +300,118 @@ function theFall(){
   return lbl;
 }
 function ascTier(m){ return m>=7.77?4:m>=3.69?3:m>=2.77?2:m>=1.77?1:0; }
-const ASC_POOLS=[null,['a_iron','a_eye','a_wind','a_gild','a_hand','a_skin'],['a_fang','a_storm','a_greed','a_fuse','a_holl','a_veil','a_swrm'],['a_crown','a_void','a_king','a_reap','a_engn','a_mirr']];
-function prerollAsc(){
-  crash.prz={};
-  for(let t=1;t<=3;t++){
-    const pool=PASSIVES.filter(p=>ASC_POOLS[t].includes(p.id) && !P.passiveList.find(x=>x.id===p.id));
-    crash.prz[t]=pool.length?pool[(rng('ascent')*pool.length)|0]:null;
-  }
-}
-function przLabel(t){ const p=crash.prz&&crash.prz[t]; return p?(p.n+' ('+p.fx+')'):'+'+(60*t)+' COINS'; }
-function grantAscPassive(m){
-  const t=ascTier(m);
-  const pools=[null,['a_iron','a_eye','a_wind'],['a_fang','a_storm','a_greed'],['a_crown','a_void','a_king']];
-  let pool=PASSIVES.filter(p=>pools[t].includes(p.id) && !P.passiveList.find(x=>x.id===p.id));
-  if(!pool.length && t<3) pool=PASSIVES.filter(p=>pools[t+1].includes(p.id) && !P.passiveList.find(x=>x.id===p.id));
-  if(!pool.length){ const g=Math.round(60*m); P.coins+=g; LT.coins+=g; coinRain(20); announce('◈ ALL PASSIVES HELD — +'+g+' COINS ◈',true); return null; }
-  const pd=pool[(rng('ascent')*pool.length)|0];
-  pd.ap(); addPassiveHUD(pd); renderRelics();
-  return pd;
-}
-function jackpotOffer(){
-  try{ SFX.ascMotif(); }catch(e){}
-  LT.crash=(LT.crash||0)+1; bump('crash',LT.crash);
-  secret('icarus','ICARUS ASCENDANT');
+// J2: one card offer for both prizes — the 7.77 Ascension (mint) and tier III's ARMORY (violet)
+function cardOffer({word, title, opts, color, tag, onPick, empty}){
+  crash.jkOpts=opts; crash.jkPick=onPick; crash.jkCol=color; crash.jkTag=tag;
+  if(!opts.length){ empty(); setTimeout(closeCrash,1600); return; }
   const lite=GFX.lite;
-  // THE PINNACLE — the 7.77x jackpot is the ONLY source of Ascensions now
-  const opts=[];
-  let pool=PASSIVES.filter(p=>p.rar==='ascend' && skillLevel(p.id)===0);
-  if(pool.length<3){ const up=PASSIVES.filter(p=>p.rar==='ascend' && skillLevel(p.id)>0 && skillLevel(p.id)<p.max && pool.indexOf(p)<0); pool=pool.concat(up); }
-  for(let i=0;i<3 && pool.length;i++){ const pk=pool[(rng('ascent')*pool.length)|0]; opts.push(pk); pool=pool.filter(w=>w!==pk); }
-  crash.jkOpts=opts;
-  if(!opts.length){ P.coins+=500; LT.coins+=500; announce('◈ ALL ASCENSIONS HELD — 500 COINS ◈',true); setTimeout(closeCrash,1600); return; }
-  // PHASE A — the letters: drumroll under J·A·C·K·P·O·T slamming in one by one
   startDrumroll();
   $('crashStrobe').style.opacity=1; $('crashStrobe').style.filter='hue-rotate(40deg) saturate(2)';
-  flash(0.7,'#fff2c0'); domConfetti(lite?16:34,'crashLayer'); SFX.seraph();
+  flash(0.6,color); domConfetti(lite?14:30,'crashLayer'); SFX.seraph();
   let mq=$('jkMarq'); if(!mq){ mq=document.createElement('div'); mq.id='jkMarq'; $('crashLayer').appendChild(mq); }
-  mq.innerHTML='JACKPOT'.split('').map((ch,i)=>'<span style="animation-delay:'+(i*0.12)+'s">'+ch+'</span>').join('');
+  mq.innerHTML=word.split('').map((ch,i)=>'<span style="animation-delay:'+(i*0.12)+'s;color:'+color+'">'+ch+'</span>').join('');
   mq.className='go';
-  'JACKPOT'.split('').forEach((_,i)=>setTimeout(()=>{ if(state!=='crash') return;
-    SFX.dingHit(1+Math.min(5,i)); if(i%2===0) flash(0.14,'#ffd36b'); shake=Math.min(20,shake+2); }, 120+i*120));
+  word.split('').forEach((_,i)=>setTimeout(()=>{ if(state!=='crash') return;
+    SFX.dingHit(1+Math.min(5,i)); if(i%2===0) flash(0.14,color); shake=Math.min(20,shake+2); }, 120+i*120));
   $('crashMsg').textContent='';
-  // PHASE B — the armory descends; keys live only now
   setTimeout(()=>{ if(state!=='crash') return;
-    stopDrumroll(); SFX.dingBells(); SFX.hotSix(); coinRain(lite?12:26);
+    stopDrumroll(); SFX.dingBells(); SFX.hotSix(); coinRain(lite?10:22);
     mq.classList.add('up');
     crash.jk=true;
+    { const aw=$('ascWin'); if(aw) aw.classList.remove('go'); }
     let w9=$('jkWrap'); if(!w9){ w9=document.createElement('div'); w9.id='jkWrap'; $('crashLayer').appendChild(w9); }
-    w9.innerHTML='<div class="jkTitle">☆ THE ASCENSION AWAITS — CHOOSE ☆</div><div class="jkRow">'+
-      opts.map((w,i)=>{ const lv=skillLevel(w.id);
-        return '<div class="jkCard" data-i="'+i+'"><div class="jkKey">'+(i+1)+'</div>'
-          +'<div class="jkG" style="color:'+(GLYPH_COL[w.id]||'#8bffd0')+'">'+w.g+'</div>'
-          +'<div class="jkN">'+w.n+'</div>'
-          +'<div class="jkR" style="color:#8bffd0">ASCENSION'+(lv>0?' · Lv '+lv+' → '+(lv+1):' · NEW')+'</div>'
-          +'<div class="jkD">'+w.fx+'</div></div>'; }).join('')+'</div>';
+    w9.style.setProperty('--jkc',color);
+    w9.innerHTML='<div class="jkTitle" style="color:'+color+'">'+title+'</div><div class="jkRow">'+
+      opts.map((o,i)=>'<div class="jkCard" data-i="'+i+'"><div class="jkKey">'+(i+1)+'</div>'
+          +'<div class="jkG" style="color:'+(GLYPH_COL[o.def.id]||color)+'">'+o.def.g+'</div>'
+          +'<div class="jkN">'+o.def.n+'</div>'
+          +'<div class="jkR" style="color:'+(o.col||color)+'">'+o.tag+'</div>'
+          +'<div class="jkD">'+o.desc+'</div></div>').join('')+'</div>';
     w9.classList.add('show');
     w9.querySelectorAll('.jkCard').forEach(c=>c.onclick=()=>pickJackpot(+c.dataset.i));
-    crash.jkSel=0; crash.jkT=performance.now(); jkPaint(); // B4: card I starts lit — ◀ ▶ walk it, SPACE / Ⓐ takes it
+    crash.jkSel=0; crash.jkT=performance.now(); jkPaint();
     $('crashMsg').innerHTML='<span class="keyhint">◀</span> <span class="keyhint">▶</span> CHOOSE · <span class="keyhint">SPACE</span> TAKES · OR <span class="keyhint">1</span> <span class="keyhint">2</span> <span class="keyhint">3</span> · OR CLICK';
-  }, 1050);
+  }, 120+word.length*120+200);
+}
+// a level paid by the Ascent: the counter climbs now, the reels wait for the ride to close (at the given feed tier)
+function ascLevel(ft){ P.level++; P.xpNext=Math.floor(20+P.level*7+P.level*P.level*1.3); if(P.xp>=P.xpNext) P.xp=P.xpNext-1;
+  pending.push({ft:ft||0}); bump('level',P.level); recCheck('level',P.level,'Level'); }
+function pick3(pool){ const out=[]; pool=pool.slice(); for(let i=0;i<3&&pool.length;i++){ const k=(rng('ascent')*pool.length)|0; out.push(pool[k]); pool.splice(k,1); } return out; }
+function jackpotOffer(){
+  try{ SFX.ascMotif(); }catch(e){}
+  secret('icarus','ICARUS ASCENDANT');
+  // the summit also feeds the machine: two levels at FEAST odds wait when the ride closes
+  ascLevel(3); ascLevel(3);
+  let pool=PASSIVES.filter(p=>p.rar==='ascend' && skillLevel(p.id)===0);
+  if(pool.length<3){ const up=PASSIVES.filter(p=>p.rar==='ascend' && skillLevel(p.id)>0 && skillLevel(p.id)<p.max && pool.indexOf(p)<0); pool=pool.concat(up); }
+  const opts=pick3(pool).map(w=>{ const lv=skillLevel(w.id); return {def:w, kind:'s', tag:'ASCENSION'+(lv>0?' · Lv '+lv+' → '+(lv+1):' · NEW'), desc:w.fx}; });
+  cardOffer({word:'JACKPOT', title:'☆ CHOOSE YOUR ASCENSION · 2 FEASTS FOLLOW ☆', opts, color:'#8bffd0', tag:'ASCENSION',
+    onPick:o=>{ grantSkill(o.def,1); return '☆ ASCENSION — '+o.def.n+' IS YOURS ☆'; },
+    empty:()=>{ P.coins+=500; LT.coins+=500; announce('◈ ALL ASCENSIONS HELD — 500 COINS + 2 FEAST LEVELS ◈',true); }});
+}
+// THE ARMORY (tier III): epic & legendary only — weapons and skills, new at Lv1 or +1 level
+function armoryOffer(){
+  const ws=availableWeapons().filter(w=>w.rar==='epic'||w.rar==='legendary').map(w=>{ const lv=P.wlv[w.id]||0; return {def:w, kind:'w', col:RARC[w.rar], tag:'⚔ '+(w.rar==='legendary'?'LEGENDARY':'EPIC')+' WEAPON'+(lv>0?' · Lv '+lv+' → '+(lv+1):' · NEW'), desc:(typeof w.d==='function'?w.d(lv+1):'')}; });
+  const ss=availableSkills().filter(p=>p.rar==='epic'||p.rar==='legendary').map(p=>{ const lv=skillLevel(p.id); return {def:p, kind:'s', col:RARC[p.rar], tag:'✦ '+(p.rar==='legendary'?'LEGENDARY':'EPIC')+(lv>0?' · Lv '+lv+' → '+(lv+1):' · NEW'), desc:(typeof p.d==='function'?p.d(lv+1):p.fx||'')}; });
+  // weapons first where the armory holds them — then skills fill the rack
+  let opts=pick3(ws).slice(0,ws.length>=2?2:ws.length); opts=opts.concat(pick3(ss.filter(x=>!opts.includes(x))).slice(0,3-opts.length));
+  cardOffer({word:'ARMORY', title:'⚔ THE ARMORY — EPIC & LEGENDARY · CHOOSE ⚔', opts, color:'#c98bff', tag:'ARMORY',
+    onPick:o=>{ if(o.kind==='w') grantWeaponLevels(o.def,1); else grantSkill(o.def,1); return '⚔ THE ARMORY — '+o.def.n+' IS YOURS ⚔'; },
+    empty:()=>{ ascLevel(3); announce('⚔ THE ARMORY IS BARE — A FEAST LEVEL INSTEAD ⚔',true); }});
 }
 function jkPaint(){ const w9=$('jkWrap'); if(!w9||!crash) return; w9.querySelectorAll('.jkCard').forEach((c,i)=>c.classList.toggle('b4sel', i===(crash.jkSel||0))); }
 function pickJackpot(i){
-  if(!crash.jk) return; const def=crash.jkOpts[i]; if(!def) return;
+  if(!crash.jk) return; const o=crash.jkOpts[i]; if(!o) return;
   crash.jk=false;
-  const lite=GFX.lite;
-  grantSkill(def,1);
+  const lite=GFX.lite, col=crash.jkCol||'#8bffd0', def=o.def;
+  const line=crash.jkPick(o);
   const w9=$('jkWrap'); if(w9){ const cd=w9.querySelectorAll('.jkCard')[i]; if(cd) cd.classList.add('take'); setTimeout(()=>{ w9.classList.remove('show'); w9.innerHTML=''; },600); }
   { const mq=$('jkMarq'); if(mq) mq.className=''; }
   let gd=$('ascGift');
   if(!gd){ gd=document.createElement('div'); gd.id='ascGift'; $('crashLayer').appendChild(gd); }
-  gd.innerHTML='<div class="agG" style="color:'+(GLYPH_COL[def.id]||'#8bffd0')+';text-shadow:0 0 30px currentColor">'+def.g+'</div><div class="agN">'+def.n+'</div><div class="agT">✦ ASCENSION · '+def.fx+'</div>';
+  gd.innerHTML='<div class="agG" style="color:'+(GLYPH_COL[def.id]||col)+';text-shadow:0 0 30px currentColor">'+def.g+'</div><div class="agN">'+def.n+'</div><div class="agT" style="color:'+col+'">✦ '+o.tag+'</div>';
   gd.classList.remove('go'); void gd.offsetWidth; gd.classList.add('go');
-  announce('☆ ASCENSION — '+def.n+' IS YOURS ☆', true);
+  announce(line, true);
   SFX.rarSting(4); SFX.cashout(); setTimeout(()=>SFX.seraph(),180); SFX.casinoDing();
-  gatePing('#fff2c0',520); flash(0.5,'#fff2c0'); shake=Math.min(24,shake+10);
+  gatePing(col,520); flash(0.5,col); shake=Math.min(24,shake+10);
   coinRain(lite?16:40); domConfetti(lite?20:50,'crashLayer'); sparkBurstAt('crashMult','crashLayer',lite?14:26);
   setTimeout(closeCrash, 2100);
 }
 function cashCrash(){
   if(!crash.live) return;
   crash.live=false; crash.done=true;
-  crashHist.push({v:crash.mult,ok:true}); RUN.crashPts.push(crash.cp);
-  const t=ascTier(crash.mult);
+  const m=Math.min(crash.mult,crash.cp);
+  crashHist.push({v:m,ok:true}); RUN.crashPts.push(crash.cp);
+  const t=ascTier(m);
   const rk=$('crashRocket'); rk.classList.add('blast');
   $('crashStrobe').style.opacity=0.95; $('crashStrobe').style.filter='hue-rotate(40deg) saturate(1.5)';
   $('crashMult').className='hot';
   [784,988,1175,1568,1976,2637].forEach((f,i)=>setTimeout(()=>{ tone(f,0.22,'sine',0.13); tone(f/2,0.22,'triangle',0.07); },i*65));
   SFX.cashout(); setTimeout(()=>SFX.dingBells(),200); domConfetti(16+Math.min(3,t)*8,'crashLayer'); flash(0.45,t>=4?'#fff2c0':'#8bff9a'); shake=Math.min(20,shake+8+Math.min(3,t)*3);
+  LT.crash=(LT.crash||0)+1; bump('crash',LT.crash);
   if(t>=4){ jackpotOffer(); return; }
   if(t===0){
-    $('crashMsg').textContent='CASHED AT '+crash.mult.toFixed(2)+'× — BELOW THE MARK. NOTHING.';
+    $('crashMsg').textContent='CASHED AT '+m.toFixed(2)+'× — BELOW THE FIRST RUNG. NOTHING.';
     tone(220,0.3,'sawtooth',0.1,120); SFX.thud();
-    LT.crash=(LT.crash||0)+1; bump('crash',LT.crash);
     setTimeout(closeCrash, 1400); return; }
-  // lower rungs (I/II/III) pay escalating GOLD now — the Ascension lives only at 7.77x
-  { const g=Math.round(80*crash.mult); P.coins+=g; LT.coins+=g; coinRain(20);
-    ascWinSlam('+'+g+' COINS','TIER '+['','I','II','III'][t]+' — THE HOUSE PAYS GOLD','#ffd36b');
-    announce('◈ CASHED AT '+crash.mult.toFixed(2)+'× — +'+g+' COINS ◈',true);
-    try{ flyGlyphs('crashMult','coinCount','◈',8,'#ffd36b'); }catch(e){} }
-  $('crashMsg').textContent='CASHED AT '+crash.mult.toFixed(2)+'×';
-  if(crash.mult>=3.69) bigWin('×'+crash.mult.toFixed(1)+' — BIG GOLD',3);
-  LT.crash=(LT.crash||0)+1; bump('crash',LT.crash);
-  if(crash.mult>=7.77) secret('icarus','ICARUS ASCENDANT');
+  $('crashMsg').textContent='CASHED AT '+m.toFixed(2)+'×';
+  if(t===3){ const g=Math.round(60*m); P.coins+=g; LT.coins+=g;
+    ascWinSlam('THE ARMORY','TIER III — PICK 1 OF 3 · +'+g+' COINS','#c98bff'); coinRain(16); SFX.record();
+    announce('⚔ CASHED AT '+m.toFixed(2)+'× — THE ARMORY OPENS · +'+g+' COINS ⚔',true);
+    setTimeout(()=>{ if(state==='crash') armoryOffer(); }, 900); return; }
+  if(t===2){ ascLevel(2); const h=Math.round(P.maxHp*0.25); if(!P.martyr){ P.hp=Math.min(P.maxHp,P.hp+h); }
+    ascWinSlam('A HOT LEVEL ◆◆','TIER II — RICHER REELS'+(P.martyr?'':' · +'+h+' BLOOD'),'#6fb7ff');
+    announce('◆◆ CASHED AT '+m.toFixed(2)+'× — A HOT LEVEL'+(P.martyr?'':' + 25% BLOOD')+' ◆◆',true); SFX.levelUp(); }
+  else { ascLevel(1); const g=Math.round(40*m); P.coins+=g; LT.coins+=g; coinRain(14);
+    ascWinSlam('+1 LEVEL','TIER I — WARM REELS ◆ · +'+g+' COINS','#8bff9a');
+    announce('◆ CASHED AT '+m.toFixed(2)+'× — +1 LEVEL · +'+g+' COINS ◆',true); SFX.levelUp();
+    try{ flyGlyphs('crashMult','coinCount','◈',6,'#ffd36b'); }catch(e){} }
   setTimeout(closeCrash, 2100);
 }
-function closeCrash(){ crash.jk=false; { const w9=$('jkWrap'); if(w9){ w9.classList.remove('show'); w9.innerHTML=''; } } $('crashLayer').classList.add('hidden'); $('crashLayer').style.filter=''; stopDrone(); if(state==='crash'){ state='playing'; while(P.xp>=P.xpNext){ P.xp-=P.xpNext; P.level++; P.xpNext=Math.round(P.xpNext*1.18); pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); SFX.levelUp(); }
+function closeCrash(){ crash.jk=false; { const w9=$('jkWrap'); if(w9){ w9.classList.remove('show'); w9.innerHTML=''; } } $('crashLayer').classList.add('hidden'); $('crashLayer').style.filter=''; stopDrone(); if(state==='crash'){ state='playing'; while(P.xp>=P.xpNext){ P.xp-=P.xpNext; P.level++; P.xpNext=Math.floor(20+P.level*7+P.level*P.level*1.3); pending.push({}); bump('level',P.level); recCheck('level',P.level,'Level'); SFX.levelUp(); }
   if(pending.length) setTimeout(()=>{ if(state==='playing' && pending.length) openNextSlot(); },450); } }
 (function(){ const wrap=f=>function(...a){ try{ return f.apply(this,a); }catch(e){ if(!window._ascErr){ window._ascErr=1; console.error('[ANTE ASCENT]',e); } } };
-  openCrash=wrap(openCrash); launchCrash=wrap(launchCrash); pushCrash=wrap(pushCrash); cashCrash=wrap(cashCrash); closeCrash=wrap(closeCrash);
+  openCrash=wrap(openCrash); launchCrash=wrap(launchCrash); cashCrash=wrap(cashCrash); closeCrash=wrap(closeCrash);
 })();
 function tickCrashTok(dt){
   if(houseActive) return;
@@ -451,7 +420,7 @@ function tickCrashTok(dt){
       const a=rng('ascent')*6.283, d=300+rng('ascent')*300;
       crashTok={x:clamp(P.x+Math.cos(a)*d,60,CFG.arena-60), y:clamp(P.y+Math.sin(a)*d,60,CFG.arena-60), t:20, ph:rng('ascent')*6.28};
       announce('▲ THE ASCENT BECKONS ▲', true); SFX.dingBells();
-      coachMark('ascent','the GREEN GATE stakes your LEVEL — ride the multiplier, cash before the crash');
+      coachMark('ascent','the GREEN GATE — it climbs alone · SPACE cashes · higher is richer');
       [988,1318,1760].forEach((f,i)=>setTimeout(()=>tone(f,0.14,'sine',0.08),i*110)); // come-play beckon
       ring(crashTok.x,crashTok.y,90,'#8bffd0'); ring(crashTok.x,crashTok.y,54,'#fff2c0'); }
   } else {

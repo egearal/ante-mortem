@@ -113,7 +113,9 @@ const BOT = `(()=>{
     // the vault takes ESC / its CLOSE button — the bot browses for a beat, then leaves (SPACE alone would wait forever)
     if(state==='vault'){ if(B.n%45===0){ try{ document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true})); }catch(e){} } return; }
     // the 7.77x jackpot waits for a card (1/2/3 or a click) — SPACE alone would wait forever
-    if(state==='crash' && typeof crash!=='undefined' && crash && crash.jk){ if(B.n%20===0){ const k=String(1+(B.n/20|0)%3); window.dispatchEvent(new KeyboardEvent('keydown',{key:k,code:'Digit'+k,bubbles:true})); } return; }
+    if(state==='crash' && typeof crash!=='undefined' && crash && crash.jk){ if(B.holdCards) return; if(B.n%20===0){ const k=String(1+(B.n/20|0)%3); window.dispatchEvent(new KeyboardEvent('keydown',{key:k,code:'Digit'+k,bubbles:true})); } return; }
+    // J2 THE ASCENT v3: launch once, then let it climb — cash at 2.9x (or --crash-at), mostly tier II or a fall
+    if(state==='crash' && typeof crash!=='undefined' && crash){ if(!crash.live && !crash.done){ if(B.n%4===0) space(); } else if(crash.live && crash.mult>=(B.crashAt||2.9)){ if(B.n%4===0) space(); } return; }
     if(B.n%4===0) space();
   };
 })();`;

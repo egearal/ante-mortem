@@ -510,8 +510,8 @@ window.addEventListener('keydown',e=>{
       else if(n9 && !e.repeat && (k===' '||k==='enter') && performance.now()-(crash.jkT||0)>450) pickJackpot(crash.jkSel||0);
       return; }
     e.preventDefault();
-    if(k===' '){ if(crash.live){ SFX.press(); pressPulse('crashMsg'); pushCrash(); } else if(!crash.done){ SFX.press(); pressPulse('crashMsg'); launchCrash(); } }
-    else if(k==='enter'){ if(crash.live){ SFX.press(); pressPulse('crashMsg'); cashCrash(); } }
+    if(e.repeat) return; // J2: a held key never cashes the instant it launches
+    if(k===' '||k==='enter'){ if(crash.live){ SFX.press(); pressPulse('crashMsg'); cashCrash(); } else if(!crash.done && k===' '){ SFX.press(); pressPulse('crashMsg'); launchCrash(); } }
     return;
   }
   if(state==='marker'){
@@ -1485,7 +1485,7 @@ function tcSync(){
   let lbl='BET';
   if(state==='dead') lbl=(window._recapDone?'AGAIN':'READ');
   else if(state==='marker') lbl='PRESS';
-  else if(state==='crash') lbl=crash&&crash.live?'PUSH':'LAUNCH';
+  else if(state==='crash') lbl=crash&&crash.live?'CASH':'LAUNCH';
   else if(state==='slot' && typeof slotStage!=='undefined' && slotStage==='offer') lbl='HOLD';
   const key=state+'|'+betOn+'|'+crashLive+'|'+lbl;
   if(key===TC.last) return; TC.last=key;

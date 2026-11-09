@@ -51,7 +51,18 @@ Night one: if the first feed falls under 30 the House cashes it once. Banker sou
 ## (legacy) RAGE (Overcharge) — replaced by THE FEED
 XP-full → bar 100, +50% dmg & fire rate; at ≥90% also +50% damage TAKEN. Drains at accelerating rate; coins feed +2.5×ovFeed; XP gains feed the bar during rage. SPACE = cash rage into the level. **Hold ≥90% for ascTime (5s, +2.5 per success, cap 10) → THE ASCENT manifests in 10s** → blessed gate token spawns 260-480px away (30s life, white embers, gold guide-arrow). Slipping below 90: all ground coins swept + XP halved.
 
-## ▲ THE ASCENT — ladder truth + JACKPOT v2 (Batch 8)
+## ▲ THE ASCENT v3 (J2, 2026-11) — it climbs alone, every rung pays
+Entry: green token (45-65s pity window) or the wheel. SPACE launches; `climbCrash` (inside `tickCrash`) raises `crash.mult += dt*(0.06+0.16*mult)`: 1.77 at ~2.8s, 2.77 ~5.2s, 3.69 ~6.8s, 7.77 ~11.1s. The tick's pitch and pace follow the multiplier. **SPACE or ENTER cashes** (key repeat ignored, so a held key never cashes at launch). The phone BET coin reads CASH. Crash point `CP_ANCH` reach odds **82 / 58 / 35 / 12%** (verified on 20,000 rolls: 82.1/57.7/34.6/11.8). `crash.rigCp` overrides one roll (the lesson rigs it), and it survives `openCrash`'s reset. FIRST RUNG seal head start is unchanged.
+Prizes (`cashCrash`; `ascLevel(ft)` = level now, slot queued as `{ft}` for when the ride closes):
+- under 1.77: nothing.
+- **I ≥1.77: +1 LEVEL** at WARM odds + 40×mult coins.
+- **II ≥2.77: a HOT LEVEL** (feed tier 2) + 25% blood (none for the Martyr).
+- **III ≥3.69: THE ARMORY**: `armoryOffer` = pick 1 of 3 epic/legendary cards (up to 2 weapons, skills fill the rack; new at Lv1 or +1 level) + 60×mult coins. Bare armory → a FEAST level instead.
+- **☆ 7.77 (auto-cash on touch): the Ascension pick** + 2 levels at FEAST odds.
+- Crash = THE FALL (one curse 5-15s), unchanged.
+`cardOffer({word,title,opts,color,onPick,empty})` is the shared offer: marquee letters (JACKPOT mint / ARMORY violet) → card rack, keys 1/2/3, ◀ ▶ + SPACE, click. `crash.jk` is still the bot's hook. Ladder rungs carry their prize names; the stake row reads `I · +1 LEVEL · II · HOT LEVEL ◆◆ · III · THE ARMORY · ☆ ASCENSION + 2 FEASTS`; the message line names what cashing pays now and what the next rung pays. `closeCrash` levels with the same formula as `gainXP`. Retired: `pushCrash`, frenzy, `crashStakeUI`, `prerollAsc`, `przLabel`, `grantAscPassive`.
+
+## (legacy) ▲ THE ASCENT — ladder truth + JACKPOT v2 (Batch 8)
 **Ladder bug fixed** (two real defects, diagnosed live): rungs were checked per-press against the RAW multiplier while the display rounds — at true 2.768 the screen says 2.77× but rung II stayed dark; AND the ☆7.77 rung carried an inline color that beat `.lit` forever. Now `tickCrash` checks **the rounded display value per frame**, rungs clear every ride, gateFx is try/caught, and the star rung lights white-gold.
 **JACKPOT v2** (`jackpotOffer` two-phase): 0-1.05s drumroll + #jkMarq J·A·C·K·P·O·T letters slam at 120ms stagger (keys INERT — crash.jk set in phase B); then the marquee lifts (.up) and the armory cards descend over a rotating godray (conic ::before). pickJackpot: rarSting(3)+seraph, gold gatePing, coinRain 40, confetti 50 (GFX.lite halves). Ascent prize sparks route to crashLayer (sparkBurstAt).
 
